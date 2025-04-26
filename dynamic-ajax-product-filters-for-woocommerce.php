@@ -196,7 +196,7 @@ function dapfforwc_enqueue_scripts()
     wp_enqueue_script('jquery');
     wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.0', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
-    wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options','dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
+    wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', ['ajax_url' => admin_url('admin-ajax.php')]);
 
     wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.0');
@@ -546,7 +546,7 @@ function dapfforwc_check_elements()
                     issueCount.style.display = 'block';
                 } else {
                     debugMessage.innerHTML = '<span style="color: green;">&#10003;</span> <?php echo esc_html__('Filter working fine', 'dynamic-ajax-product-filters-for-woocommerce'); ?>';
-                    
+
                 }
             });
         </script>
@@ -598,3 +598,190 @@ function dapfforwc_get_product_attributes()
 
     return rest_ensure_response($result);
 }
+
+/** * Set custom SEO meta tags based on URL parameters */
+function dapfforwc_set_seo_meta_tags()
+{
+    global $dapfforwc_seo_permalinks_options;
+
+    // Only proceed if SEO is enabled
+    if (!isset($dapfforwc_seo_permalinks_options['enable_seo']) || $dapfforwc_seo_permalinks_options['enable_seo'] !== 'on') {
+        return;
+    }
+
+    // Get sanitized URL parameters using the secure method
+    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+
+    // Build the sanitized URL
+    if (!empty($host) && !empty($request_uri)) {
+        $url_page = esc_url("http://{$host}{$request_uri}");
+    } else {
+        $url_page = home_url(); // Fallback to homepage if values are missing
+    }
+
+    // Parse the URL
+    $parsed_url = wp_parse_url($url_page);
+
+    // Parse the query string into an associative array
+    $query_params = [];
+    if (isset($parsed_url['query'])) {
+        parse_str($parsed_url['query'], $query_params);
+    }
+
+    // Check if the URL has a fragment and join it with query_params
+    if (isset($parsed_url['fragment']) && !empty($parsed_url['fragment'])) {
+        $parsed_fragment = str_replace(['#038;', '038;'], '', $parsed_url['fragment']);
+        parse_str($parsed_fragment, $fragment_params);
+        $query_params = array_merge($query_params, $fragment_params);
+    }
+
+    // Check if we have filter parameters in the URL
+    $has_filters = false;
+
+    // Check format 1: filters=1&param=value
+    if (isset($query_params['filters']) && $query_params['filters'] == '1') {
+        $has_filters = true;
+    }
+    // Check format 2: filters=value1,value2
+    elseif (isset($query_params['filters']) && !empty($query_params['filters']) && $query_params['filters'] != '1') {
+        $has_filters = true;
+    }
+
+    if (!$has_filters) {
+        return;
+    }
+
+    // Get base SEO settings
+    $seo_title = $dapfforwc_seo_permalinks_options['seo_title'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
+    $seo_description = $dapfforwc_seo_permalinks_options['seo_description'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
+    $seo_keywords = $dapfforwc_seo_permalinks_options['seo_keywords'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
+
+    // Get site and page title
+    $site_title = get_bloginfo('name');
+    $page_title = '';
+
+    // Get current category title if available
+    if (is_product_category()) {
+        $term = get_queried_object();
+        if ($term) {
+            $page_title = $term->name;
+        }
+    } else if (is_product_tag()) {
+        $term = get_queried_object();
+        if ($term) {
+            $page_title = $term->name;
+        }
+    } else {
+        $page_title = get_the_title();
+    }
+
+   
+
+    $seo_title = str_replace(array_keys(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), $seo_title);
+    $seo_description = str_replace(array_keys(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), $seo_description);
+    $seo_keywords = str_replace(array_keys(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), $seo_keywords);
+
+    // Clean up any extra spaces
+    $seo_title = preg_replace('/\s+/', ' ', trim($seo_title));
+    $seo_description = preg_replace('/\s+/', ' ', trim($seo_description));
+    $seo_keywords = preg_replace('/\s+/', ' ', trim($seo_keywords));
+
+    // Get canonical URL
+    $canonical_url = home_url(add_query_arg([], $GLOBALS['wp']->request));
+
+    // Output the meta tags
+    echo '<meta name="title" content="' . esc_attr($seo_title) . '">' . "\n";
+    echo '<title>' . esc_html($seo_title) . '</title>' . "\n";
+    echo '<meta name="description" content="' . esc_attr($seo_description) . '">' . "\n";
+    echo '<meta name="keywords" content="' . esc_attr($seo_keywords) . '">' . "\n";
+    echo '<meta name="robots" content="' . esc_attr($dapfforwc_seo_permalinks_options['seo_meta_tag'] ?? 'index, follow') . '">' . "\n";
+    echo '<link rel="canonical" href="' . esc_url($canonical_url) . '">' . "\n";
+
+    // Open Graph meta tags
+    echo '<meta property="og:title" content="' . esc_attr($seo_title) . '">' . "\n";
+    echo '<meta property="og:description" content="' . esc_attr($seo_description) . '">' . "\n";
+    echo '<meta property="og:url" content="' . esc_url($canonical_url) . '">' . "\n";
+
+    // Twitter meta tags
+    echo '<meta name="twitter:title" content="' . esc_attr($seo_title) . '">' . "\n";
+    echo '<meta name="twitter:description" content="' . esc_attr($seo_description) . '">' . "\n";
+}
+
+function dapfforwc_replacement($current_place, $query_params, $site_title, $page_title){
+     // New approach: Extract attribute-value pairs directly from query_params
+     $formatted_pairs = [];
+
+     // Skip these special parameters
+     $skip_params = ['filters', 'cata', 'tags'];
+ 
+     // Process each query parameter as an attribute-value pair
+     foreach ($query_params as $param => $value) {
+         // Skip special parameters
+         if (in_array($param, $skip_params)) {
+             continue;
+         }
+ 
+         // Process multi-value parameters (comma-separated)
+         $values = explode(',', sanitize_text_field($value));
+         $formatted_values = [];
+ 
+         if (strpos($current_place, '{attribute_prefix}') !== false) {
+ 
+             foreach ($values as $val) {
+                 $formatted_values[] = str_replace('-', ' ', $val);
+             }
+ 
+             // Format as "attribute seperator between {attribute_prefix} & {value} value1, value2"
+             if (!empty($formatted_values)) {
+                 preg_match('/{attribute_prefix}(.*?)\{value\}/', $current_place, $matches);
+                 $separator = $matches[1] ?? '-';
+                 $formatted_pairs[] = $param . "{$separator}" . implode(', ', $formatted_values);
+             }
+         }elseif (strpos($current_place, '{value}') !== false) {
+             // Format as "value1, value2"
+             if (!empty($values)) {
+                 $formatted_pairs[] = implode(', ', $values);
+             }
+         }
+     }
+ 
+     // Combine all formatted pairs
+     $formatted_string = implode(', ', $formatted_pairs);
+ 
+     // Special handling for categories and tags from the old approach
+     if (isset($query_params['cata']) && !empty($query_params['cata'])) {
+         $categories = explode(',', sanitize_text_field($query_params['cata']));
+         $formatted_categories = array_map(function ($cat) {
+             return str_replace('-', ' ', $cat);
+         }, $categories);
+ 
+         if (!empty($formatted_categories)) {
+             $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'category - ' . implode(', ', $formatted_categories);
+         }
+     }
+ 
+     if (isset($query_params['tags']) && !empty($query_params['tags'])) {
+         $tags = explode(',', sanitize_text_field($query_params['tags']));
+         $formatted_tags = array_map(function ($tag) {
+             return str_replace('-', ' ', $tag);
+         }, $tags);
+ 
+         if (!empty($formatted_tags)) {
+             $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'tag - ' . implode(', ', $formatted_tags);
+         }
+     }
+ 
+     // Replace placeholders in SEO settings
+     $replacements = [
+         '{site_title}' => $site_title,
+         '{page_title}' => $page_title,
+         '{attribute_prefix}' => '', // No longer needed as we format differently
+         '{value}' => $formatted_string // Now contains "attribute - value" format
+     ];
+
+     return $replacements;
+}
+
+// Hook into wp_head with a high priority to ensure our tags are output correctly
+add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);

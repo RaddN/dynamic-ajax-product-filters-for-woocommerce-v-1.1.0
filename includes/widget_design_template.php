@@ -123,7 +123,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
  <?php $formOutPut .= '<div class="title collapsable_' . esc_attr($minimizable_rating) . '"><div> Rating <span id="reset-rating">reset</span></div>' . ($minimizable_rating === "arrow" || $minimizable_rating === "minimize_initial"  ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items rating ' . esc_attr($sub_option_rating) . '"><div> '; ?>
         <?php if ($sub_option_rating) {
-            $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = $default_filter, $dapfforwc_styleoptions, "", "", "", "");
+            $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = isset($default_filter['rating[]']) ? $default_filter['rating[]'] : $default_filter , $dapfforwc_styleoptions, "", "", "", "");
         } else {
             $formOutPut .= "Choose style from product filters->form style -> rating";
         }
@@ -231,7 +231,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $title = esc_html($parent_category->name);
                 $count = $show_count === 'yes' ? (is_object($parent_category) ? esc_attr($parent_category->count) : esc_attr($parent_category['count']??0)):0;
                 $checked = in_array($parent_category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
-                $anchorlink = $use_filters_word === 'on' ? "filters/$value" : $value;
+                $anchorlink = $use_filters_word === 'on' ? "filters/$value" : '?filters='.$value;
 
                 $formOutPut .= $use_anchor === 'on'
                     ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . '</a>'
@@ -275,7 +275,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $count = $show_count === 'yes' ? $dapfforwc_product_count['categories'][$value] : 0;
                 
                 $checked = in_array($category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
-                $anchorlink = $use_filters_word === 'on' ? "filters/$value" : $value;
+                $anchorlink = $use_filters_word === 'on' ? "filters/$value" : '?filters='.$value;
 
                 $formOutPut .= $use_anchor === 'on'
                     ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . '</a>'
@@ -332,7 +332,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                     $slug = is_object($term) ? esc_attr($term->slug) : esc_attr($term['slug']);      
                     $checked = in_array($slug, $selected_terms) ? ' checked' : '';
                     $count = $show_count === "yes" ? (is_object($term) ? esc_attr($term->count??0) : esc_attr($term['count']??0)):0; // Use term count directly
-                    $anchorlink = $use_filters_word === "on" ? "filters/" . esc_attr($slug) : esc_attr($slug);
+                    $anchorlink = $use_filters_word === "on" ? "filters/" . esc_attr($slug) : '?filters='.esc_attr($slug);
                     $term_label = is_object($term) ? esc_html($term->attribute_label) : esc_attr($term['attribute_label']);
                     $formOutPut .= $use_anchor === "on" ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_optionattr, $term_label, esc_attr($slug), $checked, $dapfforwc_styleoptions, "attribute[$attribute_name]", $attribute_name, $singlevalueattrSelect, $count) . '</a>' : dapfforwc_render_filter_option($sub_optionattr, esc_html($name), esc_attr($slug), $checked, $dapfforwc_styleoptions, "attribute[$attribute_name]", $attribute_name, $singlevalueattrSelect, $count);
                 }
@@ -367,7 +367,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $value = esc_attr($tag->slug);
                 $title = esc_html($tag->name);
                 $count = $show_count === "yes" ? $dapfforwc_product_count["tags"][$value] : 0;
-                $anchorlink = $use_filters_word === "on" ? "filters/$value" : $value;
+                $anchorlink = $use_filters_word === "on" ? "filters/$value" : '?filters='.$value;
                 $formOutPut .= $use_anchor === "on" ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tag", $attribute = "tag", $singlevalueSelect, $count) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tag", $attribute = "tag", $singlevalueSelect, $count);
             }
         }

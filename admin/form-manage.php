@@ -36,7 +36,7 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
                     'index,follow' => 'index, follow',
                 ];
                 foreach ($meta_tag_options as $value => $label) {
-                    echo '<option value="' . esc_attr($value) . '" ' . selected(isset($dapfforwc_options['seo_meta_tag']) ? $dapfforwc_options['seo_meta_tag'] : '', $value, false) . '>' . esc_html($label) . '</option>';
+                    echo '<option value="' . esc_attr($value) . '" ' . selected(isset($$settings['seo_meta_tag']) ? $$settings['seo_meta_tag'] : '', $value, false) . '>' . esc_html($label) . '</option>';
                 }
                 ?>
             </select>

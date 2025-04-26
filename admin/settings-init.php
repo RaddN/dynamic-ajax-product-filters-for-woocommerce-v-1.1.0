@@ -77,7 +77,6 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     'product_selector' => 'ul.products',
     'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
     'product_shortcode' => 'products',
-    'use_anchor' => 0,
     'remove_outofStock' => 0,
 ];
     update_option('dapfforwc_advance_options', $Advance_options);
@@ -118,7 +117,6 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
         'dapfforwc_advance_settings_section'
     );
 
-    add_settings_field('use_anchor', __('Make filter link indexable for best SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_anchor_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('remove_outofStock', __('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     // seo-permalinks settings register
@@ -139,6 +137,7 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
         ],
         'filters_word_in_permalinks' => 'filters',
         'use_filters_word_in_permalinks' => 'on',
+        'use_anchor' => 0,
     ];
 
     update_option('dapfforwc_seo_permalinks_options', $seo_permalinks_options);
@@ -169,6 +168,8 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
 
     // add Enable SEO option
     add_settings_field('enable_seo', __('Enable SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_enable_seo_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
+
+    add_settings_field('use_anchor', __('Make filter link indexable for best SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_anchor_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
 
     // Add the "SEO Title" field
     add_settings_field(

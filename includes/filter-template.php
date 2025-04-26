@@ -58,11 +58,11 @@ function dapfforwc_product_filter_shortcode($atts)
 
         // Use the combined full slug as the key in default_filters
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category"] = $arrayCata;
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag"] = $tagValue;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = $arrayCata;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
         if (empty($filters)) {
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["category"] = array_column($all_cata, 'slug');
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = array_column($all_cata, 'slug');
         }
 
 
@@ -75,10 +75,23 @@ function dapfforwc_product_filter_shortcode($atts)
     }
     if (is_shop()) {
         $all_cata_slugs = array_column($all_cata, 'slug');
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category"] = $all_cata_slugs;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = $all_cata_slugs;
     }
 
+    if (is_product_category()) {
+        $current_category = get_queried_object();
+        $category_slug = $current_category->slug;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = [$category_slug];
+    }
 
+    if (is_product_tag()) {
+        $current_tag = get_queried_object();
+        $tag_slug = $current_tag->slug;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = [$tag_slug];
+    }
     if (isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page']) && $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] === 12) {
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'] ?? 12;
     } elseif (!isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'])) {
@@ -87,6 +100,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
     update_option('dapfforwc_options', $dapfforwc_options);
     $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
+
     // Validate and sanitize host
     $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
 
@@ -106,6 +120,7 @@ function dapfforwc_product_filter_shortcode($atts)
     if (isset($parsed_url['query'])) {
         parse_str($parsed_url['query'], $query_params);
     }
+
     // Get the value of 'filters'
     $filters = $query_params['filters'] ?? null;
     $default_filter = array_merge(
@@ -163,14 +178,14 @@ function dapfforwc_product_filter_shortcode($atts)
     );
     $all_data_objects = [];
     // Match Filters
-    $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["category"] ?? [])));
+    $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["category[]"] ?? [])));
     $all_data_objects["category[]"] = array_keys($matched_cata_with_ids);
     if ($second_operator === 'AND') {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
     }
-    $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag"] ?? [])));
+    $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag[]"] ?? [])));
     $all_data_objects["tag[]"] = array_keys($matched_tag_with_ids);
     
     if ($second_operator === 'AND') {
@@ -472,7 +487,8 @@ function dapfforwc_product_filter_shortcode($atts)
             wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
             
             $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] ==="on" ? $all_data_objects : $default_filter;
-            echo dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $use_filters_word, $atts, $min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? (intval($min_max_prices['min'])) ?? 0, $max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? (intval($min_max_prices['max']) ?? 100000000000) + 1, []);
+            // echo json_encode($updated_filters);
+            echo dapfforwc_filter_form($updated_filters, $all_data_objects, $use_anchor, $use_filters_word, $atts, $min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? (intval($min_max_prices['min'])) ?? 0, $max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? (intval($min_max_prices['max']) ?? 100000000000) + 1, []);
             echo $formOutPut;
             echo '</form>';
             if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
@@ -623,6 +639,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $image_url = $dapfforwc_styleoptions[$attribute]['images'][$value] ?? 'default-image.jpg';
             $border_class = ($sub_option === 'image_no_border') ? 'no-border' : '';
             $output .= '<label class="image-option ' . $border_class . '">
+            <span class="image-title">' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span>
     <input type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-image" name="' . $name . '[]" value="' . $value . '"' . $checked . '>';
 
             if ($image_url !== 'default-image.jpg') {

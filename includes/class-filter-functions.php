@@ -26,7 +26,7 @@ class dapfforwc_Filter_Functions
         if (!empty($_POST['selectedvalues'])) {
             // Convert the string to an array
             if (is_string($_POST['selectedvalues'])) {
-                $decoded_values = json_decode(stripslashes($_POST['selectedvalues']), true);
+                $decoded_values = json_decode(sanitize_text_field(wp_unslash($_POST['selectedvalues'])), true);
                 if (json_last_error() === JSON_ERROR_NONE && is_array($decoded_values)) {
                     $default_filter = [];
                     foreach ($decoded_values as $key => $values) {
@@ -41,8 +41,15 @@ class dapfforwc_Filter_Functions
                 $default_filter = [];
             }
         }
-        error_log("Selected Values: " . json_encode($default_filter));
-        $ratings = array_values(array_filter($default_filter, 'is_numeric'));
+
+        // check rating value
+        if (isset($default_filter['rating[]'])) {
+            $ratings = $default_filter['rating[]'];
+        } elseif (array_keys($default_filter) !== range(0, count($default_filter) - 1)) {
+            $default_filter['rating[]'] = [];
+        } elseif (is_array($default_filter)) {
+            $ratings = array_values(array_filter($default_filter, 'is_numeric'));
+        }
         $second_operator = isset($dapfforwc_options["product_show_settings"][$currentpage_slug]["operator_second"]) ? strtoupper($dapfforwc_options["product_show_settings"][$currentpage_slug]["operator_second"]) : "IN";
         $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
         $product_details_json = dapfforwc_get_woocommerce_product_details()["products"] ?? [];
@@ -75,37 +82,30 @@ class dapfforwc_Filter_Functions
             if (isset($default_filter['category[]'])) {
                 $categories = $default_filter['category[]'];
                 $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($categories)));
-            } 
-            elseif (array_keys($default_filter) !== range(0, count($default_filter) - 1)) {
+            } elseif (array_keys($default_filter) !== range(0, count($default_filter) - 1)) {
                 $default_filter['category[]'] = [];
                 $matched_cata_with_ids = [];
-            }
-            elseif (is_array($default_filter)) {
+            } elseif (is_array($default_filter)) {
                 $categories = array_filter($default_filter, function ($item) use ($cata_lookup) {
                     return array_key_exists($item, $cata_lookup);
                 });
                 $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip($categories));
             }
         }
-        error_log("Matched Categories: " . json_encode($matched_cata_with_ids));
         if ($second_operator === 'AND') {
             $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_intersect(...array_values($matched_cata_with_ids));
         } else {
             $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
         }
-        error_log("Products ID by Category: " . json_encode($products_id_by_cata));
         $matched_tag_with_ids = [];
-        error_log("Type of default_filter: " . gettype($default_filter));
         if (is_array($default_filter) || is_object($default_filter)) {
             if (isset($default_filter['tag[]'])) {
                 $tags = $default_filter['tag[]'];
                 $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($tags)));
-            } 
-            elseif (array_keys($default_filter) !== range(0, count($default_filter) - 1)) {
+            } elseif (array_keys($default_filter) !== range(0, count($default_filter) - 1)) {
                 $default_filter['tag[]'] = [];
                 $matched_tag_with_ids = [];
-            }
-            elseif (is_array($default_filter)) {
+            } elseif (is_array($default_filter)) {
                 $tags = array_filter($default_filter, function ($item) use ($tag_lookup) {
                     return array_key_exists($item, $tag_lookup);
                 });
@@ -118,8 +118,6 @@ class dapfforwc_Filter_Functions
             $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_tag_with_ids))));
         }
 
-        error_log("Matched Tags: " . json_encode($matched_tag_with_ids));
-        error_log("Products ID by Tag: " . json_encode($products_id_by_tag));
         // Match Attributes
         $products_id_by_attributes = [];
         $match_attributes_with_ids = [];
@@ -150,7 +148,7 @@ class dapfforwc_Filter_Functions
                 if (isset($lookup['terms']) && is_array($lookup['terms'])) {
                     foreach ($lookup['terms'] as $term) {
                         // Check if this term should be included based on filters
-                        
+
                         $include_term = false;
 
                         // Case 1: If we have specific attribute filters
@@ -213,10 +211,6 @@ class dapfforwc_Filter_Functions
 
         // Convert to indexed array if it's not already
         $products_id_by_attributes = array_values($products_id_by_attributes);
-
-        error_log("Matched Attributes: " . json_encode($match_attributes_with_ids));
-        error_log("second operator: " . json_encode($second_operator));
-        error_log("Products ID by Attributes: " . json_encode($products_id_by_attributes));
 
         if (empty($products_id_by_cata) && empty($products_id_by_tag) && empty($products_id_by_attributes)) {
             $products_ids = [];
@@ -306,8 +300,9 @@ class dapfforwc_Filter_Functions
 
         $max_price = isset($_POST['max_price']) ? floatval(sanitize_text_field(wp_unslash($_POST['max_price']))) : ($dapfforwc_styleoptions["price"]["max_price"] ?? $min_max_prices['max'] + 1);
 
+        $use_anchor = isset($dapfforwc_advance_settings["use_anchor"]) ? $dapfforwc_advance_settings["use_anchor"] : "";
         // Pass sanitized values to the function
-        $filterform = dapfforwc_filter_form($updated_filters, $default_filter, "", "", "", $min_price, $max_price, [], $price_search_value['s'] ?? '');
+        $filterform = dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, "", "", $min_price, $max_price, [], $price_search_value['s'] ?? '');
         $cache_file = __DIR__ . '/permalinks_cache.json';
         $cache_time = 12 * 60 * 60; // 12 hours in seconds
 
@@ -321,7 +316,7 @@ class dapfforwc_Filter_Functions
         // Capture the product listing
         ob_start();
 
-        
+
         $per_page = isset($dapfforwc_options["product_show_settings"][$currentpage_slug]["per_page"]) ? intval($dapfforwc_options["product_show_settings"][$currentpage_slug]["per_page"]) : 12;
         $total_pages = ceil($count_total_showing_product / $per_page) ?? 1;
         $start_index = ($paged - 1) * $per_page;

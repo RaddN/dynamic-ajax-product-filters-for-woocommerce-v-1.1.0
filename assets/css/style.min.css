@@ -208,6 +208,7 @@ form.rfilterbuttons li {
 #product-filter label.image-option {
   border: 2px solid #432fb8;
   border-radius: 10px;
+  overflow: hidden;
 }
 #product-filter label.image-option.no-border {
   border: none;
@@ -460,4 +461,23 @@ span#dapfforwc_issue_count {
     bottom: -2px;
     display: none;
 }
-
+.items .image-option span.image-title {
+  opacity: 0;
+  transition: all 0.3s ease-in-out;
+  position: absolute;
+  font-size: 85%;
+  background: #0000007a;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  padding: 10px;
+}
+.items .image-option:hover span.image-title {
+  opacity: 1;
+  transition: all 0.3s ease-in-out;
+}
