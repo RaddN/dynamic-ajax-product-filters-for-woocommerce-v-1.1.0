@@ -22,7 +22,7 @@ function dapfforwc_product_filter_shortcode($atts)
         'per_page' => 12,
     ), $atts);
 
-    $use_anchor = isset($dapfforwc_advance_settings["use_anchor"]) ? $dapfforwc_advance_settings["use_anchor"] : "";
+    $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
     $use_filters_word = isset($dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"]) ? $dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"] : "";
 
     $request = $wp->request;

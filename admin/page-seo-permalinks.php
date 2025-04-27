@@ -13,6 +13,8 @@ function dapfforwc_enable_seo_render()
     dapfforwc_render_checkbox('enable_seo', "dapfforwc_seo_permalinks_options");
 }
 
+function dapfforwc_use_anchor_render() { dapfforwc_render_checkbox('use_anchor','dapfforwc_seo_permalinks_options'); }
+
 function dapfforwc_permalinks_prefix_render()
 {
     global $dapfforwc_seo_permalinks_options;

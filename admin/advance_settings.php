@@ -37,7 +37,7 @@ function dapfforwc_product_shortcode_callback() {
     <?php
 }
 
-function dapfforwc_use_anchor_render() { dapfforwc_render_advance_checkbox('use_anchor'); }
+
 function dapfforwc_remove_outofStock_render() { dapfforwc_render_advance_checkbox('remove_outofStock'); }
 
 

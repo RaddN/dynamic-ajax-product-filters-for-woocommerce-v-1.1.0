@@ -7,7 +7,7 @@ class dapfforwc_Filter_Functions
 
     public function process_filter()
     {
-        global $dapfforwc_options, $dapfforwc_styleoptions, $dapfforwc_advance_settings, $dapfforwc_front_page_slug;
+        global $dapfforwc_options, $dapfforwc_styleoptions, $dapfforwc_advance_settings, $dapfforwc_front_page_slug, $dapfforwc_seo_permalinks_options;
         // Initialize variables with default values
         $update_filter_options =  isset($dapfforwc_options["update_filter_options"]) ? $dapfforwc_options["update_filter_options"] : "";
         $remove_outofStock_product = isset($dapfforwc_advance_settings["remove_outofStock"]) ? $dapfforwc_advance_settings["remove_outofStock"] : "";
@@ -300,7 +300,7 @@ class dapfforwc_Filter_Functions
 
         $max_price = isset($_POST['max_price']) ? floatval(sanitize_text_field(wp_unslash($_POST['max_price']))) : ($dapfforwc_styleoptions["price"]["max_price"] ?? $min_max_prices['max'] + 1);
 
-        $use_anchor = isset($dapfforwc_advance_settings["use_anchor"]) ? $dapfforwc_advance_settings["use_anchor"] : "";
+        $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
         // Pass sanitized values to the function
         $filterform = dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, "", "", $min_price, $max_price, [], $price_search_value['s'] ?? '');
         $cache_file = __DIR__ . '/permalinks_cache.json';
