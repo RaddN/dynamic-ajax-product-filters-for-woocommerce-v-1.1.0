@@ -533,42 +533,6 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
 <?php
-    $product_selector = !empty($atts['product_selector']) ?
-        esc_attr($atts['product_selector']) : ($dapfforwc_advance_settings['product_selector'] ?? '.products');
-
-    // Build the CSS
-    $product_custom_css = "$product_selector {
-     display: grid !important;
-     grid-template-columns: repeat(auto-fit, minmax(214px, 1fr)) !important;
-     gap: 1.2rem;
- }
- $product_selector:before,
- $product_selector:after {
-     display: none !important;
- }
- $product_selector > * {
-     width: 100% !important;
- }
-  @media screen and (min-width: 576px) {
-    .products.products-list-view {
-        grid-template-columns: 1fr !important;
-    }
-} 
-  $product_selector a {
-     text-decoration: none !important;
- }  
-
- 
- ";
-
-
-    // Generate a unique ID for this particular style block
-    $style_id = 'product-grid-' . md5($product_selector);
-
-    // Register and enqueue the style
-    wp_register_style($style_id, false,"", '1.0.0');
-    wp_enqueue_style($style_id, true, "", '1.0.0');
-    wp_add_inline_style($style_id, $product_custom_css);
 
     // End output buffering and return content
     return ob_get_clean();
