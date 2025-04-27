@@ -676,8 +676,6 @@ function dapfforwc_set_seo_meta_tags()
         $page_title = get_the_title();
     }
 
-   
-
     $seo_title = str_replace(array_keys(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), $seo_title);
     $seo_description = str_replace(array_keys(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), $seo_description);
     $seo_keywords = str_replace(array_keys(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), $seo_keywords);
@@ -711,17 +709,14 @@ function dapfforwc_set_seo_meta_tags()
 function dapfforwc_replacement($current_place, $query_params, $site_title, $page_title){
      // New approach: Extract attribute-value pairs directly from query_params
      $formatted_pairs = [];
-
-     // Skip these special parameters
-     $skip_params = ['filters', 'cata', 'tags'];
  
      // Process each query parameter as an attribute-value pair
      foreach ($query_params as $param => $value) {
          // Skip special parameters
-         if (in_array($param, $skip_params)) {
-             continue;
-         }
- 
+         
+            if ($param === 'filters' && $value === '1') {
+                continue; // Skip special parameters
+            }
          // Process multi-value parameters (comma-separated)
          $values = explode(',', sanitize_text_field($value));
          $formatted_values = [];
@@ -749,28 +744,28 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
      // Combine all formatted pairs
      $formatted_string = implode(', ', $formatted_pairs);
  
-     // Special handling for categories and tags from the old approach
-     if (isset($query_params['cata']) && !empty($query_params['cata'])) {
-         $categories = explode(',', sanitize_text_field($query_params['cata']));
-         $formatted_categories = array_map(function ($cat) {
-             return str_replace('-', ' ', $cat);
-         }, $categories);
+    //  // Special handling for categories and tags from the old approach
+    //  if (isset($query_params['cata']) && !empty($query_params['cata'])) {
+    //      $categories = explode(',', sanitize_text_field($query_params['cata']));
+    //      $formatted_categories = array_map(function ($cat) {
+    //          return str_replace('-', ' ', $cat);
+    //      }, $categories);
  
-         if (!empty($formatted_categories)) {
-             $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'category - ' . implode(', ', $formatted_categories);
-         }
-     }
+    //      if (!empty($formatted_categories)) {
+    //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'category - ' . implode(', ', $formatted_categories);
+    //      }
+    //  }
  
-     if (isset($query_params['tags']) && !empty($query_params['tags'])) {
-         $tags = explode(',', sanitize_text_field($query_params['tags']));
-         $formatted_tags = array_map(function ($tag) {
-             return str_replace('-', ' ', $tag);
-         }, $tags);
+    //  if (isset($query_params['tags']) && !empty($query_params['tags'])) {
+    //      $tags = explode(',', sanitize_text_field($query_params['tags']));
+    //      $formatted_tags = array_map(function ($tag) {
+    //          return str_replace('-', ' ', $tag);
+    //      }, $tags);
  
-         if (!empty($formatted_tags)) {
-             $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'tag - ' . implode(', ', $formatted_tags);
-         }
-     }
+    //      if (!empty($formatted_tags)) {
+    //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'tag - ' . implode(', ', $formatted_tags);
+    //      }
+    //  }
  
      // Replace placeholders in SEO settings
      $replacements = [
