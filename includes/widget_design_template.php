@@ -356,7 +356,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $singlevalueSelect = $dapfforwc_styleoptions["tag"]["single_selection"] ?? "";
         $formOutPut .= '<div id="tag" class="filter-group tag" style="display: ' . (!empty($dapfforwc_options['show_tags']) ? 'block' : 'none') . ';"><div class="title collapsable_' . esc_attr($minimizable) . '">Tags ' . ($minimizable === "arrow" || $minimizable === "minimize_initial" ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
         if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
-            $formOutPut .= '<select name="tag[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
+            $formOutPut .= '<select name="tags[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
         } else {
             $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
@@ -368,7 +368,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $title = esc_html($tag->name);
                 $count = $show_count === "yes" ? $dapfforwc_product_count["tags"][$value] : 0;
                 $anchorlink = $use_filters_word === "on" ? "filters/$value" : '?filters='.$value;
-                $formOutPut .= $use_anchor === "on" ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tag", $attribute = "tag", $singlevalueSelect, $count) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tag", $attribute = "tag", $singlevalueSelect, $count);
+                $formOutPut .= $use_anchor === "on" ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count);
             }
         }
         if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {

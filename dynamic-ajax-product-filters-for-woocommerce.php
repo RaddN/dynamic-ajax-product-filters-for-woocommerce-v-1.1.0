@@ -172,6 +172,7 @@ function dapfforwc_check_woocommerce()
 
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'dapfforwc_add_settings_link');
         require_once plugin_dir_path(__FILE__) . 'includes/common-functions.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/new-method-ajax-handel.php';
     }
 }
 
@@ -185,13 +186,13 @@ function dapfforwc_enqueue_scripts()
 {
     global $dapfforwc_use_url_filter, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_slug, $dapfforwc_styleoptions, $dapfforwc_advance_settings, $dapfforwc_front_page_slug;
 
-    $script_handle = 'filter-ajax';
-    $script_path = 'assets/js/filter.min.js';
+    // $script_handle = 'filter-ajax';
+    // $script_path = 'assets/js/filter.min.js';
 
-    if ($dapfforwc_use_url_filter === 'query_string') {
-        $script_handle = 'urlfilter-ajax';
-        $script_path = 'assets/js/urlfilter.min.js';
-    }
+    // if ($dapfforwc_use_url_filter === 'query_string') {
+    $script_handle = 'urlfilter-ajax';
+    $script_path = 'assets/js/new-filter.js';
+    // }
 
     wp_enqueue_script('jquery');
     wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.1', true);
@@ -706,77 +707,449 @@ function dapfforwc_set_seo_meta_tags()
     echo '<meta name="twitter:description" content="' . esc_attr($seo_description) . '">' . "\n";
 }
 
-function dapfforwc_replacement($current_place, $query_params, $site_title, $page_title){
-     // New approach: Extract attribute-value pairs directly from query_params
-     $formatted_pairs = [];
- 
-     // Process each query parameter as an attribute-value pair
-     foreach ($query_params as $param => $value) {
-         // Skip special parameters
-         
-            if ($param === 'filters' && $value === '1') {
-                continue; // Skip special parameters
+function dapfforwc_replacement($current_place, $query_params, $site_title, $page_title)
+{
+    // New approach: Extract attribute-value pairs directly from query_params
+    $formatted_pairs = [];
+
+    // Process each query parameter as an attribute-value pair
+    foreach ($query_params as $param => $value) {
+        // Skip special parameters
+
+        if ($param === 'filters' && $value === '1') {
+            continue; // Skip special parameters
+        }
+        // Process multi-value parameters (comma-separated)
+        $values = explode(',', sanitize_text_field($value));
+        $formatted_values = [];
+
+        if (strpos($current_place, '{attribute_prefix}') !== false) {
+
+            foreach ($values as $val) {
+                $formatted_values[] = str_replace('-', ' ', $val);
             }
-         // Process multi-value parameters (comma-separated)
-         $values = explode(',', sanitize_text_field($value));
-         $formatted_values = [];
- 
-         if (strpos($current_place, '{attribute_prefix}') !== false) {
- 
-             foreach ($values as $val) {
-                 $formatted_values[] = str_replace('-', ' ', $val);
-             }
- 
-             // Format as "attribute seperator between {attribute_prefix} & {value} value1, value2"
-             if (!empty($formatted_values)) {
-                 preg_match('/{attribute_prefix}(.*?)\{value\}/', $current_place, $matches);
-                 $separator = $matches[1] ?? '-';
-                 $formatted_pairs[] = $param . "{$separator}" . implode(', ', $formatted_values);
-             }
-         }elseif (strpos($current_place, '{value}') !== false) {
-             // Format as "value1, value2"
-             if (!empty($values)) {
-                 $formatted_pairs[] = implode(', ', $values);
-             }
-         }
-     }
- 
-     // Combine all formatted pairs
-     $formatted_string = implode(', ', $formatted_pairs);
- 
+
+            // Format as "attribute seperator between {attribute_prefix} & {value} value1, value2"
+            if (!empty($formatted_values)) {
+                preg_match('/{attribute_prefix}(.*?)\{value\}/', $current_place, $matches);
+                $separator = $matches[1] ?? '-';
+                $formatted_pairs[] = $param . "{$separator}" . implode(', ', $formatted_values);
+            }
+        } elseif (strpos($current_place, '{value}') !== false) {
+            // Format as "value1, value2"
+            if (!empty($values)) {
+                $formatted_pairs[] = implode(', ', $values);
+            }
+        }
+    }
+
+    // Combine all formatted pairs
+    $formatted_string = implode(', ', $formatted_pairs);
+
     //  // Special handling for categories and tags from the old approach
     //  if (isset($query_params['cata']) && !empty($query_params['cata'])) {
     //      $categories = explode(',', sanitize_text_field($query_params['cata']));
     //      $formatted_categories = array_map(function ($cat) {
     //          return str_replace('-', ' ', $cat);
     //      }, $categories);
- 
+
     //      if (!empty($formatted_categories)) {
     //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'category - ' . implode(', ', $formatted_categories);
     //      }
     //  }
- 
+
     //  if (isset($query_params['tags']) && !empty($query_params['tags'])) {
     //      $tags = explode(',', sanitize_text_field($query_params['tags']));
     //      $formatted_tags = array_map(function ($tag) {
     //          return str_replace('-', ' ', $tag);
     //      }, $tags);
- 
+
     //      if (!empty($formatted_tags)) {
     //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'tag - ' . implode(', ', $formatted_tags);
     //      }
     //  }
- 
-     // Replace placeholders in SEO settings
-     $replacements = [
-         '{site_title}' => $site_title,
-         '{page_title}' => $page_title,
-         '{attribute_prefix}' => '', // No longer needed as we format differently
-         '{value}' => $formatted_string // Now contains "attribute - value" format
-     ];
 
-     return $replacements;
+    // Replace placeholders in SEO settings
+    $replacements = [
+        '{site_title}' => $site_title,
+        '{page_title}' => $page_title,
+        '{attribute_prefix}' => '', // No longer needed as we format differently
+        '{value}' => $formatted_string // Now contains "attribute - value" format
+    ];
+
+    return $replacements;
 }
 
 // Hook into wp_head with a high priority to ensure our tags are output correctly
 add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**
+ * Advanced Product Filter Functions
+ * Add this to your theme's functions.php or to a plugin file
+ */
+
+/**
+ * Initialize the product filter functionality
+ */
+function wpc_filter_init()
+{
+    // Only run on frontend
+    if (is_admin() && !wp_doing_ajax()) {
+        return;
+    }
+
+    error_log("hello init done");
+
+    // Filter the main query using pre_get_posts
+    add_action('pre_get_posts', 'wpc_filter_products_query');
+
+    // Add scripts and styles
+    // add_action('wp_enqueue_scripts', 'wpc_filter_enqueue_scripts');
+
+    // Intercept and handle filter requests
+    add_action('parse_request', 'wpc_parse_filter_request');
+}
+add_action('init', 'wpc_filter_init');
+
+/**
+ * Parse filter parameters from the request
+ * 
+ * @param WP $wp Current WordPress environment instance
+ * @return WP
+ */
+function wpc_parse_filter_request($wp)
+{
+    // Only process product filter requests
+    if (!isset($wp->query_vars['post_type']) || $wp->query_vars['post_type'] !== 'product') {
+        return $wp;
+    }
+
+    // Parse all the filter parameters
+    $filter_params = wpc_get_filter_params();
+
+    // Store filter parameters in a global variable for later use
+    $GLOBALS['wpc_filter_params'] = $filter_params;
+
+    return $wp;
+}
+
+/**
+ * Get all filter parameters from request
+ * 
+ * @return array
+ */
+function wpc_get_filter_params()
+{
+    global $dapfforwc_seo_permalinks_options;
+    $isattrinurl = $dapfforwc_seo_permalinks_options && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on";
+    $attrprefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] : [];
+    $params = array();
+
+    // Get category filter
+    if ($isattrinurl &&  $attrprefix["category"] && isset($_GET[$attrprefix["category"]]) && !empty($_GET[$attrprefix["category"]])) {
+        $params['category'] = wpc_sanitize_array($_GET[$attrprefix["category"]]);
+        error_log(json_encode($params['category']));
+    } else {
+        if (isset($_GET['category']) && !empty($_GET['category'])) {
+            $params['category'] = wpc_sanitize_array($_GET['category']);
+        }
+    }
+
+    // Get tag filter
+    if ($isattrinurl &&  $attrprefix["tag"] && isset($_GET[$attrprefix["tag"]]) && !empty($_GET[$attrprefix["tag"]])) {
+        $params['tag'] = wpc_sanitize_array($_GET[$attrprefix["tag"]]);
+        error_log(json_encode($params['tag']));
+    } else {
+        if (isset($_GET['tags']) && !empty($_GET['tags'])) {
+            $params['tag'] = wpc_sanitize_array($_GET['tags']);
+            error_log(json_encode($_GET['tags']));
+        }
+    }
+
+    // Get attribute filters (dynamic)
+    if (isset($_GET['attribute']) && is_array($_GET['attribute'])) {
+        foreach ($_GET['attribute'] as $attribute_name => $value) {
+            error_log('your key: ' . json_encode($attribute_name) . ' & value: ' . json_encode($value));
+
+            if (!empty($value)) {
+                $params['attributes'][$attribute_name] = wpc_sanitize_array($value);
+            }
+        }
+    }
+
+    // Get rating filter
+    if ($isattrinurl &&  $attrprefix["rating"] && isset($_GET[$attrprefix["rating"]]) && !empty($_GET[$attrprefix["rating"]])) {
+        $params['rating'] = wpc_sanitize_array($_GET[$attrprefix["rating"]]);
+        error_log(json_encode($params['rating']));
+    } else {
+        if (isset($_GET['rating']) && !empty($_GET['rating'])) {
+            $params['rating'] = wpc_sanitize_array($_GET['rating']);
+        }
+    }
+
+    // Get price range filter
+    if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+        $params['min_price'] = floatval($_GET['min_price']);
+    }
+
+    if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+        $params['max_price'] = floatval($_GET['max_price']);
+    }
+
+    // Get search query
+    if (isset($_GET['s']) && !empty($_GET['s'])) {
+        $params['search'] = sanitize_text_field($_GET['s']);
+    }
+
+    error_log('sir your params : ' . json_encode($params));
+
+    return $params;
+}
+
+/**
+ * Helper function to sanitize array values
+ * 
+ * @param mixed $input Input to sanitize
+ * @return array|string Sanitized input
+ */
+function wpc_sanitize_array($input)
+{
+    if (is_array($input)) {
+        return array_map('sanitize_text_field', $input);
+    }
+    return sanitize_text_field($input);
+}
+
+/**
+ * Modify the main products query to apply filters
+ * 
+ * @param WP_Query $query The WordPress query object
+ * @return void
+ */
+function wpc_filter_products_query($query)
+{
+    // error_log("sir your query is : " . json_encode($query));
+
+
+
+    // Only modify main query on frontend for product queries
+    if (!$query->is_main_query() || is_admin() && !$query->is_tax(get_object_taxonomies('product'))) {
+        return;
+    }
+    // Get filter parameters
+    $filter_params = isset($GLOBALS['wpc_filter_params']) ? $GLOBALS['wpc_filter_params'] : wpc_get_filter_params();
+
+    error_log("sir your params : " . json_encode($filter_params));
+
+    // Apply filters to query
+    wpc_apply_filters_to_query($query, $filter_params);
+}
+
+/**
+ * Apply filter parameters to WP_Query
+ * 
+ * @param WP_Query $query The WordPress query object
+ * @param array $params Filter parameters
+ * @return void
+ */
+function wpc_apply_filters_to_query($query, $params)
+{
+    // Initialize tax_query and meta_query arrays
+    $tax_query = $query->get('tax_query', array());
+    $meta_query = $query->get('meta_query', array());
+
+    // Ensure proper structure
+    if (!is_array($tax_query)) {
+        $tax_query = array();
+    }
+
+    if (!is_array($meta_query)) {
+        $meta_query = array();
+    }
+
+    // Add relation if we have multiple conditions
+    if (count($tax_query) > 1) {
+        $tax_query['relation'] = 'AND';
+    }
+
+    if (count($meta_query) > 1) {
+        $meta_query['relation'] = 'AND';
+    }
+
+    // Apply category filter
+    if (isset($params['category']) && !empty($params['category'])) {
+        $tax_query[] = array(
+            'taxonomy' => 'product_cat',
+            'field'    => 'slug',
+            'terms'    => $params['category'],
+            'operator' => 'IN',
+        );
+    }
+
+    // Apply tag filter
+    if (isset($params['tag']) && !empty($params['tag'])) {
+        $tax_query[] = array(
+            'taxonomy' => 'product_tag',
+            'field'    => 'slug',
+            'terms'    => $params['tag'],
+            'operator' => 'IN',
+        );
+    }
+
+    // Apply attribute filters
+    if (isset($params['attributes']) && is_array($params['attributes'])) {
+        foreach ($params['attributes'] as $attribute_name => $attribute_values) {
+            if (!empty($attribute_values)) {
+                $tax_query[] = array(
+                    'taxonomy' => 'pa_' . $attribute_name,
+                    'field'    => 'slug',
+                    'terms'    => $attribute_values,
+                    'operator' => 'IN',
+                );
+            }
+        }
+    }
+
+    // Apply price range filter
+    if ((isset($params['min_price']) && $params['min_price'] > 0) ||
+        (isset($params['max_price']) && $params['max_price'] > 0)
+    ) {
+
+        $min = isset($params['min_price']) ? floatval($params['min_price']) : 0;
+        $max = isset($params['max_price']) ? floatval($params['max_price']) : PHP_INT_MAX;
+
+        $meta_query[] = array(
+            'key'     => '_price',
+            'value'   => array($min, $max),
+            'type'    => 'NUMERIC',
+            'compare' => 'BETWEEN',
+        );
+    }
+
+    // Apply rating filter
+    if (isset($params['rating']) && !empty($params['rating'])) {
+        $rating_filter = array('relation' => 'OR');
+
+        if (!is_array($params['rating'])) {
+            $params['rating'] = explode(',', $params['rating']);
+        }
+
+        foreach ($params['rating'] as $rating) {
+            $rating_filter[] = array(
+                'key'     => '_wc_average_rating',
+                'value'   => array(intval($rating) - 0.5, intval($rating) + 0.5),
+                'compare' => 'BETWEEN',
+                'type'    => 'DECIMAL',
+            );
+        }
+
+        $meta_query[] = $rating_filter;
+    }
+
+    // Apply search filter
+    if (isset($params['search']) && !empty($params['search'])) {
+        $query->set('s', $params['search']);
+    }
+
+    // Update the query with our modified parameters
+    if (!empty($tax_query)) {
+        $query->set('tax_query', $tax_query);
+    }
+
+    if (!empty($meta_query)) {
+        $query->set('meta_query', $meta_query);
+    }
+}
+
+/**
+ * Template redirect hook for handling AJAX requests
+ * This allows us to return partial content for AJAX filtering
+ */
+function wpc_template_redirect_filter()
+{
+    // Check if this is an AJAX request
+    $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+
+    // Only process on shop and archive pages
+    if (!$is_ajax) {
+        return;
+    }
+
+    // Output only the product content for AJAX requests
+    add_filter('template_include', function ($template) {
+        // Start output buffering
+        ob_start();
+
+        // Set up global WooCommerce loop variables
+        global $woocommerce_loop;
+        $woocommerce_loop['columns'] = wc_get_default_products_per_row();
+
+        // Output products
+        // woocommerce_product_loop_start();
+
+        if (have_posts()) {
+            while (have_posts()) {
+                the_post();
+                wc_get_template_part('content', 'product');
+            }
+        } else {
+            echo '<p class="woocommerce-info">' . esc_html__('No products found matching your selection.', 'woocommerce') . '</p>';
+        }
+
+        // woocommerce_product_loop_end();
+
+
+        // Get the buffered content
+        $content = ob_get_clean();
+
+        // Create the response
+        $response = array(
+            'success' => true,
+            'data'    => array(
+                'html'  => $content,
+                'pagination' => woocommerce_pagination(),
+                'found' => $GLOBALS['wp_query']->found_posts,
+                'url'   => wpc_get_current_url_with_query(),
+            ),
+        );
+
+        // Output as JSON and exit
+        wp_send_json($response);
+        exit;
+    });
+}
+add_action('template_redirect', 'wpc_template_redirect_filter');
+
+/**
+ * Helper function to get current URL with query parameters
+ * 
+ * @return string Full current URL with query parameters
+ */
+function wpc_get_current_url_with_query()
+{
+    global $wp;
+    return add_query_arg($_SERVER['QUERY_STRING'], '', home_url($wp->request));
+}
+
+/**
+ * Add hidden fields for the filter form
+ * Call this function inside your filter form
+ */
+function wpc_add_hidden_filter_fields()
+{
+    echo '<input type="hidden" id="wpc-filter-nonce" name="wpc-filter-nonce" value="' . wp_create_nonce('wpc_filter_nonce') . '">';
+}

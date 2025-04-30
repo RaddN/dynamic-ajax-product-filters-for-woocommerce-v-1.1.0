@@ -322,16 +322,16 @@ class dapfforwc_Filter_Functions
         $start_index = ($paged - 1) * $per_page;
         $end_index = min($start_index + $per_page, $count_total_showing_product);
 
-        for ($i = $start_index; $i < $end_index; $i++) {
-            if (isset($products_ids[$i])) {
-                $product_id = $products_ids[$i];
-                if (isset($product_details_json[$product_id])) {
-                    $product = $product_details_json[$product_id];
-                    $this->display_product($product, $currentpage_slug, $permalinks);
-                }
-            }
-        }
-
+        // for ($i = $start_index; $i < $end_index; $i++) {
+        //     if (isset($products_ids[$i])) {
+        //         $product_id = $products_ids[$i];
+        //         if (isset($product_details_json[$product_id])) {
+        //             $product = $product_details_json[$product_id];
+        //             // $this->display_product($product, $currentpage_slug, $permalinks);
+        //         }
+        //     }
+        // }
+        $this->test_display();
         $product_html = ob_get_clean();
 
         // Send both the filtered products and updated filters back to the AJAX request
@@ -343,6 +343,42 @@ class dapfforwc_Filter_Functions
         ));
 
         wp_die();
+    }
+    public function test_display()
+    {
+        $tag_slug = 'test-tag'; // Replace with your tag slug
+        $args = array(
+            'post_type' => 'product',
+            'posts_per_page' => 4, // Show a limited number of products
+            'tax_query' => array(
+                array(
+                    'taxonomy' => 'product_tag',
+                    'field'    => 'slug',
+                    'terms'    => $tag_slug,
+                ),
+            ),
+        );
+
+        $loop = new WP_Query($args);
+
+        // Set WooCommerce globals
+        global $woocommerce_loop;
+        $woocommerce_loop['columns'] = wc_get_default_products_per_row();
+        $woocommerce_loop['loop'] = 0;
+
+        if ($loop->have_posts()) {
+            echo '<ul class="products">';
+            while ($loop->have_posts()) {
+                $loop->the_post();
+                wc_get_template_part('content', 'product'); // Load product template
+            }
+            echo '</ul></div>';
+        } else {
+            echo '<p>No products found</p>';
+        }
+    
+        // Reset post data
+        wp_reset_postdata();
     }
     private function get_orderby()
     {
@@ -420,24 +456,32 @@ class dapfforwc_Filter_Functions
 
             $current_theme = wp_get_theme();
             if ($current_theme->get('Name') === 'Astra') {
-                echo '<li class="product type-product" style="margin: 10px; padding: 0px;">
-	<div class="astra-shop-thumbnail-wrap">
-	<a href="' . esc_url($product_link) . '" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
-    ' . wp_get_attachment_image($attachment_id, 'full', false, array('alt' => esc_attr($product_title), 'class' => 'woocommerce-placeholder wp-post-image')) . '
-        </a>
-        ' . ($on_sale ? '<span class="ast-on-card-button ast-onsale-card" data-notification="default">Sale!</span>' : '') . '
-        <a href="?add-to-cart=' . esc_attr($product['ID']) . '" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="' . esc_attr($product['ID']) . '" data-product_sku="" aria-label="Add to cart: “' . esc_attr($product_title) . '”" rel="nofollow" style="display:none;"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
-                    <path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z"></path>
-                    </svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category" style="
-    font-size: 15px;
-">
-                    ' . wp_kses_post($cata_output) . '			</span>
-                <a href="' . esc_url($product_link) . '" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">' . esc_html($product_title) . '</h2></a>
-            <div class="review-rating"><div class="star-rating"><span style="width:' . (esc_attr($rating) * 20) . '%">Rated <strong class="rating">' . esc_html($rating) . '</strong> out of 5</span></div></div>
-    <span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>' . esc_html($product_price) . '</bdi></span></span>
-<a href="?add-to-cart=' . esc_attr($product['ID']) . '" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_' . esc_attr($product['ID']) . '" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="' . esc_attr($product['ID']) . '" data-product_sku="" aria-label="Add to cart: “' . esc_html($product_title) . '”" rel="nofollow" data-success_message="“' . esc_html($product_title) . '” has been added to your cart">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_' . esc_attr($product['ID']) . '" class="screen-reader-text">
-			</span>
-</div></li>';
+
+
+                // Set up global product variable to ensure WooCommerce functions work
+                $GLOBALS['product'] = wc_get_product($product['ID']);
+                // Load the WooCommerce product template part
+                wc_get_template_part('content', 'product');
+
+
+                //                 echo '<li class="product type-product" >
+                // 	<div class="astra-shop-thumbnail-wrap">
+                // 	<a href="' . esc_url($product_link) . '" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
+                //     ' . wp_get_attachment_image($attachment_id, array(300, 300), false, array('alt' => esc_attr($product_title), 'class' => 'woocommerce-placeholder wp-post-image')) . '
+                //         </a>
+                //         ' . ($on_sale ? '<span class="ast-on-card-button ast-onsale-card" data-notification="default">Sale!</span>' : '') . '
+                //         <a href="?add-to-cart=' . esc_attr($product['ID']) . '" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="' . esc_attr($product['ID']) . '" data-product_sku="" aria-label="Add to cart: “' . esc_attr($product_title) . '”" rel="nofollow" style="display:none;"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+                //                     <path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z"></path>
+                //                     </svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category" style="
+                //     font-size: 15px;
+                // ">
+                //                     ' . wp_kses_post($cata_output) . '			</span>
+                //                 <a href="' . esc_url($product_link) . '" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">' . esc_html($product_title) . '</h2></a>
+                //             <div class="review-rating"><div class="star-rating"><span style="width:' . (esc_attr($rating) * 20) . '%">Rated <strong class="rating">' . esc_html($rating) . '</strong> out of 5</span></div></div>
+                //     <span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">$</span>' . esc_html($product_price) . '</bdi></span></span>
+                // <a href="?add-to-cart=' . esc_attr($product['ID']) . '" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_' . esc_attr($product['ID']) . '" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="' . esc_attr($product['ID']) . '" data-product_sku="" aria-label="Add to cart: “' . esc_html($product_title) . '”" rel="nofollow" data-success_message="“' . esc_html($product_title) . '” has been added to your cart">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_' . esc_attr($product['ID']) . '" class="screen-reader-text">
+                // 			</span>
+                // </div></li>';
             } elseif ($current_theme->get('Name') === 'Hello Elementor') {
                 echo '<li class="product type-product post-' . esc_attr($product['ID']) . ' status-publish instock product_cat-diabetic-wellness product_tag-accu-answer-4-in-1 product_tag-accurate-diabetes-care product_tag-diabetic-machine sale shipping-taxable purchasable product-type-simple">
 	<a href="' . esc_url($product_link) . '" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
@@ -515,7 +559,7 @@ class dapfforwc_Filter_Functions
                 if ($current_theme->get('Name') === 'Popularis eCommerce') {
                     echo '<style>span.ast-woo-product-category {display: none !important;}</style>';
                 }
-                echo '<li class="product type-product entry loop-entry content-bg" style="margin: 10px; padding: 0px;">
+                echo '<li class="product type-product entry loop-entry content-bg" >
 	<div class="astra-shop-thumbnail-wrap">
 	<a href="' . esc_url($product_link) . '" class="woocommerce-LoopProduct-link woocommerce-loop-product__link">
     ' . wp_get_attachment_image($attachment_id, 'full', false, array('alt' => esc_attr($product_title), 'class' => 'woocommerce-placeholder wp-post-image')) . '
