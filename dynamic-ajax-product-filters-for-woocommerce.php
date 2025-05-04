@@ -798,7 +798,6 @@ add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
 
 /**
  * Advanced Product Filter Functions
- * Add this to your theme's functions.php or to a plugin file
  */
 
 /**
@@ -811,13 +810,8 @@ function wpc_filter_init()
         return;
     }
 
-    error_log("hello init done");
-
     // Filter the main query using pre_get_posts
     add_action('pre_get_posts', 'wpc_filter_products_query');
-
-    // Add scripts and styles
-    // add_action('wp_enqueue_scripts', 'wpc_filter_enqueue_scripts');
 
     // Intercept and handle filter requests
     add_action('parse_request', 'wpc_parse_filter_request');
@@ -854,14 +848,13 @@ function wpc_parse_filter_request($wp)
 function wpc_get_filter_params()
 {
     global $dapfforwc_seo_permalinks_options;
-    $isattrinurl = $dapfforwc_seo_permalinks_options && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on";
+    $isattrinurl = $dapfforwc_seo_permalinks_options && isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on";
     $attrprefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] : [];
     $params = array();
 
     // Get category filter
     if ($isattrinurl &&  $attrprefix["category"] && isset($_GET[$attrprefix["category"]]) && !empty($_GET[$attrprefix["category"]])) {
         $params['category'] = wpc_sanitize_array($_GET[$attrprefix["category"]]);
-        error_log(json_encode($params['category']));
     } else {
         if (isset($_GET['category']) && !empty($_GET['category'])) {
             $params['category'] = wpc_sanitize_array($_GET['category']);
@@ -871,21 +864,27 @@ function wpc_get_filter_params()
     // Get tag filter
     if ($isattrinurl &&  $attrprefix["tag"] && isset($_GET[$attrprefix["tag"]]) && !empty($_GET[$attrprefix["tag"]])) {
         $params['tag'] = wpc_sanitize_array($_GET[$attrprefix["tag"]]);
-        error_log(json_encode($params['tag']));
     } else {
         if (isset($_GET['tags']) && !empty($_GET['tags'])) {
             $params['tag'] = wpc_sanitize_array($_GET['tags']);
-            error_log(json_encode($_GET['tags']));
         }
     }
 
     // Get attribute filters (dynamic)
-    if (isset($_GET['attribute']) && is_array($_GET['attribute'])) {
-        foreach ($_GET['attribute'] as $attribute_name => $value) {
-            error_log('your key: ' . json_encode($attribute_name) . ' & value: ' . json_encode($value));
+    if ($isattrinurl && isset($attrprefix["attribute"]) && is_array($attrprefix["attribute"])) {
+        foreach ($attrprefix["attribute"] as $attribute_name => $attribute_prefix) {
+            error_log('you attrprefix is: '. $attribute_prefix);
+            if (!empty($attribute_prefix) && isset($_GET[$attribute_prefix]) && !empty($_GET[$attribute_prefix])) {
+                $params['attributes'][$attribute_name] = wpc_sanitize_array($_GET[$attribute_prefix]);
+            }
+        }
+    } else {
+        if (isset($_GET['attribute']) && is_array($_GET['attribute'])) {
+            foreach ($_GET['attribute'] as $attribute_name => $value) {
 
-            if (!empty($value)) {
-                $params['attributes'][$attribute_name] = wpc_sanitize_array($value);
+                if (!empty($value)) {
+                    $params['attributes'][$attribute_name] = wpc_sanitize_array($value);
+                }
             }
         }
     }
@@ -893,7 +892,6 @@ function wpc_get_filter_params()
     // Get rating filter
     if ($isattrinurl &&  $attrprefix["rating"] && isset($_GET[$attrprefix["rating"]]) && !empty($_GET[$attrprefix["rating"]])) {
         $params['rating'] = wpc_sanitize_array($_GET[$attrprefix["rating"]]);
-        error_log(json_encode($params['rating']));
     } else {
         if (isset($_GET['rating']) && !empty($_GET['rating'])) {
             $params['rating'] = wpc_sanitize_array($_GET['rating']);
@@ -901,20 +899,24 @@ function wpc_get_filter_params()
     }
 
     // Get price range filter
-    if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-        $params['min_price'] = floatval($_GET['min_price']);
-    }
+    if ($isattrinurl && $attrprefix["price"] && isset($_GET[$attrprefix["price"]]) && !empty($_GET[$attrprefix["price"]])) {
+        $price_range = explode('-', $_GET[$attrprefix["price"]]);
+        $params['min_price'] = isset($price_range[0]) ? floatval($price_range[0]) : 0;
+        $params['max_price'] = isset($price_range[1]) ? floatval($price_range[1]) : PHP_INT_MAX;
+    } else {
+        if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+            $params['min_price'] = floatval($_GET['min_price']);
+        }
 
-    if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-        $params['max_price'] = floatval($_GET['max_price']);
+        if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+            $params['max_price'] = floatval($_GET['max_price']);
+        }
     }
 
     // Get search query
     if (isset($_GET['s']) && !empty($_GET['s'])) {
         $params['search'] = sanitize_text_field($_GET['s']);
     }
-
-    error_log('sir your params : ' . json_encode($params));
 
     return $params;
 }
@@ -941,12 +943,12 @@ function wpc_sanitize_array($input)
  */
 function wpc_filter_products_query($query)
 {
-    // error_log("sir your query is : " . json_encode($query));
+    error_log("sir your query is : " . json_encode($query));
 
 
 
     // Only modify main query on frontend for product queries
-    if (!$query->is_main_query() || is_admin() && !$query->is_tax(get_object_taxonomies('product'))) {
+    if (!$query->is_main_query() || is_admin()) {
         return;
     }
     // Get filter parameters
@@ -1084,8 +1086,8 @@ function wpc_template_redirect_filter()
     $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
         strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 
-    // Only process on shop and archive pages
     if (!$is_ajax) {
+        error_log("ajax not working here");
         return;
     }
 
@@ -1121,9 +1123,16 @@ function wpc_template_redirect_filter()
             'success' => true,
             'data'    => array(
                 'html'  => $content,
-                'pagination' => woocommerce_pagination(),
+                'pagination' => paginate_links([
+                    'total'   => $GLOBALS['wp_query']->max_num_pages,
+                    'current' => max(1, get_query_var('paged')),
+                    'format'  => '?paged=%#%',
+                    'type'    => 'list',
+                    'prev_text' => __('←', 'woocommerce'),
+                    'next_text' => __('→', 'woocommerce'),
+                ]),
                 'found' => $GLOBALS['wp_query']->found_posts,
-                'url'   => wpc_get_current_url_with_query(),
+                // 'url'   => wpc_get_current_url_with_query(),
             ),
         );
 
@@ -1139,17 +1148,8 @@ add_action('template_redirect', 'wpc_template_redirect_filter');
  * 
  * @return string Full current URL with query parameters
  */
-function wpc_get_current_url_with_query()
-{
-    global $wp;
-    return add_query_arg($_SERVER['QUERY_STRING'], '', home_url($wp->request));
-}
-
-/**
- * Add hidden fields for the filter form
- * Call this function inside your filter form
- */
-function wpc_add_hidden_filter_fields()
-{
-    echo '<input type="hidden" id="wpc-filter-nonce" name="wpc-filter-nonce" value="' . wp_create_nonce('wpc_filter_nonce') . '">';
-}
+// function wpc_get_current_url_with_query()
+// {
+//     global $wp;
+//     return add_query_arg($_SERVER['QUERY_STRING'], '', home_url($wp->request));
+// }

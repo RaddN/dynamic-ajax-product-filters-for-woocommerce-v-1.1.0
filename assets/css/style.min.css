@@ -113,7 +113,7 @@ div#roverlay {
 #product-filter .collaps,
 #product-filter .items label,
 #product-filter .title.collapsable_no_arrow,
-form.rfilterbuttons li {
+form.rfilterbuttons * {
   cursor: pointer;
 }
 #product-filter .items.button_check label,
@@ -480,4 +480,7 @@ span#dapfforwc_issue_count {
 .items .image-option:hover span.image-title {
   opacity: 1;
   transition: all 0.3s ease-in-out;
+}
+form.rfilterselected ul * {
+  cursor: pointer !important;
 }

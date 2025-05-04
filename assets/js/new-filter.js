@@ -10,6 +10,7 @@
         formSelector: '#product-filter',
         productSelector: '.products',
         paginationSelector: 'nav.woocommerce-pagination',
+        sortingSelector: 'form.woocommerce-ordering select',
         filterTriggers: 'input[type="checkbox"], input[type="radio"], select, input[type="range"]',
         searchField: '#search-field',
         searchButton: '.plugincy-search-submit',
@@ -21,6 +22,7 @@
 
     let advancesettings, dapfforwc_options, dapfforwc_seo_permalinks_options;
     let front_page_slug;
+
     if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_advance_settings) {
         advancesettings = dapfforwc_data.dapfforwc_advance_settings;
     }
@@ -33,6 +35,8 @@
     if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_seo_permalinks_options) {
         dapfforwc_seo_permalinks_options = dapfforwc_data.dapfforwc_seo_permalinks_options;
     }
+
+    var rfilterbuttonsId = $('.rfilterbuttons').attr('id');
 
     console.log(dapfforwc_seo_permalinks_options);
 
@@ -64,7 +68,117 @@
                 window.location.reload();
             }
         });
+
+        initSorting();
     }
+    // single filter handle
+    syncCheckboxSelections();
+    function syncCheckboxSelections() {
+        const $list = $('.rfilterbuttons ul').empty();
+        $('#product-filter #' + rfilterbuttonsId + ' input').each(function () {
+            const value = $(this).val();
+            const checked = $(this).is(':checked');
+            const type = this.type;
+            $list.append(createCheckboxListItem(value, checked, type));
+        });
+        $('#product-filter #' + rfilterbuttonsId + ' option').each(function (index) {
+            // Skip the first option (index 0)
+            if (index === 0) {
+                return; // Skip this iteration
+            }
+            const value = $(this).val();
+            const checked = $(this).is(':checked');
+            const type = this.type;
+
+            $list.append(createCheckboxListItem(value, checked, type));
+        });
+        attachCheckboxClickEvents();
+        attachMainFilterChangeEvents();
+    }
+    function createCheckboxListItem(value, checked, type) {
+        const formattedLabel = value.split('-').map(word =>
+            word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ');
+        return $('<li></li>').addClass(checked ? 'checked' : '').append(
+            $('<input>', {
+                name: 'attribute[' + rfilterbuttonsId + '][]',
+                id: 'text_' + value,
+                type: 'checkbox',
+                value: value,
+                checked: checked
+            }).on('change', syncToMainFilter),
+            $('<label></label>', {
+                for: 'text_' + value,
+                text: formattedLabel
+            })
+        );
+    }
+
+    function syncToMainFilter() {
+        $(`#product-filter #${rfilterbuttonsId} input[value="${$(this).val()}"]`).prop('checked', $(this).is(':checked'));
+        $(`#product-filter #${rfilterbuttonsId} select option[value="${$(this).val()}"]`).prop('selected', $(this).is(':checked'));
+    }
+
+    function attachCheckboxClickEvents() {
+        $('.rfilterbuttons ul').off('click', 'li').on('click', 'li', function () {
+            const checkbox = $(this).find('input');
+            checkbox.prop('checked', !checkbox.is(':checked')).trigger('change');
+            $(this).toggleClass('checked', checkbox.is(':checked'));
+        });
+    }
+
+    function attachMainFilterChangeEvents() {
+        $('#' + rfilterbuttonsId + ' input').on('change', function () {
+            const relatedCheckbox = $(`.rfilterbuttons ul li input[value="${$(this).val()}"]`);
+            relatedCheckbox.prop('checked', $(this).is(':checked')).closest('li').toggleClass('checked', $(this).is(':checked'));
+        });
+    }
+
+    function store_selected_values() {
+        const filtersByType = {};
+        $('#product-filter input:checked').each(function () {
+            const value = $(this).val();
+            const name = $(this).attr('name');
+            if (!filtersByType[name]) {
+                filtersByType[name] = [];
+            }
+            filtersByType[name].push(value);
+        });
+        return filtersByType;
+    }
+
+    // create list of current selected filter
+    function selectedFilterShowProductTop() {
+        // Clear existing content
+        $('.rfilterselected ul').empty();
+        if (Array.isArray(selectedValesbyuser)) {
+            for (let value of selectedValesbyuser) {
+                $('.rfilterselected ul').append(`
+            <li class="checked">
+                <input id="selected_${value}" type="checkbox" value="${value}" checked>
+                <label for="selected_${value}">${value.replace(/-/g, ' ')}</label>
+                <label style="font-size:12px;margin-left:5px;">x</label>
+            </li>`);
+            }
+        } else if (typeof selectedValesbyuser === 'object' && selectedValesbyuser !== null) {
+            for (let key in selectedValesbyuser) {
+                for (let value of selectedValesbyuser[key]) {
+                    $('.rfilterselected ul').append(`
+                <li class="checked">
+                <input id="selected_${key}_${value}" type="checkbox" value="${value}" checked>
+                <label for="selected_${key}_${value}">${value.replace(/-/g, ' ')}</label>
+                <label style="font-size:12px;margin-left:5px;">x</label>
+                </li>`);
+                }
+            }
+        }
+    }
+
+    // pagination handle
+
+    let selectedValesbyuser = store_selected_values();
+
+    selectedFilterShowProductTop();
 
     /**
      * Bind events to filter form elements
@@ -78,12 +192,18 @@
             clearTimeout(debounceTimer);
             filterState.pendingChanges = true;
 
+            selectedValesbyuser = store_selected_values();
+
+            selectedFilterShowProductTop();
+
             debounceTimer = setTimeout(function () {
                 if (filterState.pendingChanges) {
                     handleFilterChange($form);
                 }
             }, WPC_FILTER.debounceTime);
         });
+
+        $('.rfilterbuttons').on('change', function () {handleFilterChange($form);});
 
         // Handle price range inputs
         $form.on('input', 'input[type="range"]', function () {
@@ -111,6 +231,15 @@
             handleFilterChange($form);
         });
     }
+
+    $('.rfilterselected').on('change', 'li', function (e) {
+        const $form = $(WPC_FILTER.formSelector);
+        const value = $(this).find('input[type="checkbox"]').val();
+        $(`#product-filter input[value="${value}"]`).prop('checked', false);
+        selectedValesbyuser = store_selected_values();
+        selectedFilterShowProductTop();
+        handleFilterChange($form);
+    });
 
     /**
      * Handle changes to filter form elements
@@ -159,7 +288,7 @@
         if (dapfforwc_seo_permalinks_options &&
             dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks === "on") {
 
-                
+
 
             // Transform the URL to SEO format
             const seoUrl = transformToSeoUrl(url, dapfforwc_seo_permalinks_options);
@@ -171,10 +300,12 @@
             }
         }
 
+        console.log(url);
+
         // Add X-Requested-With header for WordPress to detect AJAX
         filterState.currentRequest = $.ajax({
             url: url,
-            data: formData,
+            // data: formData,
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -217,6 +348,44 @@
                 setLoadingState(false);
                 filterState.currentRequest = null;
             }
+        });
+    }
+
+    /**
+     * Initialize sorting functionality
+     */
+    function initSorting() {
+        // Prevent form submission on pressing Enter
+        $('.woocommerce-ordering').on('submit', function (event) {
+            event.preventDefault();
+        });
+        $(document).on('change', WPC_FILTER.sortingSelector, function (e) {
+            e.preventDefault();
+
+            const sortValue = $(this).val();
+
+            // Create or update the orderby hidden input in the filter form
+            let $orderbyInput = $('#filter-orderby');
+            if ($orderbyInput.length === 0) {
+                $orderbyInput = $('<input>').attr({
+                    type: 'hidden',
+                    id: 'filter-orderby',
+                    name: 'orderby',
+                    value: sortValue
+                });
+                $(WPC_FILTER.formSelector).append($orderbyInput);
+            } else {
+                $orderbyInput.val(sortValue);
+            }
+
+            // Reset to page 1 when sorting changes
+            let $pageInput = $('#filter-page-num');
+            if ($pageInput.length) {
+                $pageInput.val(1);
+            }
+
+            // Trigger filter change with the new sort order
+            handleFilterChange($(WPC_FILTER.formSelector));
         });
     }
 
