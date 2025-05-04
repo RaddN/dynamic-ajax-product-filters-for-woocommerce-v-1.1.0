@@ -40,6 +40,29 @@
 
     console.log(dapfforwc_seo_permalinks_options);
 
+    let pagination_selector = advancesettings ? advancesettings["pagination_selector"] ?? 'ul.page-numbers' : 'ul.page-numbers';
+    let paginationSelector_shortcode = $('#product-filter').data('pagination_selector');
+
+    function attachPaginationEvents() {
+        const $form = $(WPC_FILTER.formSelector);
+        $(document).on('click', `${paginationSelector_shortcode ?? pagination_selector} a.page-numbers`, function (e) {
+            e.preventDefault(); // Prevent the default anchor click behavior
+            const url = $(this).attr('href'); // Get the URL from the link
+            console.log(url);
+            const fullUrl = new URL(url, window.location.origin); // Ensure a valid URL
+            const urlParams = fullUrl.searchParams;
+            const page = urlParams.get('paged') || urlParams.get('product-page'); // Extract the page number
+            $('#roverlay').show();
+            $('#loader').show();
+            handleFilterChange($form, page); // Fetch products for the selected page
+        });
+    }
+
+    // Call this function after updating the product listings
+    if ($('#product-filter').length) {
+        attachPaginationEvents();
+    }
+
     // Store the current filter state
     let filterState = {
         currentRequest: null,
@@ -203,7 +226,7 @@
             }, WPC_FILTER.debounceTime);
         });
 
-        $('.rfilterbuttons').on('change', function () {handleFilterChange($form);});
+        $('.rfilterbuttons').on('change', function () { handleFilterChange($form); });
 
         // Handle price range inputs
         $form.on('input', 'input[type="range"]', function () {
@@ -244,7 +267,7 @@
     /**
      * Handle changes to filter form elements
      */
-    function handleFilterChange($form) {
+    function handleFilterChange($form, $page = 1) {
         filterState.pendingChanges = false;
 
         // Check if we're already processing a request
@@ -255,17 +278,31 @@
         // Get the serialized form data
         const formData = $form.serialize();
 
+        const product_show_settings = JSON.parse($form.data("product_show_settings"));
+
+        // Access each value
+        let perPage = product_show_settings.per_page;          // "5"
+        let orderBy = product_show_settings.orderby;          // "date"
+        let order = product_show_settings.order;               // "DESC"
+        let operatorSecond = product_show_settings.operator_second; // "in"
+
+        console.log(perPage);
+
         // Build the query URL
         const currentUrl = window.location.href.split('?')[0];
         const queryString = formData.replace(/\+/g, '%20');
-        const fullUrl = currentUrl + (queryString ? '?' + queryString : '');
-
+        let fullUrl = "/shop/" + (queryString ? '?' + queryString : '');
+        if ($page != null) {
+            const pageParam = `paged=${$page}`;
+            fullUrl += (queryString ? '&' : '?') + pageParam;
+        }
+        fullUrl += `&per_page=${perPage}&operator_second=${operatorSecond}&orderby=${orderBy}&order=${order}`;
         // Detect if we're using AJAX or regular page load
         const useAjax = true; // Set to false to disable AJAX and use regular page loads
 
         if (useAjax) {
             // Use AJAX to update content
-            loadFilteredContentAjax(fullUrl, formData);
+            loadFilteredContentAjax(fullUrl, formData, currentUrl);
         } else {
             // Use regular page navigation
             window.history.pushState({ wpcFilter: true }, '', fullUrl);
@@ -276,7 +313,8 @@
     /**
      * Load filtered content via AJAX
      */
-    function loadFilteredContentAjax(url, formData) {
+    function loadFilteredContentAjax(url, formData, currentUrl) {
+        const $form = $(WPC_FILTER.formSelector);
         // Abort any pending request
         if (filterState.currentRequest) {
             filterState.currentRequest.abort();
@@ -288,7 +326,7 @@
         if (dapfforwc_seo_permalinks_options &&
             dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks === "on") {
 
-
+                console.log(url);
 
             // Transform the URL to SEO format
             const seoUrl = transformToSeoUrl(url, dapfforwc_seo_permalinks_options);
@@ -299,13 +337,12 @@
                 url = seoUrl;
             }
         }
-
         console.log(url);
 
         // Add X-Requested-With header for WordPress to detect AJAX
         filterState.currentRequest = $.ajax({
             url: url,
-            // data: formData,
+            data: formData,
             method: 'GET',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -314,12 +351,14 @@
                 if (response.success) {
                     if (dapfforwc_options.use_url_filter !== "ajax") {
                         // Update browser history / url with transformed URL if necessary
+                        url = currentUrl + url.substring(url.indexOf('?'));
                         window.history.pushState({ wpcFilter: true }, '', url);
                     }
 
                     // Update the products container
                     $(WPC_FILTER.productSelector).html(response.data.html);
                     $(WPC_FILTER.paginationSelector).html(response.data.pagination);
+                    $form.html(response.data.updated_form);
 
 
                     // Update product count if element exists
@@ -461,7 +500,9 @@
      */
     function transformToSeoUrl(url, seoOptions) {
         // Parse the current URL
-        const urlObj = new URL(url);
+        const domain = window.location.protocol + '//' + window.location.hostname;
+        console.log(domain+url)
+        const urlObj = new URL(domain+url);
         const searchParams = urlObj.searchParams;
 
         // Create new URLSearchParams for our SEO-friendly URL

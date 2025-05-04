@@ -827,15 +827,17 @@ add_action('init', 'wpc_filter_init');
 function wpc_parse_filter_request($wp)
 {
     // Only process product filter requests
-    if (!isset($wp->query_vars['post_type']) || $wp->query_vars['post_type'] !== 'product') {
-        return $wp;
-    }
+    // if (!isset($wp->query_vars['post_type']) || $wp->query_vars['post_type'] !== 'product') {
+    //     return $wp;
+    // }
 
     // Parse all the filter parameters
     $filter_params = wpc_get_filter_params();
 
     // Store filter parameters in a global variable for later use
     $GLOBALS['wpc_filter_params'] = $filter_params;
+
+    error_log(json_encode($GLOBALS['wpc_filter_params']));
 
     return $wp;
 }
@@ -848,6 +850,7 @@ function wpc_parse_filter_request($wp)
 function wpc_get_filter_params()
 {
     global $dapfforwc_seo_permalinks_options;
+
     $isattrinurl = $dapfforwc_seo_permalinks_options && isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on";
     $attrprefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] : [];
     $params = array();
@@ -873,7 +876,6 @@ function wpc_get_filter_params()
     // Get attribute filters (dynamic)
     if ($isattrinurl && isset($attrprefix["attribute"]) && is_array($attrprefix["attribute"])) {
         foreach ($attrprefix["attribute"] as $attribute_name => $attribute_prefix) {
-            error_log('you attrprefix is: '. $attribute_prefix);
             if (!empty($attribute_prefix) && isset($_GET[$attribute_prefix]) && !empty($_GET[$attribute_prefix])) {
                 $params['attributes'][$attribute_name] = wpc_sanitize_array($_GET[$attribute_prefix]);
             }
@@ -943,18 +945,20 @@ function wpc_sanitize_array($input)
  */
 function wpc_filter_products_query($query)
 {
-    error_log("sir your query is : " . json_encode($query));
-
-
 
     // Only modify main query on frontend for product queries
     if (!$query->is_main_query() || is_admin()) {
         return;
     }
+
+    // Set the number of products per page
+    if (isset($_GET['per_page']) && !empty($_GET['per_page'])) {
+        $query->set('posts_per_page', $_GET['per_page']);
+    }
     // Get filter parameters
     $filter_params = isset($GLOBALS['wpc_filter_params']) ? $GLOBALS['wpc_filter_params'] : wpc_get_filter_params();
 
-    error_log("sir your params : " . json_encode($filter_params));
+    $GLOBALS['wpc_filter_params'] = $filter_params;
 
     // Apply filters to query
     wpc_apply_filters_to_query($query, $filter_params);
@@ -997,7 +1001,7 @@ function wpc_apply_filters_to_query($query, $params)
             'taxonomy' => 'product_cat',
             'field'    => 'slug',
             'terms'    => $params['category'],
-            'operator' => 'IN',
+            'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? $_GET['operator_second'] : 'IN',
         );
     }
 
@@ -1007,7 +1011,7 @@ function wpc_apply_filters_to_query($query, $params)
             'taxonomy' => 'product_tag',
             'field'    => 'slug',
             'terms'    => $params['tag'],
-            'operator' => 'IN',
+            'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? $_GET['operator_second'] : 'IN',
         );
     }
 
@@ -1019,7 +1023,7 @@ function wpc_apply_filters_to_query($query, $params)
                     'taxonomy' => 'pa_' . $attribute_name,
                     'field'    => 'slug',
                     'terms'    => $attribute_values,
-                    'operator' => 'IN',
+                    'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? $_GET['operator_second'] : 'IN',
                 );
             }
         }
@@ -1084,64 +1088,89 @@ function wpc_template_redirect_filter()
 {
     // Check if this is an AJAX request
     $is_ajax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
-        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+        strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest');
 
     if (!$is_ajax) {
-        error_log("ajax not working here");
         return;
     }
 
-    // Output only the product content for AJAX requests
     add_filter('template_include', function ($template) {
-        // Start output buffering
+        $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
+        $filter_params = isset($GLOBALS['wpc_filter_params']) ? $GLOBALS['wpc_filter_params'] : wpc_get_filter_params();
         ob_start();
 
-        // Set up global WooCommerce loop variables
+        // WooCommerce loop setup
         global $woocommerce_loop;
         $woocommerce_loop['columns'] = wc_get_default_products_per_row();
 
-        // Output products
-        // woocommerce_product_loop_start();
+        // Track rendered product IDs
+        $products_ids = [];
 
         if (have_posts()) {
             while (have_posts()) {
                 the_post();
+                $products_ids[] = get_the_ID();
                 wc_get_template_part('content', 'product');
             }
         } else {
             echo '<p class="woocommerce-info">' . esc_html__('No products found matching your selection.', 'woocommerce') . '</p>';
         }
 
-        // woocommerce_product_loop_end();
+        // Setup pagination and counts
+        $found_posts     = $GLOBALS['wp_query']->found_posts;
+        $posts_per_page  = $GLOBALS['wp_query']->get('posts_per_page');
 
+        $filterform = '';
 
-        // Get the buffered content
+        // Only run full product ID fetch + filter form if not all products are shown
+        if ($found_posts > $posts_per_page) {
+            $products_ids = [];
+
+            $filter_query = new WP_Query([
+                'post_type'      => 'product',
+                'post_status'    => 'publish',
+                'posts_per_page' => -1,
+                'fields'         => 'ids',
+                'no_found_rows'  => true,
+            ]);
+
+            // Apply filters manually
+            wpc_apply_filters_to_query($filter_query, $filter_params);
+            $filter_query->get_posts(); // Ensure query runs
+            $products_ids = $filter_query->posts;
+        }
+
+        error_log("your all product ids: " . json_encode($products_ids));
+
+        // Rebuild filter form with updated filters
+        $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
+        $filterform = dapfforwc_filter_form($updated_filters, $filter_params, "", "", "", 0, 9999, [], '');
+
+        // Output buffer contents
         $content = ob_get_clean();
 
-        // Create the response
-        $response = array(
+        // Return AJAX response
+        wp_send_json([
             'success' => true,
-            'data'    => array(
-                'html'  => $content,
-                'pagination' => paginate_links([
-                    'total'   => $GLOBALS['wp_query']->max_num_pages,
-                    'current' => max(1, get_query_var('paged')),
-                    'format'  => '?paged=%#%',
-                    'type'    => 'list',
+            'data' => [
+                'html'         => $content,
+                'updated_form' => $filterform,
+                'pagination'   => paginate_links([
+                    'total'     => $GLOBALS['wp_query']->max_num_pages,
+                    'current'   => max(1, get_query_var('paged')),
+                    'format'    => '?paged=%#%',
+                    'type'      => 'list',
                     'prev_text' => __('←', 'woocommerce'),
                     'next_text' => __('→', 'woocommerce'),
                 ]),
-                'found' => $GLOBALS['wp_query']->found_posts,
-                // 'url'   => wpc_get_current_url_with_query(),
-            ),
-        );
-
-        // Output as JSON and exit
-        wp_send_json($response);
+                'found' => $found_posts,
+            ],
+        ]);
         exit;
     });
 }
 add_action('template_redirect', 'wpc_template_redirect_filter');
+
 
 /**
  * Helper function to get current URL with query parameters
