@@ -198,7 +198,12 @@ function dapfforwc_enqueue_scripts()
     wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.1', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
-    wp_localize_script($script_handle, 'dapfforwc_ajax', ['ajax_url' => admin_url('admin-ajax.php')]);
+    wp_localize_script($script_handle, 'dapfforwc_ajax', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'shopPageUrl' => esc_url(get_permalink(wc_get_page_id('shop'))),
+        'isProductArchive' =>  is_shop() || is_product_category() || is_product_tag() || is_product(),
+        'currencySymbol' => get_woocommerce_currency_symbol()
+    ]);
 
     wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.1');
     wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '1.1.1');
@@ -497,7 +502,9 @@ add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter
 
 
 // filter error detector
-add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
+if (class_exists('WooCommerce')) {
+    add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
+}
 
 function dapfforwc_add_debug_menu($wp_admin_bar)
 {
@@ -521,8 +528,9 @@ function dapfforwc_add_debug_menu($wp_admin_bar)
         ]);
     }
 }
-
-add_action('wp_footer', 'dapfforwc_check_elements');
+if (class_exists('WooCommerce')) {
+    add_action('wp_footer', 'dapfforwc_check_elements');
+}
 
 function dapfforwc_check_elements()
 {
@@ -781,8 +789,9 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
 }
 
 // Hook into wp_head with a high priority to ensure our tags are output correctly
-add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
-
+if (class_exists('WooCommerce')) {
+    add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
+}
 
 
 
@@ -811,12 +820,15 @@ function wpc_filter_init()
     }
 
     // Filter the main query using pre_get_posts
-    add_action('pre_get_posts', 'wpc_filter_products_query');
+    add_action('pre_get_posts', 'wpc_filter_products_query', 10);
 
-    // Intercept and handle filter requests
-    add_action('parse_request', 'wpc_parse_filter_request');
+    // Intercept and handle filter requests - run this VERY early
+    add_action('parse_request', 'wpc_parse_filter_request', 1);
 }
-add_action('init', 'wpc_filter_init');
+
+if (class_exists('WooCommerce')) {
+    add_action('init', 'wpc_filter_init');
+}
 
 /**
  * Parse filter parameters from the request
@@ -826,18 +838,22 @@ add_action('init', 'wpc_filter_init');
  */
 function wpc_parse_filter_request($wp)
 {
-    // Only process product filter requests
-    // if (!isset($wp->query_vars['post_type']) || $wp->query_vars['post_type'] !== 'product') {
-    //     return $wp;
-    // }
-
+    // Start the session if not already started
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
     // Parse all the filter parameters
     $filter_params = wpc_get_filter_params();
 
-    // Store filter parameters in a global variable for later use
-    $GLOBALS['wpc_filter_params'] = $filter_params;
+    if (isset($filter_params) && !empty($filter_params)) {
 
-    error_log(json_encode($GLOBALS['wpc_filter_params']));
+        error_log("first call params : " . json_encode($filter_params));
+
+        // Store filter parameters in a global variable for later use
+        $GLOBALS['wpc_filter_params'] = $filter_params;
+        // Store filter parameters in a session variable for later use
+        $_SESSION['wpc_filter_params'] = $filter_params;
+    }
 
     return $wp;
 }
@@ -850,69 +866,46 @@ function wpc_parse_filter_request($wp)
 function wpc_get_filter_params()
 {
     global $dapfforwc_seo_permalinks_options;
-
-    $isattrinurl = $dapfforwc_seo_permalinks_options && isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on";
-    $attrprefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] : [];
     $params = array();
 
     // Get category filter
-    if ($isattrinurl &&  $attrprefix["category"] && isset($_GET[$attrprefix["category"]]) && !empty($_GET[$attrprefix["category"]])) {
-        $params['category'] = wpc_sanitize_array($_GET[$attrprefix["category"]]);
-    } else {
-        if (isset($_GET['category']) && !empty($_GET['category'])) {
-            $params['category'] = wpc_sanitize_array($_GET['category']);
-        }
+
+    if (isset($_GET['category']) && !empty($_GET['category'])) {
+        $params['category'] = wpc_sanitize_array($_GET['category']);
     }
 
     // Get tag filter
-    if ($isattrinurl &&  $attrprefix["tag"] && isset($_GET[$attrprefix["tag"]]) && !empty($_GET[$attrprefix["tag"]])) {
-        $params['tag'] = wpc_sanitize_array($_GET[$attrprefix["tag"]]);
-    } else {
-        if (isset($_GET['tags']) && !empty($_GET['tags'])) {
-            $params['tag'] = wpc_sanitize_array($_GET['tags']);
-        }
+
+    if (isset($_GET['tags']) && !empty($_GET['tags'])) {
+        $params['tag'] = wpc_sanitize_array($_GET['tags']);
     }
 
-    // Get attribute filters (dynamic)
-    if ($isattrinurl && isset($attrprefix["attribute"]) && is_array($attrprefix["attribute"])) {
-        foreach ($attrprefix["attribute"] as $attribute_name => $attribute_prefix) {
-            if (!empty($attribute_prefix) && isset($_GET[$attribute_prefix]) && !empty($_GET[$attribute_prefix])) {
-                $params['attributes'][$attribute_name] = wpc_sanitize_array($_GET[$attribute_prefix]);
-            }
-        }
-    } else {
-        if (isset($_GET['attribute']) && is_array($_GET['attribute'])) {
-            foreach ($_GET['attribute'] as $attribute_name => $value) {
 
-                if (!empty($value)) {
-                    $params['attributes'][$attribute_name] = wpc_sanitize_array($value);
-                }
+    // Get attribute filters (dynamic)
+
+    if (isset($_GET['attribute']) && is_array($_GET['attribute'])) {
+        foreach ($_GET['attribute'] as $attribute_name => $value) {
+
+            if (!empty($value)) {
+                $params['attributes'][$attribute_name] = wpc_sanitize_array($value);
             }
         }
     }
 
     // Get rating filter
-    if ($isattrinurl &&  $attrprefix["rating"] && isset($_GET[$attrprefix["rating"]]) && !empty($_GET[$attrprefix["rating"]])) {
-        $params['rating'] = wpc_sanitize_array($_GET[$attrprefix["rating"]]);
-    } else {
-        if (isset($_GET['rating']) && !empty($_GET['rating'])) {
-            $params['rating'] = wpc_sanitize_array($_GET['rating']);
-        }
+
+    if (isset($_GET['rating']) && !empty($_GET['rating'])) {
+        $params['rating'] = wpc_sanitize_array($_GET['rating']);
     }
 
     // Get price range filter
-    if ($isattrinurl && $attrprefix["price"] && isset($_GET[$attrprefix["price"]]) && !empty($_GET[$attrprefix["price"]])) {
-        $price_range = explode('-', $_GET[$attrprefix["price"]]);
-        $params['min_price'] = isset($price_range[0]) ? floatval($price_range[0]) : 0;
-        $params['max_price'] = isset($price_range[1]) ? floatval($price_range[1]) : PHP_INT_MAX;
-    } else {
-        if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
-            $params['min_price'] = floatval($_GET['min_price']);
-        }
 
-        if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
-            $params['max_price'] = floatval($_GET['max_price']);
-        }
+    if (isset($_GET['min_price']) && is_numeric($_GET['min_price'])) {
+        $params['mn_price'] = floatval($_GET['min_price']);
+    }
+
+    if (isset($_GET['max_price']) && is_numeric($_GET['max_price'])) {
+        $params['mx_price'] = floatval($_GET['max_price']);
     }
 
     // Get search query
@@ -945,7 +938,6 @@ function wpc_sanitize_array($input)
  */
 function wpc_filter_products_query($query)
 {
-
     // Only modify main query on frontend for product queries
     if (!$query->is_main_query() || is_admin()) {
         return;
@@ -955,10 +947,16 @@ function wpc_filter_products_query($query)
     if (isset($_GET['per_page']) && !empty($_GET['per_page'])) {
         $query->set('posts_per_page', $_GET['per_page']);
     }
-    // Get filter parameters
-    $filter_params = isset($GLOBALS['wpc_filter_params']) ? $GLOBALS['wpc_filter_params'] : wpc_get_filter_params();
 
-    $GLOBALS['wpc_filter_params'] = $filter_params;
+    // Get filter parameters - ensure they're always available
+    if (!isset($GLOBALS['wpc_filter_params']) || empty($GLOBALS['wpc_filter_params'])) {
+        $GLOBALS['wpc_filter_params'] = wpc_get_filter_params();
+        error_log("second call");
+    }
+
+    $filter_params = $GLOBALS['wpc_filter_params'];
+
+    error_log("second params : " . json_encode($filter_params));
 
     // Apply filters to query
     wpc_apply_filters_to_query($query, $filter_params);
@@ -973,6 +971,16 @@ function wpc_filter_products_query($query)
  */
 function wpc_apply_filters_to_query($query, $params)
 {
+
+    // Only apply to WooCommerce product archive pages
+    if (
+        !$query->is_post_type_archive('product') &&
+        !$query->is_tax('product_cat') &&
+        !$query->is_tax('product_tag') &&
+        !$query->is_tax(get_object_taxonomies('product'))
+    ) {
+        return;
+    }
     // Initialize tax_query and meta_query arrays
     $tax_query = $query->get('tax_query', array());
     $meta_query = $query->get('meta_query', array());
@@ -1030,12 +1038,12 @@ function wpc_apply_filters_to_query($query, $params)
     }
 
     // Apply price range filter
-    if ((isset($params['min_price']) && $params['min_price'] > 0) ||
-        (isset($params['max_price']) && $params['max_price'] > 0)
+    if ((isset($params['mn_price']) && $params['mn_price'] > 0) ||
+        (isset($params['mx_price']) && $params['mx_price'] > 0)
     ) {
 
-        $min = isset($params['min_price']) ? floatval($params['min_price']) : 0;
-        $max = isset($params['max_price']) ? floatval($params['max_price']) : PHP_INT_MAX;
+        $min = isset($params['mn_price']) ? floatval($params['mn_price']) : 0;
+        $max = isset($params['mx_price']) ? floatval($params['mx_price']) : 0;
 
         $meta_query[] = array(
             'key'     => '_price',
@@ -1096,7 +1104,30 @@ function wpc_template_redirect_filter()
 
     add_filter('template_include', function ($template) {
         $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-        $filter_params = isset($GLOBALS['wpc_filter_params']) ? $GLOBALS['wpc_filter_params'] : wpc_get_filter_params();
+        global $dapfforwc_seo_permalinks_options, $dapfforwc_styleoptions;
+
+        // Start the session if not already started
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        // Ensure filter params are always available
+        if (!isset($GLOBALS['wpc_filter_params']) || empty($GLOBALS['wpc_filter_params'])) {
+            $GLOBALS['wpc_filter_params'] = wpc_get_filter_params();
+            error_log("Last call");
+        }
+
+
+
+        if (!isset($GLOBALS['wpc_filter_params']) || empty($GLOBALS['wpc_filter_params'])) {
+            $filter_params = $_SESSION['wpc_filter_params'];
+        } else {
+            $filter_params = $GLOBALS['wpc_filter_params'];
+        }
+
+        // Debug log to check values
+        error_log("Last call filter params: " . print_r($filter_params, true));
+
         ob_start();
 
         // WooCommerce loop setup
@@ -1140,11 +1171,22 @@ function wpc_template_redirect_filter()
             $products_ids = $filter_query->posts;
         }
 
-        error_log("your all product ids: " . json_encode($products_ids));
-
         // Rebuild filter form with updated filters
         $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
         $filterform = dapfforwc_filter_form($updated_filters, $filter_params, "", "", "", 0, 9999, [], '');
+
+
+        $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
+        $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+
+        $min_price = isset($_GET['min_price']) ? floatval(sanitize_text_field(wp_unslash($_GET['min_price']))) : ($dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min']);
+
+        $max_price = isset($_GET['max_price']) ? floatval(sanitize_text_field(wp_unslash($_GET['max_price']))) : ($dapfforwc_styleoptions["price"]["max_price"] ?? $min_max_prices['max'] + 1);
+
+        $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
+        // Pass sanitized values to the function
+        $filterform = dapfforwc_filter_form($updated_filters, $filter_params, $use_anchor, "", "", $min_price, $max_price, [], '');
+
 
         // Output buffer contents
         $content = ob_get_clean();
@@ -1169,16 +1211,6 @@ function wpc_template_redirect_filter()
         exit;
     });
 }
-add_action('template_redirect', 'wpc_template_redirect_filter');
-
-
-/**
- * Helper function to get current URL with query parameters
- * 
- * @return string Full current URL with query parameters
- */
-// function wpc_get_current_url_with_query()
-// {
-//     global $wp;
-//     return add_query_arg($_SERVER['QUERY_STRING'], '', home_url($wp->request));
-// }
+if (class_exists('WooCommerce')) {
+    add_action('template_redirect', 'wpc_template_redirect_filter');
+}

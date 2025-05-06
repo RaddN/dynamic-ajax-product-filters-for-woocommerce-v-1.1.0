@@ -19,7 +19,7 @@ function dapfforwc_product_filter_shortcode($atts)
         'pagination_selector' => '',
         'mobile_responsive' => 'style_4',
         'use_custom_template_design' => 'no',
-        'per_page' => 12,
+        'per_page' => '',
     ), $atts);
 
     $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
@@ -67,7 +67,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
-            'per_page'        => $attributes['limit'] ?? $attributes['per_page'] ?? 100,
+            'per_page'        => $attributes['limit'] ?? $attributes['per_page'],
             'orderby'         => $attributes['orderby'] ?? '',
             'order'           => $attributes['order'] ?? '',
             'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
@@ -93,9 +93,9 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = [$tag_slug];
     }
     if (isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page']) && $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] === 12) {
-        $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'] ?? 12;
+        $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'];
     } elseif (!isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'])) {
-        $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'] ?? 12;
+        $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'];
     }
 
     update_option('dapfforwc_options', $dapfforwc_options);

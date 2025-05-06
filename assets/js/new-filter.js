@@ -19,9 +19,10 @@
         debounceTime: 500, // ms to wait before processing input changes
         autoScrollOffset: 100
     };
-
-    let advancesettings, dapfforwc_options, dapfforwc_seo_permalinks_options;
+    let count;
+    let advancesettings, dapfforwc_options, dapfforwc_seo_permalinks_options, shopPageUrl, isProductArchive, currencySymbol;
     let front_page_slug;
+    let debounceTimer;
 
     if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_advance_settings) {
         advancesettings = dapfforwc_data.dapfforwc_advance_settings;
@@ -35,10 +36,19 @@
     if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_seo_permalinks_options) {
         dapfforwc_seo_permalinks_options = dapfforwc_data.dapfforwc_seo_permalinks_options;
     }
+    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.shopPageUrl) {
+        shopPageUrl = dapfforwc_ajax.shopPageUrl;
+    }
+    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.isProductArchive) {
+        isProductArchive = dapfforwc_ajax.isProductArchive;
+    }
+    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.currencySymbol) {
+        currencySymbol = dapfforwc_ajax.currencySymbol;
+    }
 
     var rfilterbuttonsId = $('.rfilterbuttons').attr('id');
 
-    console.log(dapfforwc_seo_permalinks_options);
+
 
     let pagination_selector = advancesettings ? advancesettings["pagination_selector"] ?? 'ul.page-numbers' : 'ul.page-numbers';
     let paginationSelector_shortcode = $('#product-filter').data('pagination_selector');
@@ -48,7 +58,6 @@
         $(document).on('click', `${paginationSelector_shortcode ?? pagination_selector} a.page-numbers`, function (e) {
             e.preventDefault(); // Prevent the default anchor click behavior
             const url = $(this).attr('href'); // Get the URL from the link
-            console.log(url);
             const fullUrl = new URL(url, window.location.origin); // Ensure a valid URL
             const urlParams = fullUrl.searchParams;
             const page = urlParams.get('paged') || urlParams.get('product-page'); // Extract the page number
@@ -70,6 +79,13 @@
         pendingChanges: false
     };
 
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('filters')) {
+        count = 1;
+        applyFiltersFromUrl(urlParams.get('filters'));
+        count = 0;
+
+    }
     /**
      * Initialize the filter functionality
      */
@@ -77,7 +93,6 @@
         const $form = $(WPC_FILTER.formSelector);
 
         if ($form.length === 0) {
-            console.warn('Filter form not found');
             return;
         }
 
@@ -226,7 +241,10 @@
             }, WPC_FILTER.debounceTime);
         });
 
-        $('.rfilterbuttons').on('change', function () { handleFilterChange($form); });
+        $('.rfilterbuttons').on('change', function () {
+            selectedFilterShowProductTop();
+            handleFilterChange($form);
+        });
 
         // Handle price range inputs
         $form.on('input', 'input[type="range"]', function () {
@@ -286,28 +304,29 @@
         let order = product_show_settings.order;               // "DESC"
         let operatorSecond = product_show_settings.operator_second; // "in"
 
-        console.log(perPage);
-
         // Build the query URL
         const currentUrl = window.location.href.split('?')[0];
         const queryString = formData.replace(/\+/g, '%20');
-        let fullUrl = "/shop/" + (queryString ? '?' + queryString : '');
+        let fullUrl;
+        fullUrl = shopPageUrl + (queryString ? '?' + queryString : '');
         if ($page != null) {
             const pageParam = `paged=${$page}`;
             fullUrl += (queryString ? '&' : '?') + pageParam;
         }
-        fullUrl += `&per_page=${perPage}&operator_second=${operatorSecond}&orderby=${orderBy}&order=${order}`;
-        // Detect if we're using AJAX or regular page load
-        const useAjax = true; // Set to false to disable AJAX and use regular page loads
-
-        if (useAjax) {
-            // Use AJAX to update content
-            loadFilteredContentAjax(fullUrl, formData, currentUrl);
-        } else {
-            // Use regular page navigation
-            window.history.pushState({ wpcFilter: true }, '', fullUrl);
-            window.location.href = fullUrl;
+        if (!isProductArchive) {
+            fullUrl += `&per_page=${perPage}&operator_second=${operatorSecond}&orderby=${orderBy}&order=${order}`;
         }
+        // Detect if we're using AJAX or regular page load
+        // const useAjax = true; // Set to false to disable AJAX and use regular page loads
+
+        // if (useAjax) {
+        // Use AJAX to update content
+        loadFilteredContentAjax(fullUrl, formData, currentUrl);
+        // } else {
+        //     // Use regular page navigation
+        //     window.history.pushState({ wpcFilter: true }, '', fullUrl);
+        //     window.location.href = fullUrl;
+        // }
     }
 
     /**
@@ -323,22 +342,6 @@
         // Set loading state
         setLoadingState(true);
 
-        if (dapfforwc_seo_permalinks_options &&
-            dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks === "on") {
-
-                console.log(url);
-
-            // Transform the URL to SEO format
-            const seoUrl = transformToSeoUrl(url, dapfforwc_seo_permalinks_options);
-
-            // Use the SEO URL for browser history if not using AJAX mode
-            if (dapfforwc_options.use_url_filter !== "ajax") {
-                console.log(dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks);
-                url = seoUrl;
-            }
-        }
-        console.log(url);
-
         // Add X-Requested-With header for WordPress to detect AJAX
         filterState.currentRequest = $.ajax({
             url: url,
@@ -351,8 +354,38 @@
                 if (response.success) {
                     if (dapfforwc_options.use_url_filter !== "ajax") {
                         // Update browser history / url with transformed URL if necessary
-                        url = currentUrl + url.substring(url.indexOf('?'));
-                        window.history.pushState({ wpcFilter: true }, '', url);
+                        if (dapfforwc_seo_permalinks_options &&
+                            dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks !== "on") {
+                            let selectedValuesByUser = store_selected_values(); // Assuming this returns an object
+
+                            // Extract values from the object
+                            let filtersArray = [];
+
+                            // Loop through the object and collect values
+                            for (let key in selectedValuesByUser) {
+                                if (Array.isArray(selectedValuesByUser[key])) {
+                                    filtersArray.push(...selectedValuesByUser[key]); // Spread values into the filters array
+                                }
+                            }
+
+                            // Convert to a comma-separated string
+                            let filters = filtersArray.join(',');
+
+                            // Construct the new URL
+                            let url = currentUrl + `?filters=${filters}`;
+
+                            // Update the browser history
+                            window.history.pushState({ wpcFilter: true }, '', url);
+                        }
+                        if (dapfforwc_seo_permalinks_options &&
+                            dapfforwc_seo_permalinks_options.use_attribute_type_in_permalinks === "on") {
+                            url = currentUrl + url.substring(url.indexOf('?'));
+                            // Transform the URL to SEO format
+                            let seoUrl = transformToSeoUrl(url, dapfforwc_seo_permalinks_options).replace(/%2C/g, ',');
+
+                            // Update the browser history
+                            window.history.pushState({ wpcFilter: true }, '', seoUrl);
+                        }
                     }
 
                     // Update the products container
@@ -367,13 +400,18 @@
                             Math.min(response.data.found, 12) + ' of ' + response.data.found + ' results');
                     }
 
-                    // Auto-scroll to products container
+                    selectedFilterShowProductTop();
+                    syncCheckboxSelections();
+                    initPriceRangeInputs();
+
+                    // Auto-scroll to products container                
                     scrollToProducts();
 
                     // Trigger events for other scripts
                     $(document).trigger('wpc_filters_updated');
                     $(window).trigger('scroll');
                     $(window).trigger('resize');
+
                 } else {
                     console.error('Filter request failed');
                 }
@@ -450,8 +488,10 @@
      * Show loading spinner
      */
     function showSpinner() {
-        $('#roverlay').show();
-        $('#loader').show();
+        if (count !== 1) {
+            $('#roverlay').show();
+            $('#loader').show();
+        }
     }
 
     /**
@@ -467,16 +507,137 @@
      */
     function updatePriceDisplay($rangeInput) {
         const isMin = $rangeInput.hasClass('range-min');
-        const value = $rangeInput.val();
-
+        const value = parseInt($rangeInput.val());
+        const $minInput = $('.range-min');
+        const $maxInput = $('.range-max');
+        
+        const minValue = parseInt($minInput.val()) || 0;
+        const maxValue = parseInt($maxInput.val()) || 0;
+        const minPriceDefault = parseInt($minInput.attr('min')) || 0;
+        const maxPriceDefault = parseInt($maxInput.attr('max')) || 100;
+        
         if (isMin) {
             $('#min-price').val(value);
-            $('.progress').css('left', (value / $rangeInput.attr('max') * 100) + '%');
+            $('.progress').css('left', ((value - minPriceDefault) / (maxPriceDefault - minPriceDefault) * 100) + '%');
         } else {
             $('#max-price').val(value);
-            $('.progress').css('right', (100 - (value / $rangeInput.attr('max') * 100)) + '%');
+            $('.progress').css('right', (100 - (value / maxPriceDefault * 100)) + '%');
+        }
+        
+        // Update price display using custom pseudo-element content
+        changePseudoElementContent(`${minValue}`, `${maxValue}`, isMin?'min':'max');
+        
+        // Also update the aria-valuetext for accessibility
+        if (isMin) {
+            $rangeInput.attr('aria-valuetext', `${value}`);
+        } else {
+            $rangeInput.attr('aria-valuetext', `${value}`);
         }
     }
+
+    function changePseudoElementContent(minValue, maxValue, activeHandle = null) {
+        // Create a style element if it doesn't exist
+        let styleEl = document.getElementById('price-range-display-style');
+        if (!styleEl) {
+            styleEl = document.createElement('style');
+            styleEl.id = 'price-range-display-style';
+            document.head.appendChild(styleEl);
+        }
+        
+        // Set z-index based on which handle is active
+        const minZIndex = activeHandle === 'min' ? 10 : 5;
+        const maxZIndex = activeHandle === 'max' ? 10 : 5;
+        
+        // Update the content of the style element using the product-filter specific selectors
+        styleEl.textContent = `
+            #product-filter .progress-percentage:before {
+                content: "${currencySymbol} ${minValue}";
+                z-index: ${minZIndex};
+            }
+            #product-filter .progress-percentage:after {
+                content: "${currencySymbol} ${maxValue}";
+                z-index: ${maxZIndex};
+            }
+        `;
+    }
+    
+
+    function initPriceRangeInputs() {
+        const $rangeInputs = $(".range-input input");
+        const $priceInputs = $(".price-input input");
+        const $range = $(".slider .progress");
+        
+        if ($rangeInputs.length < 2 || $priceInputs.length < 2) return;
+        
+        let minPrice = parseInt($rangeInputs[0].value) || 0;
+        let maxPrice = parseInt($rangeInputs[1].value) || 0;
+        const minPriceDefault = parseInt($rangeInputs[0].getAttribute('min')) || 0;
+        const maxPriceDefault = parseInt($rangeInputs[0].getAttribute('max')) || 100;
+
+        $range.css({
+            'left': ((minPrice - minPriceDefault) / (maxPriceDefault - minPriceDefault)) * 100 + "%",
+            'right': 100 - (maxPrice / maxPriceDefault) * 100 + "%"
+        });
+        
+        // Initialize price display
+        changePseudoElementContent(`${minPrice}`, `${maxPrice}`);
+        
+        // Handle range input changes
+        $rangeInputs.on("input", function() {
+            const isMin = $(this).hasClass('range-min');
+            minPrice = parseInt($rangeInputs.eq(0).val()) || 0;
+            maxPrice = parseInt($rangeInputs.eq(1).val()) || 0;
+            
+            changePseudoElementContent(`${minPrice}`, `${maxPrice}`);
+            
+            $priceInputs.eq(0).val(minPrice);
+            $priceInputs.eq(1).val(maxPrice);
+            
+            $range.css({
+                'left': ((minPrice - minPriceDefault) / (maxPriceDefault - minPriceDefault)) * 100 + "%",
+                'right': 100 - (maxPrice / maxPriceDefault) * 100 + "%"
+            });
+            
+            // Trigger debounced filter update
+            const $form = $(WPC_FILTER.formSelector);
+            filterState.pendingChanges = true;
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(function() {
+                if (filterState.pendingChanges) {
+                    handleFilterChange($form);
+                }
+            }, WPC_FILTER.debounceTime);
+        });
+        
+        // Handle direct price input changes
+        $priceInputs.on("input", function() {
+            const isMin = $(this).hasClass('input-min');
+            let minVal = parseInt($priceInputs.eq(0).val()) || 0;
+            let maxVal = parseInt($priceInputs.eq(1).val()) || 0;
+            
+            // Ensure min <= max
+            if (isMin) {
+                minVal = Math.min(minVal, maxVal);
+                $priceInputs.eq(0).val(minVal);
+                $rangeInputs.eq(0).val(minVal);
+                $range.css('left', ((minVal - minPriceDefault) / (maxPriceDefault - minPriceDefault)) * 100 + "%");
+            } else {
+                maxVal = Math.max(minVal, maxVal);
+                $priceInputs.eq(1).val(maxVal);
+                $rangeInputs.eq(1).val(maxVal);
+                $range.css('right', 100 - (maxVal / maxPriceDefault) * 100 + "%");
+            }
+            
+            changePseudoElementContent(`${minVal}`, `${maxVal}`);
+        });
+        
+        // Update filter on price input blur
+        $priceInputs.on("blur", function() {
+            const $form = $(WPC_FILTER.formSelector);
+            handleFilterChange($form);
+        });
+    }
+    
 
     /**
      * Scroll to products container
@@ -492,6 +653,99 @@
     }
 
 
+    function applyFiltersFromUrl(filtersString) {
+        // Check if we're using the new format with attribute types in permalinks
+        const urlParams = new URLSearchParams(window.location.search);
+        const useNewFormat = urlParams.get('filters') === '1';
+        const $form = $(WPC_FILTER.formSelector);
+
+        const attrprefix = dapfforwc_seo_permalinks_options.dapfforwc_permalinks_prefix_options;
+
+        if (!useNewFormat) {
+            // Original implementation for simple filter string
+            if (!filtersString) {
+                const newUrl = `/${currentPage}/`;
+                history.replaceState(null, '', newUrl);
+                handleFilterChange($form);
+                return;
+            }
+
+            const filterValues = filtersString.split(',').map(value => value.trim());
+            filterValues.forEach(value => {
+                if ($(`input[value="${value}"]`).length) {
+                    $(`input[value="${value}"]`).prop('checked', true);
+                } else if ($(`select option[value="${value}"]`).length) {
+                    $(`select option[value="${value}"]`).prop('selected', true);
+                }
+            });
+
+            handleFilterChange($form);
+            return;
+        }
+
+        // New implementation for attribute type permalinks
+        // Process each parameter in the URL
+        // Reverse map the prefixes to attribute names for lookup
+        const prefixToAttribute = {};
+        // Handle category and tag directly
+        prefixToAttribute[attrprefix.category] = 'category';
+        prefixToAttribute[attrprefix.tag] = 'tag';
+        prefixToAttribute[attrprefix.price] = 'price';
+        prefixToAttribute[attrprefix.rating] = 'rating';
+
+        // Handle all product attributes
+        if (attrprefix.attribute) {
+            for (const [attributeName, prefix] of Object.entries(attrprefix.attribute)) {
+                if (prefix) { // Only add if prefix is not empty
+                    prefixToAttribute[prefix] = attributeName;
+                }
+            }
+        }
+
+        for (const [key, value] of urlParams.entries()) {
+            if (key === 'filters' || key === 's') continue; // Skip the format flag and search parameter
+
+            // Split comma-separated values
+            const values = value.split(',').map(v => v.trim());
+
+            // Find the attribute name this prefix corresponds to
+            const attributeName = prefixToAttribute[key];
+
+            if (attributeName) {
+
+                values.forEach(val => {
+                    // Look for inputs that have name containing the attribute and value matching the value
+                    const $inputs = $form.find(`input[name*="${attributeName}"][value="${val}"]`);
+                    if ($inputs.length) {
+                        $inputs.prop('checked', true);
+                    }
+
+                    // Handle select elements
+                    const $options = $form.find(`select[name*="${attributeName}"] option[value="${val}"]`);
+                    if ($options.length) {
+                        $options.prop('selected', true);
+                    }
+
+                    // Handle price range specially if needed
+                    if (attributeName === 'price' && val.includes('-')) {
+                        const [min, max] = val.split('-');
+                        const $minInput = $form.find('input.wpc-filters-range-min');
+                        const $maxInput = $form.find('input.wpc-filters-range-max');
+
+                        if ($minInput.length && $maxInput.length) {
+                            $minInput.val(min);
+                            $maxInput.val(max);
+                        }
+                    }
+                });
+            }
+        }
+
+        // Trigger filter change event to update the UI
+        handleFilterChange($form);
+    }
+
+
     /**
      * Transform standard filter URL to SEO-friendly URL format
      * @param {string} url - The original URL with standard filter parameters
@@ -500,9 +754,7 @@
      */
     function transformToSeoUrl(url, seoOptions) {
         // Parse the current URL
-        const domain = window.location.protocol + '//' + window.location.hostname;
-        console.log(domain+url)
-        const urlObj = new URL(domain+url);
+        const urlObj = new URL(url);
         const searchParams = urlObj.searchParams;
 
         // Create new URLSearchParams for our SEO-friendly URL
@@ -544,9 +796,10 @@
                 seoParams.append(prefixes.price, `${minPrice}-${maxPrice}`);
             }
         }
-
+        console.log(searchParams.get('s'));
         // Process search parameter
-        if (searchParams.has('s')) {
+        if (searchParams.has('s') && searchParams.get('s') !== '') {
+            console.log(searchParams.get('s'));
             seoParams.append('s', searchParams.get('s'));
         }
 
@@ -582,6 +835,7 @@
     // Initialize on document ready
     $(document).ready(function () {
         initProductFilter();
+        initPriceRangeInputs();
     });
 
     // Expose public API
