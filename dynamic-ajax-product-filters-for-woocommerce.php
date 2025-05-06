@@ -172,7 +172,15 @@ function dapfforwc_check_woocommerce()
 
         add_filter('plugin_action_links_' . plugin_basename(__FILE__), 'dapfforwc_add_settings_link');
         require_once plugin_dir_path(__FILE__) . 'includes/common-functions.php';
-        require_once plugin_dir_path(__FILE__) . 'includes/new-method-ajax-handel.php';
+        // require_once plugin_dir_path(__FILE__) . 'includes/new-method-ajax-handel.php';
+
+        // filter error detector
+        add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
+        add_action('init', 'wpc_filter_init');
+        add_action('template_redirect', 'wpc_template_redirect_filter');
+
+        // Hook into wp_head with a high priority to ensure our tags are output correctly
+        add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
     }
 }
 
@@ -202,7 +210,8 @@ function dapfforwc_enqueue_scripts()
         'ajax_url' => admin_url('admin-ajax.php'),
         'shopPageUrl' => esc_url(get_permalink(wc_get_page_id('shop'))),
         'isProductArchive' =>  is_shop() || is_product_category() || is_product_tag() || is_product(),
-        'currencySymbol' => get_woocommerce_currency_symbol()
+        'currencySymbol' => get_woocommerce_currency_symbol(),
+        'isHomePage' => is_front_page() 
     ]);
 
     wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.1');
@@ -374,7 +383,7 @@ function dapfforwc_admin_scripts($hook)
                 label.innerHTML = `
                     <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
                     <input type="radio" class="optionselect" name="dapfforwc_style_options[${attributeName}][sub_option]" value="${key}">                    
-                    <img src="/wp-content/plugins/dynamic-ajax-product-filters-for-woocommerce/assets/images/${key}.png" alt="${currentOptions[key]}">
+                    <img src="'.plugin_dir_url(__FILE__) . 'assets/images/${key}.png" alt="${currentOptions[key]}">
                    
                 `;
                 fragment.appendChild(label);
@@ -501,10 +510,7 @@ add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter
 
 
 
-// filter error detector
-if (class_exists('WooCommerce')) {
-    add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
-}
+
 
 function dapfforwc_add_debug_menu($wp_admin_bar)
 {
@@ -528,9 +534,8 @@ function dapfforwc_add_debug_menu($wp_admin_bar)
         ]);
     }
 }
-if (class_exists('WooCommerce')) {
-    add_action('wp_footer', 'dapfforwc_check_elements');
-}
+
+add_action('wp_footer', 'dapfforwc_check_elements');
 
 function dapfforwc_check_elements()
 {
@@ -788,10 +793,7 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
     return $replacements;
 }
 
-// Hook into wp_head with a high priority to ensure our tags are output correctly
-if (class_exists('WooCommerce')) {
-    add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
-}
+
 
 
 
@@ -826,9 +828,6 @@ function wpc_filter_init()
     add_action('parse_request', 'wpc_parse_filter_request', 1);
 }
 
-if (class_exists('WooCommerce')) {
-    add_action('init', 'wpc_filter_init');
-}
 
 /**
  * Parse filter parameters from the request
@@ -1210,7 +1209,4 @@ function wpc_template_redirect_filter()
         ]);
         exit;
     });
-}
-if (class_exists('WooCommerce')) {
-    add_action('template_redirect', 'wpc_template_redirect_filter');
 }

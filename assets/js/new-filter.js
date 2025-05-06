@@ -20,30 +20,27 @@
         autoScrollOffset: 100
     };
     let count;
-    let advancesettings, dapfforwc_options, dapfforwc_seo_permalinks_options, shopPageUrl, isProductArchive, currencySymbol;
+    let advancesettings, dapfforwc_options, dapfforwc_seo_permalinks_options, shopPageUrl, isProductArchive, currencySymbol, isHomePage;
     let front_page_slug;
     let debounceTimer;
 
-    if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_advance_settings) {
-        advancesettings = dapfforwc_data.dapfforwc_advance_settings;
+    // Extract data from configuration objects using destructuring when available
+    if (typeof dapfforwc_data !== 'undefined') {
+        ({
+            dapfforwc_advance_settings: advancesettings,
+            dapfforwc_front_page_slug: front_page_slug,
+            dapfforwc_options,
+            dapfforwc_seo_permalinks_options
+        } = dapfforwc_data);
     }
-    if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_front_page_slug) {
-        front_page_slug = dapfforwc_data.dapfforwc_front_page_slug;
-    }
-    if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_options) {
-        dapfforwc_options = dapfforwc_data.dapfforwc_options;
-    }
-    if (typeof dapfforwc_data !== 'undefined' && dapfforwc_data.dapfforwc_seo_permalinks_options) {
-        dapfforwc_seo_permalinks_options = dapfforwc_data.dapfforwc_seo_permalinks_options;
-    }
-    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.shopPageUrl) {
-        shopPageUrl = dapfforwc_ajax.shopPageUrl;
-    }
-    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.isProductArchive) {
-        isProductArchive = dapfforwc_ajax.isProductArchive;
-    }
-    if (typeof dapfforwc_ajax !== 'undefined' && dapfforwc_ajax.currencySymbol) {
-        currencySymbol = dapfforwc_ajax.currencySymbol;
+
+    if (typeof dapfforwc_ajax !== 'undefined') {
+        ({
+            shopPageUrl,
+            isProductArchive,
+            currencySymbol,
+            isHomePage
+        } = dapfforwc_ajax);
     }
 
     var rfilterbuttonsId = $('.rfilterbuttons').attr('id');
@@ -300,7 +297,7 @@
 
         // Access each value
         let perPage = product_show_settings.per_page;          // "5"
-        let orderBy = product_show_settings.orderby;          // "date"
+        let orderBy = $(WPC_FILTER.sortingSelector).val() === "menu_order" ? product_show_settings.orderby : $(WPC_FILTER.sortingSelector).val();          // "date"
         let order = product_show_settings.order;               // "DESC"
         let operatorSecond = product_show_settings.operator_second; // "in"
 
@@ -370,9 +367,10 @@
 
                             // Convert to a comma-separated string
                             let filters = filtersArray.join(',');
+                            let searchval = $("input#search-field").val();
 
                             // Construct the new URL
-                            let url = currentUrl + `?filters=${filters}`;
+                            let url = currentUrl + `?filters=${filters}` + (searchval && searchval !==''? '&title='+searchval:'');
 
                             // Update the browser history
                             window.history.pushState({ wpcFilter: true }, '', url);
@@ -510,12 +508,12 @@
         const value = parseInt($rangeInput.val());
         const $minInput = $('.range-min');
         const $maxInput = $('.range-max');
-        
+
         const minValue = parseInt($minInput.val()) || 0;
         const maxValue = parseInt($maxInput.val()) || 0;
         const minPriceDefault = parseInt($minInput.attr('min')) || 0;
         const maxPriceDefault = parseInt($maxInput.attr('max')) || 100;
-        
+
         if (isMin) {
             $('#min-price').val(value);
             $('.progress').css('left', ((value - minPriceDefault) / (maxPriceDefault - minPriceDefault) * 100) + '%');
@@ -523,10 +521,10 @@
             $('#max-price').val(value);
             $('.progress').css('right', (100 - (value / maxPriceDefault * 100)) + '%');
         }
-        
+
         // Update price display using custom pseudo-element content
-        changePseudoElementContent(`${minValue}`, `${maxValue}`, isMin?'min':'max');
-        
+        changePseudoElementContent(`${minValue}`, `${maxValue}`, isMin ? 'min' : 'max');
+
         // Also update the aria-valuetext for accessibility
         if (isMin) {
             $rangeInput.attr('aria-valuetext', `${value}`);
@@ -543,11 +541,11 @@
             styleEl.id = 'price-range-display-style';
             document.head.appendChild(styleEl);
         }
-        
+
         // Set z-index based on which handle is active
         const minZIndex = activeHandle === 'min' ? 10 : 5;
         const maxZIndex = activeHandle === 'max' ? 10 : 5;
-        
+
         // Update the content of the style element using the product-filter specific selectors
         styleEl.textContent = `
             #product-filter .progress-percentage:before {
@@ -560,15 +558,15 @@
             }
         `;
     }
-    
+
 
     function initPriceRangeInputs() {
         const $rangeInputs = $(".range-input input");
         const $priceInputs = $(".price-input input");
         const $range = $(".slider .progress");
-        
+
         if ($rangeInputs.length < 2 || $priceInputs.length < 2) return;
-        
+
         let minPrice = parseInt($rangeInputs[0].value) || 0;
         let maxPrice = parseInt($rangeInputs[1].value) || 0;
         const minPriceDefault = parseInt($rangeInputs[0].getAttribute('min')) || 0;
@@ -578,43 +576,43 @@
             'left': ((minPrice - minPriceDefault) / (maxPriceDefault - minPriceDefault)) * 100 + "%",
             'right': 100 - (maxPrice / maxPriceDefault) * 100 + "%"
         });
-        
+
         // Initialize price display
         changePseudoElementContent(`${minPrice}`, `${maxPrice}`);
-        
+
         // Handle range input changes
-        $rangeInputs.on("input", function() {
+        $rangeInputs.on("input", function () {
             const isMin = $(this).hasClass('range-min');
             minPrice = parseInt($rangeInputs.eq(0).val()) || 0;
             maxPrice = parseInt($rangeInputs.eq(1).val()) || 0;
-            
+
             changePseudoElementContent(`${minPrice}`, `${maxPrice}`);
-            
+
             $priceInputs.eq(0).val(minPrice);
             $priceInputs.eq(1).val(maxPrice);
-            
+
             $range.css({
                 'left': ((minPrice - minPriceDefault) / (maxPriceDefault - minPriceDefault)) * 100 + "%",
                 'right': 100 - (maxPrice / maxPriceDefault) * 100 + "%"
             });
-            
+
             // Trigger debounced filter update
             const $form = $(WPC_FILTER.formSelector);
             filterState.pendingChanges = true;
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(function() {
+            debounceTimer = setTimeout(function () {
                 if (filterState.pendingChanges) {
                     handleFilterChange($form);
                 }
             }, WPC_FILTER.debounceTime);
         });
-        
+
         // Handle direct price input changes
-        $priceInputs.on("input", function() {
+        $priceInputs.on("input", function () {
             const isMin = $(this).hasClass('input-min');
             let minVal = parseInt($priceInputs.eq(0).val()) || 0;
             let maxVal = parseInt($priceInputs.eq(1).val()) || 0;
-            
+
             // Ensure min <= max
             if (isMin) {
                 minVal = Math.min(minVal, maxVal);
@@ -627,17 +625,17 @@
                 $rangeInputs.eq(1).val(maxVal);
                 $range.css('right', 100 - (maxVal / maxPriceDefault) * 100 + "%");
             }
-            
+
             changePseudoElementContent(`${minVal}`, `${maxVal}`);
         });
-        
+
         // Update filter on price input blur
-        $priceInputs.on("blur", function() {
+        $priceInputs.on("blur", function () {
             const $form = $(WPC_FILTER.formSelector);
             handleFilterChange($form);
         });
     }
-    
+
 
     /**
      * Scroll to products container
@@ -662,6 +660,12 @@
         const attrprefix = dapfforwc_seo_permalinks_options.dapfforwc_permalinks_prefix_options;
 
         if (!useNewFormat) {
+            for (const [key, value] of urlParams.entries()) {
+                if (key === 'title') {
+                    $("input#search-field").val(value);
+                    break;
+                }
+            }
             // Original implementation for simple filter string
             if (!filtersString) {
                 const newUrl = `/${currentPage}/`;
@@ -703,7 +707,10 @@
         }
 
         for (const [key, value] of urlParams.entries()) {
-            if (key === 'filters' || key === 's') continue; // Skip the format flag and search parameter
+            if (key === 'title') {
+                $("input#search-field").val(value);
+            }
+            if (key === 'filters' || key === 'title') continue; // Skip the format flag and search parameter
 
             // Split comma-separated values
             const values = value.split(',').map(v => v.trim());
@@ -796,11 +803,9 @@
                 seoParams.append(prefixes.price, `${minPrice}-${maxPrice}`);
             }
         }
-        console.log(searchParams.get('s'));
         // Process search parameter
         if (searchParams.has('s') && searchParams.get('s') !== '') {
-            console.log(searchParams.get('s'));
-            seoParams.append('s', searchParams.get('s'));
+            seoParams.append('title', searchParams.get('s'));
         }
 
         // Process attribute parameters
