@@ -193,13 +193,8 @@ function dapfforwc_enqueue_scripts()
 {
     global $dapfforwc_use_url_filter, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_slug, $dapfforwc_styleoptions, $dapfforwc_advance_settings, $dapfforwc_front_page_slug;
 
-    // $script_handle = 'filter-ajax';
-    // $script_path = 'assets/js/filter.min.js';
-
-    // if ($dapfforwc_use_url_filter === 'query_string') {
     $script_handle = 'urlfilter-ajax';
-    $script_path = 'assets/js/new-filter.js';
-    // }
+    $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
     wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.2', true);
