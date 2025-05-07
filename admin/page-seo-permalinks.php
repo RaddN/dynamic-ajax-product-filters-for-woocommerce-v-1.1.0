@@ -19,8 +19,8 @@ function dapfforwc_permalinks_prefix_render()
 {
     global $dapfforwc_seo_permalinks_options;
     $options = isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']) ? $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'] : [
-        'category' => 'cata',
-        'tag' => 'tag',
+        "product-category" => 'cata',
+        'tag' => 'tags',
         'price' => 'price',
         'rating' => 'rating',
         'attribute' => [
@@ -97,16 +97,16 @@ function dapfforwc_permalinks_prefix_render()
     </script>
     <div class="attribute_prefix_list" style="margin-bottom: 10px;">
         <div class="dapfforwc-form-group">
-            <label for="dapfforwc_category_prefix"><?php esc_html_e('Category', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <label for="dapfforwc_category_prefix"><?php esc_html_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
             <input type="text" id="dapfforwc_category_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][category]"
-                value="<?php echo isset($options['category']) ? esc_attr($options['category']) : ''; ?>"
-                placeholder="<?php esc_attr_e('Category', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+                value="<?php echo isset($options["product-category"]) ? esc_attr($options["product-category"]) : ''; ?>"
+                placeholder="<?php esc_attr_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
         </div>
         <div class="dapfforwc-form-group">
-            <label for="dapfforwc_tag_prefix"><?php esc_html_e('Tag', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <label for="dapfforwc_tag_prefix"><?php esc_html_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
             <input type="text" id="dapfforwc_tag_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][tag]"
                 value="<?php echo isset($options['tag']) ? esc_attr($options['tag']) : ''; ?>"
-                placeholder="<?php esc_attr_e('Tag', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+                placeholder="<?php esc_attr_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
         </div>
         <div class="dapfforwc-form-group">
             <label for="dapfforwc_price_prefix"><?php esc_html_e('Price', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>

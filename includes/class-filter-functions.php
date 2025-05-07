@@ -65,8 +65,8 @@ function wpc_get_filter_params()
 
     // Get category filter
 
-    if (isset($_GET['category']) && !empty($_GET['category'])) {
-        $params['category'] = wpc_sanitize_array($_GET['category']);
+    if (isset($_GET["product-category"]) && !empty($_GET["product-category"])) {
+        $params["product-category"] = wpc_sanitize_array($_GET["product-category"]);
     }
 
     // Get tag filter
@@ -196,11 +196,11 @@ function wpc_apply_filters_to_query($query, $params)
     }
 
     // Apply category filter
-    if (isset($params['category']) && !empty($params['category'])) {
+    if (isset($params["product-category"]) && !empty($params["product-category"])) {
         $tax_query[] = array(
             'taxonomy' => 'product_cat',
             'field'    => 'slug',
-            'terms'    => $params['category'],
+            'terms'    => $params["product-category"],
             'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? $_GET['operator_second'] : 'IN',
         );
     }

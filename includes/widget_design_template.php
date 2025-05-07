@@ -148,34 +148,34 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $hierarchical = '';
 
         // Additional checks to ensure the structure exists before accessing
-        if (isset($dapfforwc_styleoptions['category'])) {
-            $sub_option = $dapfforwc_styleoptions['category']['sub_option'] ?? '';
+        if (isset($dapfforwc_styleoptions["product-category"])) {
+            $sub_option = $dapfforwc_styleoptions["product-category"]['sub_option'] ?? '';
 
-            if (isset($dapfforwc_styleoptions['category']['minimize'])) {
-                $minimizable = $dapfforwc_styleoptions['category']['minimize']['type'] ?? '';
+            if (isset($dapfforwc_styleoptions["product-category"]['minimize'])) {
+                $minimizable = $dapfforwc_styleoptions["product-category"]['minimize']['type'] ?? '';
             } else {
                 $minimizable = '';
             }
 
-            $show_count = $dapfforwc_styleoptions['category']['show_product_count'] ?? '';
-            $singlevaluecataSelect = $dapfforwc_styleoptions['category']['single_selection'] ?? '';
+            $show_count = $dapfforwc_styleoptions["product-category"]['show_product_count'] ?? '';
+            $singlevaluecataSelect = $dapfforwc_styleoptions["product-category"]['single_selection'] ?? '';
 
-            if (isset($dapfforwc_styleoptions['category']['hierarchical'])) {
-                $hierarchical = $dapfforwc_styleoptions['category']['hierarchical']['type'] ?? '';
+            if (isset($dapfforwc_styleoptions["product-category"]['hierarchical'])) {
+                $hierarchical = $dapfforwc_styleoptions["product-category"]['hierarchical']['type'] ?? '';
             } else {
                 $hierarchical = '';
             }
         }
-        $selected_categories = !empty($default_filter) && isset($default_filter["category[]"]) ? $default_filter["category[]"] : (!empty($default_filter) && isset($default_filter["category"]) ? $default_filter["category"] : (!empty($default_filter) ? $default_filter : [])); //explode(',', $atts['category'])
+        $selected_categories = !empty($default_filter) && isset($default_filter["product-category[]"]) ? $default_filter["product-category[]"] : (!empty($default_filter) && isset($default_filter["product-category"]) ? $default_filter["product-category"] : (!empty($default_filter) ? $default_filter : [])); //explode(',', $atts["product-category"])
 
         // Fetch categories
 
         // Render categories based on hierarchical mode
         if ($hierarchical !== 'enable_separate' && !empty($updated_filters["categories"])) {
-            $formOutPut .= '<div id="category" class="filter-group category" style="display: ' . (!empty($dapfforwc_options['show_categories']) ? 'block' : 'none') . ';">';
+            $formOutPut .= '<div id="product-category" class="filter-group category" style="display: ' . (!empty($dapfforwc_options['show_categories']) ? 'block' : 'none') . ';">';
             $formOutPut .= '<div class="title collapsable_' . esc_attr($minimizable) . '">Category ' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
-                $formOutPut .= '<select name="category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
+                $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                 $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
             } else {
                 $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
@@ -218,10 +218,10 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 }
             }
 
-            $formOutPut .= '<div id="category" class="filter-group category" style="display: ' . (!empty($dapfforwc_options['show_categories']) ? 'block' : 'none') . ';">';
+            $formOutPut .= '<div id="product-category" class="filter-group category" style="display: ' . (!empty($dapfforwc_options['show_categories']) ? 'block' : 'none') . ';">';
             $formOutPut .= '<div class="title collapsable_' . esc_attr($minimizable) . '">Categories ' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
-                $formOutPut .= '<select name="category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
+                $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                 $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
             } else {
                 $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
@@ -235,8 +235,8 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $anchorlink = $use_filters_word === 'on' ? "filters/$value" : '?filters='.$value;
 
                 $formOutPut .= $use_anchor === 'on'
-                    ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . '</a>'
-                    : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count);
+                    ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . '</a>'
+                    : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count);
             }
 
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
@@ -253,7 +253,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                     $formOutPut .= '<div id="category-with-child" class="filter-group category with-child" style="display: ' . (!empty($dapfforwc_options['show_categories']) ? 'block' : 'none') . ';">';
                     $formOutPut .= '<div class="title collapsable_' . esc_attr($minimizable) . '">' . esc_html($parent_category->name) . ' ' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
                     if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
-                        $formOutPut .= '<select name="category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
+                        $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                         $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
                     } else {
                         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
@@ -279,8 +279,8 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $anchorlink = $use_filters_word === 'on' ? "filters/$value" : '?filters='.$value;
 
                 $formOutPut .= $use_anchor === 'on'
-                    ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . '</a>'
-                    : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count);
+                    ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . '</a>'
+                    : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count);
             }
         }
 
@@ -327,7 +327,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 }
 
                 $fromobjectdefaultvalue = isset($default_filter["attribute[$attribute_name][]"]) ? $default_filter["attribute[$attribute_name][]"] : (isset($default_filter["attributes"][$attribute_name]) ? $default_filter["attributes"][$attribute_name] : []);
-                $selected_terms = !empty($default_filter) && (isset($default_filter["category[]"]) || isset($default_filter["category"])) ? $fromobjectdefaultvalue : (!empty($default_filter) ? $default_filter : []);
+                $selected_terms = !empty($default_filter) && (isset($default_filter["product-category[]"]) || isset($default_filter["product-category"])) ? $fromobjectdefaultvalue : (!empty($default_filter) ? $default_filter : []);
                 foreach ($terms as $term) {
                     $name = is_object($term) ? esc_html($term->name) : esc_html($term['name']);
                     $slug = is_object($term) ? esc_attr($term->slug) : esc_attr($term['slug']);      

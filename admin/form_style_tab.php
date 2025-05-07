@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 
     // Define extra options
     $dapfforwc_extra_options = [
-        (object) ['attribute_name' => 'category', 'attribute_label' => __('Category Options', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => "product-category", 'attribute_label' => __('Category Options', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'tag', 'attribute_label' => __('Tag Options', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'price', 'attribute_label' => __('Price', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'rating', 'attribute_label' => __('Rating', 'dynamic-ajax-product-filters-for-woocommerce')],
@@ -51,7 +51,7 @@ if (!defined('ABSPATH')) {
                 global $dapfforwc_sub_options; //get from root page
 
                 ?>
-                <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "category" ? 'block' : 'none'; ?>;">
+                <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
                     <h3><?php echo esc_html($option->attribute_label); ?></h3>
 
                     <!-- Primary Options -->
@@ -93,11 +93,11 @@ if (!defined('ABSPATH')) {
                      <div class="flex">
                     <?php 
                     $dapfforwc_terms = [];
-                    if($dapfforwc_attribute_name==="category" || $dapfforwc_attribute_name==="tag" || $dapfforwc_attribute_name==="price" || $dapfforwc_attribute_name==="rating"){
+                    if($dapfforwc_attribute_name==="product-category" || $dapfforwc_attribute_name==="tag" || $dapfforwc_attribute_name==="price" || $dapfforwc_attribute_name==="rating"){
                         $dapfforwc_terms = [];
                     }
                     else $dapfforwc_terms = get_terms(['taxonomy' => 'pa_' . $dapfforwc_attribute_name, 'hide_empty' => false]);                    
-                    if($dapfforwc_attribute_name!=="category" || $dapfforwc_attribute_name!=="tag"){
+                    if($dapfforwc_attribute_name!=="product-category" || $dapfforwc_attribute_name!=="tag"){
                     ?>
                   <div class="advanced-options <?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_selected_style === 'color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
     <h4><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>

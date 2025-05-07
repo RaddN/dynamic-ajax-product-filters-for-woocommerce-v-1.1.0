@@ -13,7 +13,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $atts = shortcode_atts(array(
         'attribute' => '',
         'terms' => '',
-        'category' => '',
+        "product-category" => '',
         'tag' => '',
         'product_selector' => '',
         'pagination_selector' => '',
@@ -37,8 +37,8 @@ function dapfforwc_product_filter_shortcode($atts)
     $shortcode = $dapfforwc_advance_settings["product_shortcode"] ?? 'products'; // Shortcode to search for
     $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
     foreach ($attributes_list as $attributes) {
-        // Ensure that the 'category', 'attribute', and 'terms' keys exist
-        $arrayCata = isset($attributes['category']) ? array_map('trim', explode(",", $attributes['category'])) : [];
+        // Ensure that the "product-category", 'attribute', and 'terms' keys exist
+        $arrayCata = isset($attributes["product-category"]) ? array_map('trim', explode(",", $attributes["product-category"])) : [];
         $tagValue = isset($attributes['tags']) ? array_map('trim', explode(",", $attributes['tags'])) : [];
         $termsValue = isset($attributes['terms']) ? array_map('trim', explode(",", $attributes['terms'])) : [];
         $attrvalue = [];
@@ -58,11 +58,11 @@ function dapfforwc_product_filter_shortcode($atts)
 
         // Use the combined full slug as the key in default_filters
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = $arrayCata;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
         if (empty($filters)) {
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = array_column($all_cata, 'slug');
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         }
 
 
@@ -76,14 +76,14 @@ function dapfforwc_product_filter_shortcode($atts)
     if (is_shop()) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = $all_cata_slugs;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
     }
 
     if (is_product_category()) {
         $current_category = get_queried_object();
         $category_slug = $current_category->slug;
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["category[]"] = [$category_slug];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = [$category_slug];
     }
 
     if (is_product_tag()) {
@@ -178,8 +178,8 @@ function dapfforwc_product_filter_shortcode($atts)
     );
     $all_data_objects = [];
     // Match Filters
-    $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["category[]"] ?? [])));
-    $all_data_objects["category[]"] = array_keys($matched_cata_with_ids);
+    $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["product-category[]"] ?? [])));
+    $all_data_objects["product-category[]"] = array_keys($matched_cata_with_ids);
     if ($second_operator === 'AND') {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
     } else {
@@ -770,12 +770,12 @@ function dapfforwc_render_category_hierarchy(
         // Render current category
         $categoryHierarchyOutput .= $use_anchor === 'on'
             ? '<div style="display:flex;align-items: center;"><a href="' . esc_attr($anchorlink) . '">'
-            . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count)
+            . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
             . '</a>'
             . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
             . '</div>'
             : '<a style="display:flex;align-items: center;text-decoration: none;">'
-            . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
+            . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
             . '</a>';
 
         // Render child categories

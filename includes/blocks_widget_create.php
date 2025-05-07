@@ -448,7 +448,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             // Fetch WooCommerce attributes
             $attributes = wc_get_attribute_taxonomies();
             $options = [
-                'category' => __('Category', 'dynamic-ajax-product-filters-for-woocommerce'),
+                "product-category" => __("product-category", 'dynamic-ajax-product-filters-for-woocommerce'),
                 'tag' => __('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'price-range' => __('Price', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'rating' => __('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -463,7 +463,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             // Default settings
             $default = [
                 [
-                    'element_type' => 'category',
+                    'element_type' => "product-category",
                     'element_visible' => 'yes',
                 ],
                 [
@@ -627,7 +627,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                             'name' => 'element_type',
                             'label' => __('Element Type', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'type' => \Elementor\Controls_Manager::SELECT,
-                            'default' => 'category',
+                            'default' => "product-category",
                             'options' => $allattribute['options'],
                         ],
                         [
