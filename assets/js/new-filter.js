@@ -47,6 +47,8 @@
 
 
 
+    let product_selector = advancesettings ? advancesettings["product_selector"] ?? 'ul.products' : 'ul.products';
+    let productSelector_shortcode = $('#product-filter').data('product_selector');
     let pagination_selector = advancesettings ? advancesettings["pagination_selector"] ?? 'ul.page-numbers' : 'ul.page-numbers';
     let paginationSelector_shortcode = $('#product-filter').data('pagination_selector');
 
@@ -387,8 +389,8 @@
                     }
 
                     // Update the products container
-                    $(WPC_FILTER.productSelector).html(response.data.html);
-                    $(WPC_FILTER.paginationSelector).html(response.data.pagination);
+                    $(productSelector_shortcode ?? product_selector).html(response.data.html);
+                    $(paginationSelector_shortcode ?? pagination_selector).html(response.data.pagination);
                     $form.html(response.data.updated_form);
 
 
@@ -641,7 +643,7 @@
      * Scroll to products container
      */
     function scrollToProducts() {
-        const $target = $(WPC_FILTER.productSelector);
+        const $target = $(productSelector_shortcode ?? product_selector);
 
         if ($target.length > 0) {
             $('html, body').animate({
@@ -870,3 +872,14 @@
     };
 
 })(jQuery);
+
+// cateogry hide & show manage for herichical
+jQuery(document).ready(function ($) {
+    $('.show-sub-cata').on('click', function (event) {
+        event.preventDefault();
+        const $childCategories = $(this).closest('div').next('.child-categories');
+        $childCategories.slideToggle(() => {
+            $(this).text($childCategories.is(':visible') ? '-' : '+');
+        });
+    });
+});

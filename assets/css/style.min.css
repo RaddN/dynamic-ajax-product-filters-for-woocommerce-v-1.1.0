@@ -481,6 +481,9 @@ span#dapfforwc_issue_count {
   opacity: 1;
   transition: all 0.3s ease-in-out;
 }
-form.rfilterselected ul * {
+form.rfilterselected ul *,span.show-sub-cata {
   cursor: pointer !important;
+}
+form#product-filter a {
+  text-decoration: none !important;
 }

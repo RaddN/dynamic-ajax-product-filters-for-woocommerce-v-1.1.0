@@ -558,7 +558,7 @@ function dapfforwc_customSort($a, $b)
     // Fallback to string comparison
     return strcmp($a, $b);
 }
-function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, $name, $attribute, $singlevalueSelect, $count, $min_price = 0, $max_price = 10000, $min_max_prices = [])
+function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, $name, $attribute, $singlevalueSelect, $count, $min_price = 0, $max_price = null, $min_max_prices = [])
 {
     $output = '';
 
@@ -622,8 +622,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $output .= '<option class="filter-option" value="' . $value . '"' . ($checked ? 'selected' : '') . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</option>';
             break;
         case 'input-price-range':
-            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? 0;
-            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? ((int)($min_max_prices['max'] ?? 10000) + 1);
+            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? $min_price;
+            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? ((int)($min_max_prices['max'] ?? $max_price) + 1);
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
         <input type="number" id="min-price" name="min_price" min="' . $default_min_price . '" step="1" placeholder="Min" value="' . $min_price . '" style="position: relative; height: max-content; top: unset; pointer-events: all;">
         
@@ -631,8 +631,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         <input type="number" id="max-price" name="max_price" min="' . $default_min_price . '" step="1" placeholder="Max" value="' . $max_price . '" style="position: relative; height: max-content; top: unset; pointer-events: all;"></div>';
             break;
         case 'slider':
-            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? 0;
-            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ??  ((int)($min_max_prices['max'] ?? 10000) + 1);
+            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? $min_price;
+            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ??  ((int)($min_max_prices['max'] ?? $max_price) + 1);
             $output .= '<div class="price-input">
         <div class="field">
           <span>Min</span>
@@ -653,8 +653,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
       </div>';
             break;
         case 'price':
-            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? 0;
-            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? ($min_max_prices['max'] ?? 10000) + 1;
+            $default_min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? $min_max_prices['min'] ?? $min_price;
+            $default_max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? ($min_max_prices['max'] ?? $max_price) + 1;
             $output .= '<div class="price-input" style="visibility: hidden; margin: 0;">
         <div class="field">
             <input type="number" id="min-price" name="min_price" class="input-min" min="' . $default_min_price . '" value="' . $min_price . '">
@@ -762,17 +762,18 @@ function dapfforwc_render_category_hierarchy(
         }
         $count = $show_count === 'yes' ? (is_object($category) ? $category->count : $category["count"]) : 0;
         $checked = in_array($category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
-        $anchorlink = $use_filters_word === 'on' ? "filters/$value" : $value;
+        $anchorlink = $use_filters_word === 'on' ? "filters/$value" : "?filters=$value";
 
         // Fetch child categories
         $child_categories = dapfforwc_get_child_categories($child_category, $category->term_id);
 
         // Render current category
         $categoryHierarchyOutput .= $use_anchor === 'on'
-            ? '<a href="' . esc_attr($anchorlink) . '" style="display:flex;align-items: center;">'
+            ? '<div style="display:flex;align-items: center;"><a href="' . esc_attr($anchorlink) . '">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count)
-            . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
             . '</a>'
+            . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
+            . '</div>'
             : '<a style="display:flex;align-items: center;text-decoration: none;">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, 'category', 'category', $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
             . '</a>';
