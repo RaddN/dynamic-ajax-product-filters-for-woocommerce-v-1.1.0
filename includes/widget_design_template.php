@@ -85,7 +85,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     }
     $formOutPut .= '<div id="search_text" class="filter-group tag" style="display: ' . (!empty($dapfforwc_options['show_search']) ? 'block' : 'none') . ';"><div class="title collapsable_' . esc_attr($minimizable) . '">Search Product ' . ($minimizable === "arrow" || $minimizable === "minimize_initial" ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items ' . esc_attr($sub_option) . ' search-container" style="flex-direction: row !important;">';
-    $formOutPut .= '<input type="search" id="search-field" class="search-field" placeholder="Search products&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["search"] ?? ''). '" name="s" />';
+    $formOutPut .= '<input type="search" id="plugincy-search-field" class="search-field" placeholder="Search products&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["search"] ?? ''). '" name="s" />';
     $formOutPut .= ' <button class="plugincy-search-submit">Search</button>';
     $formOutPut .= '</div>';
     $formOutPut .= '</div>';

@@ -286,7 +286,8 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
                                 <button type="submit" name="wcapf_export_button" id="wcapf_export_button" class="button button-primary">Export Settings</button>
                             </form>
                         </td></tr></tbody></table>
-                        <form method="post">
+                        <?php dapfforwc_reset_settings_form() ?>
+                        <!-- <form method="post">
                             <?php wp_nonce_field('reset_settings_nonce_action', 'reset_settings_nonce'); ?>
                             <table class="form-table" role="presentation">
                                 <tbody>
@@ -299,7 +300,7 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
                                     </tr>
                                 </tbody>
                             </table>
-                        </form>
+                        </form> -->
             </div>
                 <?php
             }
@@ -354,5 +355,119 @@ add_filter('pre_update_option_dapfforwc_style_options', 'dapfforwc_save_style_op
 require_once(plugin_dir_path(__FILE__) . 'advance_settings.php');
 
 require_once(plugin_dir_path(__FILE__) . 'page-seo-permalinks.php');
+
+
+
+
+
+
+
+
+/**
+ * Handle settings reset functionality
+ */
+function dapfforwc_reset_settings() {
+    // Check if reset form was submitted
+    if (isset($_POST['reset_settings']) && $_POST['reset_settings'] == '1') {
+        
+        // Verify nonce for security
+        if (!isset($_POST['reset_settings_nonce']) || 
+            !wp_verify_nonce($_POST['reset_settings_nonce'], 'reset_settings_nonce_action')) {
+            add_settings_error(
+                'dapfforwc_messages',
+                'dapfforwc_message',
+                __('Security check failed. Settings were not reset.', 'dapfforwc'),
+                'error'
+            );
+            return;
+        }
+        
+        // Delete all plugin settings
+        delete_option('dapfforwc_filters');
+        delete_option('dapfforwc_options');
+        delete_option('dapfforwc_style_options');
+        delete_option('dapfforwc_advance_options');
+        delete_option('dapfforwc_seo_permalinks_options');
+        
+        // Add success message
+        add_settings_error(
+            'dapfforwc_messages',
+            'dapfforwc_message',
+            __('All plugin settings have been reset to defaults.', 'dapfforwc'),
+            'updated'
+        );
+        
+        // Redirect to prevent form resubmission
+        $redirect_url = add_query_arg(array(
+            'page' => isset($_GET['page']) ? $_GET['page'] : 'dapfforwc-settings',
+            'settings-reset' => 'true'
+        ), admin_url('admin.php'));
+        
+        wp_redirect($redirect_url);
+        exit;
+    }
+}
+add_action('admin_init', 'dapfforwc_reset_settings');
+
+/**
+ * Create a reset settings form
+ */
+function dapfforwc_reset_settings_form() {
+    ?>
+    <div class="dapfforwc-reset-settings-wrapper">
+        <h2><?php _e('Reset Settings', 'dapfforwc'); ?></h2>
+        <p class="description"><?php _e('Click the button below to reset all plugin settings to their default values. This action cannot be undone.', 'dapfforwc'); ?></p>
+        
+        <form method="post">
+            <?php wp_nonce_field('reset_settings_nonce_action', 'reset_settings_nonce'); ?>
+            <input type="hidden" name="reset_settings" value="1">
+            <button type="submit" class="button button-secondary button-danger" 
+                    onclick="return confirm('<?php _e('Are you sure you want to reset all settings? This action cannot be undone.', 'dapfforwc'); ?>');">
+                <?php _e('Reset All Settings', 'dapfforwc'); ?>
+            </button>
+        </form>
+    </div>
+    <?php
+}
+
+/**
+ * Display admin notices for settings reset
+ */
+function dapfforwc_admin_notices() {
+    if (isset($_GET['settings-reset']) && $_GET['settings-reset'] == 'true') {
+        ?>
+        <div class="notice notice-success is-dismissible">
+            <p><?php _e('All plugin settings have been reset to defaults.', 'dapfforwc'); ?></p>
+        </div>
+        <?php
+    }
+}
+add_action('admin_notices', 'dapfforwc_admin_notices');
+
+/**
+ * Add custom styling for the reset button
+ */
+function dapfforwc_admin_styles() {
+    ?>
+    <style>
+        .button-danger {
+            color: #fff !important;
+            background: #dc3545 !important;
+            border-color: #dc3232 !important;
+        }
+        .button-danger:hover, .button-danger:focus {
+            background: #c82333 !important;
+            border-color: #bd2130 !important;
+        }
+        .dapfforwc-reset-settings-wrapper {
+            background: #fff;
+            border: 1px solid #ccd0d4;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+    <?php
+}
+add_action('admin_head', 'dapfforwc_admin_styles');
 
 ?>

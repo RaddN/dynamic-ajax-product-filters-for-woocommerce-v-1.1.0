@@ -38,7 +38,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
     foreach ($attributes_list as $attributes) {
         // Ensure that the "product-category", 'attribute', and 'terms' keys exist
-        $arrayCata = isset($attributes["product-category"]) ? array_map('trim', explode(",", $attributes["product-category"])) : [];
+        $arrayCata = isset($attributes["category"]) ? array_map('trim', explode(",", $attributes["category"])) : [];
         $tagValue = isset($attributes['tags']) ? array_map('trim', explode(",", $attributes['tags'])) : [];
         $termsValue = isset($attributes['terms']) ? array_map('trim', explode(",", $attributes['terms'])) : [];
         $attrvalue = [];
@@ -67,7 +67,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
-            'per_page'        => $attributes['limit'] ?? $attributes['per_page'],
+            'per_page'        => $attributes['limit'] ?? $attributes['per_page'] ?? null,
             'orderby'         => $attributes['orderby'] ?? '',
             'order'           => $attributes['order'] ?? '',
             'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
@@ -516,15 +516,6 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }',$allowed_tags); ?>
     </style>
-    <?php
-    if (isset($dapfforwc_options["loader_html"])) {
-        echo wp_kses($dapfforwc_options["loader_html"], $allowed_tags);
-    }
-
-    if (isset($dapfforwc_options["loader_css"])) {
-        echo '<style>' . wp_kses($dapfforwc_options["loader_css"], $allowed_tags) . '</style>';
-    }
-    ?>
     <div id="roverlay" style="display: none;"></div>
 
     <div id="filtered-products">
@@ -774,9 +765,9 @@ function dapfforwc_render_category_hierarchy(
             . '</a>'
             . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
             . '</div>'
-            : '<a style="display:flex;align-items: center;text-decoration: none;">'
+            : '<div style="display:flex;align-items: center;text-decoration: none;">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
-            . '</a>';
+            . '</div>';
 
         // Render child categories
         if (!empty($child_categories)) {

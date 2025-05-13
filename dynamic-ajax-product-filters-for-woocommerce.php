@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.1.4
+ * Version:     1.1.3
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -197,7 +197,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.4', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.3.5', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -208,9 +208,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page() 
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.4');
-    wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '1.1.4');
-    wp_enqueue_script('select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', ['jquery'], '1.1.4', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.3');
+    wp_enqueue_style('select2-css', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', [], '1.1.3');
+    wp_enqueue_script('select2-js', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', ['jquery'], '1.1.3', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -292,11 +292,11 @@ function dapfforwc_admin_scripts($hook)
         return; // Load only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.4');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.3');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.4', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.3', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -497,7 +497,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.4');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.3');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -752,29 +752,6 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
 
     // Combine all formatted pairs
     $formatted_string = implode(', ', $formatted_pairs);
-
-    //  // Special handling for categories and tags from the old approach
-    //  if (isset($query_params['cata']) && !empty($query_params['cata'])) {
-    //      $categories = explode(',', sanitize_text_field($query_params['cata']));
-    //      $formatted_categories = array_map(function ($cat) {
-    //          return str_replace('-', ' ', $cat);
-    //      }, $categories);
-
-    //      if (!empty($formatted_categories)) {
-    //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'category - ' . implode(', ', $formatted_categories);
-    //      }
-    //  }
-
-    //  if (isset($query_params['tags']) && !empty($query_params['tags'])) {
-    //      $tags = explode(',', sanitize_text_field($query_params['tags']));
-    //      $formatted_tags = array_map(function ($tag) {
-    //          return str_replace('-', ' ', $tag);
-    //      }, $tags);
-
-    //      if (!empty($formatted_tags)) {
-    //          $formatted_string .= (!empty($formatted_string) ? ', ' : '') . 'tag - ' . implode(', ', $formatted_tags);
-    //      }
-    //  }
 
     // Replace placeholders in SEO settings
     $replacements = [

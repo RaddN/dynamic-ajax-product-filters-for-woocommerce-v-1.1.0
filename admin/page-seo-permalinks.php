@@ -98,7 +98,7 @@ function dapfforwc_permalinks_prefix_render()
     <div class="attribute_prefix_list" style="margin-bottom: 10px;">
         <div class="dapfforwc-form-group">
             <label for="dapfforwc_category_prefix"><?php esc_html_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
-            <input type="text" id="dapfforwc_category_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][category]"
+            <input type="text" id="dapfforwc_category_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][product-category]"
                 value="<?php echo isset($options["product-category"]) ? esc_attr($options["product-category"]) : ''; ?>"
                 placeholder="<?php esc_attr_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
         </div>

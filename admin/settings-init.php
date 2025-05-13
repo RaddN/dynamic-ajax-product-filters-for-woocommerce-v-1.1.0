@@ -136,7 +136,7 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
             'rating' => 'rating',
         ],
         'filters_word_in_permalinks' => 'filters',
-        'use_filters_word_in_permalinks' => 'on',
+        'use_filters_word_in_permalinks' => '',
         'use_anchor' => 0,
     ];
 
@@ -153,7 +153,7 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
         'dapfforwc-seo-permalinks'
     );
 
-    add_settings_field('use_filters_word_in_permalinks', __('Use Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
+    // add_settings_field('use_filters_word_in_permalinks', __('Use Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
     add_settings_field('use_attribute_type_in_permalinks', __('Use Attribute Type in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_attribute_type_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
     // add_settings_field('filters_word_in_permalinks', __('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
     add_settings_field('permalinks_prefix', __('Permalinks Prefix', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_permalinks_prefix_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');

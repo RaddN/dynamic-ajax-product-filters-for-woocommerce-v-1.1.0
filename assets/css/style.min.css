@@ -440,7 +440,7 @@ form.rfilterbuttons * {
   border-radius: 4px;
   font-size: 13px;
 }
-#product-filter input#search-field {
+#product-filter input#plugincy-search-field {
   width: 63%;
 }
 #product-filter span.stars svg {
