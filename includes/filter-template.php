@@ -526,40 +526,47 @@ function dapfforwc_product_filter_shortcode($atts)
 
     <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const titles = document.querySelectorAll('.filter-group .title');
-                const items = document.querySelectorAll('.filter-group .items');
+    document.addEventListener('DOMContentLoaded', function() {
+        // Function to check if the device is mobile
+        function isMobile() {
+            return window.innerWidth <= 768; // Adjust the width as needed
+        }
 
-                // Function to hide all items
-                function hideAllItems() {
-                    items.forEach(item => {
-                        item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
-                    });
-                }
+        if (isMobile()) {
+            const titles = document.querySelectorAll('.filter-group .title');
+            const items = document.querySelectorAll('.filter-group .items');
 
-                // Add click event listener to each title
-                titles.forEach(title => {
-                    title.addEventListener('click', function(event) {
-                        // Prevent hiding the items when clicking on the title
-                        event.stopPropagation();
-
-                        // Toggle the visibility of the items
-                        const currentItems = this.nextElementSibling;
-                        if (currentItems.style.display === 'block') {
-                            currentItems.style.setProperty('display', 'none', 'important'); // Hide items
-                        } else {
-                            hideAllItems(); // Hide all first
-                            currentItems.style.setProperty('display', 'block', 'important'); // Show clicked items
-                        }
-                    });
+            // Function to hide all items
+            function hideAllItems() {
+                items.forEach(item => {
+                    item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
                 });
+            }
 
-                // Click event to hide all items when clicking outside
-                document.addEventListener('click', function() {
-                    hideAllItems();
+            // Add click event listener to each title
+            titles.forEach(title => {
+                title.addEventListener('click', function(event) {
+                    // Prevent hiding the items when clicking on the title
+                    event.stopPropagation();
+
+                    // Toggle the visibility of the items
+                    const currentItems = this.nextElementSibling;
+                    if (currentItems.style.display === 'block') {
+                        currentItems.style.setProperty('display', 'none', 'important'); // Hide items
+                    } else {
+                        hideAllItems(); // Hide all first
+                        currentItems.style.setProperty('display', 'block', 'important'); // Show clicked items
+                    }
                 });
             });
-        </script>
+
+            // Click event to hide all items when clicking outside
+            document.addEventListener('click', function() {
+                hideAllItems();
+            });
+        }
+    });
+</script>
     <?php } ?>
 
 

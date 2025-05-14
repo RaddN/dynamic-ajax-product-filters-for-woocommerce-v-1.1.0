@@ -256,14 +256,14 @@ function dapfforwc_enqueue_scripts()
             const $items = $this.next(".items");
 
             // Hide items initially if the title has a specific class
-            if ($this.hasClass("collapsable_minimize_initial")) {
+            if ($this.hasClass("plugincy_collapsable_minimize_initial")) {
                 $items.hide();
             }
 
             // Clear any existing event handlers before adding new ones
             $this.off("click").on("click", function () {
-                // Handle `.collapsable_arrow` class for rotating the SVG icon
-                if ($this.hasClass("collapsable_arrow")) {
+                // Handle `.plugincy_collapsable_arrow` class for rotating the SVG icon
+                if ($this.hasClass("plugincy_collapsable_arrow")) {
                     $this.find("svg").toggleClass("rotated");
                 }
                 // Toggle the visibility of the sibling `.items`

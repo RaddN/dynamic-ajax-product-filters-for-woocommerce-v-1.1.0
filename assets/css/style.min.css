@@ -112,7 +112,7 @@ div#roverlay {
 }
 #product-filter .collaps,
 #product-filter .items label,
-#product-filter .title.collapsable_no_arrow,
+#product-filter .title.plugincy_collapsable_no_arrow,
 form.rfilterbuttons * {
   cursor: pointer;
 }
@@ -408,10 +408,10 @@ form.rfilterbuttons * {
 #product-filter .checkbox_hide .filter-checkbox:checked + span {
   color: #432fb8;
 }
-#product-filter .collapsable_minimize_initial svg {
+#product-filter .plugincy_collapsable_minimize_initial svg {
   transform: rotate(-90deg);
 }
-#product-filter .collapsable_minimize_initial .rotatable.rotated {
+#product-filter .plugincy_collapsable_minimize_initial .rotatable.rotated {
   transform: rotate(0);
 }
 #product-filter .search-container {
