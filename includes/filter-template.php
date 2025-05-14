@@ -47,9 +47,9 @@ function dapfforwc_product_filter_shortcode($atts)
             $terms_values = array_map('trim', explode("},{", trim($attributes['terms'], "{}")));
 
             foreach ($attribute_keys as $index => $key) {
-            if (isset($terms_values[$index])) {
-                $attrvalue[$key] = array_map('trim', explode(",", $terms_values[$index]));
-            }
+                if (isset($terms_values[$index])) {
+                    $attrvalue[$key] = array_map('trim', explode(",", $terms_values[$index]));
+                }
             }
         } else {
             $attrvalue = isset($attributes['attribute']) ? array_map('trim', explode(",", $attributes['attribute'])) : [];
@@ -187,7 +187,7 @@ function dapfforwc_product_filter_shortcode($atts)
     }
     $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag[]"] ?? [])));
     $all_data_objects["tag[]"] = array_keys($matched_tag_with_ids);
-    
+
     if ($second_operator === 'AND') {
         $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_intersect(...array_values($matched_tag_with_ids)));
     } else {
@@ -205,7 +205,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 foreach ($lookup['terms'] as $term) {
                     if (in_array($term['slug'], $default_filter["attribute"][$taxonomy] ?? [])) {
                         $match_attributes_with_ids[$taxonomy][] = $term['products'];
-                        $all_data_objects['attribute['.$taxonomy.'][]'][] = $term['slug'];
+                        $all_data_objects['attribute[' . $taxonomy . '][]'][] = $term['slug'];
                     }
                 }
             }
@@ -221,7 +221,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_attributes[] = array_values(array_unique(array_merge(...$products)));
         }
     }
-    
+
 
     $common_values = empty($products_id_by_attributes) ? [] : array_intersect(...$products_id_by_attributes);
 
@@ -261,8 +261,10 @@ function dapfforwc_product_filter_shortcode($atts)
         <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
         /* responsive filter */
         @media (max-width: 781px) {
-            .rfilterbuttons {
-                display: none;
+
+            .rfilterbuttons,
+            #product-filter .items {
+                display: none !important;
             }
 
             #product-filter .filter-group div .title {
@@ -338,8 +340,8 @@ function dapfforwc_product_filter_shortcode($atts)
                     position: fixed;
                     z-index: 999;
                     background: #ffffff;
-                    width: 95%;
-                    padding: 30px 20px 300px 20px;
+                    width: 88%;
+                    padding-bottom: 200px;
                     height: 100%;
                     overflow: scroll;
                     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
@@ -485,8 +487,8 @@ function dapfforwc_product_filter_shortcode($atts)
             } ?>>
             <?php
             wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
-            
-            $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] ==="on" ? $all_data_objects : $default_filter;
+
+            $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
             // echo json_encode($updated_filters);
             echo dapfforwc_filter_form($updated_filters, $all_data_objects, $use_anchor, $use_filters_word, $atts, $min_price = $dapfforwc_styleoptions["price"]["min_price"] ?? (intval($min_max_prices['min'])) ?? 0, $max_price = $dapfforwc_styleoptions["price"]["max_price"] ?? (intval($min_max_prices['max']) ?? 100000000000) + 1, []);
             echo $formOutPut;
@@ -497,7 +499,7 @@ function dapfforwc_product_filter_shortcode($atts)
     ?>
 
     <!-- Loader HTML -->
-    <?php 
+    <?php
     global $allowed_tags;
     echo $dapfforwc_options["loader_html"] ?? '<div id="loader" style="display:none;"></div>'; ?>
     <style>
@@ -514,13 +516,51 @@ function dapfforwc_product_filter_shortcode($atts)
                 to {
                     transform: rotate(1turn);
                 }
-            }',$allowed_tags); ?>
+            }', $allowed_tags); ?>
     </style>
     <div id="roverlay" style="display: none;"></div>
 
     <div id="filtered-products">
         <!-- AJAX results will be displayed here -->
     </div>
+
+    <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const titles = document.querySelectorAll('.filter-group .title');
+                const items = document.querySelectorAll('.filter-group .items');
+
+                // Function to hide all items
+                function hideAllItems() {
+                    items.forEach(item => {
+                        item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
+                    });
+                }
+
+                // Add click event listener to each title
+                titles.forEach(title => {
+                    title.addEventListener('click', function(event) {
+                        // Prevent hiding the items when clicking on the title
+                        event.stopPropagation();
+
+                        // Toggle the visibility of the items
+                        const currentItems = this.nextElementSibling;
+                        if (currentItems.style.display === 'block') {
+                            currentItems.style.setProperty('display', 'none', 'important'); // Hide items
+                        } else {
+                            hideAllItems(); // Hide all first
+                            currentItems.style.setProperty('display', 'block', 'important'); // Show clicked items
+                        }
+                    });
+                });
+
+                // Click event to hide all items when clicking outside
+                document.addEventListener('click', function() {
+                    hideAllItems();
+                });
+            });
+        </script>
+    <?php } ?>
 
 
 <?php

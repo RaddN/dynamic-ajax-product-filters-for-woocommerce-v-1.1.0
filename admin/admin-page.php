@@ -389,12 +389,15 @@ function dapfforwc_reset_settings() {
         delete_option('dapfforwc_advance_options');
         delete_option('dapfforwc_seo_permalinks_options');
         delete_option('woocommerce_slug_check_dismissed_time');
+        delete_option('dapfforwc_install_time');
+        delete_option('dapfforwc_review_already_done');
+        delete_option('dapfforwc_remind_me_later');
         
         // Add success message
         add_settings_error(
             'dapfforwc_messages',
             'dapfforwc_message',
-            __('All plugin settings have been reset to defaults.', 'dapfforwc'),
+            __('Dynamic AJAX Product Filters for WooCommerce settings have been reset to defaults.', 'dapfforwc'),
             'updated'
         );
         

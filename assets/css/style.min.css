@@ -487,3 +487,10 @@ form.rfilterselected ul *,span.show-sub-cata {
 form#product-filter a {
   text-decoration: none !important;
 }
+
+@media (max-width: 768px) {
+ .mobile-filter .rfilterselected, .mobile-filter #product-filter {
+    padding-left: 10px;
+    padding-right: 10px;
+}
+}
