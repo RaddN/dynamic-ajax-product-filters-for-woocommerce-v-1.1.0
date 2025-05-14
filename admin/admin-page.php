@@ -388,6 +388,7 @@ function dapfforwc_reset_settings() {
         delete_option('dapfforwc_style_options');
         delete_option('dapfforwc_advance_options');
         delete_option('dapfforwc_seo_permalinks_options');
+        delete_option('woocommerce_slug_check_dismissed_time');
         
         // Add success message
         add_settings_error(

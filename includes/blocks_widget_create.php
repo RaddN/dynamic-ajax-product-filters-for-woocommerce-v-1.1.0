@@ -171,6 +171,7 @@ function dapfforwc_generate_css($styles, $device = 'desktop', $hover = false, $a
 
 function dapfforwc_render_dynamic_ajax_filter_block($attributes)
 {
+    global $dapfforwc_options;
     $filter_type = $attributes['filterType'];
     $use_custom_design = $attributes['usecustomdesign']??'';
     $perPage = isset($attributes['perPage']) ? intval($attributes['perPage']) : 12;
@@ -258,6 +259,25 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             if ($filter_options_manage) {
                 $output .= '<style>@media(min-width:767px){form#product-filter { display: flex ; flex-direction: column; }form#product-filter>div {order: 999;}}';
                 foreach ($filter_options_manage as $options) {
+                    if ($options["id"] == "category" && !isset($dapfforwc_options["show_categories"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "tag" && !isset($dapfforwc_options["show_tags"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "price-range" && !isset($dapfforwc_options["show_price_range"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "rating" && !isset($dapfforwc_options["show_rating"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "search_text" && !isset($dapfforwc_options["show_search"])) {
+                        continue;
+                    }
+                    if ($options["id"] !== "category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && !isset($dapfforwc_options["show_attributes"])) {
+                        continue;
+                    }
+                    
                     $is_visible = $options["visible"] ? "block" : "none";
                     $output .= '.' . $options["id"] . '{
                     order: ' . $index . '!important;
