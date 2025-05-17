@@ -447,6 +447,10 @@ form.rfilterbuttons * {
   width: 16px;
 }
 
+input[name="rating[]"]:checked ~ .stars svg {
+  fill: #feb623;
+}
+
 span#dapfforwc_issue_count {
     background: #ff0000;
     max-width: min-content;
@@ -493,4 +497,13 @@ form#product-filter a {
     padding-left: 10px;
     padding-right: 10px;
 }
+}
+
+.dapfforwc-hidden-important {
+  display: none !important;
+  height: 0 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }

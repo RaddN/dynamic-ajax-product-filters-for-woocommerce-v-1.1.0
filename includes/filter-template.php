@@ -98,6 +98,49 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'];
     }
 
+    // Initialize result
+    $parsed_filters = [];
+
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $prefix = $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] ?? "";
+        // Get all query variables
+        $query_vars = $_GET;
+
+
+
+        // Reverse the $prefix to find key from value
+        $reverse_prefix = [];
+
+        // Flatten and reverse the prefix
+        foreach ($prefix as $key => $val) {
+            if ($key === 'attribute') {
+                foreach ($val as $attr_key => $attr_val) {
+                    $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
+                }
+            } else {
+                $reverse_prefix[$val] = ['type' => $key];
+            }
+        }
+
+        // Process query vars
+        foreach ($query_vars as $key => $value) {
+            if (!isset($reverse_prefix[$key])) {
+                continue;
+            }
+
+            $info = $reverse_prefix[$key];
+
+            // Handle comma-separated values
+            $values = explode(',', $value);
+
+            if ($info['type'] === 'attribute') {
+                $parsed_filters['attribute'][$info['key']] = $values;
+            } else {
+                $parsed_filters[$info['type'] . "[]"] = $values;
+            }
+        }
+    }
+
     update_option('dapfforwc_options', $dapfforwc_options);
     $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
 
@@ -125,10 +168,10 @@ function dapfforwc_product_filter_shortcode($atts)
     $filters = $query_params['filters'] ?? null;
     $default_filter = array_merge(
         $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
-        explode(',', $filters ?? ''),
+        $parsed_filters,
+        explode(',', $_GET['filters'] ?? ''),
         $request_parts
     );
-
 
     $ratings = array_values(array_filter($default_filter, 'is_numeric'));
 
@@ -178,14 +221,38 @@ function dapfforwc_product_filter_shortcode($atts)
     );
     $all_data_objects = [];
     // Match Filters
-    $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["product-category[]"] ?? [])));
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["product-category[]"] ?? [])));
+    }else{
+        // Merge both possible category sources: 'product-category[]' and numeric keys (0,1,2,...)
+        $category_slugs = array_filter($default_filter["product-category[]"] ?? []);
+        // Collect numeric keys as possible category slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $category_slugs, true)) {
+            $category_slugs[] = $val;
+            }
+        }
+        $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip($category_slugs));
+    }
     $all_data_objects["product-category[]"] = array_keys($matched_cata_with_ids);
     if ($second_operator === 'AND') {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
     }
-    $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag[]"] ?? [])));
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag[]"] ?? [])));
+    } else {
+        // Merge both possible tag sources: 'tag[]' and numeric keys (0,1,2,...)
+        $tag_slugs = array_filter($default_filter["tag[]"] ?? []);
+        // Collect numeric keys as possible tag slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $tag_slugs, true)) {
+                $tag_slugs[] = $val;
+            }
+        }
+        $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip($tag_slugs));
+    }
     $all_data_objects["tag[]"] = array_keys($matched_tag_with_ids);
 
     if ($second_operator === 'AND') {
@@ -198,12 +265,46 @@ function dapfforwc_product_filter_shortcode($atts)
     // Match Attributes
     $products_id_by_attributes = [];
     $match_attributes_with_ids = [];
+
+    // Collect all attribute slugs from default_filter["attribute"] (array) and numeric keys (string values)
+    $attribute_slugs_by_tax = [];
+    if (isset($default_filter["attribute"]) && is_array($default_filter["attribute"])) {
+        foreach ($default_filter["attribute"] as $taxonomy => $slugs) {
+            if (is_array($slugs)) {
+                foreach ($slugs as $slug) {
+                    $attribute_slugs_by_tax[$taxonomy][] = $slug;
+                }
+            }
+        }
+    }
+
+    // Also check numeric keys for possible attribute slugs
+    foreach ($default_filter as $key => $val) {
+        if (is_numeric($key) && is_string($val) && $val !== '') {
+            // Try to match this value to any attribute term slug
+            foreach ($all_attributes as $taxonomy => $lookup) {
+                if (isset($lookup['terms']) && is_array($lookup['terms'])) {
+                    foreach ($lookup['terms'] as $term) {
+                        if ($term['slug'] === $val) {
+                            $attribute_slugs_by_tax[$taxonomy][] = $val;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Remove duplicates
+    foreach ($attribute_slugs_by_tax as $taxonomy => $slugs) {
+        $attribute_slugs_by_tax[$taxonomy] = array_unique($slugs);
+    }
+
+    // Now build $match_attributes_with_ids and $all_data_objects
     if ((is_array($all_attributes) || is_object($all_attributes))) {
-        foreach ($all_data['attributes'] as $taxonomy => $lookup) {
-            // Ensure 'terms' key exists and is an array
+        foreach ($all_attributes as $taxonomy => $lookup) {
             if (isset($lookup['terms']) && is_array($lookup['terms'])) {
                 foreach ($lookup['terms'] as $term) {
-                    if (in_array($term['slug'], $default_filter["attribute"][$taxonomy] ?? [])) {
+                    if (in_array($term['slug'], $attribute_slugs_by_tax[$taxonomy] ?? [])) {
                         $match_attributes_with_ids[$taxonomy][] = $term['products'];
                         $all_data_objects['attribute[' . $taxonomy . '][]'][] = $term['slug'];
                     }
@@ -526,47 +627,47 @@ function dapfforwc_product_filter_shortcode($atts)
 
     <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
         <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Function to check if the device is mobile
-        function isMobile() {
-            return window.innerWidth <= 768; // Adjust the width as needed
-        }
+            document.addEventListener('DOMContentLoaded', function() {
+                // Function to check if the device is mobile
+                function isMobile() {
+                    return window.innerWidth <= 768; // Adjust the width as needed
+                }
 
-        if (isMobile()) {
-            const titles = document.querySelectorAll('.filter-group .title');
-            const items = document.querySelectorAll('.filter-group .items');
+                if (isMobile()) {
+                    const titles = document.querySelectorAll('.filter-group .title');
+                    const items = document.querySelectorAll('.filter-group .items');
 
-            // Function to hide all items
-            function hideAllItems() {
-                items.forEach(item => {
-                    item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
-                });
-            }
-
-            // Add click event listener to each title
-            titles.forEach(title => {
-                title.addEventListener('click', function(event) {
-                    // Prevent hiding the items when clicking on the title
-                    event.stopPropagation();
-
-                    // Toggle the visibility of the items
-                    const currentItems = this.nextElementSibling;
-                    if (currentItems.style.display === 'block') {
-                        currentItems.style.setProperty('display', 'none', 'important'); // Hide items
-                    } else {
-                        hideAllItems(); // Hide all first
-                        currentItems.style.setProperty('display', 'block', 'important'); // Show clicked items
+                    // Function to hide all items
+                    function hideAllItems() {
+                        items.forEach(item => {
+                            item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
+                        });
                     }
-                });
-            });
 
-            // Click event to hide all items when clicking outside
-            document.addEventListener('click', function() {
-                hideAllItems();
+                    // Add click event listener to each title
+                    titles.forEach(title => {
+                        title.addEventListener('click', function(event) {
+                            // Prevent hiding the items when clicking on the title
+                            event.stopPropagation();
+
+                            // Toggle the visibility of the items
+                            const currentItems = this.nextElementSibling;
+                            if (currentItems.style.display === 'block') {
+                                currentItems.style.setProperty('display', 'none', 'important'); // Hide items
+                            } else {
+                                hideAllItems(); // Hide all first
+                                currentItems.style.setProperty('display', 'block', 'important'); // Show clicked items
+                            }
+                        });
+                    });
+
+                    // Click event to hide all items when clicking outside
+                    document.addEventListener('click', function() {
+                        hideAllItems();
+                    });
+                }
             });
-        }
-    });
-</script>
+        </script>
     <?php } ?>
 
 
