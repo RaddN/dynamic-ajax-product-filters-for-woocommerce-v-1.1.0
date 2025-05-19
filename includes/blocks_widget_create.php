@@ -310,7 +310,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter svg {' . $rating_style_css . '} .dynamic-rating label{' . $rating_style_css . '}';
             }
             if ($reset_button_style_css) {
-                $output .= 'form#product-filter span#reset-rating {' . $reset_button_style_css . '}';
+                $output .= 'form#product-filter span.reset-value {' . $reset_button_style_css . '}';
             }
             if ($input_style_css) {
                 $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_style_css . '}';
@@ -349,7 +349,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter i {' . $rating_sm_style_css . '}';
             }
             if ($reset_button_sm_style_css) {
-                $output .= 'form#product-filter span#reset-rating {' . $reset_button_sm_style_css . '}';
+                $output .= 'form#product-filter span.reset-value {' . $reset_button_sm_style_css . '}';
             }
             if ($input_sm_style_css) {
                 $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_sm_style_css . '}';
@@ -380,7 +380,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter i {' . $rating_md_style_css . '}';
             }
             if ($reset_button_md_style_css) {
-                $output .= 'form#product-filter span#reset-rating {' . $reset_button_md_style_css . '}';
+                $output .= 'form#product-filter span.reset-value {' . $reset_button_md_style_css . '}';
             }
             if ($input_md_style_css) {
                 $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_md_style_css . '}';
@@ -393,7 +393,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter button:hover {' . $button_hover_css . '}';
             }
             if ($reset_button_hover_css) {
-                $output .= 'form#product-filter span#reset-rating:hover {' . $reset_button_hover_css . '}';
+                $output .= 'form#product-filter span.reset-value:hover {' . $reset_button_hover_css . '}';
             }
             if ($rating_hover_css) {
                 $output .= 'form#product-filter .stars:hover svg,.dynamic-rating input:checked ~ label svg, .dynamic-rating:not(:checked) label:hover svg, .dynamic-rating:not(:checked) label:hover ~ label svg {' . $rating_hover_css . '}';
@@ -1317,7 +1317,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'name'     => 'reset_button_background',
                     'label'    => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
-                    'selector' => 'form#product-filter span#reset-rating',
+                    'selector' => 'form#product-filter span.reset-value',
                 ]
             );
             // Inside the Reset Button Style section
@@ -1326,7 +1326,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'     => 'reset_button_typography',
                     'label'    => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector' => 'form#product-filter span#reset-rating',
+                    'selector' => 'form#product-filter span.reset-value',
                 ]
             );
 
@@ -1338,7 +1338,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter span#reset-rating' => 'color: {{VALUE}} !important;',
+                        'form#product-filter span.reset-value' => 'color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1351,7 +1351,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => __('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter span#reset-rating:hover' => 'background-color: {{VALUE}};',
+                        'form#product-filter span.reset-value:hover' => 'background-color: {{VALUE}};',
                     ],
                 ]
             );
@@ -1363,7 +1363,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => __('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter span#reset-rating:hover' => 'color: {{VALUE}}!important;',
+                        'form#product-filter span.reset-value:hover' => 'color: {{VALUE}}!important;',
                     ],
                 ]
             );
@@ -1374,7 +1374,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'     => 'reset_button_border',
                     'label'    => __('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector' => 'form#product-filter span#reset-rating',
+                    'selector' => 'form#product-filter span.reset-value',
                 ]
             );
 
@@ -1386,7 +1386,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter span#reset-rating' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        'form#product-filter span.reset-value' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1399,7 +1399,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter span#reset-rating' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        'form#product-filter span.reset-value' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );

@@ -432,7 +432,7 @@ form.rfilterbuttons * {
   border-radius: 0 4px 4px 0;
   cursor: pointer;
 }
-#product-filter span#reset-rating {
+#product-filter span.reset-value {
   color: #fff;
   cursor: pointer;
   background: #ff4d4d;
@@ -506,4 +506,7 @@ form#product-filter a {
   visibility: hidden !important;
   padding: 0 !important;
   margin: 0 !important;
+}
+form#product-filter select.items.select.filter-select {
+    padding: 6px 14px !important;
 }
