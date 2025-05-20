@@ -122,7 +122,7 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     // seo-permalinks settings register
     $seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options') ?: [
         'use_attribute_type_in_permalinks' => "on",
-        'permalinks_prefix' => [
+        'dapfforwc_permalinks_prefix_options' => [
             "product-category" => 'cata',
             'tag' => 'tags',
             'attribute' => [

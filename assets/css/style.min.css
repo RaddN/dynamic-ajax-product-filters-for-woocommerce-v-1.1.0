@@ -28,7 +28,7 @@ div#loader {
   position: fixed;
   top: 40%;
   left: 50%;
-  z-index: 999;
+  z-index: 2147483647;
 }
 div#roverlay {
   position: fixed !important;
@@ -93,7 +93,7 @@ div#roverlay {
   margin-bottom: 15px;
   background: rgba(255, 255, 255, 0.7);
   box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
-  overflow: hidden;
+  /* overflow: hidden; */
   padding: 10px 10px 0;
   border-radius: 8px;
 }
@@ -167,7 +167,7 @@ form.rfilterbuttons * {
 #product-filter .items.image,
 #product-filter .items.image_no_border {
   display: grid !important;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(26px, 1fr));
   gap: 6px;
   justify-items: stretch;
   align-content: stretch;
@@ -188,7 +188,7 @@ form.rfilterbuttons * {
   grid-template-columns: repeat(3, 1fr);
 }
 #product-filter .items.button_check {
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)) !important;
 }
 #product-filter .items.button_check input:checked,
 #product-filter .items.color input:checked,
@@ -212,6 +212,9 @@ form.rfilterbuttons * {
 }
 #product-filter label.image-option.no-border {
   border: none;
+}
+#product-filter input[type="checkbox"] {
+  -webkit-appearance: checkbox;
 }
 #product-filter .filter-radio,
 #product-filter .filter-radio-check {
@@ -252,6 +255,13 @@ form.rfilterbuttons * {
   border-right: 2px solid #fff;
   display: block;
   transform: rotate(45deg);
+}
+#product-filter input:checked::before {
+  display: none !important;
+}
+
+#product-filter input[type="checkbox"].filter-checkbox,#product-filter input[type="checkbox"].filter-square-check {
+  -webkit-appearance: checkbox !important;
 }
 #product-filter .filter-radio-check:hover,
 #product-filter .filter-radio:hover,
@@ -452,18 +462,18 @@ input[name="rating[]"]:checked ~ .stars svg {
 }
 
 span#dapfforwc_issue_count {
-    background: #ff0000;
-    max-width: min-content;
-    width: max-content;
-    display: inline-block;
-    border-radius: 100%;
-    line-height: 8px;
-    font-size: 12px;
-    padding: 5px;
-    position: absolute;
-    left: 6px;
-    bottom: -2px;
-    display: none;
+  background: #ff0000;
+  max-width: min-content;
+  width: max-content;
+  display: inline-block;
+  border-radius: 100%;
+  line-height: 8px;
+  font-size: 12px;
+  padding: 5px;
+  position: absolute;
+  left: 6px;
+  bottom: -2px;
+  display: none;
 }
 .items .image-option span.image-title {
   opacity: 0;
@@ -485,7 +495,8 @@ span#dapfforwc_issue_count {
   opacity: 1;
   transition: all 0.3s ease-in-out;
 }
-form.rfilterselected ul *,span.show-sub-cata {
+form.rfilterselected ul *,
+span.show-sub-cata {
   cursor: pointer !important;
 }
 form#product-filter a {
@@ -493,10 +504,11 @@ form#product-filter a {
 }
 
 @media (max-width: 768px) {
- .mobile-filter .rfilterselected, .mobile-filter #product-filter {
+  .mobile-filter .rfilterselected,
+  .mobile-filter #product-filter {
     padding-left: 10px;
     padding-right: 10px;
-}
+  }
 }
 
 .dapfforwc-hidden-important {
@@ -508,5 +520,58 @@ form#product-filter a {
   margin: 0 !important;
 }
 form#product-filter select.items.select.filter-select {
-    padding: 6px 14px !important;
+  padding: 6px 14px !important;
+}
+
+/* Style radio buttons to look like checkboxes */
+.checkbox input[type="radio"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid #ccc;
+  border-radius: 3px; /* Square corners like checkbox */
+  outline: none;
+  margin-right: 8px;
+  position: relative;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+/* Create the checkmark appearance when checked */
+.checkbox input[type="radio"]:checked {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+
+/* Create the checkmark using ::after pseudo-element */
+.checkbox input[type="radio"]:checked::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Hover state */
+.checkbox input[type="radio"]:hover {
+  border-color: #999;
+}
+
+/* Focus state for accessibility */
+.checkbox input[type="radio"]:focus {
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+/* Style the label text */
+.checkbox label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 14px;
+  cursor: pointer;
 }

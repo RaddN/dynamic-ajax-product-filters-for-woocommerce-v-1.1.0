@@ -106,37 +106,37 @@ function dapfforwc_product_filter_shortcode($atts)
         // Get all query variables
         $query_vars = $_GET;
 
-
-
         // Reverse the $prefix to find key from value
         $reverse_prefix = [];
 
-        // Flatten and reverse the prefix
-        foreach ($prefix as $key => $val) {
-            if ($key === 'attribute') {
-                foreach ($val as $attr_key => $attr_val) {
-                    $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
+        if (isset($prefix) && is_array($prefix)) {
+            // Flatten and reverse the prefix
+            foreach ($prefix as $key => $val) {
+                if ($key === 'attribute') {
+                    foreach ($val as $attr_key => $attr_val) {
+                        $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
+                    }
+                } else {
+                    $reverse_prefix[$val] = ['type' => $key];
                 }
-            } else {
-                $reverse_prefix[$val] = ['type' => $key];
-            }
-        }
-
-        // Process query vars
-        foreach ($query_vars as $key => $value) {
-            if (!isset($reverse_prefix[$key])) {
-                continue;
             }
 
-            $info = $reverse_prefix[$key];
+            // Process query vars
+            foreach ($query_vars as $key => $value) {
+                if (!isset($reverse_prefix[$key])) {
+                    continue;
+                }
 
-            // Handle comma-separated values
-            $values = explode(',', $value);
+                $info = $reverse_prefix[$key];
 
-            if ($info['type'] === 'attribute') {
-                $parsed_filters['attribute'][$info['key']] = $values;
-            } else {
-                $parsed_filters[$info['type'] . "[]"] = $values;
+                // Handle comma-separated values
+                $values = explode(',', $value);
+
+                if ($info['type'] === 'attribute') {
+                    $parsed_filters['attribute'][$info['key']] = $values;
+                } else {
+                    $parsed_filters[$info['type'] . "[]"] = $values;
+                }
             }
         }
     }
@@ -223,13 +223,13 @@ function dapfforwc_product_filter_shortcode($atts)
     // Match Filters
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
         $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["product-category[]"] ?? [])));
-    }else{
+    } else {
         // Merge both possible category sources: 'product-category[]' and numeric keys (0,1,2,...)
         $category_slugs = array_filter($default_filter["product-category[]"] ?? []);
         // Collect numeric keys as possible category slugs
         foreach ($default_filter as $key => $val) {
             if (is_numeric($key) && is_string($val) && !in_array($val, $category_slugs, true)) {
-            $category_slugs[] = $val;
+                $category_slugs[] = $val;
             }
         }
         $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip($category_slugs));

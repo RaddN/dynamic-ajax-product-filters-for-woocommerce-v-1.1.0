@@ -6,9 +6,11 @@ if (!defined('ABSPATH')) {
 
 add_action('admin_head', 'dapfforwc_add_review_popup');
 
-function dapfforwc_add_review_popup($hook) {
-    if ($hook !== 'toplevel_page_dapfforwc-admin') {
-        $install_time = get_option('dapfforwc_install_time');
+function dapfforwc_add_review_popup()
+{
+    $install_time = get_option('dapfforwc_install_time');
+    if (isset($_GET['page']) && $_GET['page'] === 'dapfforwc-admin') {
+        
         if (!$install_time) {
             update_option('dapfforwc_install_time', time());
             $install_time = time();
@@ -26,7 +28,7 @@ function dapfforwc_add_review_popup($hook) {
 
             // Show the popup if not already done
             if (!$already_done) {
-                ?>
+?>
                 <div id="review-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; border:1px solid #ccc; padding:20px; z-index:1000;">
                     <h2>We Value Your Feedback!</h2>
                     <p>If you enjoy using <b>Dynamic AJAX Product Filters for WooCommerce</b>, please take a moment to leave us a review.</p>
@@ -65,35 +67,49 @@ function dapfforwc_add_review_popup($hook) {
                         });
                     });
                 </script>
-                <?php
+    <?php
             }
         }
     } else {
-        add_action('admin_notices', 'dapfforwc_show_admin_notice');
+        $already_done = get_option('dapfforwc_review_already_done');
+        $remind_me_later = get_option('dapfforwc_remind_me_later');
+
+        // Check if the reminder is set for later
+        if ($remind_me_later && (time() < $remind_me_later)) {
+            return; // Don't show if user selected "Remind Me Later"
+        }
+
+        // Show the popup if not already done
+        if (!$already_done && time() - $install_time >= 600) {
+            add_action('admin_notices', 'dapfforwc_show_admin_notice');
+        }
     }
 }
 
 add_action('wp_ajax_dapfforwc_remind_me_later', 'dapfforwc_remind_me_later');
-function dapfforwc_remind_me_later() {
+function dapfforwc_remind_me_later()
+{
     // Set remind me later for 3 days
     update_option('dapfforwc_remind_me_later', time() + (3 * 24 * 60 * 60)); // 3 days
     wp_die(); // Required to terminate properly
 }
 
 add_action('wp_ajax_dapfforwc_review_already_done', 'dapfforwc_review_already_done');
-function dapfforwc_review_already_done() {
+function dapfforwc_review_already_done()
+{
     // Set already done flag
     update_option('dapfforwc_review_already_done', true);
     wp_die(); // Required to terminate properly
 }
 
-function dapfforwc_show_admin_notice() {
+function dapfforwc_show_admin_notice()
+{
     ?>
     <div class="notice notice-info is-dismissible" id="admin-review-notice">
         <p>If you enjoy using <b>Dynamic AJAX Product Filters for WooCommerce</b>, please take a moment to leave us a review.</p>
         <p><a href="https://wordpress.org/support/plugin/dynamic-ajax-product-filters-for-woocommerce/reviews/" target="_blank" class="button-primary">Leave a Review</a>
-        <button id="close-notice" class="button-secondary">Remind Me Later</button>
-        <button id="already-done-notice" class="button-secondary">Already Done</button>
+            <button id="close-notice" class="button-secondary">Remind Me Later</button>
+            <button id="already-done-notice" class="button-secondary">Already Done</button>
         </p>
     </div>
     <script>
@@ -108,5 +124,5 @@ function dapfforwc_show_admin_notice() {
             });
         });
     </script>
-    <?php
+<?php
 }
