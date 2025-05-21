@@ -176,7 +176,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $formOutPut .= '<div class="title plugincy_collapsable_' . esc_attr($minimizable) . '"><span>Category '.($singlevaluecataSelect === "yes" ? '<span class="reset-value">reset</span>':'').'</span>' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
-                $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
+                $formOutPut .= '<option class="filter-checkbox" > Any </option>';
             } else {
                 $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
             }
@@ -222,7 +222,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $formOutPut .= '<div class="title plugincy_collapsable_' . esc_attr($minimizable) . '"><span>Category '.($singlevaluecataSelect === "yes" ? '<span class="reset-value">reset</span>':'').'</span>' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
-                $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
+                $formOutPut .= '<option class="filter-checkbox" > Any </option>';
             } else {
                 $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
             }
@@ -254,7 +254,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                     $formOutPut .= '<div class="title plugincy_collapsable_' . esc_attr($minimizable) . '">' . esc_html($parent_category->name) . ' ' . ($minimizable === 'arrow' || $minimizable === 'minimize_initial' ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
                     if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
                         $formOutPut .= '<select name="product-category[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
-                        $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
+                        $formOutPut .= '<option class="filter-checkbox" > Any </option>';
                     } else {
                         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
                     }
@@ -321,7 +321,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
                 if ($sub_optionattr === "select" || $sub_optionattr === "select2" || $sub_optionattr === "select2_classic") {
                     $formOutPut .= '<select name="attribute[' . esc_attr($attribute_name) . '][]" class="items ' . esc_attr($sub_optionattr) . ' filter-select" ' . ($singlevalueattrSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
-                    $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
+                    $formOutPut .= '<option class="filter-checkbox" > Any </option>';
                 } else {
                     $formOutPut .= '<div class="items ' . esc_attr($sub_optionattr) . '">';
                 }
@@ -358,7 +358,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $formOutPut .= '<div id="tag" class="filter-group tag" style="display: ' . (!empty($dapfforwc_options['show_tags']) ? 'block' : 'none') . ';"><div class="title plugincy_collapsable_' . esc_attr($minimizable) . '"><span>Tags '.($singlevalueSelect === "yes" ? '<span class="reset-value">reset</span>':'').'</span>' . ($minimizable === "arrow" || $minimizable === "minimize_initial" ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
         if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="tags[]" class="items ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
-            $formOutPut .= '<option class="filter-checkbox" value="" disabled> Any </option>';
+            $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         } else {
             $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
         }

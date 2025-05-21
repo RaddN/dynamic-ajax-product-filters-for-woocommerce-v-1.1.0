@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.1.6.9
+ * Version:     1.1.6.14
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -197,7 +197,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.6.9', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.6.14', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -208,9 +208,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.6.9');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.1.6.9');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.1.6.9', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.6.14');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.1.6.14');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.1.6.14', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -306,11 +306,11 @@ function dapfforwc_admin_scripts($hook)
         return; // Load only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.6.9');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.6.14');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.6.9', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.6.14', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -505,10 +505,14 @@ function dapfforwc_admin_scripts($hook)
 
             // Managing single selection checkbox
             const singleSelectionCheckbox = this.closest(".style-options").querySelector(".setting-item.single-selection input");
+            const singleSelectiondiv = this.closest(".style-options").querySelector(".setting-item.single-selection"); 
             if (this.value === "select") {
                 singleSelectionCheckbox.checked = true;
+                singleSelectiondiv.style.display = "none"; // Show the checkbox
+                
             } else {
                 singleSelectionCheckbox.checked = false; // Uncheck if other options are selected
+                singleSelectiondiv.style.display = "block"; // Hide the checkbox
             }
         });
     });
@@ -579,7 +583,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.6.9');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.6.14');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -845,3 +849,35 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
 
     return $replacements;
 }
+
+
+function dapfforwc_block_categories( $categories, $post ) {
+    // Create the new category array
+    $new_category = array(
+        'slug' => 'plugincy',
+        'title' => __( 'Plugincy', 'one-page-quick-checkout-for-woocommerce' ),
+        'icon'  => 'plugincy',
+    );
+
+    // Add the new category to the beginning of the categories array
+    array_unshift( $categories, $new_category );
+
+    return $categories;
+}
+add_filter( 'block_categories_all', 'dapfforwc_block_categories', 0, 2 );
+
+
+function dapfforwc_editor_script()
+{
+    if (wp_script_is('plugincy-custom-editor', 'enqueued')) {
+        return;
+    }
+    wp_enqueue_script(
+        'plugincy-custom-editor',
+        plugin_dir_url(__FILE__) . 'includes/blocks/editor.js',
+        array('wp-blocks', 'wp-element', 'wp-edit-post', 'wp-dom-ready', 'wp-plugins'),
+        '1.0.3',
+        true
+    );
+}
+add_action('enqueue_block_editor_assets', 'dapfforwc_editor_script');

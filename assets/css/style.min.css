@@ -125,7 +125,7 @@ form.rfilterbuttons * {
   position: relative;
   margin: 0;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
 #product-filter .items.button_check label {
@@ -140,7 +140,6 @@ form.rfilterbuttons * {
 #product-filter .items.image_no_border input {
   position: absolute;
   top: 0;
-  right: 0;
   display: none;
 }
 #product-filter .items.color_circle input {
@@ -214,21 +213,22 @@ form.rfilterbuttons * {
   border: none;
 }
 #product-filter input[type="checkbox"] {
+  appearance:checkbox;
   -webkit-appearance: checkbox;
 }
 #product-filter .filter-radio,
 #product-filter .filter-radio-check {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
   border: 2px solid #aaa;
   border-radius: 50%;
   justify-content: center;
 }
 #product-filter .filter-square {
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
   border: 2px solid #aaa;
   justify-content: center;
 }
@@ -280,9 +280,10 @@ form.rfilterbuttons * {
   padding: 5px;
 }
 #product-filter .select2-selection--multiple {
-  min-height: 60px;
-  padding: 5px;
-  overflow: auto;
+    min-height: 50px;
+    padding: 5px;
+    overflow: auto;
+    margin-bottom: 13px;
 }
 #product-filter .rotatable.rotated {
   transform: rotate(270deg);
@@ -379,11 +380,11 @@ form.rfilterbuttons * {
   color: #fff;
 }
 #product-filter .progress-percentage:before {
-  content: "$0";
+  /* content: "$0"; */
   left: -10px;
 }
 #product-filter .progress-percentage:after {
-  content: "$57";
+  /* content: "$57"; */
   right: 0;
 }
 #product-filter .dynamic-rating {
@@ -524,10 +525,10 @@ form#product-filter select.items.select.filter-select {
 }
 
 /* Style radio buttons to look like checkboxes */
-.checkbox input[type="radio"] {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
+form#product-filter .checkbox input[type="radio"] {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
   width: 18px;
   height: 18px;
   border: 2px solid #ccc;
@@ -540,13 +541,13 @@ form#product-filter select.items.select.filter-select {
 }
 
 /* Create the checkmark appearance when checked */
-.checkbox input[type="radio"]:checked {
+form#product-filter .checkbox input[type="radio"]:checked {
   background-color: #4a90e2;
   border-color: #4a90e2;
 }
 
 /* Create the checkmark using ::after pseudo-element */
-.checkbox input[type="radio"]:checked::after {
+form#product-filter .checkbox input[type="radio"]:checked::after {
   content: "";
   position: absolute;
   left: 5px;
@@ -559,19 +560,52 @@ form#product-filter select.items.select.filter-select {
 }
 
 /* Hover state */
-.checkbox input[type="radio"]:hover {
+form#product-filter .checkbox input[type="radio"]:hover {
   border-color: #999;
 }
 
 /* Focus state for accessibility */
-.checkbox input[type="radio"]:focus {
+form#product-filter .checkbox input[type="radio"]:focus {
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
 }
 
 /* Style the label text */
-.checkbox label {
+form#product-filter .checkbox label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
   cursor: pointer;
+}
+
+form#product-filter .items.color label:hover,form#product-filter .items.color_no_border label:hover,form#product-filter .items.color_circle label:hover{
+  position: relative;
+}
+
+form#product-filter .items.color label:hover .value, form#product-filter .items.color_no_border label:hover .value, form#product-filter .items.color_circle label:hover .value {
+    display: block !important;
+    position: absolute;
+    top: -100%;
+    background: white;
+    z-index: 9999999;
+    left: 0;
+    padding: 0 5px;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    font-size: 11px !important;
+    width: max-content;
+}
+.items.color label:hover .value:before,form#product-filter .items.color_no_border label:hover .value:before,form#product-filter .items.color_circle label:hover .value:before {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid #fff;
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+
+form#product-filter .select2-container .select2-search--inline .select2-search__field{
+  margin: 0;
 }
