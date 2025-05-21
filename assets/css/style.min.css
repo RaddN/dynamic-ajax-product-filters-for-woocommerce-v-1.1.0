@@ -1,3 +1,6 @@
+form#product-filter * {
+  box-sizing: border-box !important;
+}
 #product-filter .items.select,
 #product-filter .items.select2,
 #product-filter .range-input,
@@ -5,7 +8,7 @@
   position: relative;
 }
 #product-filter .filter-group label {
-  display: flex;
+  display: flex !important;
   margin-bottom: 5px;
   gap: 7px;
   align-items: center;
@@ -213,7 +216,7 @@ form.rfilterbuttons * {
   border: none;
 }
 #product-filter input[type="checkbox"] {
-  appearance:checkbox;
+  appearance: checkbox;
   -webkit-appearance: checkbox;
 }
 #product-filter .filter-radio,
@@ -260,7 +263,8 @@ form.rfilterbuttons * {
   display: none !important;
 }
 
-#product-filter input[type="checkbox"].filter-checkbox,#product-filter input[type="checkbox"].filter-square-check {
+#product-filter input[type="checkbox"].filter-checkbox,
+#product-filter input[type="checkbox"].filter-square-check {
   -webkit-appearance: checkbox !important;
 }
 #product-filter .filter-radio-check:hover,
@@ -280,10 +284,10 @@ form.rfilterbuttons * {
   padding: 5px;
 }
 #product-filter .select2-selection--multiple {
-    min-height: 50px;
-    padding: 5px;
-    overflow: auto;
-    margin-bottom: 13px;
+  min-height: 50px;
+  padding: 5px;
+  overflow: auto;
+  margin-bottom: 13px;
 }
 #product-filter .rotatable.rotated {
   transform: rotate(270deg);
@@ -434,14 +438,17 @@ form.rfilterbuttons * {
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px;
   width: 65%;
+  height: 40px;
 }
 #product-filter .plugincy-search-submit {
-  padding: 12px 15px;
+  padding: 14px 6px;
   border: none;
   background-color: #0073aa;
   color: #fff;
   border-radius: 0 4px 4px 0;
   cursor: pointer;
+  flex-grow: 1;
+  font-size: 12px;
 }
 #product-filter span.reset-value {
   color: #fff;
@@ -458,7 +465,7 @@ form.rfilterbuttons * {
   width: 16px;
 }
 
-input[name="rating[]"]:checked ~ .stars svg {
+#product-filter input[name="rating[]"]:checked ~ .stars svg {
   fill: #feb623;
 }
 
@@ -476,11 +483,11 @@ span#dapfforwc_issue_count {
   bottom: -2px;
   display: none;
 }
-.items .image-option span.image-title {
+#product-filter .items .image-option span.image-title {
   opacity: 0;
   transition: all 0.3s ease-in-out;
   position: absolute;
-  font-size: 85%;
+  font-size: 55%;
   background: #0000007a;
   bottom: 0;
   left: 0;
@@ -490,9 +497,10 @@ span#dapfforwc_issue_count {
   align-items: center;
   justify-content: center;
   color: #fff;
-  padding: 10px;
+  padding: 2px;
+  text-align: center;
 }
-.items .image-option:hover span.image-title {
+#product-filter .items .image-option:hover span.image-title {
   opacity: 1;
   transition: all 0.3s ease-in-out;
 }
@@ -577,35 +585,52 @@ form#product-filter .checkbox label {
   cursor: pointer;
 }
 
-form#product-filter .items.color label:hover,form#product-filter .items.color_no_border label:hover,form#product-filter .items.color_circle label:hover{
+form#product-filter .items.color label:hover,
+form#product-filter .items.color_no_border label:hover,
+form#product-filter .items.color_circle label:hover {
   position: relative;
 }
 
-form#product-filter .items.color label:hover .value, form#product-filter .items.color_no_border label:hover .value, form#product-filter .items.color_circle label:hover .value {
-    display: block !important;
-    position: absolute;
-    top: -100%;
-    background: white;
-    z-index: 9999999;
-    left: 0;
-    padding: 0 5px;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
-    font-size: 11px !important;
-    width: max-content;
+form#product-filter .items.color label:hover .value,
+form#product-filter .items.color_no_border label:hover .value,
+form#product-filter .items.color_circle label:hover .value {
+  display: block !important;
+  position: absolute;
+  top: -100%;
+  background: white;
+  z-index: 9999999;
+  left: 0;
+  padding: 0 5px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+  font-size: 11px !important;
+  width: max-content;
 }
-.items.color label:hover .value:before,form#product-filter .items.color_no_border label:hover .value:before,form#product-filter .items.color_circle label:hover .value:before {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 0;
-    width: 0;
-    height: 0;
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 10px solid #fff;
-    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+.items.color label:hover .value:before,
+form#product-filter .items.color_no_border label:hover .value:before,
+form#product-filter .items.color_circle label:hover .value:before {
+  content: "";
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 10px solid #fff;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
 }
 
-form#product-filter .select2-container .select2-search--inline .select2-search__field{
+form#product-filter
+  .select2-container
+  .select2-search--inline
+  .select2-search__field {
   margin: 0;
+}
+
+#product-filter textarea {
+  min-height: unset !important;
+}
+#product-filter .select2-selection__rendered {
+  margin: 0;
+  min-height: 0;
 }
