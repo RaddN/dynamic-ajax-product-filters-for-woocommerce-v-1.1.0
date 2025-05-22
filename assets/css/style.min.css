@@ -134,6 +134,7 @@ form.rfilterbuttons * {
 #product-filter .items.button_check label {
   border: 1px solid #432fb8;
   border-radius: 8px;
+  padding: 5px;
 }
 #product-filter .items.button_check input,
 #product-filter .items.color input,
@@ -168,12 +169,9 @@ form.rfilterbuttons * {
 #product-filter .items.color_no_border,
 #product-filter .items.image,
 #product-filter .items.image_no_border {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fit, minmax(26px, 1fr));
+  display: flex !important;
+  flex-wrap: wrap;
   gap: 6px;
-  justify-items: stretch;
-  align-content: stretch;
-  align-items: stretch;
 }
 #product-filter .filter-radio,
 #product-filter .filter-radio-check,
@@ -187,6 +185,7 @@ form.rfilterbuttons * {
 }
 #product-filter .items.image,
 #product-filter .items.image_no_border {
+  display: grid !important;
   grid-template-columns: repeat(3, 1fr);
 }
 #product-filter .items.button_check {
@@ -633,4 +632,7 @@ form#product-filter
 #product-filter .select2-selection__rendered {
   margin: 0;
   min-height: 0;
+}
+#product-filter .items.button_check label {
+  justify-content: center;
 }
