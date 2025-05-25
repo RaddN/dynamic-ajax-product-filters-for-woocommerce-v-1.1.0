@@ -4,7 +4,7 @@ Contributors: plugincy
 Tags: product filters, ajax product filters, woocommerce ajax product filters, woocommerce filters, advanced product filters, woocommerce product filter, woocommerce filter, product filter, ajax filter, attribute filter
 Requires at least: 4.7
 Tested up to: 6.8
-Stable tag: 1.1.7
+Stable tag: 1.1.7.1
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -125,7 +125,7 @@ Yes, you can use the following Shortcode to place filters anywhere on your site.
 
 == Changelog ==
 
-= 1.1.7 =
+= 1.1.7.1 =
 * Fix loading effect issue
 * Make more secure
 * Fix vulnerability

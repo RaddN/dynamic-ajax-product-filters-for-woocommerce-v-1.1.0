@@ -361,7 +361,6 @@ function dapfforwc_template_redirect_filter()
 
         // Rebuild filter form with updated filters
         $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
-        $filterform = dapfforwc_filter_form($updated_filters, $filter_params, "", "", "", 0, 9999, [], '');
 
 
         $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
