@@ -376,3 +376,6 @@
 .wcapf_admin .customizer-pro-overlay:before {
   left: 23%;
 }
+.wcapf_admin input:disabled + .slider {
+    opacity: 0.5;
+}

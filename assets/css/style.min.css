@@ -1,6 +1,12 @@
 form#product-filter * {
   box-sizing: border-box !important;
 }
+#product-filter input,#product-filter select,#product-filter textarea {
+  margin: 0;
+}
+#product-filter :focus:focus-visible {
+    outline: none !important;
+}
 #product-filter .items.select,
 #product-filter .items.select2,
 #product-filter .range-input,
@@ -431,8 +437,12 @@ form.rfilterbuttons * {
   transform: rotate(0);
 }
 #product-filter .search-container {
-  display: flex;
+  display: flex !important;
   align-items: center;
+}
+
+#product-filter .items,#product-filter span.select2.select2-container {
+    display: block !important;
 }
 #product-filter .search-field {
   padding: 9px;
