@@ -368,9 +368,9 @@ function dapfforwc_template_redirect_filter()
 
         error_log(json_encode($filter_params));
 
-        $min_price = isset($filter_params['mn_price']) ? floatval($filter_params['mn_price']) : 0;
+        $min_price = isset($filter_params['mn_price']) ? floor(floatval($filter_params['mn_price'])) : 0;
 
-        $max_price = isset($filter_params['mx_price']) ? floatval($filter_params['mx_price']) : null;
+        $max_price = isset($filter_params['mx_price']) ? ceil(floatval($filter_params['mx_price'])) : null;
 
         $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
         // Pass sanitized values to the function
