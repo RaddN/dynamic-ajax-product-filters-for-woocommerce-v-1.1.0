@@ -26,7 +26,7 @@ form#product-filter * {
   margin-bottom: 0;
 }
 #product-filter .filter-group select {
-  width: 100%;
+  width: 100% !important;
   padding: 8px;
   margin-bottom: 10px;
 }
@@ -436,14 +436,15 @@ form.rfilterbuttons * {
 #product-filter .plugincy_collapsable_minimize_initial .rotatable.rotated {
   transform: rotate(0);
 }
-#product-filter .search-container {
-  display: flex !important;
-  align-items: center;
-}
+
 
 #product-filter .items,#product-filter span.select2.select2-container {
     display: block !important;
     width: unset !important;
+}
+#product-filter .search-container {
+  display: flex !important;
+  align-items: center;
 }
 #product-filter .search-field {
   padding: 9px;
