@@ -175,7 +175,7 @@
 .wcapf_admin .input-price-range:before,
 .wcapf_admin .pro-only-2:before,
 .wcapf_admin .pro-only:hover:before {
-  content: "Pro Features only -- Coming Soon --";
+  content: "Pro Features only";
   background: red;
   color: #fff;
   position: absolute;

@@ -183,6 +183,7 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
             <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_style' ? 'nav-tab-active' : ''; ?>">Form Style</a>
             <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>">SEO & Permalinks Setup</a>
             <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'advance_settings' ? 'nav-tab-active' : ''; ?>">Advance Settings</a>
+            <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'license_settings' ? 'nav-tab-active' : ''; ?>">Plugin License</a>
         </h2>
         <div class="tab-content">
             <?php
@@ -315,7 +316,10 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
                     ?>
                 </form>
                 <?php
-            }
+            } elseif ($active_tab == 'license_settings') {
+                    $license_manager = new DAPFFORWC_License_Manager();
+                    $license_manager->render_license_form();
+                }
             ?>
         </div>
         </div>

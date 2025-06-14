@@ -4,7 +4,7 @@ Contributors: plugincy
 Tags: product filters, ajax product filters, woocommerce ajax product filters, woocommerce filters, advanced product filters, woocommerce product filter, woocommerce filter, product filter, ajax filter, attribute filter
 Requires at least: 4.7
 Tested up to: 6.8
-Stable tag: 1.1.7.6
+Stable tag: 1.1.8
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -39,7 +39,7 @@ With features like dynamic sorting, Shortcode integration, and pagination, the A
 ✅️  `Advanced Elementor Styling` – Add advanced styling options for visually appealing filtering solutions.
 ✅️  WordPress Widget, Search by Text, and Many More……
 
-= 🔥 Pro Features (Coming Soon): =
+= 🔥 Pro Features: =
 
 *  **Dynamic Filtering Options**
   * **With Permalinks** – Integrates with custom permalink structures (e.g., `brand/size/color`).
@@ -125,7 +125,7 @@ Yes, you can use the following Shortcode to place filters anywhere on your site.
 
 == Changelog ==
 
-= 1.1.7.6 =
+= 1.1.8 =
 * Fix loading effect issue
 * Make more secure
 * Fix vulnerability
