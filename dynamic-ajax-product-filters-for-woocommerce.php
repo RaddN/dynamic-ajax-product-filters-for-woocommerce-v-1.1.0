@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.1.8
+ * Version:     1.1.9
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -181,9 +181,6 @@ function dapfforwc_check_woocommerce()
         add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
         add_action('init', 'dapfforwc_dapfforwc_filter_init');
         add_action('template_redirect', 'dapfforwc_template_redirect_filter');
-
-        // Hook into wp_head with a high priority to ensure our tags are output correctly
-        add_action('wp_head', 'dapfforwc_set_seo_meta_tags', 0);
     }
 }
 
@@ -201,7 +198,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.8', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.1.9', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -212,9 +209,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.8');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.1.8');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.1.8', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.1.9');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.1.9');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.1.9', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -310,11 +307,11 @@ function dapfforwc_admin_scripts($hook)
         return; // Load only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.8');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.1.9');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.8', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.1.9', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -484,11 +481,11 @@ function dapfforwc_admin_scripts($hook)
             const fragment = document.createDocumentFragment();
             for (const key in currentOptions) {
                 const label = document.createElement("label");
+                label.className = `${key}` + (key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "button_check" ? " pro-only" : "");
                 label.innerHTML = `
                     <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
-                    <input type="radio" class="optionselect" name="dapfforwc_style_options[${attributeName}][sub_option]" value="${key}">                    
+                    <input ${key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "button_check" ? "disabled" : ""} type="radio" class="optionselect" name="${key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "button_check" ? "_pro" : "dapfforwc_style_options"}[${attributeName}][sub_option]" value="${key}">                    
                     <img src="' . plugin_dir_url(__FILE__) . 'assets/images/${key}.png" alt="${currentOptions[key]}">
-                   
                 `;
                 fragment.appendChild(label);
             }
@@ -615,7 +612,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.8');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.1.9');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -723,113 +720,6 @@ function dapfforwc_get_product_attributes()
     }
 
     return rest_ensure_response($result);
-}
-
-/** * Set custom SEO meta tags based on URL parameters */
-function dapfforwc_set_seo_meta_tags()
-{
-    global $dapfforwc_seo_permalinks_options;
-
-    // Only proceed if SEO is enabled
-    if (!isset($dapfforwc_seo_permalinks_options['enable_seo']) || $dapfforwc_seo_permalinks_options['enable_seo'] !== 'on') {
-        return;
-    }
-
-    // Get sanitized URL parameters using the secure method
-    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
-
-    // Build the sanitized URL
-    if (!empty($host) && !empty($request_uri)) {
-        $url_page = esc_url("http://{$host}{$request_uri}");
-    } else {
-        $url_page = home_url(); // Fallback to homepage if values are missing
-    }
-
-    // Parse the URL
-    $parsed_url = wp_parse_url($url_page);
-
-    // Parse the query string into an associative array
-    $query_params = [];
-    if (isset($parsed_url['query'])) {
-        parse_str($parsed_url['query'], $query_params);
-    }
-
-    // Check if the URL has a fragment and join it with query_params
-    if (isset($parsed_url['fragment']) && !empty($parsed_url['fragment'])) {
-        $parsed_fragment = str_replace(['#038;', '038;'], '', $parsed_url['fragment']);
-        parse_str($parsed_fragment, $fragment_params);
-        $query_params = array_merge($query_params, $fragment_params);
-    }
-
-    // Check if we have filter parameters in the URL
-    $has_filters = false;
-
-    // Check format 1: filters=1&param=value
-    if (isset($query_params['filters']) && $query_params['filters'] == '1') {
-        $has_filters = true;
-    }
-    // Check format 2: filters=value1,value2
-    elseif (isset($query_params['filters']) && !empty($query_params['filters']) && $query_params['filters'] != '1') {
-        $has_filters = true;
-    }
-
-    if (!$has_filters) {
-        return;
-    }
-
-    // Get base SEO settings
-    $seo_title = $dapfforwc_seo_permalinks_options['seo_title'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
-    $seo_description = $dapfforwc_seo_permalinks_options['seo_description'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
-    $seo_keywords = $dapfforwc_seo_permalinks_options['seo_keywords'] ?? '{site_title} {page_title} {attribute_prefix} {value}';
-
-    // Get site and page title
-    $site_title = get_bloginfo('name');
-    $page_title = '';
-
-    // Get current category title if available
-    if (is_product_category()) {
-        $term = get_queried_object();
-        if ($term) {
-            $page_title = $term->name;
-        }
-    } else if (is_product_tag()) {
-        $term = get_queried_object();
-        if ($term) {
-            $page_title = $term->name;
-        }
-    } else {
-        $page_title = get_the_title();
-    }
-
-    $seo_title = str_replace(array_keys(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_title, $query_params, $site_title, $page_title)), $seo_title);
-    $seo_description = str_replace(array_keys(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_description, $query_params, $site_title, $page_title)), $seo_description);
-    $seo_keywords = str_replace(array_keys(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), array_values(dapfforwc_replacement($seo_keywords, $query_params, $site_title, $page_title)), $seo_keywords);
-
-    // Clean up any extra spaces
-    $seo_title = preg_replace('/\s+/', ' ', trim($seo_title));
-    $seo_description = preg_replace('/\s+/', ' ', trim($seo_description));
-    $seo_keywords = preg_replace('/\s+/', ' ', trim($seo_keywords));
-
-    // Get canonical URL
-    $canonical_url = home_url(add_query_arg([], $GLOBALS['wp']->request));
-
-    // Output the meta tags
-    echo '<meta name="title" content="' . esc_attr($seo_title) . '">' . "\n";
-    echo '<title>' . esc_html($seo_title) . '</title>' . "\n";
-    echo '<meta name="description" content="' . esc_attr($seo_description) . '">' . "\n";
-    echo '<meta name="keywords" content="' . esc_attr($seo_keywords) . '">' . "\n";
-    echo '<meta name="robots" content="' . esc_attr($dapfforwc_seo_permalinks_options['seo_meta_tag'] ?? 'index, follow') . '">' . "\n";
-    echo '<link rel="canonical" href="' . esc_url($canonical_url) . '">' . "\n";
-
-    // Open Graph meta tags
-    echo '<meta property="og:title" content="' . esc_attr($seo_title) . '">' . "\n";
-    echo '<meta property="og:description" content="' . esc_attr($seo_description) . '">' . "\n";
-    echo '<meta property="og:url" content="' . esc_url($canonical_url) . '">' . "\n";
-
-    // Twitter meta tags
-    echo '<meta name="twitter:title" content="' . esc_attr($seo_title) . '">' . "\n";
-    echo '<meta name="twitter:description" content="' . esc_attr($seo_description) . '">' . "\n";
 }
 
 function dapfforwc_replacement($current_place, $query_params, $site_title, $page_title)

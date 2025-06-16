@@ -744,6 +744,9 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'color_no_border':
         case 'color_circle':
         case 'color_value':
+            if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+                $sub_option = 'color';
+            }
             $color = $dapfforwc_styleoptions[$attribute]['colors'][$value] ?? '#000'; // Default color
             $border = ($sub_option === 'color_no_border') ? 'none' : '1px solid #000';
             $value_show = ($sub_option === 'color_value') ? 'block' : 'none';

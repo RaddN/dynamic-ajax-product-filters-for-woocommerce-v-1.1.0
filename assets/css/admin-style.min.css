@@ -174,12 +174,28 @@
 .wcapf_admin .dynamic-rating:before,
 .wcapf_admin .input-price-range:before,
 .wcapf_admin .pro-only-2:before,
-.wcapf_admin .pro-only:hover:before {
+.wcapf_admin .pro-only:hover:before,
+.wcapf_admin tr:hover > td:has(> .pro-only):before {
   content: "Pro Features only";
   background: red;
   color: #fff;
   position: absolute;
   z-index: 999;
+}
+.wcapf_admin tr:hover > td:has(> .pro-only) {
+  position: relative;
+}
+.wcapf_admin tr:hover > td:has(> .pro-only):before {
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffe1e1;
+  color: red;
+  font-weight: bold;
 }
 .wcapf_admin .optional_settings h4 {
   position: absolute;
@@ -377,5 +393,5 @@
   left: 23%;
 }
 .wcapf_admin input:disabled + .slider {
-    opacity: 0.5;
+  opacity: 0.5;
 }

@@ -7,8 +7,8 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
 {
     global $$settings;
 ?>
-    <label class="switch <?php echo esc_attr($key); ?>">
-        <input type='checkbox' name='<?php echo esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
+    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" ? ' pro-only' : ''; ?>">
+        <input <?php echo $key === "use_anchor" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
         <span class="slider round"></span>
     </label>
     <?php
@@ -43,6 +43,13 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
             <p class="description"><?php esc_html_e('Select the meta tag to be added in the head section of the page.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
         </p>
         <?php
+    }
+    elseif ($key === "update_filter_options") {
+        // This option is used to update filter options dynamically
+        echo "<p class='description'>" . esc_html__('Enable this option to update filter options dynamically when the filter is applied.', 'dynamic-ajax-product-filters-for-woocommerce-pro') . "</p>";
+      }
+    else {
+        echo "<p class='description'>" . esc_html__('Enable this option to ' . str_replace('_', ' ', $key) . ' in the filter.', 'dynamic-ajax-product-filters-for-woocommerce-pro') . "</p>";
     }
 }
 

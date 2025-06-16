@@ -78,9 +78,11 @@ if (!defined('ABSPATH')) {
                             <?php foreach ($dapfforwc_sub_options[$dapfforwc_selected_style] as $key => $label) : ?>
 
                                 <label class="<?php echo $dapfforwc_sub_option === $key ? 'active ' : '';
-                                                echo esc_attr($key); ?>">
+                                                echo esc_attr($key); ?> <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
+                                                echo "pro-only";
+                                            } ?>">
                                     <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
-                                    <input <?php if ($key === "dynamic-rating" || $key === "input-price-range") {
+                                    <input <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
                                                 echo "disabled";
                                             } ?> type="radio" class="optionselect" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
                                     <img src="<?php echo esc_url(plugins_url('../assets/images/' . $key . '.png', __FILE__)); ?>" alt="<?php echo esc_attr($label); ?>">

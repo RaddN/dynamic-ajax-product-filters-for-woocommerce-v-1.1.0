@@ -149,12 +149,9 @@ function dapfforwc_permalinks_prefix_render()
 
 function dapfforwc_seo_title_callback()
 {
-    global $dapfforwc_seo_permalinks_options;
-    $seo_title = isset($dapfforwc_seo_permalinks_options['seo_title']) ? $dapfforwc_seo_permalinks_options['seo_title'] : '';
     ?>
-    <div class="dapfforwc-form-group">
-        <input type="text" id="dapfforwc_seo_title" name="dapfforwc_seo_permalinks_options[seo_title]"
-            value="<?php echo esc_attr($seo_title); ?>"
+    <div class="dapfforwc-form-group pro-only">
+        <input disabled type="text" id="dapfforwc_seo_title" name="_pro[seo_title]"
             placeholder="<?php esc_attr_e('Enter SEO Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
         <p class="description">Set a custom SEO title for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
@@ -163,14 +160,12 @@ function dapfforwc_seo_title_callback()
 
 function dapfforwc_seo_description_callback()
 {
-    global $dapfforwc_seo_permalinks_options;
-    $seo_description = isset($dapfforwc_seo_permalinks_options['seo_description']) ? $dapfforwc_seo_permalinks_options['seo_description'] : '';
     ?>
-    <div class="dapfforwc-form-group">
-        <textarea id="dapfforwc_seo_description" name="dapfforwc_seo_permalinks_options[seo_description]" 
+    <div class="dapfforwc-form-group pro-only">
+        <textarea disabled id="dapfforwc_seo_description" name="_pro[seo_description]" 
             rows="4" 
             style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"
-            placeholder="<?php esc_attr_e('Enter SEO Description', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"><?php echo esc_textarea($seo_description); ?></textarea>
+            placeholder="<?php esc_attr_e('Enter SEO Description', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"></textarea>
         <p class="description">Set a custom SEO description for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
     <?php
@@ -178,12 +173,9 @@ function dapfforwc_seo_description_callback()
 
 function dapfforwc_seo_keywords_callback()
 {
-    global $dapfforwc_seo_permalinks_options;
-    $seo_keywords = isset($dapfforwc_seo_permalinks_options['seo_keywords']) ? $dapfforwc_seo_permalinks_options['seo_keywords'] : '';
     ?>
-    <div class="dapfforwc-form-group">
-        <input type="text" id="dapfforwc_seo_keywords" name="dapfforwc_seo_permalinks_options[seo_keywords]"
-            value="<?php echo esc_attr($seo_keywords); ?>"
+    <div class="dapfforwc-form-group pro-only">
+        <input type="text" id="dapfforwc_seo_keywords" name="_pro[seo_keywords]"
             placeholder="<?php esc_attr_e('Enter SEO Keywords', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
         <p class="description">Set custom SEO keywords for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
