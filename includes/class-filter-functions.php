@@ -366,8 +366,6 @@ function dapfforwc_template_redirect_filter()
         $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
         $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
 
-        error_log(json_encode($filter_params));
-
         $min_price = isset($filter_params['mn_price']) ? floor(floatval($filter_params['mn_price'])) : 0;
 
         $max_price = isset($filter_params['mx_price']) ? ceil(floatval($filter_params['mx_price'])) : null;

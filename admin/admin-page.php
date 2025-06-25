@@ -173,17 +173,386 @@ function dapfforwc_get_loading_effects() {
 function dapfforwc_admin_page_content() { global $dapfforwc_options;
     ?>
     <div class="wrap wcapf_admin plugincyajaxfilters_admin_settings">
-        <h1>Manage WooCommerce Product Filters</h1>
+        <!-- welcome box here -->
+        <div class="plugincy-filter-welcome-container">
+            <div class="welcome-header">
+                <div class="plugincy-plugin-icon">
+                    <span class="dashicons dashicons-filter"></span>
+                </div>
+                <div class="header-content">
+                    <h1>Dynamic AJAX Product Filters for WooCommerce</h1>
+                    <p class="tagline">Transform your store with lightning-fast, user-friendly product filtering</p>
+                </div>
+                <div class="version-badge">
+                    <span>Version 1.1.9</span>
+                </div>
+            </div>
+
+            <div class="welcome-content">
+                <div class="quick-actions">
+                    <h3>Quick Start Guide</h3>
+                    <div class="action-steps">
+                        <div class="step">
+                            <span class="step-number">1</span>
+                            <div class="step-content">
+                                <h4>Configure Filters</h4>
+                                <p>Set up your product attributes, categories, and price ranges</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">2</span>
+                            <div class="step-content">
+                                <h4>Customize Appearance</h4>
+                                <p>Choose colors, layouts, and animations that match your theme</p>
+                            </div>
+                        </div>
+                        <div class="step">
+                            <span class="step-number">3</span>
+                            <div class="step-content">
+                                <h4>Deploy & Monitor</h4>
+                                <p>Add filters to your shop pages and track performance improvements</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cta-section">
+                    <div class="cta-buttons">
+                        <a href="https://demo.plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-accent">
+                            <span class="dashicons dashicons-visibility"></span>
+                            View Demo
+                        </a>
+                        <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/"
+                            target="_blank" class="btn btn-primary">
+                            <span class="dashicons dashicons-book"></span>
+                            View Documentation
+                        </a>
+                        <a href="https://www.plugincy.com/support/"
+                            target="_blank" class="btn btn-secondary">
+                            <span class="dashicons dashicons-sos"></span>
+                            Get Support
+                        </a>                        
+                    </div>
+
+                    <div class="support-info">
+                        <div class="support-item">
+                            <span class="dashicons dashicons-format-chat"></span>
+                            <span>24/7 Premium Support</span>
+                        </div>
+                        <div class="support-item">
+                            <span class="dashicons dashicons-update"></span>
+                            <span>Regular Updates</span>
+                        </div>
+                        <div class="support-item">
+                            <span class="dashicons dashicons-shield"></span>
+                            <span>30-Day Money Back</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .plugincy-filter-welcome-container {
+                margin: 20px auto;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 20px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                animation: slideIn 0.6s ease-out;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(20px);
+                }
+
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+           .plugincy-filter-welcome-container .welcome-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 30px;
+                display: flex;
+                align-items: center;
+                position: relative;
+                overflow: hidden;
+            }
+
+           .plugincy-filter-welcome-container .welcome-header::before {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="50" cy="10" r="0.5" fill="rgba(255,255,255,0.05)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+                opacity: 0.3;
+            }
+
+          .plugincy-filter-welcome-container  .plugincy-plugin-icon {
+                font-size: 48px;
+                margin-right: 20px;
+                opacity: 0.9;
+                position: relative;
+                z-index: 2;
+            }
+
+           .plugincy-filter-welcome-container .plugincy-plugin-icon .dashicons {
+                font-size: 48px;
+                width: 48px;
+                height: 48px;
+            }
+
+          .plugincy-filter-welcome-container  .header-content {
+                flex: 1;
+                position: relative;
+                z-index: 2;
+            }
+
+          .plugincy-filter-welcome-container  .header-content h1 {
+                font-size: 28px;
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                color: #fff;
+            }
+
+           .plugincy-filter-welcome-container .tagline {
+                font-size: 16px;
+                opacity: 0.9;
+                font-weight: 400;
+                margin: 0;
+            }
+
+          .plugincy-filter-welcome-container  .version-badge {
+                position: relative;
+                z-index: 2;
+            }
+
+           .plugincy-filter-welcome-container .version-badge span {
+                background: rgba(255, 255, 255, 0.2);
+                padding: 6px 16px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 600;
+                letter-spacing: 0.5px;
+                backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+          .plugincy-filter-welcome-container  .welcome-content {
+                padding: 20px;
+            }
+          .plugincy-filter-welcome-container  .quick-actions {
+                background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+                padding: 20px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+            }
+
+          .plugincy-filter-welcome-container  .quick-actions h3 {
+                color: #2d3748;
+                margin-bottom: 20px;
+                font-size: 20px;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+           .plugincy-filter-welcome-container .quick-actions h3 .dashicons {
+                color: #667eea;
+                font-size: 20px;
+                width: 20px;
+                height: 20px;
+            }
+
+           .plugincy-filter-welcome-container .action-steps {
+                display: flex;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+           .plugincy-filter-welcome-container .step {
+                flex: 1;
+                min-width: 200px;
+                display: flex;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+           .plugincy-filter-welcome-container .step-number {
+                background: #667eea;
+                color: white;
+                width: 30px;
+                height: 30px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 600;
+                font-size: 14px;
+                flex-shrink: 0;
+            }
+
+           .plugincy-filter-welcome-container .step-content h4 {
+                color: #2d3748;
+                margin-bottom: 4px;
+                font-size: 16px;
+                margin: 0;
+            }
+
+           .plugincy-filter-welcome-container .step-content p {
+                color: #718096;
+                font-size: 14px;
+            }
+
+           .plugincy-filter-welcome-container .cta-section {
+                text-align: center;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 30px;
+            }
+
+            .plugincy-filter-welcome-container .cta-buttons {
+                display: flex;
+                gap: 15px;
+                justify-content: center;
+                flex-wrap: wrap;
+                margin-bottom: 30px;
+            }
+
+           .plugincy-filter-welcome-container .btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 24px;
+                border-radius: 6px;
+                text-decoration: none;
+                font-weight: 600;
+                font-size: 14px;
+                transition: all 0.3s ease;
+                cursor: pointer;
+                border: none;
+            }
+
+           .plugincy-filter-welcome-container .btn-primary {
+                background: #667eea;
+                color: white;
+            }
+
+           .plugincy-filter-welcome-container .btn-primary:hover {
+                background: #5a67d8;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            }
+
+            .plugincy-filter-welcome-container .btn-secondary {
+                background: #48bb78;
+                color: white;
+            }
+
+            .plugincy-filter-welcome-container .btn-secondary:hover {
+                background: #38a169;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
+            }
+
+            .plugincy-filter-welcome-container .btn-accent {
+                background: #ed8936;
+                color: white;
+            }
+
+            .plugincy-filter-welcome-container .btn-accent:hover {
+                background: #dd6b20;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 12px rgba(237, 137, 54, 0.4);
+            }
+
+            .plugincy-filter-welcome-container .btn .dashicons {
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
+
+           .plugincy-filter-welcome-container .support-info {
+                display: flex;
+                justify-content: center;
+                gap: 30px;
+                flex-wrap: wrap;
+            }
+
+            .plugincy-filter-welcome-container .support-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #718096;
+                font-size: 14px;
+            }
+
+            .plugincy-filter-welcome-container .support-item .dashicons {
+                color: #48bb78;
+                font-size: 16px;
+                width: 16px;
+                height: 16px;
+            }
+
+            @media (max-width: 768px) {
+              .plugincy-filter-welcome-container .welcome-header {
+                    flex-direction: column;
+                    text-align: center;
+                    padding: 20px;
+                }
+
+               .plugincy-filter-welcome-container .plugincy-plugin-icon {
+                    margin-right: 0;
+                    margin-bottom: 15px;
+                }
+
+               .plugincy-filter-welcome-container .header-content h1 {
+                    font-size: 24px;
+                }
+
+                .plugincy-filter-welcome-container .welcome-content {
+                    padding: 20px;
+                }
+
+                .plugincy-filter-welcome-container .action-steps {
+                    flex-direction: column;
+                }
+
+               .plugincy-filter-welcome-container .cta-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+               .plugincy-filter-welcome-container .btn {
+                    width: 100%;
+                    max-width: 300px;
+                    justify-content: center;
+                }
+
+                .plugincy-filter-welcome-container .support-info {
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 15px;
+                }
+            }
+        </style>
+        <h1 style="margin-bottom: 20px;">Manage WooCommerce Product Filters</h1>
         <?php settings_errors(); // Displays success or error notices
         $nonce = wp_create_nonce('dapfforwc_tab_nonce');
         ?>
         <div class="wcapf_admin_page">
         <h2 class="nav-tab-wrapper">
-            <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_manage' ? 'nav-tab-active' : ''; ?>">Form Manage</a>
-            <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_style' ? 'nav-tab-active' : ''; ?>">Form Style</a>
-            <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>">SEO & Permalinks Setup</a>
-            <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'advance_settings' ? 'nav-tab-active' : ''; ?>">Advance Settings</a>
-            <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'license_settings' ? 'nav-tab-active' : ''; ?>">Plugin License</a>
+            <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_manage' ? 'nav-tab-active' : (!isset($_GET['tab']) ? 'nav-tab-active' : ''); ?>"><span class="dashicons dashicons-forms"></span>Form Manage</a>
+            <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_style' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-customizer"></span>Form Style</a>
+            <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-links"></span>SEO & Permalinks Setup</a>
+            <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'advance_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-generic"></span>Advance Settings</a>
+            <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'license_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-network"></span>Plugin License</a>
         </h2>
         <div class="tab-content">
             <?php
@@ -247,8 +616,8 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
                     do_settings_sections('dapfforwc-admin');
                     submit_button();
                     ?>
-                    <p>Use shortcode to show filter: <b>[plugincy_filters]</b></p>
-                    <p>For button style filter use this shortcode: <b>[plugincy_filters_single name="conference-by-month"]</b></p>
+                    <p style="margin-bottom: 10px;">Use shortcode to show filter: <b>[plugincy_filters]</b></p>
+                    <p style="margin-bottom: 10px;">For button style filter use this shortcode: <b>[plugincy_filters_single name="conference-by-month"]</b></p>
                     <p>For show currently selected filter above product: <b>[plugincy_filters_selected]</b></p>
                 </form>
                 <?php

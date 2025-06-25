@@ -502,6 +502,9 @@ function dapfforwc_admin_scripts($hook)
 
            }else if(selectedType==="dropdown") {
             document.querySelector(`.setting-item.single-selection`).style.display = "none";
+            document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
+                advanceoptions.style.display = "none";
+            })
            } else {
             document.querySelector(`.setting-item.single-selection`).style.display = "block";
             document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
@@ -568,7 +571,9 @@ attachSubOptionListeners();
 function dapfforwc_add_settings_link($links)
 {
     $settings_link = '<a href="admin.php?page=dapfforwc-admin">Settings</a>';
+    $get_pro_link = '<a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" style="color:#d54e21;font-weight:bold;">Get Pro</a>';
     array_unshift($links, $settings_link);
+    $links[] = $get_pro_link;
     return $links;
 }
 

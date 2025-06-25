@@ -31,7 +31,7 @@ if (!defined('ABSPATH')) {
     <?php if (!empty($dapfforwc_all_options)) : ?>
         <div class="attribute-selection">
             <label for="attribute-dropdown">
-                <strong><?php esc_html_e('Select Attribute:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong>
+                <strong><?php esc_html_e('Configure Style for:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong>
             </label>
             <select id="attribute-dropdown" style="margin-bottom: 20px;">
                 <?php foreach ($dapfforwc_all_options as $option) : ?>
@@ -52,14 +52,15 @@ if (!defined('ABSPATH')) {
 
             ?>
                 <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
-                    <h3><?php echo esc_html($option->attribute_label); ?></h3>
+                    <h3 class="section-title"><?php echo esc_html($option->attribute_label); ?> Filter Style</h3>
 
                     <!-- Primary Options -->
                     <div class="primary_options">
                         <?php foreach ($dapfforwc_sub_options as $key => $label) : ?>
                             <label class="<?php echo esc_attr($key);
                                             echo $dapfforwc_selected_style === $key ? ' active' : ''; ?>" style="display:<?php echo $key === 'price' || $key === 'rating' ? 'none' : 'block'; ?>;">
-                                <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
+                                <span class="active" style="display:none;">
+                                </span>
                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][type]" value="<?php echo esc_html($key); ?>" <?php checked($dapfforwc_selected_style, $key); ?> data-type="<?php echo esc_html($key); ?>">
                                 <img src="<?php echo esc_url(plugins_url('../assets/images/' . $key . '.png', __FILE__)); ?>" alt="<?php echo esc_attr($key); ?>">
                                 <!-- <div class="title"> -->
@@ -72,16 +73,17 @@ if (!defined('ABSPATH')) {
                     </div>
 
                     <!-- Sub-Options -->
-                    <div class="sub-options" style="margin-left: 20px;">
-                        <p><strong><?php esc_html_e('Additional Options:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                    <div class="sub-options">
+                        <p class="sub-options-title"><strong>Choose Display Style <span class="required">*</span></strong></p>
                         <div class="dynamic-sub-options">
                             <?php foreach ($dapfforwc_sub_options[$dapfforwc_selected_style] as $key => $label) : ?>
 
                                 <label class="<?php echo $dapfforwc_sub_option === $key ? 'active ' : '';
                                                 echo esc_attr($key); ?> <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
-                                                echo "pro-only";
-                                            } ?>">
-                                    <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
+                                                                            echo "pro-only";
+                                                                        } ?>">
+                                    <span class="active" style="display:none;">
+                                    </span>
                                     <input <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
                                                 echo "disabled";
                                             } ?> type="radio" class="optionselect" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
@@ -96,7 +98,7 @@ if (!defined('ABSPATH')) {
                         </div>
                     </div>
                     <!-- Advanced Options for Color/Image -->
-                    <div class="flex">
+                    <div style="margin-bottom: 16px;">
                         <?php
                         $dapfforwc_terms = [];
                         if ($dapfforwc_attribute_name === "product-category" || $dapfforwc_attribute_name === "tag" || $dapfforwc_attribute_name === "price" || $dapfforwc_attribute_name === "rating") {
@@ -105,65 +107,74 @@ if (!defined('ABSPATH')) {
                         if ($dapfforwc_attribute_name !== "product-category" || $dapfforwc_attribute_name !== "tag") {
                         ?>
                             <div class="advanced-options <?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_selected_style === 'color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
-                                <h4><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
+                                <h4 class="advanced-title" style="margin: 0;"><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
                                 <?php if (!empty($dapfforwc_terms)) : ?>
 
                                     <!-- Color Options -->
                                     <div class="color" style="display: <?php echo $dapfforwc_selected_style === 'color' ? 'block' : 'none'; ?>;">
                                         <h5><?php esc_html_e('Set Colors for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
-                                        <?php foreach ($dapfforwc_terms as $term) :
-                                            if (is_object($term) && property_exists($term, 'slug')) {
-                                                $dapfforwc_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term->slug]
-                                                    ?? dapfforwc_color_name_to_hex(esc_attr($term->slug)); // Fetch stored color or default
-                                            } else {
-                                                // Handle the case where $term is not an object or does not have 'slug'
-                                                $dapfforwc_color_value = '#000000'; // Default color or some fallback
-                                            }
-                                        ?>
-                                            <div class="term-option">
-                                                <label for="color-<?php if (is_object($term) && property_exists($term, 'slug')) {
-                                                                        echo esc_attr($term->slug);
-                                                                    } ?>">
-                                                    <strong><?php if (is_object($term) && property_exists($term, 'name')) {
-                                                                echo esc_html($term->name);
-                                                            } ?></strong>
-                                                </label>
-                                                <input type="color" id="color-<?php if (is_object($term) && property_exists($term, 'slug')) {
-                                                                                    echo esc_attr($term->slug);
-                                                                                } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][colors][<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                        <div class="color-options">
+                                            <?php foreach ($dapfforwc_terms as $term) :
+                                                if (is_object($term) && property_exists($term, 'slug')) {
+                                                    $dapfforwc_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term->slug]
+                                                        ?? dapfforwc_color_name_to_hex(esc_attr($term->slug)); // Fetch stored color or default
+                                                } else {
+                                                    // Handle the case where $term is not an object or does not have 'slug'
+                                                    $dapfforwc_color_value = '#000000'; // Default color or some fallback
+                                                }
+                                            ?>
+                                                <div class="term-option">
+                                                    <label for="color-<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                                                            echo esc_attr($term->slug);
+                                                                        } ?>">
+                                                        <strong><?php if (is_object($term) && property_exists($term, 'name')) {
+                                                                    echo esc_html($term->name);
+                                                                } ?></strong>
+                                                    </label>
+                                                    <input type="color" id="color-<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                                                                        echo esc_attr($term->slug);
+                                                                                    } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][colors][<?php if (is_object($term) && property_exists($term, 'slug')) {
                                                                                                                                                                                     echo esc_attr($term->slug);
                                                                                                                                                                                 } ?>]" value="<?php echo esc_attr($dapfforwc_color_value); ?>">
-                                            </div>
-                                        <?php endforeach; ?>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
 
                                     <!-- Image Options -->
                                     <div class="image" style="display: <?php echo $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
                                         <h5><?php esc_html_e('Set Images for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
-                                        <?php foreach ($dapfforwc_terms as $term) :
-                                            if (is_object($term) && property_exists($term, 'slug')) {
-                                                $dapfforwc_image_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term->slug] ?? ''; // Fetch stored image URL
-                                            } else {
-                                                $dapfforwc_image_value = '';
-                                            }
+                                        <div class="image-options">
+                                            <?php foreach ($dapfforwc_terms as $term) :
+                                                if (is_object($term) && property_exists($term, 'slug')) {
+                                                    $dapfforwc_image_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term->slug] ?? ''; // Fetch stored image URL
+                                                } else {
+                                                    $dapfforwc_image_value = '';
+                                                }
 
-                                        ?>
-                                            <div class="term-option">
-                                                <label for="image-<?php if (is_object($term) && property_exists($term, 'slug')) {
-                                                                        echo esc_attr($term->slug);
-                                                                    } ?>">
-                                                    <strong><?php if (is_object($term) && property_exists($term, 'name')) {
-                                                                echo esc_html($term->name);
-                                                            } ?></strong>
-                                                </label>
-                                                <input type="text" id="image-<?php if (is_object($term) && property_exists($term, 'slug')) {
-                                                                                    echo esc_attr($term->slug);
-                                                                                } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][images][<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                            ?>
+                                                <div class="term-option">
+                                                    <img src="<?php echo esc_attr(isset($dapfforwc_image_value) && !empty($dapfforwc_image_value)  ? $dapfforwc_image_value : plugin_dir_url(__FILE__) . '../assets/images/upload.png'); ?>">
+                                                    <label for="image-<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                                                            echo esc_attr($term->slug);
+                                                                        } ?>">
+                                                        <strong><?php if (is_object($term) && property_exists($term, 'name')) {
+                                                                    echo esc_html($term->name);
+                                                                } ?></strong>
+                                                    </label>
+                                                    <input type="hidden" id="image-<?php if (is_object($term) && property_exists($term, 'slug')) {
+                                                                                        echo esc_attr($term->slug);
+                                                                                    } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][images][<?php if (is_object($term) && property_exists($term, 'slug')) {
                                                                                                                                                                                     echo esc_attr($term->slug);
                                                                                                                                                                                 } ?>]" value="<?php echo esc_attr($dapfforwc_image_value); ?>" placeholder="<?php esc_attr_e('Image URL', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                                <button type="button" class="upload-image-button"><?php esc_html_e('Upload', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
-                                            </div>
-                                        <?php endforeach; ?>
+                                                    <button type="button" class="upload-image-button">
+                                                        <svg class="edit-icon" viewBox="0 0 24 24">
+                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                        </svg>
+                                                    </button>
+                                                </div>
+                                            <?php endforeach; ?>
+                                        </div>
                                     </div>
 
                                 <?php else : ?>
@@ -178,7 +189,7 @@ if (!defined('ABSPATH')) {
                         <div class="optional_settings">
                             <h4><?php esc_html_e('Optional Settings:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
 
-                            <div class="row">
+                            <div class="row" style="padding-top: 16px;">
                                 <div class="col-6">
                                     <!-- Hierarchical -->
                                     <div class="setting-item hierarchical" style="display:none;">
@@ -293,8 +304,6 @@ if (!defined('ABSPATH')) {
                                             </label>
                                         </div>
                                     <?php } ?>
-                                </div>
-                                <div>
                                     <!-- Max Height -->
                                     <?php if ($dapfforwc_attribute_name !== "price") { ?>
                                         <div class="setting-item">

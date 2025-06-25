@@ -29,23 +29,53 @@ function dapfforwc_settings_init() {
         'dapfforwc_options','dapfforwc_sanitize_options'
     );
     
-    add_settings_section('dapfforwc_section', __('Filter Settings', 'dynamic-ajax-product-filters-for-woocommerce'), null, 'dapfforwc-admin');
+    add_settings_section('dapfforwc_section', '', null, 'dapfforwc-admin');
 
     $fields = [
-        'show_categories' => __('Show Categories', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_attributes' => __('Show Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_tags' => __('Show Tags', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_price_range' => __('Show Price Range', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_rating' => __('Show Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_search' => __('Show Search', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'use_url_filter' => __('Use URL-Based Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'update_filter_options' => __('Update filter options', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'show_loader' => __('Show Loader', 'dynamic-ajax-product-filters-for-woocommerce'),
-        // 'use_custom_template' => __('Use Custom Product Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'show_categories' => [ 
+            'label' => __('Show Categories', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show categories in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_attributes' => [
+            'label' => __('Show Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show attributes in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_tags' => [
+            'label' => __('Show Tags', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show tags in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_price_range' => [
+            'label' => __('Show Price Range', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show price range filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_rating' => [
+            'label' => __('Show Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show product rating filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_search' => [
+            'label' => __('Show Search', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show search box for products.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'use_url_filter' => [
+            'label' => __('Use URL-Based Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Choose Filter Method', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'update_filter_options' => [
+            'label' => __('Update filter options', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to dynamically update filter options.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_loader' => [
+            'label' => __('Show Loader', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => __('Enable this option to show a loading indicator during AJAX requests.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        // 'use_custom_template' => [
+        //     'label' => __('Use Custom Product Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+        //     'description' => __('Enable this option to use a custom product template.', 'dynamic-ajax-product-filters-for-woocommerce')
+        // ],
     ];
 
-    foreach ($fields as $key => $label) {
-        add_settings_field($key, $label, "dapfforwc_{$key}_render", 'dapfforwc-admin', 'dapfforwc_section');
+    foreach ($fields as $key => $field) {
+        add_settings_field($key, '<p>'.$field['label'].'</p><p class="admin-description">'.$field['description'].'</p>', "dapfforwc_{$key}_render", 'dapfforwc-admin', 'dapfforwc_section');
     }
 
     // custom code template
@@ -65,9 +95,9 @@ function dapfforwc_settings_init() {
         // Add Form Style section
     add_settings_section(
         'dapfforwc_style_section',
-        __('Form Style Options', 'dynamic-ajax-product-filters-for-woocommerce'),
+        '<p class="page-title">'.__('Form Style Configuration', 'dynamic-ajax-product-filters-for-woocommerce').'</p>',
         function () {
-            echo '<p>' . esc_html__('Select the filter box style for each attribute below. Additional options will appear based on your selection.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
+            echo '<p style="padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">' . esc_html__('Customize the appearance and behavior of your filter components with our comprehensive styling options', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
         },
         'dapfforwc-style'
     );
@@ -87,8 +117,10 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     // Add the "Advance Settings" section
     add_settings_section(
         'dapfforwc_advance_settings_section',
-        __('Advance Settings', 'dynamic-ajax-product-filters-for-woocommerce'),
-        null,
+        '<p class="page-title">' . __('Advanced Settings', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>',
+        function () {
+            echo '<p style="padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">' . esc_html__('You can handle advanced settings for your product filters here.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
+        },
         'dapfforwc-advance-settings'
     );
 
@@ -148,8 +180,10 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
 
     add_settings_section(
         'dapfforwc_seo_permalinks_section',
-        __('Permalinks Setup', 'dynamic-ajax-product-filters-for-woocommerce'),
-        null,
+        '<p class="page-title">' . __('SEO Configuration', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>',
+        function () {
+            echo '<p style="padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">' . esc_html__('Configure SEO options for your product filters to improve search engine visibility and customize permalinks structure.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
+        },
         'dapfforwc-seo-permalinks'
     );
 
@@ -161,7 +195,7 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     // Add the "SEO Setup" section
     add_settings_section(
         'dapfforwc_seo_section',
-        __('SEO Setup', 'dynamic-ajax-product-filters-for-woocommerce'),
+        '<p class="h3title">' . __('SEO Setup', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>',
         null,
         'dapfforwc-seo-permalinks'
     );

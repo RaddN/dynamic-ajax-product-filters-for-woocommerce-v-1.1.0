@@ -275,7 +275,6 @@ class DAPFFORWC_License_Manager
 
         // Step 2: Remove existing plugin directory if it exists
         if (!$this->remove_existing_plugin_directory()) {
-            error_log('Warning: Could not remove existing plugin directory');
         }
 
         // Step 3: Download the plugin zip file
