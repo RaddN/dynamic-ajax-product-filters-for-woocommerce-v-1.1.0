@@ -218,7 +218,7 @@ function dapfforwc_admin_page_content() { global $dapfforwc_options;
 
                 <div class="cta-section">
                     <div class="cta-buttons">
-                        <a href="https://demo.plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-accent">
+                        <a href="https://plugincy.com/product-filters-for-woocommerce/" target="_blank" class="btn btn-accent">
                             <span class="dashicons dashicons-visibility"></span>
                             View Demo
                         </a>
