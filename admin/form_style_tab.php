@@ -285,7 +285,7 @@ if (!defined('ABSPATH')) {
 
 
                                         <!-- Single Selection Option -->
-                                        <div class="setting-item single-selection">
+                                        <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' ? 'none':'block';?> ;">
                                             <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
                                                 <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"

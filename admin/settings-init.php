@@ -2,9 +2,10 @@
 if (!defined('ABSPATH')) {
     exit;
 }
-function dapfforwc_settings_init() {
+function dapfforwc_settings_init()
+{
     $dapfforwc_options = get_option('dapfforwc_options') ?: [
-        'show_categories' =>"on",
+        'show_categories' => "on",
         'show_attributes' => "on",
         'show_tags' => "on",
         'show_price_range' => "",
@@ -14,8 +15,8 @@ function dapfforwc_settings_init() {
         'update_filter_options' => 0,
         'show_loader' => "on",
         'pages' => [],
-        'loader_html'=>'<div id="loader" style="display:none;"></div>',
-        'loader_css'=>'#loader { width: 56px; height: 56px; border-radius: 50%; background: conic-gradient(#0000 10%,#474bff); -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0); animation: spinner-zp9dbg 1s infinite linear; } @keyframes spinner-zp9dbg { to { transform: rotate(1turn); } }',
+        'loader_html' => '<div id="loader" style="display:none;"></div>',
+        'loader_css' => '#loader { width: 56px; height: 56px; border-radius: 50%; background: conic-gradient(#0000 10%,#474bff); -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0); animation: spinner-zp9dbg 1s infinite linear; } @keyframes spinner-zp9dbg { to { transform: rotate(1turn); } }',
         'use_custom_template' => 0,
         'custom_template_code' => '',
         'product_selector' => '.products',
@@ -25,14 +26,15 @@ function dapfforwc_settings_init() {
     update_option('dapfforwc_options', $dapfforwc_options);
 
     register_setting(
-        'dapfforwc_options_group', 
-        'dapfforwc_options','dapfforwc_sanitize_options'
+        'dapfforwc_options_group',
+        'dapfforwc_options',
+        'dapfforwc_sanitize_options'
     );
-    
+
     add_settings_section('dapfforwc_section', '', null, 'dapfforwc-admin');
 
     $fields = [
-        'show_categories' => [ 
+        'show_categories' => [
             'label' => __('Show Categories', 'dynamic-ajax-product-filters-for-woocommerce'),
             'description' => __('Enable this option to show categories in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
         ],
@@ -75,44 +77,46 @@ function dapfforwc_settings_init() {
     ];
 
     foreach ($fields as $key => $field) {
-        add_settings_field($key, '<p>'.$field['label'].'</p><p class="admin-description">'.$field['description'].'</p>', "dapfforwc_{$key}_render", 'dapfforwc-admin', 'dapfforwc_section');
+        add_settings_field($key, '<p>' . $field['label'] . '</p><p class="admin-description">' . $field['description'] . '</p>', "dapfforwc_{$key}_render", 'dapfforwc-admin', 'dapfforwc_section');
     }
 
     // custom code template
     // add_settings_field('custom_template_code', __('product custom template code', 'dynamic-ajax-product-filters-for-woocommerce'), 'dapfforwc_custom_template_code_render', 'dapfforwc-admin', 'dapfforwc_section');
 
     $default_style = get_option('dapfforwc_style_options') ?: [
-        'price' => ['type'=>'price', 'sub_option'=>'price','auto_price' => "on"],
-        'rating' => ['type'=>'rating', 'sub_option'=>'rating'],
+        'price' => ['type' => 'price', 'sub_option' => 'price', 'auto_price' => "on"],
+        'rating' => ['type' => 'rating', 'sub_option' => 'rating'],
     ];
     update_option('dapfforwc_style_options', $default_style);
     // form style register
     register_setting(
-        'dapfforwc_style_options_group', 
-        'dapfforwc_style_options','dapfforwc_sanitize_options'
+        'dapfforwc_style_options_group',
+        'dapfforwc_style_options',
+        'dapfforwc_sanitize_options'
     );
 
-        // Add Form Style section
+    // Add Form Style section
     add_settings_section(
         'dapfforwc_style_section',
-        '<p class="page-title">'.__('Form Style Configuration', 'dynamic-ajax-product-filters-for-woocommerce').'</p>',
+        '<p class="page-title">' . __('Form Style Configuration', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>',
         function () {
             echo '<p style="padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">' . esc_html__('Customize the appearance and behavior of your filter components with our comprehensive styling options', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
         },
         'dapfforwc-style'
     );
 
-//   advance settings register
-$Advance_options = get_option('dapfforwc_advance_options') ?: [
-    'product_selector' => 'ul.products',
-    'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
-    'product_shortcode' => 'products',
-    'remove_outofStock' => 0,
-];
+    //   advance settings register
+    $Advance_options = get_option('dapfforwc_advance_options') ?: [
+        'product_selector' => 'ul.products',
+        'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
+        'product_shortcode' => 'products',
+        'remove_outofStock' => 0,
+    ];
     update_option('dapfforwc_advance_options', $Advance_options);
     register_setting(
-        'dapfforwc_advance_settings', 
-        'dapfforwc_advance_options','dapfforwc_sanitize_options'
+        'dapfforwc_advance_settings',
+        'dapfforwc_advance_options',
+        'dapfforwc_sanitize_options'
     );
     // Add the "Advance Settings" section
     add_settings_section(
@@ -174,8 +178,9 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
 
     update_option('dapfforwc_seo_permalinks_options', $seo_permalinks_options);
     register_setting(
-        'dapfforwc_seo_permalinks_settings', 
-        'dapfforwc_seo_permalinks_options','dapfforwc_sanitize_options'
+        'dapfforwc_seo_permalinks_settings',
+        'dapfforwc_seo_permalinks_options',
+        'dapfforwc_sanitize_options'
     );
 
     add_settings_section(
@@ -188,10 +193,11 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     );
 
     // add_settings_field('use_filters_word_in_permalinks', __('Use Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-    add_settings_field('use_attribute_type_in_permalinks', __('Use Attribute Type in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_attribute_type_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-    // add_settings_field('filters_word_in_permalinks', __('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-    add_settings_field('permalinks_prefix', __('Permalinks Prefix', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_permalinks_prefix_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-
+    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+        add_settings_field('use_attribute_type_in_permalinks', __('Use Attribute Type in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_attribute_type_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
+        // add_settings_field('filters_word_in_permalinks', __('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
+        add_settings_field('permalinks_prefix', __('Permalinks Prefix', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_permalinks_prefix_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
+    }
     // Add the "SEO Setup" section
     add_settings_section(
         'dapfforwc_seo_section',
@@ -204,49 +210,61 @@ $Advance_options = get_option('dapfforwc_advance_options') ?: [
     add_settings_field('enable_seo', __('Enable SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_enable_seo_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
 
     add_settings_field('use_anchor', __('Make filter link indexable for best SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_anchor_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
+    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+        // Add the "SEO Title" field
+        add_settings_field(
+            'seo_title',
+            __('SEO Title', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_seo_title_callback',
+            'dapfforwc-seo-permalinks',
+            'dapfforwc_seo_section'
+        );
+        // Add the "SEO Description" field
 
-    // Add the "SEO Title" field
-    add_settings_field(
-        'seo_title',
-        __('SEO Title', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'dapfforwc_seo_title_callback',
-        'dapfforwc-seo-permalinks',
-        'dapfforwc_seo_section'
-    );
-    // Add the "SEO Description" field
-    
-    add_settings_field(
-        'seo_description',
-        __('SEO Description', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'dapfforwc_seo_description_callback',
-        'dapfforwc-seo-permalinks',
-        'dapfforwc_seo_section'
-    );
+        add_settings_field(
+            'seo_description',
+            __('SEO Description', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_seo_description_callback',
+            'dapfforwc-seo-permalinks',
+            'dapfforwc_seo_section'
+        );
 
-    // Add the "SEO Keywords" field
+        // Add the "SEO Keywords" field
 
-    add_settings_field(
-        'seo_keywords',
-        __('SEO Keywords', 'dynamic-ajax-product-filters-for-woocommerce'),
-        'dapfforwc_seo_keywords_callback',
-        'dapfforwc-seo-permalinks',
-        'dapfforwc_seo_section'
-    );
-
-
-
+        add_settings_field(
+            'seo_keywords',
+            __('SEO Keywords', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_seo_keywords_callback',
+            'dapfforwc-seo-permalinks',
+            'dapfforwc_seo_section'
+        );
+    }
+    if($dapfforwc_options["use_url_filter"] === "ajax"){
+        add_settings_field(
+            'use_url_filter_notice',
+            '',
+            function () {
+                echo '<div style="margin:10px 0 20px 0;padding:10px 15px;background:#f1f5f9;border-left:4px solid #2271b1;">' .
+                    esc_html__('To access more SEO and permalinks settings, please change the "Use URL-Based Filter" option from "ajax" to another method.', 'dynamic-ajax-product-filters-for-woocommerce') .
+                    '</div>';
+            },
+            'dapfforwc-seo-permalinks',
+            'dapfforwc_seo_section'
+        );
+    }
 }
 
-    add_action('admin_init', 'dapfforwc_settings_init');
+add_action('admin_init', 'dapfforwc_settings_init');
 
-function dapfforwc_sanitize_options($input) {
+function dapfforwc_sanitize_options($input)
+{
     // If input is not an array, make it one
     if (!is_array($input)) {
         return array();
     }
-    
+
     $sanitized = array();
-    
+
     // Loop through each element of the array
     foreach ($input as $key => $value) {
         // Sanitize based on what type of data this is
@@ -260,19 +278,19 @@ function dapfforwc_sanitize_options($input) {
                 case 'custom_template_code':
                     $sanitized[$key] = wp_kses_post($value);
                     break;
-                    
+
                 case 'url_field':
                     $sanitized[$key] = esc_url_raw($value);
                     break;
-                    
+
                 case 'email_field':
                     $sanitized[$key] = sanitize_email($value);
                     break;
-                    
+
                 case 'number_field':
                     $sanitized[$key] = intval($value);
                     break;
-                    
+
                 default:
                     // Default sanitization for text fields
                     $sanitized[$key] = sanitize_text_field($value);
@@ -286,8 +304,7 @@ function dapfforwc_sanitize_options($input) {
 
     if (isset($input['seo_title']) && isset($input['seo_description']) && !isset($input['use_attribute_type_in_permalinks'])) {
         update_option('woocommerce_slug_check_dismissed_time', false);
-    } 
-    
+    }
+
     return $sanitized;
 }
-

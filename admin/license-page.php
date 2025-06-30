@@ -432,7 +432,7 @@ class DAPFFORWC_License_Manager
                 </form>
             <?php endif; ?>
             
-            <p class="description">
+            <p class="description" style="padding-top: 10px;">
                 <strong>Need help?</strong> <a href="https://plugincy.com/support" target="_blank">Contact Support</a> | <a href="https://plugincy.com/my-account" target="_blank">Manage Your Licenses</a>
             </p>
         </div>

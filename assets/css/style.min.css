@@ -103,7 +103,7 @@ div#roverlay {
   background: rgba(255, 255, 255, 0.7);
   box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
   /* overflow: hidden; */
-  padding: 10px 10px 0;
+  padding: 5px 10px 0;
   border-radius: 8px;
 }
 #product-filter .filter-group .items {
@@ -368,7 +368,7 @@ form.rfilterbuttons * {
   pointer-events: auto;
   -webkit-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
-  margin-left: -2px;
+  margin-left: 0px;
 }
 #product-filter input[type="range"]::-moz-range-thumb {
   height: 17px;
@@ -385,14 +385,11 @@ form.rfilterbuttons * {
   background: #432fb8;
   width: max-content;
   border-radius: 50px;
-  padding: 4px 20px;
+  padding: 0px 12px;
   position: absolute;
-  top: -50px;
+  top: -40px;
   color: #fff;
-}
-#product-filter .progress-percentage:before {
-  /* content: "$0"; */
-  left: -10px;
+  font-size: 14px;
 }
 #product-filter .progress-percentage:after {
   /* content: "$57"; */
@@ -439,7 +436,7 @@ form.rfilterbuttons * {
 
 
 #product-filter .items,#product-filter span.select2.select2-container {
-    display: block !important;
+    display: block;
     width: unset !important;
 }
 #product-filter .search-container {
@@ -649,4 +646,14 @@ form#product-filter
 }
 #product-filter .items.button_check label {
   justify-content: center;
+}
+#product-filter .items.button_check .child-categories {
+    margin: 0;
+}
+#product-filter input[type="range"]::-webkit-slider-runnable-track {
+  box-shadow: none;
+}
+ 
+#product-filter input[type="range"]::-moz-range-track {
+  box-shadow: none;
 }

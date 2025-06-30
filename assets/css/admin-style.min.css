@@ -241,6 +241,8 @@
   border-radius: 8px;
   padding: 0 24px 24px;
   position: relative;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 .wcapf_admin .flex {
   display: flex;
@@ -315,6 +317,7 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 60px;
+  row-gap: 0;
 }
 .wcapf_admin .loading-option {
   position: relative;
@@ -323,6 +326,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  height: 150px;
+  justify-content: center;
 }
 .wcapf_admin .loading-option.selected img,
 .wcapf_admin .loading-option:hover {
@@ -433,7 +438,7 @@
 
 .wcapf_admin_page .tab-content {
   background: #fff;
-  padding: 10px 20px 50px;
+  padding: 0px 20px 50px;
 }
 .wcapf_admin_page h2 .h3title {
   text-align: center;
@@ -582,7 +587,6 @@
 }
 #attribute-dropdown {
   width: 100%;
-  padding: 8px 16px;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
   font-size: 16px;
@@ -661,7 +665,7 @@
 .wcapf_admin .color-options,
 .wcapf_admin .image-options {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(123px, 1fr));
   gap: 16px;
 }
 .wcapf_admin input#submit {
@@ -677,7 +681,6 @@
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
 }
 .wcapf_admin p.submit {
-  margin-top: 40px !important;
   padding-top: 20px !important;
   border-top: 2px solid #f1f5f9 !important;
   text-align: center;
@@ -686,7 +689,6 @@
   font-size: 24px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 8px;
 }
 .wcapf_admin .image-options > .term-option {
   position: relative;
@@ -725,7 +727,6 @@
 .wcapf_admin .image-options > .term-option:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-  border: 2px solid #667eea;
 }
 .wcapf_admin .edit-icon {
   width: 20px;
@@ -744,4 +745,35 @@
   top: 0;
   left: 0;
   opacity: 0.5;
+}
+.wcapf_admin .form-table {
+  margin-top: 0;
+}
+.wcapf_admin .wrap {
+  margin: 0px 20px 0 2px;
+}
+.wcapf_admin h2 {
+  padding: 0;
+  margin: 0;
+}
+@media (max-width: 768px) {
+  .wcapf_admin table.form-table tr th {
+    width: 67% !important;
+  }
+  .wcapf_admin table.form-table tr {
+    display: flex;
+    flex-wrap: wrap;
+  }
+}
+.wcapf_admin .primary_options,
+.wcapf_admin .dynamic-sub-options {
+  overflow-x: scroll;
+  scrollbar-width: thin;
+}
+.nav-title {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
