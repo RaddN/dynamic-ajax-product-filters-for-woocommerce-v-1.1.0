@@ -11,7 +11,11 @@ function dapfforwc_check_woocommerce_duplicate_slugs() {
     // Only run in the admin area
     if (is_admin()) {
         // Check if the notice should be displayed
-        $dismissed_time = get_option('woocommerce_slug_check_dismissed_time')?:false; // Use default `false` if option not set
+        $dismissed_time = get_option('woocommerce_slug_check_dismissed_time');
+        if ($dismissed_time === false) {
+            $dismissed_time = time(); // Default to today's date if option not set
+            update_option('woocommerce_slug_check_dismissed_time', $dismissed_time);
+        }
 
         // Check if the option is not set or if the dismissed time is within the last 3 days
         if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) || ($dismissed_time !== false && (time() - $dismissed_time) < 3 * DAY_IN_SECONDS)) {

@@ -14,6 +14,367 @@ function dapfforwc_admin_menu()
         'dashicons-filter',
         '55.50' // Priority set to place after WooCommerce
     );
+    add_submenu_page(
+    'dapfforwc-admin',
+    __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+    __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+    'manage_options',
+    'dapfforwc-get-pro',
+    function () {
+        ?>
+        <div class="wrap dapfforwc-get-pro-page">
+            <div class="dapfforwc-pro-header">
+                <h1><?php echo esc_html__('Upgrade to Dynamic AJAX Product Filters Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h1>
+                <p class="dapfforwc-pro-subtitle"><?php echo esc_html__('Take your WooCommerce store to the next level with advanced filtering capabilities and premium features.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+
+            <div class="dapfforwc-pro-content">
+                <div class="dapfforwc-features-grid">
+                    <h2><?php echo esc_html__('Premium Features', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
+                    
+                    <div class="dapfforwc-feature-list">
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-yes-alt"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Separate Child Values for Hierarchical Filters', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Display child categories and attributes separately for better organization and user experience.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-admin-links"></span>
+                            <div>
+                                <h3><?php echo esc_html__('SEO Friendly URLs', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Generate clean, SEO-optimized URLs for filtered pages to improve search engine rankings.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-star-filled"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Filter by Dynamic Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Allow customers to filter products by star ratings for better product discovery.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-database-import"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Import & Export Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Easily backup and transfer your filter configurations between sites.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-image-rotate"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Customize Loading Effects', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Choose from multiple loading animations to match your site\'s design and branding.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-layout"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Custom Product Template Design', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Create unique product layouts with advanced template customization options.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-editor-code"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Custom CSS Editor', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Fine-tune the appearance with built-in CSS editor for pixel-perfect customization.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-sos"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Premium Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Get priority email support from our expert team with faster response times.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+
+                        <div class="dapfforwc-feature-item">
+                            <span class="dashicons dashicons-plus-alt"></span>
+                            <div>
+                                <h3><?php echo esc_html__('Many More Features', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                                <p><?php echo esc_html__('Regular updates with new features, improvements, and compatibility enhancements.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dapfforwc-pro-cta">
+                    <div class="dapfforwc-cta-content">
+                        <h2><?php echo esc_html__('Ready to Upgrade?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
+                        <p><?php echo esc_html__('Join thousands of store owners who have enhanced their WooCommerce filtering experience with our Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                        
+                        <div class="dapfforwc-action-buttons">
+                            <a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-primary" style="background: #ff5a36; color: #fff;">
+                                <span class="dashicons dashicons-star-filled"></span>
+                                <?php echo esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
+                            <a href="https://plugincy.com/product-filters-for-woocommerce/" target="_blank" class="btn btn-accent">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php echo esc_html__('View Demo', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
+                            <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-primary">
+                                <span class="dashicons dashicons-book"></span>
+                                <?php echo esc_html__('View Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
+                            <a href="https://www.plugincy.com/support/" target="_blank" class="btn btn-secondary">
+                                <span class="dashicons dashicons-sos"></span>
+                                <?php echo esc_html__('Get Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
+                        </div>
+
+                        <div class="dapfforwc-guarantees">
+                            <div class="dapfforwc-guarantee-item">
+                                <span class="dashicons dashicons-clock"></span>
+                                <span><?php echo esc_html__('24/7 Premium Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                            </div>
+                            <div class="dapfforwc-guarantee-item">
+                                <span class="dashicons dashicons-update"></span>
+                                <span><?php echo esc_html__('Regular Updates', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                            </div>
+                            <div class="dapfforwc-guarantee-item">
+                                <span class="dashicons dashicons-money-alt"></span>
+                                <span><?php echo esc_html__('30-Day Money Back', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .notice{display: none;}
+        .dapfforwc-get-pro-page {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .dapfforwc-pro-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .dapfforwc-pro-header h1 {
+            font-size: 2.5em;
+            margin: 0 0 15px 0;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .dapfforwc-pro-subtitle {
+            font-size: 1.2em;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .dapfforwc-pro-content {
+            padding: 40px;
+        }
+
+        .dapfforwc-features-grid h2 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .dapfforwc-feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+        }
+
+        .dapfforwc-feature-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 20px;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .dapfforwc-feature-item:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+
+        .dapfforwc-feature-item .dashicons {
+            color: #667eea;
+            font-size: 24px;
+            margin-right: 15px;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        .dapfforwc-feature-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .dapfforwc-feature-item p {
+            margin: 0;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .dapfforwc-pro-cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            color: white;
+        }
+
+        .dapfforwc-cta-content h2 {
+            font-size: 2em;
+            margin: 0 0 15px 0;
+            color: #fff;
+        }
+
+        .dapfforwc-cta-content p {
+            font-size: 1.1em;
+            margin: 0 0 30px 0;
+            opacity: 0.9;
+        }
+
+        .dapfforwc-action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            padding: 12px 20px !important;
+            font-size: 1em !important;
+            font-weight: 600 !important;
+            border-radius: 5px !important;
+            text-decoration: none !important;
+            transition: all 0.3s ease !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            border: 2px solid transparent !important;
+            min-width: 150px !important;
+            justify-content: center !important;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: #fff !important;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3) !important;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8 !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
+            color: #fff !important;
+        }
+
+        .btn-accent {
+            background: #fff !important;
+            color: #667eea !important;
+            box-shadow: 0 3px 10px rgba(118, 75, 162, 0.3) !important;
+            border: 1px solid #5a6fd8 !important;
+        }
+
+        .btn-accent:hover {
+            background: #fff !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4) !important;
+            color: #5a6fd8 !important;
+            
+        }
+
+        .btn-secondary {
+            background: transparent !important;
+            color: #fff !important;
+            border-color: rgba(255,255,255,0.3) !important;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.1) !important;
+            border-color: rgba(255,255,255,0.6) !important;
+            color: #fff !important;
+        }
+
+        .btn .dashicons {
+            font-size: 16px !important;
+            width: 16px !important;
+            height: 16px !important;
+        }
+
+        .dapfforwc-guarantees {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .dapfforwc-guarantee-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95em;
+            opacity: 0.9;
+        }
+
+        .dapfforwc-guarantee-item .dashicons {
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .dapfforwc-feature-list {
+                grid-template-columns: 1fr;
+            }
+            
+            .dapfforwc-pro-header,
+            .dapfforwc-pro-content,
+            .dapfforwc-pro-cta {
+                padding: 20px;
+            }
+            
+            .dapfforwc-pro-header h1 {
+                font-size: 2em;
+            }
+
+            .dapfforwc-action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .btn {
+                min-width: 200px !important;
+            }
+
+            .dapfforwc-guarantees {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+        </style>
+        <?php
+    }
+);
 }
 add_action('admin_menu', 'dapfforwc_admin_menu');
 
@@ -188,7 +549,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline">Transform your store with lightning-fast, user-friendly product filtering</p>
                 </div>
                 <div class="version-badge">
-                    <span>Version 1.2.1</span>
+                    <span>Version 1.2.2</span>
                 </div>
             </div>
 

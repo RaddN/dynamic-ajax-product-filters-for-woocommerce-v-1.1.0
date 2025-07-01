@@ -72,10 +72,10 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // display search
     // Initialize variables with default values
     $sub_option = "";
-    $minimizable = "";
+    $minimizable = "arrow";
 
     
-    $formOutPut .= '<div id="search_text" class="filter-group search_text" style="display: ' . (!empty($dapfforwc_options['show_search']) ? 'block' : 'none') . ';"><div class="title plugincy_collapsable_">Search Product </div>';
+    $formOutPut .= '<div id="search_text" class="filter-group search_text" style="display: ' . (!empty($dapfforwc_options['show_search']) ? 'block' : 'none') . ';"><div class="title plugincy_collapsable_'.esc_attr($minimizable).'">Search Product ' . ($minimizable === "arrow" || $minimizable === "minimize_initial"  ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items search-container" style="flex-direction: row !important;">';
     $formOutPut .= '<input type="search" id="plugincy-search-field" class="search-field" placeholder="Search products&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["search"] ?? ''). '" name="s" />';
     $formOutPut .= ' <button class="plugincy-search-submit">Search</button>';
@@ -85,9 +85,9 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     // Initialize variables with default values
     $sub_option = "price";
-    $minimizable_price = "";
+    $minimizable_price = "arrow";
     $sub_option_rating = "rating-text";
-    $minimizable_rating = "";
+    $minimizable_rating = "arrow";
 
     // Check if 'price' key exists in the style options
     if (isset($dapfforwc_styleoptions['price'])) {
@@ -134,7 +134,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         // Fetch global options and style configurations
 
         $sub_option = '';
-        $minimizable = '';
+        $minimizable = 'arrow';
         $show_count = '';
         $singlevaluecataSelect = '';
         $hierarchical = '';
@@ -296,7 +296,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         foreach ($attributes as $attribute_name => $attribute_terms) {
             $terms = $attribute_terms; // Directly use the terms from the array
             $sub_optionattr = $dapfforwc_styleoptions[$attribute_name]["sub_option"] ?? "";
-            $minimizable = $dapfforwc_styleoptions[$attribute_name]["minimize"]["type"] ?? "";
+            $minimizable = $dapfforwc_styleoptions[$attribute_name]["minimize"]["type"] ?? "arrow";
             $show_count = $dapfforwc_styleoptions[$attribute_name]["show_product_count"] ?? "";
             $singlevalueattrSelect = $dapfforwc_styleoptions[$attribute_name]["single_selection"] ?? "";
 
@@ -345,7 +345,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     if (!empty($tags)) {
         $selected_tags = !empty($default_filter) && isset($default_filter["tag[]"]) ? $default_filter["tag[]"] : (!empty($default_filter) && isset($default_filter["tag"]) ? $default_filter["tag"] : (!empty($default_filter) ? $default_filter : [])); //explode(',', $atts['tag'])
         $sub_option = $dapfforwc_styleoptions["tag"]["sub_option"] ?? ""; // Fetch the sub_option value
-        $minimizable = $dapfforwc_styleoptions["tag"]["minimize"]["type"] ?? "";
+        $minimizable = $dapfforwc_styleoptions["tag"]["minimize"]["type"] ?? "arrow";
         $show_count = $dapfforwc_styleoptions["tag"]["show_product_count"] ?? "";
         $singlevalueSelect = $dapfforwc_styleoptions["tag"]["single_selection"] ?? "";
         $formOutPut .= '<div id="tag" class="filter-group tag" style="display: ' . (!empty($dapfforwc_options['show_tags']) ? 'block' : 'none') . ';"><div class="title plugincy_collapsable_' . esc_attr($minimizable) . '"><span>Tags '.($singlevalueSelect === "yes" ? '<span class="reset-value">reset</span>':'').'</span>' . ($minimizable === "arrow" || $minimizable === "minimize_initial" ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';

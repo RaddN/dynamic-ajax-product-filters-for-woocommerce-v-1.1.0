@@ -91,9 +91,9 @@ div#roverlay {
   font-size: 16px;
 }
 #product-filter .title .collaps svg {
-  width: 16px;
-  height: 16px;
-  fill: #000;
+  width: 13px;
+  height: 13px;
+  fill: #6b7280;
 }
 #product-filter .title {
   text-transform: capitalize;
@@ -305,12 +305,13 @@ form.rfilterbuttons * {
 #product-filter .price-input {
   width: 100%;
   display: flex;
-  margin: 0 0 35px;
+  margin: 0 0 20px;
+  align-items: flex-end;
 }
 #product-filter .price-input .field {
   display: flex;
   width: 100%;
-  height: 45px;
+  height: fit-content;
   align-items: center;
   flex-direction: column;
 }
@@ -318,12 +319,14 @@ form.rfilterbuttons * {
   width: 100%;
   height: 100%;
   outline: 0;
-  font-size: 19px;
-  margin-left: 12px;
   border-radius: 5px;
   text-align: center;
   border: 1px solid #999;
   -moz-appearance: textfield;
+  max-width: max-content;
+  min-width: fit-content;
+  font-size: 14px;
+  padding: 6px;
 }
 #product-filter input[type="number"]::-webkit-inner-spin-button,
 #product-filter input[type="number"]::-webkit-outer-spin-button {
@@ -369,6 +372,9 @@ form.rfilterbuttons * {
   -webkit-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
   margin-left: 0px;
+  border: 1px solid white;
+  position: relative;
+  z-index: 9999;
 }
 #product-filter input[type="range"]::-moz-range-thumb {
   height: 17px;
@@ -379,6 +385,9 @@ form.rfilterbuttons * {
   pointer-events: auto;
   -moz-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid white;
+  position: relative;
+  z-index: 9999;
 }
 #product-filter .progress-percentage:after,
 #product-filter .progress-percentage:before {

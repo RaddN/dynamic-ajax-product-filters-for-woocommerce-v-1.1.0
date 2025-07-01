@@ -770,10 +770,13 @@
   overflow-x: scroll;
   scrollbar-width: thin;
 }
-.nav-title {
+.wcapf_admin .nav-title {
   display: inline-block;
   max-width: 100%;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+}
+.wcapf_admin label.slider {
+    background: none !important;
 }

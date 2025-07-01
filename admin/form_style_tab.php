@@ -234,7 +234,7 @@ if (!defined('ABSPATH')) {
                                                 </label></p>
                                             <div id="price_set" style="display:<?php echo isset($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price']) && $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price'] === "on" ? 'none' : 'block'; ?>;">
                                                 <label for="min_price"> Min Price </label>
-                                                <input type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][min_price]" value="<?php echo esc_attr($product_min); ?>">
+                                                <input disabled type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][min_price]" value="0">
                                                 <label for="max_price"> Max Price </label>
                                                 <input type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][max_price]" value="<?php echo esc_attr($product_max); ?>">
                                             </div>
@@ -263,22 +263,22 @@ if (!defined('ABSPATH')) {
                                             <p><strong><?php esc_html_e('Enable Minimization Option:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
                                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="disabled"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? '', 'disabled'); ?>>
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'disabled'); ?>>
                                                 <?php esc_html_e('Disabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                             <label>
                                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="arrow"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? '', 'arrow'); ?>>
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'arrow'); ?>>
                                                 <?php esc_html_e('Enabled with Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                             <label>
                                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="no_arrow"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? '', 'no_arrow'); ?>>
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'no_arrow'); ?>>
                                                 <?php esc_html_e('Enabled without Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                             <label>
                                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="minimize_initial"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? '', 'minimize_initial'); ?>>
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'minimize_initial'); ?>>
                                                 <?php esc_html_e('Initially Minimized', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                         </div>
