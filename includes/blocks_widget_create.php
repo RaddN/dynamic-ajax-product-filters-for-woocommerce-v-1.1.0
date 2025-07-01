@@ -583,32 +583,18 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     ],
                 ]
             );
-            $this->add_control(
-                'per_page',
-                [
-                    'label' => __('Products Per Page', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'type' => \Elementor\Controls_Manager::NUMBER,
-                    'default' => 12,
-                    'min' => 1,
-                    'max' => 100,
-                    'step' => 1,
-                    'condition' => [
-                        'filter_type' => 'all',
-                    ],
-                ]
-            );
-            $this->add_control(
-                'use_custom_template_design',
-                [
-                    'label'   => __('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'type'    => \Elementor\Controls_Manager::SELECT,
-                    'options' => [
-                        'yes'      => __('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'no'   => __('No', 'dynamic-ajax-product-filters-for-woocommerce')                        
-                    ],
-                    'default' => 'no',
-                ]
-            );
+            // $this->add_control(
+            //     'use_custom_template_design',
+            //     [
+            //         'label'   => __('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
+            //         'type'    => \Elementor\Controls_Manager::SELECT,
+            //         'options' => [
+            //             'yes'      => __('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+            //             'no'   => __('No', 'dynamic-ajax-product-filters-for-woocommerce')                        
+            //         ],
+            //         'default' => 'no',
+            //     ]
+            // );
 
             $this->add_control(
                 'filter_name',

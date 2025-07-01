@@ -175,7 +175,7 @@ form.rfilterbuttons * {
 #product-filter .items.color_no_border,
 #product-filter .items.image,
 #product-filter .items.image_no_border {
-  display: flex !important;
+  display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }

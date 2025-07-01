@@ -15,13 +15,13 @@ function dapfforwc_admin_menu()
         '55.50' // Priority set to place after WooCommerce
     );
     add_submenu_page(
-    'dapfforwc-admin',
-    __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
-    __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
-    'manage_options',
-    'dapfforwc-get-pro',
-    function () {
-        ?>
+        'dapfforwc-admin',
+        __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+        __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'manage_options',
+        'dapfforwc-get-pro',
+        function () {
+?>
         <div class="wrap dapfforwc-get-pro-page">
             <div class="dapfforwc-pro-header">
                 <h1><?php echo esc_html__('Upgrade to Dynamic AJAX Product Filters Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h1>
@@ -31,7 +31,7 @@ function dapfforwc_admin_menu()
             <div class="dapfforwc-pro-content">
                 <div class="dapfforwc-features-grid">
                     <h2><?php echo esc_html__('Premium Features', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
-                    
+
                     <div class="dapfforwc-feature-list">
                         <div class="dapfforwc-feature-item">
                             <span class="dashicons dashicons-yes-alt"></span>
@@ -111,7 +111,7 @@ function dapfforwc_admin_menu()
                     <div class="dapfforwc-cta-content">
                         <h2><?php echo esc_html__('Ready to Upgrade?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
                         <p><?php echo esc_html__('Join thousands of store owners who have enhanced their WooCommerce filtering experience with our Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        
+
                         <div class="dapfforwc-action-buttons">
                             <a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-primary" style="background: #ff5a36; color: #fff;">
                                 <span class="dashicons dashicons-star-filled"></span>
@@ -151,230 +151,233 @@ function dapfforwc_admin_menu()
         </div>
 
         <style>
-            .notice{display: none;}
-        .dapfforwc-get-pro-page {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-
-        .dapfforwc-pro-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .dapfforwc-pro-header h1 {
-            font-size: 2.5em;
-            margin: 0 0 15px 0;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .dapfforwc-pro-subtitle {
-            font-size: 1.2em;
-            margin: 0;
-            opacity: 0.9;
-        }
-
-        .dapfforwc-pro-content {
-            padding: 40px;
-        }
-
-        .dapfforwc-features-grid h2 {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 30px;
-            color: #333;
-        }
-
-        .dapfforwc-feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 25px;
-            margin-bottom: 50px;
-        }
-
-        .dapfforwc-feature-item {
-            display: flex;
-            align-items: flex-start;
-            padding: 20px;
-            border: 1px solid #e1e5e9;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-        }
-
-        .dapfforwc-feature-item:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            border-color: #667eea;
-        }
-
-        .dapfforwc-feature-item .dashicons {
-            color: #667eea;
-            font-size: 24px;
-            margin-right: 15px;
-            margin-top: 5px;
-            flex-shrink: 0;
-        }
-
-        .dapfforwc-feature-item h3 {
-            margin: 0 0 10px 0;
-            font-size: 1.1em;
-            color: #333;
-        }
-
-        .dapfforwc-feature-item p {
-            margin: 0;
-            color: #666;
-            line-height: 1.5;
-        }
-
-        .dapfforwc-pro-cta {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 10px;
-            padding: 40px;
-            text-align: center;
-            color: white;
-        }
-
-        .dapfforwc-cta-content h2 {
-            font-size: 2em;
-            margin: 0 0 15px 0;
-            color: #fff;
-        }
-
-        .dapfforwc-cta-content p {
-            font-size: 1.1em;
-            margin: 0 0 30px 0;
-            opacity: 0.9;
-        }
-
-        .dapfforwc-action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .btn {
-            padding: 12px 20px !important;
-            font-size: 1em !important;
-            font-weight: 600 !important;
-            border-radius: 5px !important;
-            text-decoration: none !important;
-            transition: all 0.3s ease !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            gap: 8px !important;
-            border: 2px solid transparent !important;
-            min-width: 150px !important;
-            justify-content: center !important;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: #fff !important;
-            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3) !important;
-        }
-
-        .btn-primary:hover {
-            background: #5a6fd8 !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
-            color: #fff !important;
-        }
-
-        .btn-accent {
-            background: #fff !important;
-            color: #667eea !important;
-            box-shadow: 0 3px 10px rgba(118, 75, 162, 0.3) !important;
-            border: 1px solid #5a6fd8 !important;
-        }
-
-        .btn-accent:hover {
-            background: #fff !important;
-            transform: translateY(-2px) !important;
-            box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4) !important;
-            color: #5a6fd8 !important;
-            
-        }
-
-        .btn-secondary {
-            background: transparent !important;
-            color: #fff !important;
-            border-color: rgba(255,255,255,0.3) !important;
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255,255,255,0.1) !important;
-            border-color: rgba(255,255,255,0.6) !important;
-            color: #fff !important;
-        }
-
-        .btn .dashicons {
-            font-size: 16px !important;
-            width: 16px !important;
-            height: 16px !important;
-        }
-
-        .dapfforwc-guarantees {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 30px;
-            margin-top: 20px;
-        }
-
-        .dapfforwc-guarantee-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.95em;
-            opacity: 0.9;
-        }
-
-        .dapfforwc-guarantee-item .dashicons {
-            font-size: 18px;
-        }
-
-        @media (max-width: 768px) {
-            .dapfforwc-feature-list {
-                grid-template-columns: 1fr;
+            .notice {
+                display: none;
             }
-            
-            .dapfforwc-pro-header,
-            .dapfforwc-pro-content,
-            .dapfforwc-pro-cta {
-                padding: 20px;
+
+            .dapfforwc-get-pro-page {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: #fff;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
             }
-            
+
+            .dapfforwc-pro-header {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 40px;
+                text-align: center;
+                border-radius: 8px 8px 0 0;
+            }
+
             .dapfforwc-pro-header h1 {
+                font-size: 2.5em;
+                margin: 0 0 15px 0;
+                font-weight: 600;
+                color: #fff;
+            }
+
+            .dapfforwc-pro-subtitle {
+                font-size: 1.2em;
+                margin: 0;
+                opacity: 0.9;
+            }
+
+            .dapfforwc-pro-content {
+                padding: 40px;
+            }
+
+            .dapfforwc-features-grid h2 {
+                text-align: center;
                 font-size: 2em;
+                margin-bottom: 30px;
+                color: #333;
+            }
+
+            .dapfforwc-feature-list {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 25px;
+                margin-bottom: 50px;
+            }
+
+            .dapfforwc-feature-item {
+                display: flex;
+                align-items: flex-start;
+                padding: 20px;
+                border: 1px solid #e1e5e9;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            .dapfforwc-feature-item:hover {
+                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                border-color: #667eea;
+            }
+
+            .dapfforwc-feature-item .dashicons {
+                color: #667eea;
+                font-size: 24px;
+                margin-right: 15px;
+                margin-top: 5px;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-feature-item h3 {
+                margin: 0 0 10px 0;
+                font-size: 1.1em;
+                color: #333;
+            }
+
+            .dapfforwc-feature-item p {
+                margin: 0;
+                color: #666;
+                line-height: 1.5;
+            }
+
+            .dapfforwc-pro-cta {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 10px;
+                padding: 40px;
+                text-align: center;
+                color: white;
+            }
+
+            .dapfforwc-cta-content h2 {
+                font-size: 2em;
+                margin: 0 0 15px 0;
+                color: #fff;
+            }
+
+            .dapfforwc-cta-content p {
+                font-size: 1.1em;
+                margin: 0 0 30px 0;
+                opacity: 0.9;
             }
 
             .dapfforwc-action-buttons {
-                flex-direction: column;
-                align-items: center;
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+                margin-bottom: 30px;
             }
 
             .btn {
-                min-width: 200px !important;
+                padding: 12px 20px !important;
+                font-size: 1em !important;
+                font-weight: 600 !important;
+                border-radius: 5px !important;
+                text-decoration: none !important;
+                transition: all 0.3s ease !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                border: 2px solid transparent !important;
+                min-width: 150px !important;
+                justify-content: center !important;
+            }
+
+            .btn-primary {
+                background: #667eea;
+                color: #fff !important;
+                box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3) !important;
+            }
+
+            .btn-primary:hover {
+                background: #5a6fd8 !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
+                color: #fff !important;
+            }
+
+            .btn-accent {
+                background: #fff !important;
+                color: #667eea !important;
+                box-shadow: 0 3px 10px rgba(118, 75, 162, 0.3) !important;
+                border: 1px solid #5a6fd8 !important;
+            }
+
+            .btn-accent:hover {
+                background: #fff !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4) !important;
+                color: #5a6fd8 !important;
+
+            }
+
+            .btn-secondary {
+                background: transparent !important;
+                color: #fff !important;
+                border-color: rgba(255, 255, 255, 0.3) !important;
+            }
+
+            .btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.1) !important;
+                border-color: rgba(255, 255, 255, 0.6) !important;
+                color: #fff !important;
+            }
+
+            .btn .dashicons {
+                font-size: 16px !important;
+                width: 16px !important;
+                height: 16px !important;
             }
 
             .dapfforwc-guarantees {
-                flex-direction: column;
-                gap: 15px;
+                display: flex;
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 30px;
+                margin-top: 20px;
             }
-        }
+
+            .dapfforwc-guarantee-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 0.95em;
+                opacity: 0.9;
+            }
+
+            .dapfforwc-guarantee-item .dashicons {
+                font-size: 18px;
+            }
+
+            @media (max-width: 768px) {
+                .dapfforwc-feature-list {
+                    grid-template-columns: 1fr;
+                }
+
+                .dapfforwc-pro-header,
+                .dapfforwc-pro-content,
+                .dapfforwc-pro-cta {
+                    padding: 20px;
+                }
+
+                .dapfforwc-pro-header h1 {
+                    font-size: 2em;
+                }
+
+                .dapfforwc-action-buttons {
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                .btn {
+                    min-width: 200px !important;
+                }
+
+                .dapfforwc-guarantees {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+            }
         </style>
-        <?php
-    }
-);
+    <?php
+        }
+    );
 }
 add_action('admin_menu', 'dapfforwc_admin_menu');
 
@@ -536,7 +539,7 @@ function dapfforwc_get_loading_effects()
 function dapfforwc_admin_page_content()
 {
     global $dapfforwc_options;
-?>
+    ?>
     <div class="wrap wcapf_admin plugincyajaxfilters_admin_settings">
         <!-- welcome box here -->
         <div class="plugincy-filter-welcome-container">
@@ -549,7 +552,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline">Transform your store with lightning-fast, user-friendly product filtering</p>
                 </div>
                 <div class="version-badge">
-                    <span>Version 1.2.2</span>
+                    <span>Version 1.2.2.5</span>
                 </div>
             </div>
 
@@ -920,22 +923,22 @@ function dapfforwc_admin_page_content()
         <h1 style="margin-bottom: 20px;">Manage WooCommerce Product Filters</h1>
         <?php settings_errors(); // Displays success or error notices
         $nonce = wp_create_nonce('dapfforwc_tab_nonce');
+        $active_tab = 'form_manage'; // Default tab
+        if (isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
+            $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'form_manage';
+        }
+
         ?>
         <div class="wcapf_admin_page">
             <h2 class="nav-tab-wrapper">
-                <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_manage' ? 'nav-tab-active' : (!isset($_GET['tab']) ? 'nav-tab-active' : ''); ?>"><span class="dashicons dashicons-forms"></span><span class="nav-title">Form Manage</span></a>
-                <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'form_style' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-customizer"></span><span class="nav-title">Form Style</span></a>
-                <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-links"></span><span class="nav-title">SEO & Permalinks Setup</span></a>
-                <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'advance_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-generic"></span><span class="nav-title">Advance Settings</span></a>
-                <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && sanitize_text_field(wp_unslash($_GET['tab'])) == 'license_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-network"></span><span class="nav-title">Plugin License</span></a>
+                <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_manage' ? 'nav-tab-active' : (!isset($_GET['tab']) ? 'nav-tab-active' : ''); ?>"><span class="dashicons dashicons-forms"></span><span class="nav-title">Form Manage</span></a>
+                <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_style' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-customizer"></span><span class="nav-title">Form Style</span></a>
+                <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-links"></span><span class="nav-title">SEO & Permalinks Setup</span></a>
+                <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'advance_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-generic"></span><span class="nav-title">Advance Settings</span></a>
+                <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'license_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-network"></span><span class="nav-title">Plugin License</span></a>
             </h2>
             <div class="tab-content">
                 <?php
-                $active_tab = 'form_manage'; // Default tab
-                if (isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
-                    $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'form_manage';
-                }
-
                 if ($active_tab == 'form_manage') {
                 ?>
                     <form method="post" action="options.php">
