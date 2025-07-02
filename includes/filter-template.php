@@ -584,7 +584,7 @@ function dapfforwc_product_filter_shortcode($atts)
         <?php } ?>
 
 
-        <form id="product-filter" method="POST"
+        <form id="product-filter" method="POST" data-mobile-style='<?php echo $atts['mobile_responsive']; ?>'
             data-product_show_settings='
         <?php
         echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";

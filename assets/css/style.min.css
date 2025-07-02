@@ -666,3 +666,7 @@ form#product-filter
 #product-filter input[type="range"]::-moz-range-track {
   box-shadow: none;
 }
+p.woocommerce-info {
+    width: 100%;
+    grid-column: 1 / -1;
+}

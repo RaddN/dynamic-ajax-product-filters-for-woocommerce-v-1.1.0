@@ -292,6 +292,23 @@ function dapfforwc_enqueue_scripts()
                         $items.toggleClass("dapfforwc-hidden-important", 300);
                 });
             }
+
+            // Mobile: collapse/expand on .title click if data-mobile-style="style_1"
+        if ($(window).width() <= 768) {
+            var $filter = $("#product-filter");
+            if ($filter.length && $filter.data("mobile-style") === "style_1") {
+            $filter.find(".title").each(function () {
+                var $title = $(this);
+                var $items = $title.parent().children().not(".title");
+                // Hide items initially
+                $items.addClass("dapfforwcpro-hidden-important");
+                $title.off("click.dapfforwcproMobile").on("click.dapfforwcproMobile", function () {
+                $title.find("svg").toggleClass("rotated");
+                $items.toggleClass("dapfforwcpro-hidden-important", 300);
+                });
+            });
+            }
+        }
             
         });
     }

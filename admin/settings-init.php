@@ -155,13 +155,18 @@ function dapfforwc_settings_init()
 
     add_settings_field('remove_outofStock', __('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
+    $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
+
     // seo-permalinks settings register
     $seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options') ?: [
         'use_attribute_type_in_permalinks' => "on",
         'dapfforwc_permalinks_prefix_options' => [
             "product-category" => 'cata',
             'tag' => 'tags',
-            'attribute' => [
+            'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
+                $carry[$attr->attribute_name] = $attr->attribute_name;
+                return $carry;
+            }, []) : [
                 'color' => 'color',
                 'size' => 'size',
                 'brand' => 'brand',
@@ -239,7 +244,7 @@ function dapfforwc_settings_init()
             'dapfforwc_seo_section'
         );
     }
-    if($dapfforwc_options["use_url_filter"] === "ajax"){
+    if ($dapfforwc_options["use_url_filter"] === "ajax") {
         add_settings_field(
             'use_url_filter_notice',
             '',
