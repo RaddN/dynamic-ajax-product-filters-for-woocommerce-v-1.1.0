@@ -552,7 +552,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline">Transform your store with lightning-fast, user-friendly product filtering</p>
                 </div>
                 <div class="version-badge">
-                    <span>Version 1.2.2.5</span>
+                    <span>Version 1.2.3</span>
                 </div>
             </div>
 
