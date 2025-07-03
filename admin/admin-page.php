@@ -552,7 +552,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline">Transform your store with lightning-fast, user-friendly product filtering</p>
                 </div>
                 <div class="version-badge">
-                    <span>Version 1.2.3</span>
+                    <span>Version 1.2.4</span>
                 </div>
             </div>
 
@@ -1039,20 +1039,6 @@ function dapfforwc_admin_page_content()
                             </tbody>
                         </table>
                         <?php dapfforwc_reset_settings_form() ?>
-                        <!-- <form method="post">
-                            <?php wp_nonce_field('reset_settings_nonce_action', 'reset_settings_nonce'); ?>
-                            <table class="form-table" role="presentation">
-                                <tbody>
-                                    <tr>
-                                        <th scope="row">Reset Settings</th>
-                                        <td>    
-                                            <input type="hidden" name="reset_settings" value="1">
-                                            <button type="submit" class="button button-danger">Reset Settings</button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </form> -->
                     </div>
                 <?php
                 } elseif ($active_tab == 'seo_permalinks') {
@@ -1070,7 +1056,16 @@ function dapfforwc_admin_page_content()
                     $license_manager->render_license_form();
                 }
                 ?>
+                <div class="plugincy-notice professional-notice">
+                    <p>
+                        <?php esc_html_e("Having trouble with your product filters? Please visit the Advanced Settings tab to adjust the selector according to your theme for optimal compatibility.", 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                        <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/" target="_blank" rel="noopener">
+                            <?php esc_html_e('View detailed documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                        </a>
+                    </p>
+                </div>
             </div>
+
         </div>
     </div>
 <?php

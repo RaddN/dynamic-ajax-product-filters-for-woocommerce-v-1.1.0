@@ -778,5 +778,25 @@
   text-overflow: ellipsis;
 }
 .wcapf_admin label.slider {
-    background: none !important;
+  background: none !important;
+}
+.professional-notice {
+  background: #f7f8fd;
+  border-left: 4px solid #667eea;
+  padding: 18px 22px;
+  border-radius: 6px;
+  margin-top: 32px;
+  margin-bottom: 0;
+  color: #333;
+  font-size: 1.05em;
+  font-weight: bold;
+}
+.professional-notice a {
+  color: #667eea;
+  text-decoration: underline;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+.professional-notice a:hover {
+  color: #5a67d8;
 }

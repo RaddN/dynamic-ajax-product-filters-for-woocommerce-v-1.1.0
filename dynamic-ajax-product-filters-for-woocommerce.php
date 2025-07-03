@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.2.3
+ * Version:     1.2.4
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -198,7 +198,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.2.3', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.2.4', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -209,9 +209,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.2.3');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.2.3');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.2.3', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.2.4');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.2.4');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.2.4', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -333,11 +333,11 @@ function dapfforwc_admin_scripts($hook)
         return; // Load only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.2.3');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.2.4');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.2.3', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.2.4', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -643,7 +643,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.2.3');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.2.4');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -691,11 +691,60 @@ function dapfforwc_check_elements()
                     issueCount.innerHTML = '1';
                     issueCount.style.display = 'block';
                 } else if (!document.querySelector('<?php echo esc_js(isset($dapfforwc_advance_settings["product_selector"]) && !empty($dapfforwc_advance_settings["product_selector"]) ? $dapfforwc_advance_settings["product_selector"] : ''); ?>')) {
-                    debugMessage.innerHTML = '<span style="color: red;">&#10007;</span> <?php echo esc_html__('Products are not found. Add product or', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <a href="#" style="display: inline; padding: 0;"><?php echo esc_html__('change selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>';
+                    debugMessage.innerHTML = '<span style="color: red;">&#10007;</span> <?php echo esc_html__('Products are not found. Add product or', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/#product-selector-configuration" target="_blank" style="display: inline; padding: 0;"><?php echo esc_html__('change selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>';
                     issueCount.innerHTML = '1';
                     issueCount.style.display = 'block';
+                    if (!document.getElementById('dapfforwc-popup-notification')) {
+                        var popup = document.createElement('div');
+                        popup.id = 'dapfforwc-popup-notification';
+                        popup.innerHTML = `
+                            <div style="
+                                    display: flex;
+                                    align-items: center;
+                                    position: fixed;
+                                    top: 123px;
+                                    right: 10px;
+                                    background: #fff;
+                                    color: #222;
+                                    border: 1px solid #d54e21;
+                                    padding: 18px 28px;
+                                    border-radius: 8px;
+                                    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.13);
+                                    z-index: 99999;
+                                    font-size: 16px;
+                                    min-width: 340px;
+                                    max-width: 100%;
+                                    gap: 14px;
+                                    transition: opacity 0.3s;
+                            ">
+                                <span style="
+                                    color: #d54e21;
+                                    font-size: 26px;
+                                    margin-right: 8px;
+                                    flex-shrink: 0;
+                                ">&#9888;</span>
+                                <span style="flex:1;">
+                                    <strong style="display:block;font-size:17px;margin-bottom:2px;">Product Selector Not Found</strong>
+                                    <span>
+                                        The product selector does not match any element on this page.<br>
+                                        <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/#product-selector-configuration" target="_blank" style="color:#0073aa;text-decoration:underline;font-weight:500;display:inline-block;margin-top:6px;">View documentation</a>
+                                    </span>
+                                </span>
+                                <span style="
+                                    margin-left: 12px;
+                                    cursor: pointer;
+                                    color: #d54e21;
+                                    font-weight: bold;
+                                    font-size: 22px;
+                                    line-height: 1;
+                                    transition: color 0.2s;
+                                " onclick="this.closest('#dapfforwc-popup-notification').style.display='none'" title="Dismiss">&times;</span>
+                            </div>
+                        `;
+                        document.body.appendChild(popup);                        
+                    }
                 } else if (!document.querySelector('<?php echo esc_js(isset($dapfforwc_advance_settings["pagination_selector"]) && !empty($dapfforwc_advance_settings["pagination_selector"]) ? $dapfforwc_advance_settings["pagination_selector"] : ''); ?>')) {
-                    debugMessage.innerHTML = '<span style="color: red;">&#10007;</span> <?php echo esc_html__('Pagination is not found', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <a href="#" style="display: inline; padding: 0;"><?php echo esc_html__('change selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>';
+                    debugMessage.innerHTML = '<span style="color: red;">&#10007;</span> <?php echo esc_html__('Pagination is not found', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/#pagination-selector-configuration" target="_blank" style="display: inline; padding: 0;"><?php echo esc_html__('change selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>';
                     issueCount.innerHTML = '1';
                     issueCount.style.display = 'block';
                 } else {

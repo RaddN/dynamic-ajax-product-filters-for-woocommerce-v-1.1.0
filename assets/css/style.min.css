@@ -340,7 +340,7 @@ form.rfilterbuttons * {
   justify-content: center;
 }
 #product-filter .slider {
-  height: 5px;
+  height: 4px;
   background: #ddd;
   border-radius: 5px;
 }
