@@ -178,6 +178,7 @@ form.rfilterbuttons * {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  flex-direction: row;
 }
 #product-filter .filter-radio,
 #product-filter .filter-radio-check,

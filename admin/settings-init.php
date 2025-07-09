@@ -111,6 +111,7 @@ function dapfforwc_settings_init()
         'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
         'product_shortcode' => 'products',
         'remove_outofStock' => 0,
+        'allow_data_share' => "on",
     ];
     update_option('dapfforwc_advance_options', $Advance_options);
     register_setting(
@@ -154,6 +155,7 @@ function dapfforwc_settings_init()
     );
 
     add_settings_field('remove_outofStock', __('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('allow_data_share', __('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
 
@@ -263,6 +265,9 @@ add_action('admin_init', 'dapfforwc_settings_init');
 
 function dapfforwc_sanitize_options($input)
 {
+    if(isset($input["product_selector"]) && !isset($input["allow_data_share"])){
+        $input["allow_data_share"] = "off";
+    }
     // If input is not an array, make it one
     if (!is_array($input)) {
         return array();

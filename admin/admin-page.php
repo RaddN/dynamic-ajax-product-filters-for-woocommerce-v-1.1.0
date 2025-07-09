@@ -1056,13 +1056,49 @@ function dapfforwc_admin_page_content()
                     $license_manager->render_license_form();
                 }
                 ?>
+                <style>
+                    .header {
+                        margin-bottom: 28px;
+                    }
+
+                    .header h3 {
+                        font-size: 1.8em;
+                        color: #2d3748;
+                        margin-bottom: 8px;
+                    }
+
+                    .header p {
+                        color: #718096;
+                        font-size: 0.95em;
+                    }
+
+                    .steps {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 16px;
+                    }
+                </style>
                 <div class="plugincy-notice professional-notice">
-                    <p>
-                        <?php esc_html_e("Having trouble with your product filters? Please visit the Advanced Settings tab to adjust the selector according to your theme for optimal compatibility.", 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                        <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/" target="_blank" rel="noopener">
-                            <?php esc_html_e('View detailed documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                        </a>
-                    </p>
+                    <div class="header">
+                        <h3>Filters Not Working?</h3>
+                        <p>Quick troubleshooting steps</p>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step">
+                            1. <b> Filters not responding?</b> Adjust the selectors in the Advanced Settings to match your theme.
+                            <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/" target="_blank" class="step-link">View docs</a>
+                        </div>
+
+                        <div class="step">
+                            2. <b> Filters behaving unexpectedly?</b> Temporarily deactivate other filter plugins to check for conflicts.
+                        </div>
+
+                        <div class="step">
+                            3. Still facing issues? Reach out to Plugincy Support as we’re always here to help.
+                            <a href="https://plugincy.com/support/" target="_blank" class="support-link">Plugincy Support</a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

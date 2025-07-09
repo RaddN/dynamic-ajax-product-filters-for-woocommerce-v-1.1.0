@@ -301,10 +301,10 @@ function dapfforwc_enqueue_scripts()
                 var $title = $(this);
                 var $items = $title.parent().children().not(".title");
                 // Hide items initially
-                $items.addClass("dapfforwcpro-hidden-important");
-                $title.off("click.dapfforwcproMobile").on("click.dapfforwcproMobile", function () {
+                $items.addClass("dapfforwc-hidden-important");
+                $title.off("click.dapfforwcMobile").on("click.dapfforwcMobile", function () {
                 $title.find("svg").toggleClass("rotated");
-                $items.toggleClass("dapfforwcpro-hidden-important", 300);
+                $items.toggleClass("dapfforwc-hidden-important", 300);
                 });
             });
             }
@@ -902,3 +902,77 @@ if(isset($dapfforwc_advance_settings["remove_outofStock"]) && $dapfforwc_advance
         return 'yes';
     });
 }
+
+
+
+
+
+
+
+
+
+
+require_once plugin_dir_path(__FILE__) . 'includes/analytics.php';
+
+class dapfforwc_cart_analytics_main
+{
+    private $analytics;
+
+    public function __construct()
+    {
+        global $dapfforwc_advance_settings;
+        // Initialize analytics with the correct plugin file path
+        $this->analytics = new dapfforwc_cart_anaylytics(
+            '01',
+            'https://plugincy.com/wp-json/product-analytics/v1',
+            "1.0.7",
+            'One Page Quick Checkout for WooCommerce',
+            __FILE__ // Pass the main plugin file
+        );
+
+        add_action('admin_footer',  array($this->analytics, "add_deactivation_feedback_form"));
+
+        // Plugin hooks
+        add_action('init', array($this, 'init'));
+        if (!isset($dapfforwc_advance_settings["allow_data_share"]) || (isset($dapfforwc_advance_settings["allow_data_share"])  && $dapfforwc_advance_settings["allow_data_share"] === 'on')) {
+            add_action('admin_init', array($this, 'admin_init'));
+        }
+
+        // Handle deactivation feedback AJAX
+        add_action('wp_ajax_send_deactivation_feedback', array($this, 'handle_deactivation_feedback'));
+    }
+
+    public function init()
+    {
+        // Any initialization code
+    }
+
+    public function admin_init()
+    {
+        // Send analytics data on first activation or weekly
+        $this->maybe_send_analytics();
+    }
+
+    private function maybe_send_analytics()
+    {
+        $last_sent = get_option('onepaquc_analytics_last_sent', 0);
+        $week_ago = strtotime('-1 week');
+
+        if ($last_sent < $week_ago) {
+            $this->analytics->send_tracking_data();
+            update_option('onepaquc_analytics_last_sent', time());
+        }
+    }
+
+    public function handle_deactivation_feedback()
+    {
+        check_ajax_referer('deactivation_feedback', 'nonce');
+
+        $reason = sanitize_text_field($_POST['reason'] ?? '');
+        $this->analytics->send_deactivation_data($reason);
+
+        wp_die();
+    }
+}
+
+new dapfforwc_cart_analytics_main();

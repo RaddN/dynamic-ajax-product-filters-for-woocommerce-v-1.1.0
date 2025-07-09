@@ -45,6 +45,10 @@ function dapfforwc_remove_outofStock_render()
 {
     dapfforwc_render_advance_checkbox('remove_outofStock');
 }
+function dapfforwc_allow_data_share_render()
+{
+    dapfforwc_render_advance_checkbox('allow_data_share');
+}
 
 
 function dapfforwc_render_advance_checkbox($key)
@@ -58,4 +62,7 @@ function dapfforwc_render_advance_checkbox($key)
         <span class="switch-off">Off</span>
     </label>
 <?php
+if($key === "allow_data_share"){
+        echo "<p class='description' style='max-width: 800px;'>" . esc_html__('We collect non-sensitive technical details from your website, like the PHP version and features usage, to help us troubleshoot issues faster, make informed development decisions, and build features that truly benefit you.', 'dynamic-ajax-product-filters-for-woocommerce') . " <a href='https://plugincy.com/usage-tracking/' target='_blank'>Learn more…</a></p>";
+    }
 }

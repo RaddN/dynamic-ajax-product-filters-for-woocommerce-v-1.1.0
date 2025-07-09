@@ -636,8 +636,12 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
             echo '<div class="default_values" style="display:none;">';
-            if (!empty($default_filter) && is_array($default_filter)) {
-                foreach ($default_filter as $key => $value) {
+            if (!empty($all_data_objects) && is_array($all_data_objects)) {
+                foreach ($all_data_objects as $key => $value) {
+                    if(empty($value)){
+                        continue;
+                    }
+                    if($key === "tag[]"){$key = "tags[]";}
                     if (is_array($value)) {
                         foreach ($value as $v) {
                             echo '<input type="checkbox" name="' . esc_attr($key) . '" value="' . esc_attr($v) . '" checked>';

@@ -278,10 +278,11 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                         continue;
                     }
                     
-                    $is_visible = $options["visible"] ? "block" : "none";
+                    $is_visible = $options["visible"] ? "flex" : "none";
                     $output .= '.' . $options["id"] . '{
                     order: ' . $index . '!important;
-                    display:' . $is_visible . '!important;                
+                    display:' . $is_visible . '!important;
+                    flex-direction: column;                
                     }
                     ';
                     $index++;
