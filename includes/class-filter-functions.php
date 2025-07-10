@@ -371,8 +371,9 @@ function dapfforwc_template_redirect_filter()
         $max_price = isset($filter_params['mx_price']) ? ceil(floatval($filter_params['mx_price'])) : null;
 
         $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
+        $disable_unselected =  $found_posts === 0 || $found_posts === 1;
         // Pass sanitized values to the function
-        $filterform = dapfforwc_filter_form($updated_filters, $filter_params, $use_anchor, "", "", $min_price, $max_price, [], '');
+        $filterform = dapfforwc_filter_form($updated_filters, $filter_params, $use_anchor, "", "", $min_price, $max_price, [], '',true ,$disable_unselected);
 
 
         // Output buffer contents
