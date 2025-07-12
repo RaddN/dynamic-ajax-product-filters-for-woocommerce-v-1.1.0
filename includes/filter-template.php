@@ -439,11 +439,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
             @media (max-width: 781px) {
                 .items {
-                    display: block !important;
-                }
-
-                div#search_text .items {
                     display: flex !important;
+                    flex-direction: column;
                 }
 
                 .mobile-filter {
@@ -458,6 +455,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     border-radius: 30px;
                     margin: 5px !important;
                     display: none;
+                    top: 20%;
                 }
 
                 .rfilterselected ul {
@@ -480,11 +478,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
             @media (max-width: 781px) {
                 .items {
-                    display: block !important;
-                }
-
-                div#search_text .items {
                     display: flex !important;
+                    flex-direction: column;
                 }
 
                 .mobile-filter {
