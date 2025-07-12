@@ -49,6 +49,11 @@ function dapfforwc_allow_data_share_render()
 {
     dapfforwc_render_advance_checkbox('allow_data_share');
 }
+function dapfforwc_side_bar_top_render()
+{
+    dapfforwc_render_advance_checkbox('sidebar_on_top');
+}
+
 
 
 function dapfforwc_render_advance_checkbox($key)

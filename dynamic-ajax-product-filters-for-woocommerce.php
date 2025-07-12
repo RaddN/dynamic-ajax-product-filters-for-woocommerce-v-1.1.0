@@ -741,7 +741,7 @@ function dapfforwc_check_elements()
                                 " onclick="this.closest('#dapfforwc-popup-notification').style.display='none'" title="Dismiss">&times;</span>
                             </div>
                         `;
-                        document.body.appendChild(popup);                        
+                        document.body.appendChild(popup);
                     }
                 } else if (!document.querySelector('<?php echo esc_js(isset($dapfforwc_advance_settings["pagination_selector"]) && !empty($dapfforwc_advance_settings["pagination_selector"]) ? $dapfforwc_advance_settings["pagination_selector"] : ''); ?>')) {
                     debugMessage.innerHTML = '<span style="color: red;">&#10007;</span> <?php echo esc_html__('Pagination is not found', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/#pagination-selector-configuration" target="_blank" style="display: inline; padding: 0;"><?php echo esc_html__('change selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>';
@@ -765,7 +765,7 @@ function dapfforwc_check_elements()
                 height: max-content;
             }
         </style>
-<?php
+    <?php
     }
 }
 
@@ -853,20 +853,21 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
 }
 
 
-function dapfforwc_block_categories( $categories, $post ) {
+function dapfforwc_block_categories($categories, $post)
+{
     // Create the new category array
     $new_category = array(
         'slug' => 'plugincy',
-        'title' => __( 'Plugincy', 'one-page-quick-checkout-for-woocommerce' ),
+        'title' => __('Plugincy', 'one-page-quick-checkout-for-woocommerce'),
         'icon'  => 'plugincy',
     );
 
     // Add the new category to the beginning of the categories array
-    array_unshift( $categories, $new_category );
+    array_unshift($categories, $new_category);
 
     return $categories;
 }
-add_filter( 'block_categories_all', 'dapfforwc_block_categories', 0, 2 );
+add_filter('block_categories_all', 'dapfforwc_block_categories', 0, 2);
 
 
 function dapfforwc_editor_script()
@@ -886,9 +887,9 @@ add_action('enqueue_block_editor_assets', 'dapfforwc_editor_script');
 
 
 
-if(isset($dapfforwc_advance_settings["remove_outofStock"]) && $dapfforwc_advance_settings["remove_outofStock"] === 'on'){
+if (isset($dapfforwc_advance_settings["remove_outofStock"]) && $dapfforwc_advance_settings["remove_outofStock"] === 'on') {
     // Filter products to exclude out of stock items
-    add_filter('woocommerce_product_query_meta_query', function($meta_query) {
+    add_filter('woocommerce_product_query_meta_query', function ($meta_query) {
         $meta_query[] = array(
             'key' => '_stock_status',
             'value' => 'instock',
@@ -896,9 +897,9 @@ if(isset($dapfforwc_advance_settings["remove_outofStock"]) && $dapfforwc_advance
         );
         return $meta_query;
     });
-    
+
     // Or use the built-in WooCommerce option
-    add_filter('pre_option_woocommerce_hide_out_of_stock_items', function() {
+    add_filter('pre_option_woocommerce_hide_out_of_stock_items', function () {
         return 'yes';
     });
 }
@@ -976,3 +977,193 @@ class dapfforwc_cart_analytics_main
 }
 
 new dapfforwc_cart_analytics_main();
+
+
+
+
+function dapfforwc_sidebar_to_top_inline_scripts()
+{
+    ?>
+    <style>
+        /* Mobile-only Sidebar to Top CSS */
+        @media (max-width: 767px) {
+            .sidebar-moved-to-top {
+                order: -1 !important;
+                -webkit-box-ordinal-group: 0 !important;
+                -ms-flex-order: -1 !important;
+                width: 100% !important;
+                margin-bottom: 20px !important;
+                display: block !important;
+            }
+
+            /* Make parent container flex if it isn't already - mobile only */
+            .sidebar-parent-flex {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .sidebar-moved-to-top .widget {
+                margin-bottom: 15px !important;
+            }
+        }
+
+        /* Desktop - reset to normal positioning */
+        @media (min-width: 768px) {
+            .sidebar-moved-to-top {
+                order: initial !important;
+                -webkit-box-ordinal-group: initial !important;
+                -ms-flex-order: initial !important;
+                width: auto !important;
+                margin-bottom: initial !important;
+            }
+
+            .sidebar-parent-flex {
+                display: initial !important;
+                flex-direction: initial !important;
+            }
+        }
+    </style>
+
+    <script>
+        jQuery(document).ready(function($) {
+            // Common sidebar selectors used across WordPress themes
+            var sidebarSelectors = [
+                '#sidebar',
+                '.sidebar',
+                '#secondary',
+                '.secondary',
+                '.widget-area',
+                '#primary-sidebar',
+                '.primary-sidebar',
+                '#main-sidebar',
+                '.main-sidebar',
+                '.sidebar-primary',
+                '.sidebar-secondary',
+                '#complementary',
+                '.complementary',
+                '.aside',
+                '#aside',
+                '.sidebar-1',
+                '.sidebar-2',
+                '#sidebar-1',
+                '#sidebar-2'
+            ];
+
+            // Function to move sidebar to top (mobile only)
+            function moveSidebarToTop() {
+                // Check if we're on mobile (767px or less)
+                if ($(window).width() <= 767) {
+                    var sidebarFound = false;
+
+                    // Try each selector until we find a sidebar
+                    $.each(sidebarSelectors, function(index, selector) {
+                        var $sidebar = $(selector);
+
+                        if ($sidebar.length > 0 && !sidebarFound && !$sidebar.hasClass('sidebar-moved-to-top')) {
+                            sidebarFound = true;
+
+                            // Find the main content area (common selectors)
+                            var $mainContent = $sidebar.siblings().filter(function() {
+                                return $(this).find('article, .post, .entry, .content').length > 0;
+                            }).first();
+
+                            // If no main content found, try common content selectors
+                            if ($mainContent.length === 0) {
+                                var contentSelectors = [
+                                    '#main',
+                                    '.main',
+                                    '#content',
+                                    '.content',
+                                    '#primary',
+                                    '.primary',
+                                    '.site-content',
+                                    '.entry-content',
+                                    '.post-content',
+                                    'main',
+                                    'article'
+                                ];
+
+                                $.each(contentSelectors, function(i, contentSelector) {
+                                    var $content = $(contentSelector);
+                                    if ($content.length > 0 && $content.parent().is($sidebar.parent())) {
+                                        $mainContent = $content;
+                                        return false; // Break the loop
+                                    }
+                                });
+                            }
+
+                            // Move sidebar to top
+                            if ($mainContent.length > 0) {
+                                var $parent = $mainContent.parent();
+
+                                // Make parent flex container
+                                $parent.addClass('sidebar-parent-flex');
+
+                                // Move sidebar before main content
+                                $sidebar.addClass('sidebar-moved-to-top');
+                                $mainContent.before($sidebar);
+                            } else {
+                                // Fallback: move to top of body or main container
+                                var $container = $sidebar.closest('.container, .wrap, .site, #page, #wrapper, .main-container');
+                                if ($container.length > 0) {
+                                    $container.addClass('sidebar-parent-flex');
+                                    $sidebar.addClass('sidebar-moved-to-top');
+                                    $container.prepend($sidebar);
+                                }
+                            }
+
+                            return false; // Break the loop
+                        }
+                    });
+
+                    // If no sidebar found with common selectors, try a more generic approach
+                    if (!sidebarFound) {
+                        $('.widget').closest('div, aside, section').each(function() {
+                            var $possibleSidebar = $(this);
+                            if ($possibleSidebar.find('.widget').length >= 2 && !$possibleSidebar.hasClass('sidebar-moved-to-top')) {
+                                var $parent = $possibleSidebar.parent();
+                                $parent.addClass('sidebar-parent-flex');
+                                $possibleSidebar.addClass('sidebar-moved-to-top');
+                                $parent.prepend($possibleSidebar);
+                                return false; // Break after first match
+                            }
+                        });
+                    }
+                } else {
+                    // Desktop - restore original position if moved
+                    $('.sidebar-moved-to-top').each(function() {
+                        var $sidebar = $(this);
+                        var $parent = $sidebar.parent();
+
+                        // Remove mobile classes
+                        $sidebar.removeClass('sidebar-moved-to-top');
+                        $parent.removeClass('sidebar-parent-flex');
+
+                        // Move back to original position (after main content)
+                        var $mainContent = $parent.find('#main, .main, #content, .content, #primary, .primary, main, article').first();
+                        if ($mainContent.length > 0) {
+                            $mainContent.after($sidebar);
+                        }
+                    });
+                }
+            }
+
+            // Execute on page load
+            moveSidebarToTop();
+
+            // Re-execute after AJAX calls (for dynamic content)
+            $(document).ajaxComplete(function() {
+                setTimeout(moveSidebarToTop, 100);
+            });
+
+            // Re-execute after window resize (for responsive themes)
+            $(window).on('resize', function() {
+                setTimeout(moveSidebarToTop, 100);
+            });
+        });
+    </script>
+<?php
+}
+if (!isset($dapfforwc_advance_settings["sidebar_on_top"]) || (isset($dapfforwc_advance_settings["sidebar_on_top"])  && $dapfforwc_advance_settings["sidebar_on_top"] === 'on')) {
+    add_action('wp_head', 'dapfforwc_sidebar_to_top_inline_scripts');
+}
