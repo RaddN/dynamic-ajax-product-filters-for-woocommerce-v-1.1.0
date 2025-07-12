@@ -157,7 +157,7 @@ function dapfforwc_settings_init()
 
     add_settings_field('remove_outofStock', __('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('allow_data_share', __('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
-    add_settings_field('sidebar_on_top', __('Sidebar Top', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('sidebar_on_top', __('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
 

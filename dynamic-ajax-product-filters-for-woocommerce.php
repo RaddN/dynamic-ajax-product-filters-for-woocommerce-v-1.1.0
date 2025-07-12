@@ -1167,3 +1167,161 @@ function dapfforwc_sidebar_to_top_inline_scripts()
 if (!isset($dapfforwc_advance_settings["sidebar_on_top"]) || (isset($dapfforwc_advance_settings["sidebar_on_top"])  && $dapfforwc_advance_settings["sidebar_on_top"] === 'on')) {
     add_action('wp_head', 'dapfforwc_sidebar_to_top_inline_scripts');
 }
+
+
+
+
+
+
+
+/**
+ * Plugincy Widget Class
+ */
+class dapfforwc_Widget extends WP_Widget {
+    
+    /**
+     * Constructor
+     */
+    public function __construct() {
+        parent::__construct(
+            'plugincy_widget',
+            __('Plugincy Widget', 'plugincy'),
+            array(
+                'description' => __('Display content after WooCommerce archive titles', 'plugincy'),
+                'customize_selective_refresh' => true,
+            )
+        );
+    }
+    
+    /**
+     * Front-end display of widget
+     */
+    public function widget($args, $instance) {
+        // Only display on WooCommerce archive pages
+        if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
+            return;
+        }
+        
+        $title = !empty($instance['title']) ? $instance['title'] : '';
+        $content = !empty($instance['content']) ? $instance['content'] : '[plugincy_filters_selected]';
+        
+        echo $args['before_widget'];
+        
+        if (!empty($title)) {
+            echo $args['before_title'] . apply_filters('widget_title', $title) . $args['after_title'];
+        }
+        
+        // Process shortcodes and display content
+        echo '<div class="plugincy-widget-content">';
+        echo do_shortcode(wpautop($content));
+        echo '</div>';
+        
+        echo $args['after_widget'];
+    }
+    
+    /**
+     * Back-end widget form
+     */
+    public function form($instance) {
+        $title = !empty($instance['title']) ? $instance['title'] : '';
+        $content = !empty($instance['content']) ? $instance['content'] : '[plugincy_filters_selected]';
+        ?>
+        <p>
+            <label for="<?php echo $this->get_field_id('title'); ?>"><?php _e('Title:', 'plugincy'); ?></label>
+            <input class="widefat" id="<?php echo $this->get_field_id('title'); ?>" name="<?php echo $this->get_field_name('title'); ?>" type="text" value="<?php echo esc_attr($title); ?>" />
+        </p>
+        <p>
+            <label for="<?php echo $this->get_field_id('content'); ?>"><?php _e('Content:', 'plugincy'); ?></label>
+            <textarea class="widefat" rows="8" id="<?php echo $this->get_field_id('content'); ?>" name="<?php echo $this->get_field_name('content'); ?>"><?php echo esc_textarea($content); ?></textarea>
+            <small><?php _e('You can use HTML and shortcodes. Default: [plugincy_filters_selected]', 'plugincy'); ?></small>
+        </p>
+        <?php
+    }
+    
+    /**
+     * Sanitize widget form values as they are saved
+     */
+    public function update($new_instance, $old_instance) {
+        $instance = array();
+        $instance['title'] = (!empty($new_instance['title'])) ? sanitize_text_field($new_instance['title']) : '';
+        $instance['content'] = (!empty($new_instance['content'])) ? wp_kses_post($new_instance['content']) : '[plugincy_filters_selected]';
+        
+        return $instance;
+    }
+}
+
+/**
+ * Register the widget
+ */
+function dapfforwc_register_widget() {
+    register_widget('dapfforwc_Widget');
+}
+add_action('widgets_init', 'dapfforwc_register_widget');
+
+/**
+ * Create widget area for WooCommerce archives
+ */
+function dapfforwc_register_sidebar() {
+    register_sidebar(array(
+        'name' => __('WooCommerce Archive Content', 'plugincy'),
+        'id' => 'wc-archive-content',
+        'description' => __('Content displayed after WooCommerce archive titles and before products', 'plugincy'),
+        'before_widget' => '<div id="%1$s" class="widget %2$s plugincy-archive-widget">',
+        'after_widget' => '</div>',
+        'before_title' => '<h3 class="widget-title">',
+        'after_title' => '</h3>',
+    ));
+}
+add_action('widgets_init', 'dapfforwc_register_sidebar');
+
+/**
+ * Display widget content after archive title and before products
+ */
+function dapfforwc_display_archive_content() {
+    // Only on WooCommerce archive pages
+    if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
+        return;
+    }
+    
+    if (is_active_sidebar('wc-archive-content')) {
+        echo '<div class="plugincy-archive-content-wrapper">';
+        dynamic_sidebar('wc-archive-content');
+        echo '</div>';
+    }
+}
+
+/**
+ * Hook into WooCommerce template to display content
+ */
+function dapfforwc_hook_archive_content() {
+    // Remove default WooCommerce hooks temporarily to insert our content
+    remove_action('woocommerce_archive_description', 'woocommerce_taxonomy_archive_description', 10);
+    remove_action('woocommerce_archive_description', 'woocommerce_product_archive_description', 10);
+    
+    // Add our custom content
+    add_action('woocommerce_archive_description', 'dapfforwc_display_archive_content', 15);
+    
+    // Re-add the default WooCommerce hooks after our content
+    add_action('woocommerce_archive_description', 'woocommerce_taxonomy_archive_description', 20);
+    add_action('woocommerce_archive_description', 'woocommerce_product_archive_description', 20);
+}
+add_action('init', 'dapfforwc_hook_archive_content');
+
+/**
+ * Plugin activation hook
+ */
+function dapfforwc_activate() {
+    // Flush rewrite rules
+    flush_rewrite_rules();
+}
+register_activation_hook(__FILE__, 'dapfforwc_activate');
+
+/**
+ * Plugin deactivation hook
+ */
+function dapfforwc_deactivate() {
+    // Clean up if needed
+    flush_rewrite_rules();
+}
+register_deactivation_hook(__FILE__, 'dapfforwc_deactivate');
+?>
