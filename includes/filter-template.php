@@ -36,6 +36,8 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_attributes = $all_data['attributes'] ?? [];
     $shortcode = $dapfforwc_advance_settings["product_shortcode"] ?? 'products'; // Shortcode to search for
     $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
+    $is_all_cata = false;
+    $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
     foreach ($attributes_list as $attributes) {
         // Ensure that the "product-category", 'attribute', and 'terms' keys exist
         $arrayCata = isset($attributes["category"]) ? array_map('trim', explode(",", $attributes["category"])) : [];
@@ -63,6 +65,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
         if (empty($filters)) {
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
+            $is_all_cata = true;
         }
 
 
@@ -73,10 +76,35 @@ function dapfforwc_product_filter_shortcode($atts)
             'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
         ];
     }
-    if (is_shop()) {
+
+    // Validate and sanitize host
+    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+
+    // Validate and sanitize request URI
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+
+    // Build the sanitized URL
+    if (!empty($host) && !empty($request_uri)) {
+        $url_page = esc_url("http://{$host}{$request_uri}");
+    } else {
+        $url_page = home_url(); // Fallback to homepage if values are missing
+    }
+
+    // Parse the URL
+    $parsed_url = wp_parse_url($url_page);
+    // Parse the query string into an associative array
+    if (isset($parsed_url['query'])) {
+        parse_str($parsed_url['query'], $query_params);
+    }
+
+    // Get the value of 'filters'
+    $filters = $query_params['filters'] ?? null;
+
+    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', $_GET['filters']) === [""]) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
+        $is_all_cata = true;
     }
 
     if (is_product_category()) {
@@ -144,28 +172,6 @@ function dapfforwc_product_filter_shortcode($atts)
     update_option('dapfforwc_options', $dapfforwc_options);
     $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
 
-    // Validate and sanitize host
-    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-
-    // Validate and sanitize request URI
-    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
-
-    // Build the sanitized URL
-    if (!empty($host) && !empty($request_uri)) {
-        $url_page = esc_url("http://{$host}{$request_uri}");
-    } else {
-        $url_page = home_url(); // Fallback to homepage if values are missing
-    }
-
-    // Parse the URL
-    $parsed_url = wp_parse_url($url_page);
-    // Parse the query string into an associative array
-    if (isset($parsed_url['query'])) {
-        parse_str($parsed_url['query'], $query_params);
-    }
-
-    // Get the value of 'filters'
-    $filters = $query_params['filters'] ?? null;
     $default_filter = array_merge(
         $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
         $parsed_filters,
@@ -631,7 +637,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
             echo '<div class="default_values" style="display:none;">';
-            if (!empty($all_data_objects) && is_array($all_data_objects)) {
+            if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on'))) {
                 foreach ($all_data_objects as $key => $value) {
                     if (empty($value)) {
                         continue;
@@ -650,7 +656,7 @@ function dapfforwc_product_filter_shortcode($atts)
             }
             echo '</div>';
             wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
-            echo dapfforwc_filter_form($updated_filters, $all_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
+            echo dapfforwc_filter_form($updated_filters, isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' ? $all_data_objects : [], $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
             echo $formOutPut;
             echo '</form>';
             if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
@@ -715,13 +721,11 @@ function dapfforwc_product_filter_shortcode($atts)
                                 currentItems.style.setProperty('display', 'none', 'important'); // Hide items
                             } else {
                                 hideAllItems(); // Hide all first                                
-                                if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border')  || currentItems.classList.contains('button_check')) {
+                                if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border') || currentItems.classList.contains('button_check')) {
                                     currentItems.style.setProperty('display', 'grid', 'important');
-                                }
-                                else if(currentItems.classList.contains('color') || currentItems.classList.contains('color_no_border')  || currentItems.classList.contains('color_circle')){
+                                } else if (currentItems.classList.contains('color') || currentItems.classList.contains('color_no_border') || currentItems.classList.contains('color_circle')) {
                                     currentItems.style.setProperty('display', 'flex', 'important');
-                                }
-                                else {
+                                } else {
                                     currentItems.style.setProperty('display', 'block', 'important');
                                 }
                             }

@@ -12,7 +12,7 @@ function dapfforwc_settings_init()
         'show_rating' => "on",
         'show_search' => "on",
         'use_url_filter' => 'query_string',
-        'update_filter_options' => 0,
+        'update_filter_options' => "on",
         'show_loader' => "on",
         'pages' => [],
         'loader_html' => '<div id="loader" style="display:none;"></div>',
@@ -113,6 +113,7 @@ function dapfforwc_settings_init()
         'remove_outofStock' => 0,
         'allow_data_share' => "on",
         'sidebar_on_top' => "on",
+        'default_value_selected' => 0,
     ];
     update_option('dapfforwc_advance_options', $Advance_options);
     register_setting(
@@ -156,8 +157,9 @@ function dapfforwc_settings_init()
     );
 
     add_settings_field('remove_outofStock', __('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
-    add_settings_field('allow_data_share', __('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
-    add_settings_field('sidebar_on_top', __('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('allow_data_share', __('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('sidebar_on_top', __('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('default_value_selected', __('Make Default Options Selected', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_default_value_selected_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
 
