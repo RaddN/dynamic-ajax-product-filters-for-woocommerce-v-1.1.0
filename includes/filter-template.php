@@ -38,6 +38,29 @@ function dapfforwc_product_filter_shortcode($atts)
     $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
     $is_all_cata = false;
     $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+    // Validate and sanitize host
+    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
+
+    // Validate and sanitize request URI
+    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
+
+    // Build the sanitized URL
+    if (!empty($host) && !empty($request_uri)) {
+        $url_page = esc_url("http://{$host}{$request_uri}");
+    } else {
+        $url_page = home_url(); // Fallback to homepage if values are missing
+    }
+
+    // Parse the URL
+    $parsed_url = wp_parse_url($url_page);
+    // Parse the query string into an associative array
+    if (isset($parsed_url['query'])) {
+        parse_str($parsed_url['query'], $query_params);
+    }
+
+    // Get the value of 'filters'
+    $filters = $query_params['filters'] ?? null;
+    
     foreach ($attributes_list as $attributes) {
         // Ensure that the "product-category", 'attribute', and 'terms' keys exist
         $arrayCata = isset($attributes["category"]) ? array_map('trim', explode(",", $attributes["category"])) : [];
@@ -63,11 +86,10 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
-        if (empty($filters)) {
+        if (empty($filters) && empty($parsed_filters) && explode(',', $_GET['filters']) === [""]) {
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
             $is_all_cata = true;
         }
-
 
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
             'per_page'        => $attributes['limit'] ?? $attributes['per_page'] ?? null,
@@ -76,29 +98,6 @@ function dapfforwc_product_filter_shortcode($atts)
             'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
         ];
     }
-
-    // Validate and sanitize host
-    $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
-
-    // Validate and sanitize request URI
-    $request_uri = isset($_SERVER['REQUEST_URI']) ? sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])) : '';
-
-    // Build the sanitized URL
-    if (!empty($host) && !empty($request_uri)) {
-        $url_page = esc_url("http://{$host}{$request_uri}");
-    } else {
-        $url_page = home_url(); // Fallback to homepage if values are missing
-    }
-
-    // Parse the URL
-    $parsed_url = wp_parse_url($url_page);
-    // Parse the query string into an associative array
-    if (isset($parsed_url['query'])) {
-        parse_str($parsed_url['query'], $query_params);
-    }
-
-    // Get the value of 'filters'
-    $filters = $query_params['filters'] ?? null;
 
     if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', $_GET['filters']) === [""]) {
         $all_cata_slugs = array_column($all_cata, 'slug');
