@@ -217,9 +217,10 @@ function dapfforwc_settings_init()
         'dapfforwc-seo-permalinks'
     );
 
-    // add Enable SEO option
-    add_settings_field('enable_seo', __('Enable SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_enable_seo_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
-
+    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+        // add Enable SEO option
+        add_settings_field('enable_seo', __('Enable SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_enable_seo_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
+    }
     add_settings_field('use_anchor', __('Make filter link indexable for best SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_anchor_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
     if ($dapfforwc_options["use_url_filter"] !== "ajax") {
         // Add the "SEO Title" field
@@ -269,10 +270,10 @@ add_action('admin_init', 'dapfforwc_settings_init');
 
 function dapfforwc_sanitize_options($input)
 {
-    if(isset($input["product_selector"]) && !isset($input["allow_data_share"])){
+    if (isset($input["product_selector"]) && !isset($input["allow_data_share"])) {
         $input["allow_data_share"] = "off";
     }
-    if(isset($input["product_selector"]) && !isset($input["sidebar_on_top"])){
+    if (isset($input["product_selector"]) && !isset($input["sidebar_on_top"])) {
         $input["sidebar_on_top"] = "off";
     }
     // If input is not an array, make it one

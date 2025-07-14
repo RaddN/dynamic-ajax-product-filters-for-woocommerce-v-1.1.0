@@ -86,7 +86,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
-        if (empty($filters) && empty($parsed_filters) && explode(',', $_GET['filters']) === [""]) {
+        if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
             $is_all_cata = true;
         }
@@ -99,7 +99,7 @@ function dapfforwc_product_filter_shortcode($atts)
         ];
     }
 
-    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', $_GET['filters']) === [""]) {
+    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
@@ -788,11 +788,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
             break;
 
-        case 'square_check':
-            $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square-check" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span>' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span></label>';
-            break;
-
         case 'square':
+        case 'square_check':
             $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span>' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span></label>';
             break;
 
@@ -839,21 +836,39 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" min="0" step="1" placeholder="Min" value="' . $min_price . '" style="position: relative; height: max-content; top: unset; pointer-events: all;">
+        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" min="0" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
         <label for="max-price">Max Price:</label>
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="position: relative; height: max-content; top: unset; pointer-events: all;"></div>';
+        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
             $output .= '<div class="price-input">
         <div class="field">
           <span>Min</span>
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" value="' . $min_price . '">
+          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
           <span>Max</span>
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" class="input-max" value="' . $max_price . '">
+          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+        </div>
+      </div>
+      <div class="slider">
+        <div class="progress"></div>
+      </div>
+      <div class="range-input">
+        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
+        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+      </div>';
+            break;
+        case 'slider2':
+            $output .= '<div class="price-input plugincy-align-center">
+        <div class="field">
+          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+        </div>
+        <div class="separator">-</div>
+        <div class="field">
+          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="slider">
@@ -867,11 +882,11 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'price':
             $output .= '<div class="price-input" style="visibility: hidden; margin: 0;">
         <div class="field">
-            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" value="' . $min_price . '">
+            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" class="input-max" value="' . $max_price . '">
+            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
         </div>
         <div class="slider">
@@ -895,7 +910,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
                 $star = '<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 576 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path></svg>';
                 $output .= '<label>';
                 $output .= '<input ' . ($disable_unselected && !in_array($i, $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="' . esc_attr($i) . '" ' . (in_array($i, $checked) ? ' checked' : '') . '>';
-                $output .= '<span class="stars" style="display:flex;flex-direction: row;">';
+                $output .= '<span class="plugincy-stars" style="display:flex;flex-direction: row;">';
                 for ($j = 1; $j <= $i; $j++) {
                     $output .= $star;
                 }
@@ -907,7 +922,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $star = '<svg xmlns="https://www.w3.org/2000/svg" viewBox="0 0 576 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M381.2 150.3L524.9 171.5C536.8 173.2 546.8 181.6 550.6 193.1C554.4 204.7 551.3 217.3 542.7 225.9L438.5 328.1L463.1 474.7C465.1 486.7 460.2 498.9 450.2 506C440.3 513.1 427.2 514 416.5 508.3L288.1 439.8L159.8 508.3C149 514 135.9 513.1 126 506C116.1 498.9 111.1 486.7 113.2 474.7L137.8 328.1L33.58 225.9C24.97 217.3 21.91 204.7 25.69 193.1C29.46 181.6 39.43 173.2 51.42 171.5L195 150.3L259.4 17.97C264.7 6.954 275.9-.0391 288.1-.0391C300.4-.0391 311.6 6.954 316.9 17.97L381.2 150.3z"></path></svg>';
             for ($i = 5; $i >= 1; $i--) {
                 $output .= '<input ' . ($disable_unselected && !in_array($i, $checked) ? "disabled" : "") . ' type="radio" id="star' . $i . '" name="rating[]" value="' . esc_attr($i) . '" ' . (in_array($i, $checked) ? ' checked' : '') . ' />';
-                $output .= '<label class="stars" for="star' . $i . '" title="' . esc_html($i) . ' stars" style="display:flex;flex-direction: row;">' . $star . '</label>';
+                $output .= '<label class="plugincy-stars" for="star' . $i . '" title="' . esc_html($i) . ($i === 1 ? ' star' : ' stars') . '" style="display:flex;flex-direction: row;">' . $star . '</label>';
             }
 
             break;

@@ -397,10 +397,10 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter span.reset-value:hover {' . $reset_button_hover_css . '}';
             }
             if ($rating_hover_css) {
-                $output .= 'form#product-filter .stars:hover svg,.dynamic-rating input:checked ~ label svg, .dynamic-rating:not(:checked) label:hover svg, .dynamic-rating:not(:checked) label:hover ~ label svg {' . $rating_hover_css . '}';
+                $output .= 'form#product-filter .plugincy-stars:hover svg,.dynamic-rating input:checked ~ label svg, .dynamic-rating:not(:checked) label:hover svg, .dynamic-rating:not(:checked) label:hover ~ label svg {' . $rating_hover_css . '}';
             }
             if ($rating_active_css) {
-                $output .= 'form#product-filter input:checked + .stars svg,   .dynamic-rating  input:checked + label:hover svg,
+                $output .= 'form#product-filter input:checked + .plugincy-stars svg,   .dynamic-rating  input:checked + label:hover svg,
   .dynamic-rating  input:checked ~ label:hover svg,
   .dynamic-rating  label:hover ~ input:checked ~ label svg,
   .dynamic-rating  input:checked ~ label:hover ~ label svg {' . $rating_active_css . '}';
@@ -469,11 +469,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             // Fetch WooCommerce attributes
             $attributes = wc_get_attribute_taxonomies();
             $options = [
-                "product-category" => __("product-category", 'dynamic-ajax-product-filters-for-woocommerce'),
-                'tag' => __('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
-                'price-range' => __('Price', 'dynamic-ajax-product-filters-for-woocommerce'),
-                'rating' => __('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'search_text' => __('Search Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'rating' => __('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'price-range' => __('Price', 'dynamic-ajax-product-filters-for-woocommerce'),
+                "product-category" => __("product-category", 'dynamic-ajax-product-filters-for-woocommerce'),
+                'tag' => __('Tag', 'dynamic-ajax-product-filters-for-woocommerce'), 
             ];
 
             // Add attributes to options
@@ -484,15 +484,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             // Default settings
             $default = [
                 [
-                    'element_type' => "product-category",
-                    'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => 'tag',
-                    'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => 'price-range',
+                    'element_type' => 'search_text',
                     'element_visible' => 'yes',
                 ],
                 [
@@ -500,9 +492,17 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'element_visible' => 'yes',
                 ],
                 [
-                    'element_type' => 'search_text',
+                    'element_type' => 'price-range',
                     'element_visible' => 'yes',
                 ],
+                [
+                    'element_type' => "product-category",
+                    'element_visible' => 'yes',
+                ],
+                [
+                    'element_type' => 'tag',
+                    'element_visible' => 'yes',
+                ], 
             ];
 
             // Add attributes to default
@@ -1249,7 +1249,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => __('Active Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .dynamic-rating  input:checked + label:hover,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover,{{WRAPPER}} .dynamic-rating  label:hover ~ input:checked ~ label,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover ~ label, .items.rating input:checked  + .stars svg' => 'fill: {{VALUE}};',
+                        '{{WRAPPER}} .dynamic-rating  input:checked + label:hover,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover,{{WRAPPER}} .dynamic-rating  label:hover ~ input:checked ~ label,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover ~ label, .items.rating input:checked  + .plugincy-stars svg' => 'fill: {{VALUE}};',
                     ],
                 ]
             );
@@ -1260,7 +1260,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => __('Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .dynamic-rating input:checked ~ label,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover ~ label, .items.rating input:hover  + .stars svg' => 'fill: {{VALUE}};',
+                        '{{WRAPPER}} .dynamic-rating input:checked ~ label,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover ~ label, .items.rating input:hover  + .plugincy-stars svg' => 'fill: {{VALUE}};',
                     ],
                 ]
             );

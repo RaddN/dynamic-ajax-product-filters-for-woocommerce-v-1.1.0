@@ -341,7 +341,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 }
 
                 $fromobjectdefaultvalue = isset($default_filter["attribute[$attribute_name][]"]) ? $default_filter["attribute[$attribute_name][]"] : (isset($default_filter["attributes"][$attribute_name]) ? $default_filter["attributes"][$attribute_name] : []);
-                $selected_terms = !empty($default_filter) && (isset($default_filter["product-category[]"]) || isset($default_filter["product-category"])) ? $fromobjectdefaultvalue : (!empty($default_filter) ? $default_filter : []);
+                $selected_terms = !empty($default_filter) && (isset($default_filter["attributes"])) ? $fromobjectdefaultvalue : (!empty($default_filter) ? $default_filter : []);
                 foreach ($terms as $term) {
                     $name = is_object($term) ? esc_html($term->name) : esc_html($term['name']);
                     $slug = is_object($term) ? esc_attr($term->slug) : esc_attr($term['slug']);

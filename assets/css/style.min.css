@@ -1,11 +1,23 @@
 form#product-filter * {
   box-sizing: border-box !important;
 }
-#product-filter input,#product-filter select,#product-filter textarea {
+form#product-filter label,form#product-filter legend {
+    color: #111827;
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: 20px;
+}
+form#product-filter .items.color_value label {
+    line-height: 25px !important;
+}
+#product-filter input,
+#product-filter select,
+#product-filter textarea {
   margin: 0;
 }
 #product-filter :focus:focus-visible {
-    outline: none !important;
+  outline: none !important;
 }
 #product-filter .items.select,
 #product-filter .items.select2,
@@ -21,9 +33,6 @@ form#product-filter * {
   font-family: "Open Sans", sans-serif !important;
   color: #727272;
   font-weight: 400;
-}
-#product-filter .filter-group label:last-child {
-  margin-bottom: 0;
 }
 #product-filter .filter-group select {
   width: 100% !important;
@@ -103,7 +112,7 @@ div#roverlay {
   background: rgba(255, 255, 255, 0.7);
   box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
   /* overflow: hidden; */
-  padding: 5px 10px 0;
+  padding: 5px 10px 1px;
   border-radius: 8px;
 }
 #product-filter .filter-group .items {
@@ -118,6 +127,7 @@ div#roverlay {
 #product-filter .filter-group .items > label {
   text-transform: capitalize;
   cursor: pointer;
+  font-size: 14px;
 }
 #product-filter .collaps,
 #product-filter .items label,
@@ -148,18 +158,18 @@ form.rfilterbuttons * {
 #product-filter .items.color_no_border input,
 #product-filter .items.image input,
 #product-filter .items.image_no_border input {
-  position: absolute;
+  position: absolute !important;
   top: 0;
-  display: none;
+  display: none !important;
 }
 #product-filter .items.color_circle input {
-  position: absolute;
+  position: absolute !important;
   top: unset;
   right: unset;
 }
 #product-filter .items.color_value input {
-  position: absolute;
-  display: none;
+  position: absolute !important;
+  display: none !important;
 }
 #product-filter .items.color_circle .color-box,
 #product-filter .items.color_value .color-box {
@@ -183,8 +193,8 @@ form.rfilterbuttons * {
 #product-filter .filter-radio,
 #product-filter .filter-radio-check,
 #product-filter .filter-square {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   aspect-ratio: 1;
   align-items: center;
   display: flex;
@@ -205,7 +215,7 @@ form.rfilterbuttons * {
 #product-filter .items.color_value input:checked,
 #product-filter .items.image input:checked,
 #product-filter .items.image_no_border input:checked {
-  display: block;
+  display: block !important;
 }
 #product-filter .items.image img,
 #product-filter .items.image_no_border img {
@@ -230,7 +240,7 @@ form.rfilterbuttons * {
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  border: 2px solid #aaa;
+  border: 1px solid #767676;
   border-radius: 50%;
   justify-content: center;
 }
@@ -238,8 +248,9 @@ form.rfilterbuttons * {
   appearance: none !important;
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
-  border: 2px solid #aaa;
+  border: 1px solid #767676;
   justify-content: center;
+  border-radius: 3px;
 }
 #product-filter .filter-radio-check:checked,
 #product-filter .filter-radio:checked,
@@ -352,6 +363,7 @@ form.rfilterbuttons * {
   position: absolute;
   border-radius: 5px;
   background: #432fb8;
+  overflow: visible;
 }
 #product-filter .range-input input {
   position: absolute;
@@ -444,24 +456,25 @@ form.rfilterbuttons * {
   transform: rotate(0);
 }
 
-
-#product-filter .items,#product-filter span.select2.select2-container {
-    display: block;
-    width: 100% !important;
+#product-filter .items,
+#product-filter span.select2.select2-container {
+  display: block;
+  width: 100% !important;
 }
 #product-filter .search-container {
   display: flex !important;
   align-items: center;
 }
 #product-filter .search-field {
-  padding: 9px;
+  padding: 0 9px;
   border: 1px solid #ccc;
   border-radius: 4px 0 0 4px;
-  width: 65%;
+  width: 75%;
   height: 40px;
+  font-size: 12px;
 }
 #product-filter .plugincy-search-submit {
-  padding: 14px 6px;
+  padding: 0 6px;
   border: none;
   background-color: #0073aa;
   color: #fff;
@@ -469,6 +482,9 @@ form.rfilterbuttons * {
   cursor: pointer;
   flex-grow: 1;
   font-size: 12px;
+  height: 40px;
+  width: 80px;
+  max-width: 80px;
 }
 #product-filter span.reset-value {
   color: #fff;
@@ -478,14 +494,11 @@ form.rfilterbuttons * {
   border-radius: 4px;
   font-size: 13px;
 }
-#product-filter input#plugincy-search-field {
-  width: 63%;
-}
-#product-filter span.stars svg {
+#product-filter span.plugincy-stars svg {
   width: 16px;
 }
 
-#product-filter input[name="rating[]"]:checked ~ .stars svg {
+#product-filter input[name="rating[]"]:checked ~ .plugincy-stars svg {
   fill: #feb623;
 }
 
@@ -557,12 +570,11 @@ form#product-filter .checkbox input[type="radio"] {
   -webkit-appearance: none !important;
   -moz-appearance: none !important;
   appearance: none !important;
-  width: 18px;
-  height: 18px;
-  border: 2px solid #ccc;
+  width: 14px;
+  height: 14px;
+  border: 1px solid #767676;
   border-radius: 3px; /* Square corners like checkbox */
   outline: none;
-  margin-right: 8px;
   position: relative;
   cursor: pointer;
   vertical-align: middle;
@@ -658,16 +670,27 @@ form#product-filter
   justify-content: center;
 }
 #product-filter .items.button_check .child-categories {
-    margin: 0;
+  margin: 0;
 }
 #product-filter input[type="range"]::-webkit-slider-runnable-track {
   box-shadow: none;
 }
- 
+
 #product-filter input[type="range"]::-moz-range-track {
   box-shadow: none;
 }
 p.woocommerce-info {
-    width: 100%;
-    grid-column: 1 / -1;
+  width: 100%;
+  grid-column: 1 / -1;
+}
+.plugincy-align-center {
+  align-items: center !important;
+}
+#product-filter .filter-group.rating {
+    overflow: hidden;
+    min-height: max-content;
+}
+#product-filter input[type=checkbox] {
+    width: 14px;
+    height: 14px;
 }
