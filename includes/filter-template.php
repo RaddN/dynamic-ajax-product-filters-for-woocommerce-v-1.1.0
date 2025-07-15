@@ -13,7 +13,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $atts = shortcode_atts(array(
         'attribute' => '',
         'terms' => '',
-        "product-category" => '',
+        'category' => '',
         'tag' => '',
         'product_selector' => '',
         'pagination_selector' => '',
@@ -34,8 +34,10 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_cata = $all_data['categories'] ?? [];
     $all_tags = $all_data['tags'] ?? [];
     $all_attributes = $all_data['attributes'] ?? [];
-    $shortcode = $dapfforwc_advance_settings["product_shortcode"] ?? 'products'; // Shortcode to search for
-    $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
+    if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
+        $shortcode = $dapfforwc_advance_settings["product_shortcode"] ?? 'products'; // Shortcode to search for
+        $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
+    }
     $is_all_cata = false;
     $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
     // Validate and sanitize host
@@ -60,43 +62,54 @@ function dapfforwc_product_filter_shortcode($atts)
 
     // Get the value of 'filters'
     $filters = $query_params['filters'] ?? null;
-    
-    foreach ($attributes_list as $attributes) {
-        // Ensure that the "product-category", 'attribute', and 'terms' keys exist
-        $arrayCata = isset($attributes["category"]) ? array_map('trim', explode(",", $attributes["category"])) : [];
-        $tagValue = isset($attributes['tags']) ? array_map('trim', explode(",", $attributes['tags'])) : [];
-        $termsValue = isset($attributes['terms']) ? array_map('trim', explode(",", $attributes['terms'])) : [];
-        $attrvalue = [];
-        if (isset($attributes['attribute']) && isset($attributes['terms'])) {
-            $attribute_keys = array_map('trim', explode(",", $attributes['attribute']));
-            $terms_values = array_map('trim', explode("},{", trim($attributes['terms'], "{}")));
+    if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
+        foreach ($attributes_list as $attributes) {
+            // Ensure that the "product-category", 'attribute', and 'terms' keys exist
+            $arrayCata = isset($attributes["category"]) ? array_map('trim', explode(",", $attributes["category"])) : [];
+            $tagValue = isset($attributes['tags']) ? array_map('trim', explode(",", $attributes['tags'])) : [];
+            $termsValue = isset($attributes['terms']) ? array_map('trim', explode(",", $attributes['terms'])) : [];
+            $attrvalue = [];
+            if (isset($attributes['attribute']) && isset($attributes['terms'])) {
+                $attribute_keys = array_map('trim', explode(",", $attributes['attribute']));
+                $terms_values = array_map('trim', explode("},{", trim($attributes['terms'], "{}")));
 
-            foreach ($attribute_keys as $index => $key) {
-                if (isset($terms_values[$index])) {
-                    $attrvalue[$key] = array_map('trim', explode(",", $terms_values[$index]));
+                foreach ($attribute_keys as $index => $key) {
+                    if (isset($terms_values[$index])) {
+                        $attrvalue[$key] = array_map('trim', explode(",", $terms_values[$index]));
+                    }
                 }
+            } else {
+                $attrvalue = isset($attributes['attribute']) ? array_map('trim', explode(",", $attributes['attribute'])) : [];
             }
-        } else {
-            $attrvalue = isset($attributes['attribute']) ? array_map('trim', explode(",", $attributes['attribute'])) : [];
-        }
-        $filters = !empty($arrayCata) ? $arrayCata : (!empty($tagValue) ? $tagValue : $termsValue);
+            $filters = !empty($arrayCata) ? $arrayCata : (!empty($tagValue) ? $tagValue : $termsValue);
 
-        // Use the combined full slug as the key in default_filters
+            // Use the combined full slug as the key in default_filters
+            $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
+            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
+                $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
+                $is_all_cata = true;
+            }
+
+            $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
+                'per_page'        => $attributes['limit'] ?? $attributes['per_page'] ?? null,
+                'orderby'         => $attributes['orderby'] ?? '',
+                'order'           => $attributes['order'] ?? '',
+                'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
+            ];
+        }
+    }
+
+    if ($atts['category'] !== '' || ($atts['attribute'] !== '' && $atts['terms'] !== '') || $atts['tag'] !== '') {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
-        if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
-            $is_all_cata = true;
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = !empty($atts['category']) ? array_map('trim', explode(',', $atts['category'])) : [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = !empty($atts['tag']) ? array_map('trim', explode(',', $atts['tag'])) : [];
+        if (!empty($atts['attribute']) && !empty($atts['terms'])) {
+            $terms = array_map('trim', explode(',', $atts['terms']));
+            $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"][$atts['attribute']] = $terms;
         }
-
-        $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
-            'per_page'        => $attributes['limit'] ?? $attributes['per_page'] ?? null,
-            'orderby'         => $attributes['orderby'] ?? '',
-            'order'           => $attributes['order'] ?? '',
-            'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
-        ];
     }
 
     if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
@@ -118,6 +131,11 @@ function dapfforwc_product_filter_shortcode($atts)
         $tag_slug = $current_tag->slug;
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = [$tag_slug];
+    }
+    if(!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
+        $is_all_cata = true;
     }
     if (isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page']) && $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] === 12) {
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'];
@@ -836,65 +854,65 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" min="0" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
+        <input  type="number" id="min-price" name="min_price" min="0" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
         <label for="max-price">Max Price:</label>
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
+        <input  type="number" id="max-price" name="max_price" min="0" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
             $output .= '<div class="price-input">
         <div class="field">
           <span>Min</span>
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
           <span>Max</span>
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="slider">
         <div class="progress"></div>
       </div>
       <div class="range-input">
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
+        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
       </div>';
             break;
         case 'slider2':
             $output .= '<div class="price-input plugincy-align-center">
         <div class="field">
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-          <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="slider">
         <div class="progress"></div>
       </div>
       <div class="range-input">
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
+        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
       </div>';
             break;
         case 'price':
             $output .= '<div class="price-input" style="visibility: hidden; margin: 0;">
         <div class="field">
-            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+            <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-            <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+            <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
         </div>
         <div class="slider">
         <div class="progress progress-percentage"></div>
         </div>
         <div class="range-input">
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
-        <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
         </div>';
             break;
         case 'rating-text':

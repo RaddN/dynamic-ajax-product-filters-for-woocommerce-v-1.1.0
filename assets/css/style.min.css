@@ -694,3 +694,6 @@ p.woocommerce-info {
     width: 14px;
     height: 14px;
 }
+form#product-filter .stars {
+    display: none !important;
+}
