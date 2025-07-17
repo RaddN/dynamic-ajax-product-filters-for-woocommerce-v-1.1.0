@@ -62,6 +62,53 @@ function dapfforwc_product_filter_shortcode($atts)
 
     // Get the value of 'filters'
     $filters = $query_params['filters'] ?? null;
+
+
+    $filteroptionsfromurl = [];
+
+    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce($_GET['gm-product-filter-nonce'], 'gm-product-filter-action')) {
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        if (isset($_GET['product-category'])) {
+            $filteroptionsfromurl["product-category[]"] = array_map('sanitize_text_field', explode(",", $_GET['product-category']));
+        }
+        // check if 'tags' is set and sanitize it
+        if (isset($_GET['tags'])) {
+            $filteroptionsfromurl["tag[]"] = array_map('sanitize_text_field', explode(",", $_GET['tags']));
+        }
+        // check if 'pa_color', 'pa_size', etc. are set and sanitize them
+        // Dynamically get all attribute taxonomies from $all_attributes
+        $attribute_taxonomies = [];
+        if (!empty($all_attributes) && is_array($all_attributes)) {
+            foreach (array_keys($all_attributes) as $attr_key) {
+                $attribute_taxonomies[] = 'pa_' . $attr_key;
+            }
+        }
+        foreach ($attribute_taxonomies as $taxonomy) {
+            if (isset($_GET[$taxonomy])) {
+                // Convert 'pa_brand' to 'attribute[brand][]' style key
+                if (strpos($taxonomy, 'pa_') === 0) {
+                    $attr_name = substr($taxonomy, 3);
+                    $filteroptionsfromurl["attribute"][$attr_name] = array_map('sanitize_text_field', explode(",", $_GET[$taxonomy]));
+                }
+            }
+        }
+        // check if rating is set and sanitize it
+        if (isset($_GET['rating'])) {
+            $filteroptionsfromurl["rating[]"] = array_map('sanitize_text_field', explode(",", $_GET['rating']));
+        }
+
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['mn_price']) && isset($_GET['mx_price'])) {
+            $filteroptionsfromurl["min_price"] = sanitize_text_field($_GET['mn_price']);
+            $filteroptionsfromurl["max_price"] = sanitize_text_field($_GET['mx_price']);
+        }
+
+        // check if plugincy_search is set and sanitize it
+        if (isset($_GET['plugincy_search'])) {
+            $filteroptionsfromurl["plugincy_search"] = sanitize_text_field($_GET['plugincy_search']);
+        }
+    }
+
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         foreach ($attributes_list as $attributes) {
             // Ensure that the "product-category", 'attribute', and 'terms' keys exist
@@ -90,7 +137,9 @@ function dapfforwc_product_filter_shortcode($atts)
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
             if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
-                $is_all_cata = true;
+                if (empty($filteroptionsfromurl)) {
+                    $is_all_cata = true;
+                }
             }
 
             $dapfforwc_options['product_show_settings'][$dapfforwc_slug] = [
@@ -99,6 +148,10 @@ function dapfforwc_product_filter_shortcode($atts)
                 'order'           => $attributes['order'] ?? '',
                 'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
             ];
+
+            if (empty($filteroptionsfromurl)) {
+                $is_all_cata = true;
+            }
         }
     }
 
@@ -110,9 +163,13 @@ function dapfforwc_product_filter_shortcode($atts)
             $terms = array_map('trim', explode(',', $atts['terms']));
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"][$atts['attribute']] = $terms;
         }
+
+        if (empty($filteroptionsfromurl)) {
+            $is_all_cata = true;
+        }
     }
 
-    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
+    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
@@ -124,6 +181,9 @@ function dapfforwc_product_filter_shortcode($atts)
         $category_slug = $current_category->slug;
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = [$category_slug];
+        if (empty($filteroptionsfromurl)) {
+            $is_all_cata = true;
+        }
     }
 
     if (is_product_tag()) {
@@ -131,8 +191,11 @@ function dapfforwc_product_filter_shortcode($atts)
         $tag_slug = $current_tag->slug;
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = [$tag_slug];
+        if (empty($filteroptionsfromurl)) {
+            $is_all_cata = true;
+        }
     }
-    if(!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
+    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
@@ -189,14 +252,20 @@ function dapfforwc_product_filter_shortcode($atts)
     update_option('dapfforwc_options', $dapfforwc_options);
     $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
 
-    $default_filter = array_merge(
+    $default_filter = (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"]))) ? array_merge(
         $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
         $parsed_filters,
         explode(',', $_GET['filters'] ?? ''),
-        $request_parts
+        $request_parts,
+        $filteroptionsfromurl
+    ) :  array_merge_recursive(
+        $filteroptionsfromurl,
+        $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? []
     );
 
-    $ratings = array_values(array_filter($default_filter, 'is_numeric'));
+    $ratings = isset($default_filter["rating[]"])
+        ? array_map('intval', (array)$default_filter["rating[]"])
+        : array_map('intval', array_values(array_filter($default_filter, 'is_numeric')));
 
 
     if (!empty($atts['use_custom_template_design']) && $atts['use_custom_template_design'] === "yes") {
@@ -224,13 +293,14 @@ function dapfforwc_product_filter_shortcode($atts)
     $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
     $products_id_by_rating = [];
     if (!empty($ratings)) {
-        // Get product ids by rating
-        foreach ($ratings as $rating) {
-            $products_id_by_rating[] = array_column(array_filter($product_details, function ($product) use ($rating) {
-                return $product['rating'] == $rating;
-            }), 'ID');
-        }
-        $products_id_by_rating = array_merge(...$products_id_by_rating);
+        // Collect products that have at least the minimum rating specified
+        $min_rating = min($ratings);
+        $products_id_by_rating = array_column(
+            array_filter($product_details, function ($product) use ($min_rating) {
+                return floatval($product['rating']) >= floatval($min_rating);
+            }),
+            'ID'
+        );
     }
 
     // Create Lookup Arrays
@@ -243,6 +313,9 @@ function dapfforwc_product_filter_shortcode($atts)
         array_column($all_tags, 'products')
     );
     $all_data_objects = [];
+    $all_data_objects["plugincy_search"] = $default_filter["plugincy_search"] ?? "";
+    $all_data_objects["rating[]"] = $default_filter["rating[]"] ?? [];
+
     // Match Filters
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
         $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip(array_filter($default_filter["product-category[]"] ?? [])));
@@ -367,16 +440,47 @@ function dapfforwc_product_filter_shortcode($atts)
     } else {
         $products_ids = array_values(array_intersect($products_id_by_cata, $products_id_by_tag, $common_values));
     }
-    if (!empty($products_id_by_rating)) {
+    if (!empty($products_id_by_rating) && !empty($products_ids)) {
         $products_ids = array_values(array_intersect($products_ids, $products_id_by_rating));
+    } elseif (!empty($products_id_by_rating) && empty($products_ids)) {
+        $products_ids = $products_id_by_rating;
     }
 
     $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
     // Cache file path
     $cache_file = __DIR__ . '/min_max_prices_cache.json';
-    $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
-    // Save to cache
-    file_put_contents($cache_file, json_encode($min_max_prices, JSON_UNESCAPED_UNICODE));
+    $referer = $_SERVER['REQUEST_URI'];
+
+    // Use $referer to generate a unique cache key
+    $cache_key = md5($referer);
+    $min_max_prices_cache = [];
+
+    // Load existing cache if available
+    if (file_exists($cache_file)) {
+        $min_max_prices_cache = json_decode(file_get_contents($cache_file), true);
+        if (!is_array($min_max_prices_cache)) {
+            $min_max_prices_cache = [];
+        }
+    }
+
+    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce($_GET['gm-product-filter-nonce'], 'gm-product-filter-action')) {
+        $cache_key_url = isset($_GET["_wp_http_referer"]) ? sanitize_text_field(wp_unslash($_GET["_wp_http_referer"])) : '';
+        $cache_key = md5($cache_key_url);
+        if (isset($min_max_prices_cache[$cache_key])) {
+            $min_max_prices = $min_max_prices_cache[$cache_key];
+        } else {
+            $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+            $min_max_prices_cache[$cache_key] = $min_max_prices;
+            file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
+        }
+    } else {
+        $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+        $min_max_prices_cache[$cache_key] = $min_max_prices;
+        file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
+    }
+
+    $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : 0;
+    $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
 
 
     ob_start(); // Start output buffering
@@ -384,11 +488,12 @@ function dapfforwc_product_filter_shortcode($atts)
     <style>
         #product-filter .progress-percentage:before {
             content: "0";
+            content: "<?php echo esc_html($all_data_objects["min_price"]); ?>";
         }
 
         #product-filter .progress-percentage:after {
             content: "";
-            content: <?php echo !isset($dapfforwc_styleoptions["price"]["auto_price"]) ? '"' . $dapfforwc_styleoptions["price"]["max_price"] . '"' : '"' . (ceil(floatval($min_max_prices['max'])) ?? 100000000000) . '"'; ?>;
+            content: "<?php echo esc_html($all_data_objects["max_price"]); ?>";
         }
 
         <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
@@ -616,10 +721,10 @@ function dapfforwc_product_filter_shortcode($atts)
             <?php
             $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
             // Get min price from URL if present, using the correct prefix from SEO permalinks options
-            $min_price = 0;
+            $min_price = $all_data_objects["min_price"];
 
             // Get max price from URL if present, using the correct prefix from SEO permalinks options
-            $max_price = !isset($dapfforwc_styleoptions["price"]["auto_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : (ceil(floatval($min_max_prices['max'])) ?? 100000000000);
+            $max_price = $all_data_objects["max_price"];
 
             // Check for price filter in URL
             $price_prefix = 'price';
@@ -654,9 +759,9 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
             echo '<div class="default_values" style="display:none;">';
-            if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on'))) {
+            if (!empty($all_data_objects) && is_array($all_data_objects)) {
                 foreach ($all_data_objects as $key => $value) {
-                    if (empty($value)) {
+                    if (empty($value) || $key === "plugincy_search" || $key === "min_price" || $key === "max_price") {
                         continue;
                     }
                     if ($key === "tag[]") {
@@ -673,7 +778,13 @@ function dapfforwc_product_filter_shortcode($atts)
             }
             echo '</div>';
             wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
-            echo dapfforwc_filter_form($updated_filters, isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' ? $all_data_objects : [], $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
+            $default_data_objects = [
+                "min_price" => $min_price,
+                "max_price" => $max_price,
+                "plugincy_search" => isset($all_data_objects["plugincy_search"]) ? $all_data_objects["plugincy_search"] : "",
+                "rating[]" => isset($all_data_objects["rating[]"]) ? $all_data_objects["rating[]"] : [],
+            ];
+            echo dapfforwc_filter_form($updated_filters, !$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
             echo $formOutPut;
             echo '</form>';
             if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
@@ -854,21 +965,21 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
-        <input  type="number" id="min-price" name="min_price" min="0" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
+        <input  type="number" id="min-price" name="mn_price" min="0" max="' . $default_max_price . '" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
         <label for="max-price">Max Price:</label>
-        <input  type="number" id="max-price" name="max_price" min="0" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
+        <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
             $output .= '<div class="price-input">
         <div class="field">
           <span>Min</span>
-          <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
           <span>Max</span>
-          <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="slider">
@@ -882,11 +993,11 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'slider2':
             $output .= '<div class="price-input plugincy-align-center">
         <div class="field">
-          <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-          <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="slider">
@@ -900,11 +1011,11 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'price':
             $output .= '<div class="price-input" style="visibility: hidden; margin: 0;">
         <div class="field">
-            <input  type="number" id="min-price" name="min_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+            <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-            <input  type="number" id="max-price" name="max_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+            <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
         </div>
         <div class="slider">

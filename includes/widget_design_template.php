@@ -10,15 +10,6 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings;
     $dapfforwc_product_count = [];
 
-    $cache_file = __DIR__ . '/min_max_prices_cache.json';
-    if (empty($min_max_prices)) {
-        if (file_exists($cache_file)) {
-            $min_max_prices = json_decode(file_get_contents($cache_file), true);
-        } else {
-            $min_max_prices = [];
-        }
-    }
-
     // Extract category counts
     $dapfforwc_product_count['categories'] = [];
     if (isset($updated_filters['categories']) && is_array($updated_filters['categories'])) {
@@ -77,7 +68,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     $formOutPut .= '<div id="search_text" class="filter-group search_text" style="display: ' . (!empty($dapfforwc_options['show_search']) ? 'block' : 'none') . ';"><div class="title plugincy_collapsable_' . esc_attr($minimizable) . '">Search Product ' . ($minimizable === "arrow" || $minimizable === "minimize_initial"  ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items search-container" style="flex-direction: row !important;">';
-    $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="search" id="plugincy-search-field" class="search-field" placeholder="Search products&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["search"] ?? '') . '" name="s" />';
+    $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="search" id="plugincy-search-field" class="search-field" placeholder="Search products&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["plugincy_search"] ?? '') . '" name="plugincy_search" />';
     $formOutPut .= ' <button class="plugincy-search-submit">Search</button>';
     $formOutPut .= '</div>';
     $formOutPut .= '</div>';
@@ -116,7 +107,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
  <?php $formOutPut .= '<div class="title plugincy_collapsable_' . esc_attr($minimizable_rating) . '"><div> Rating <span class="reset-value">reset</span></div>' . ($minimizable_rating === "arrow" || $minimizable_rating === "minimize_initial"  ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items rating ' . esc_attr($sub_option_rating) . '"><div> '; ?>
         <?php if ($sub_option_rating) {
-            $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = isset($default_filter['rating[]']) ? $default_filter['rating[]'] : (isset($default_filter['rating']) ? $default_filter['rating'] : $default_filter), $dapfforwc_styleoptions, "", "", "", "", 0, null, [], $disable_unselected);
+            $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = isset($default_filter['rating[]']) ? $default_filter['rating[]'] : [], $dapfforwc_styleoptions, "", "", "", "", 0, null, [], $disable_unselected);
         } else {
             $formOutPut .= "Choose style from product filters->form style -> rating";
         }
@@ -158,7 +149,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $hierarchical = '';
             }
         }
-        $selected_categories = !empty($default_filter) && isset($default_filter["product-category[]"]) ? $default_filter["product-category[]"] : (!empty($default_filter) && isset($default_filter["product-category"]) ? $default_filter["product-category"] : (!empty($default_filter) ? $default_filter : [])); //explode(',', $atts["product-category"])
+        $selected_categories = !empty($default_filter) && isset($default_filter["product-category[]"]) ? $default_filter["product-category[]"] : [];
 
         // Fetch categories
 
@@ -340,8 +331,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                     $formOutPut .= '<div class="items ' . esc_attr($sub_optionattr) . '">';
                 }
 
-                $fromobjectdefaultvalue = isset($default_filter["attribute[$attribute_name][]"]) ? $default_filter["attribute[$attribute_name][]"] : (isset($default_filter["attributes"][$attribute_name]) ? $default_filter["attributes"][$attribute_name] : []);
-                $selected_terms = !empty($default_filter) && (isset($default_filter["attributes"])) ? $fromobjectdefaultvalue : (!empty($default_filter) ? $default_filter : []);
+                $selected_terms = isset($default_filter["attribute[$attribute_name][]"]) ? $default_filter["attribute[$attribute_name][]"] : [];
                 foreach ($terms as $term) {
                     $name = is_object($term) ? esc_html($term->name) : esc_html($term['name']);
                     $slug = is_object($term) ? esc_attr($term->slug) : esc_attr($term['slug']);
@@ -364,7 +354,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // display tags
     $tags = isset($updated_filters['tags']) && is_array($updated_filters['tags']) ? $updated_filters["tags"] : [];
     if (!empty($tags)) {
-        $selected_tags = !empty($default_filter) && isset($default_filter["tag[]"]) ? $default_filter["tag[]"] : (!empty($default_filter) && isset($default_filter["tag"]) ? $default_filter["tag"] : (!empty($default_filter) ? $default_filter : [])); //explode(',', $atts['tag'])
+        $selected_tags = !empty($default_filter) && isset($default_filter["tag[]"]) ? $default_filter["tag[]"] : [];
         $sub_option = $dapfforwc_styleoptions["tag"]["sub_option"] ?? ""; // Fetch the sub_option value
         $minimizable = $dapfforwc_styleoptions["tag"]["minimize"]["type"] ?? "arrow";
         $show_count = $dapfforwc_styleoptions["tag"]["show_product_count"] ?? "";
