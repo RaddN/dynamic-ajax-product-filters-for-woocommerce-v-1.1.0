@@ -928,7 +928,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.0.7",
+            "1.2.9",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
