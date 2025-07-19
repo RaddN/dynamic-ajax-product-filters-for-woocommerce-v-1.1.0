@@ -557,8 +557,8 @@ class DAPFFORWC_WC_Query_Filter_Enhanced {
         // Attribute filters
         $attributes = array();
         foreach ($_GET as $key => $value) {
-            if (strpos($key, 'pa_') === 0 && !empty($value)) {
-                $attribute_name = str_replace('pa_', '', $key);
+            if (strpos($key, 'rplugpa_') === 0 && !empty($value)) {
+                $attribute_name = str_replace('rplugpa_', '', $key);
                 $attributes[$attribute_name] = is_array($value) 
                     ? array_map('sanitize_text_field', $value)
                     : explode(',', sanitize_text_field($value));
@@ -656,7 +656,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced {
         
         // Handle attribute parameters
         foreach ($_REQUEST as $key => $value) {
-            if (strpos($key, 'pa_') === 0) {
+            if (strpos($key, 'rplugpa_') === 0) {
                 $_GET[$key] = sanitize_text_field($value);
             }
         }

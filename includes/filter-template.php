@@ -39,6 +39,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
     }
     $is_all_cata = false;
+    $make_default_selected = false;
     $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
     // Validate and sanitize host
     $host = isset($_SERVER['HTTP_HOST']) ? sanitize_text_field(wp_unslash($_SERVER['HTTP_HOST'])) : '';
@@ -75,19 +76,19 @@ function dapfforwc_product_filter_shortcode($atts)
         if (isset($_GET['tags'])) {
             $filteroptionsfromurl["tag[]"] = array_map('sanitize_text_field', explode(",", $_GET['tags']));
         }
-        // check if 'pa_color', 'pa_size', etc. are set and sanitize them
+        // check if 'rplugpa_color', 'rplugpa_size', etc. are set and sanitize them
         // Dynamically get all attribute taxonomies from $all_attributes
         $attribute_taxonomies = [];
         if (!empty($all_attributes) && is_array($all_attributes)) {
             foreach (array_keys($all_attributes) as $attr_key) {
-                $attribute_taxonomies[] = 'pa_' . $attr_key;
+                $attribute_taxonomies[] = 'rplugpa_' . $attr_key;
             }
         }
         foreach ($attribute_taxonomies as $taxonomy) {
             if (isset($_GET[$taxonomy])) {
-                // Convert 'pa_brand' to 'attribute[brand][]' style key
-                if (strpos($taxonomy, 'pa_') === 0) {
-                    $attr_name = substr($taxonomy, 3);
+                // Convert 'rplugpa_brand' to 'attribute[brand][]' style key
+                if (strpos($taxonomy, 'rplugpa_') === 0) {
+                    $attr_name = substr($taxonomy, 8); // Remove 'rplugpa_' prefix
                     $filteroptionsfromurl["attribute"][$attr_name] = array_map('sanitize_text_field', explode(",", $_GET[$taxonomy]));
                 }
             }
@@ -135,10 +136,13 @@ function dapfforwc_product_filter_shortcode($atts)
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
-            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]) {
+            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
+                $is_all_cata = true;
+                $make_default_selected = true;
+            } else {
                 if (empty($filteroptionsfromurl)) {
-                    $is_all_cata = true;
+                    $make_default_selected = true;
                 }
             }
 
@@ -148,10 +152,6 @@ function dapfforwc_product_filter_shortcode($atts)
                 'order'           => $attributes['order'] ?? '',
                 'operator_second' => $attributes['terms_operator'] ?? $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
             ];
-
-            if (empty($filteroptionsfromurl)) {
-                $is_all_cata = true;
-            }
         }
     }
 
@@ -165,7 +165,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
 
         if (empty($filteroptionsfromurl)) {
-            $is_all_cata = true;
+            $make_default_selected = true;
         }
     }
 
@@ -174,6 +174,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
         $is_all_cata = true;
+        $make_default_selected = true;
     }
 
     if (is_product_category()) {
@@ -182,7 +183,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = [$category_slug];
         if (empty($filteroptionsfromurl)) {
-            $is_all_cata = true;
+            $make_default_selected = true;
         }
     }
 
@@ -192,13 +193,14 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = [$tag_slug];
         if (empty($filteroptionsfromurl)) {
-            $is_all_cata = true;
+            $make_default_selected = true;
         }
     }
     if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
+        $make_default_selected = true;
     }
     if (isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page']) && $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] === 12) {
         $dapfforwc_options['product_show_settings'][$dapfforwc_slug]['per_page'] = $atts['per_page'];
@@ -482,10 +484,10 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : 0;
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
 
-
     ob_start(); // Start output buffering
 ?>
     <style>
+
         #product-filter .progress-percentage:before {
             content: "0";
             content: "<?php echo esc_html($all_data_objects["min_price"]); ?>";
@@ -759,7 +761,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
             echo '<div class="default_values" style="display:none;">';
-            if (!empty($all_data_objects) && is_array($all_data_objects)) {
+            if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on'))) {
                 foreach ($all_data_objects as $key => $value) {
                     if (empty($value) || $key === "plugincy_search" || $key === "min_price" || $key === "max_price") {
                         continue;
@@ -784,7 +786,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 "plugincy_search" => isset($all_data_objects["plugincy_search"]) ? $all_data_objects["plugincy_search"] : "",
                 "rating[]" => isset($all_data_objects["rating[]"]) ? $all_data_objects["rating[]"] : [],
             ];
-            echo dapfforwc_filter_form($updated_filters, !$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
+            echo dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
             echo $formOutPut;
             echo '</form>';
             if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>

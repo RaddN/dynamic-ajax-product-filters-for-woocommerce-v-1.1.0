@@ -1,15 +1,16 @@
 form#product-filter * {
   box-sizing: border-box !important;
 }
-form#product-filter label,form#product-filter legend {
-    color: #111827;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 500;
-    line-height: 20px;
+form#product-filter label,
+form#product-filter legend {
+  color: #111827;
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 20px;
 }
 form#product-filter .items.color_value label {
-    line-height: 25px !important;
+  line-height: 25px !important;
 }
 #product-filter input,
 #product-filter select,
@@ -234,6 +235,7 @@ form.rfilterbuttons * {
 #product-filter input[type="checkbox"] {
   appearance: checkbox;
   -webkit-appearance: checkbox;
+  opacity: 1 !important;
 }
 #product-filter .filter-radio,
 #product-filter .filter-radio-check {
@@ -326,6 +328,7 @@ form.rfilterbuttons * {
   height: fit-content;
   align-items: center;
   flex-direction: column;
+  flex-basis: 50%;
 }
 #product-filter .price-input .field input {
   width: 100%;
@@ -369,12 +372,17 @@ form.rfilterbuttons * {
   position: absolute;
   width: 100%;
   height: 5px;
-  top: -5px;
+  top: 60%;
+  transform: translateY(-60%);
   background: 0 0;
   pointer-events: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   margin: 0;
+  max-height: 5px;
+  min-height: 5px;
+  border: none !important;
+  padding: 0;
 }
 #product-filter input[type="range"]::-webkit-slider-thumb {
   height: 17px;
@@ -384,7 +392,6 @@ form.rfilterbuttons * {
   pointer-events: auto;
   -webkit-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
-  margin-left: 0px;
   border: 1px solid white;
   position: relative;
   z-index: 9999;
@@ -687,13 +694,13 @@ p.woocommerce-info {
   align-items: center !important;
 }
 #product-filter .filter-group.rating {
-    overflow: hidden;
-    min-height: max-content;
+  overflow: hidden;
+  min-height: max-content;
 }
-#product-filter input[type=checkbox] {
-    width: 14px;
-    height: 14px;
+#product-filter input[type="checkbox"] {
+  width: 14px;
+  height: 14px;
 }
 form#product-filter .stars {
-    display: none !important;
+  display: none !important;
 }

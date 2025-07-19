@@ -95,6 +95,9 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     if (isset($dapfforwc_styleoptions['rating'])) {
         // Fetch the sub_option value safely
         $sub_option_rating = $dapfforwc_styleoptions['rating']['sub_option'] ?? $sub_option_rating;
+        if ($sub_option_rating === 'dynamic-rating') {
+            $sub_option_rating = 'rating';
+        }
 
         // Check if 'minimize' key exists and fetch its type
         if (isset($dapfforwc_styleoptions['rating']['minimize'])) {
