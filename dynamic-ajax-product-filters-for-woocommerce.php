@@ -1326,4 +1326,3 @@ function dapfforwc_deactivate() {
     flush_rewrite_rules();
 }
 register_deactivation_hook(__FILE__, 'dapfforwc_deactivate');
-?>
