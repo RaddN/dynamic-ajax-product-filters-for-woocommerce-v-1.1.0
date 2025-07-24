@@ -1482,22 +1482,175 @@ function dapfforwc_get_woocommerce_product_details()
 }
 
 
+/**
+ * Comprehensive WooCommerce Cache Clearing System
+ * Covers all product-related changes including terms, categories, tags, imports, etc.
+ */
 
-// Clear cache when a term is updated
-add_action('edited_term', function ($term_id) {
-    $cache_file = __DIR__ . '/woocommerce_attributes_cache.json';
-    if (file_exists($cache_file)) {
-        wp_delete_file($cache_file);
+// Function to clear all cache files
+function dapfforwc_clear_woocommerce_caches() {
+    $cache_files = [
+        __DIR__ . '/woocommerce_attributes_cache.json',
+        __DIR__ . '/woocommerce_product_details.json',
+        __DIR__ . '/min_max_prices_cache.json'
+    ];
+    
+    foreach ($cache_files as $cache_file) {
+        if (file_exists($cache_file)) {
+            wp_delete_file($cache_file);
+        }
+    }
+}
+
+// 1. Product updates (create, update, delete, status change)
+add_action('save_post_product', 'dapfforwc_clear_woocommerce_caches');
+add_action('wp_trash_post', function($post_id) {
+    if (get_post_type($post_id) === 'product') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+});
+add_action('untrashed_post', function($post_id) {
+    if (get_post_type($post_id) === 'product') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+});
+add_action('deleted_post', function($post_id) {
+    if (get_post_type($post_id) === 'product') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+});
+add_action('transition_post_status', function($new_status, $old_status, $post) {
+    if ($post->post_type === 'product' && $new_status !== $old_status) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 3);
+
+// 2. Product variations
+add_action('save_post_product_variation', 'dapfforwc_clear_woocommerce_caches');
+add_action('wp_trash_post', function($post_id) {
+    if (get_post_type($post_id) === 'product_variation') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+});
+add_action('deleted_post', function($post_id) {
+    if (get_post_type($post_id) === 'product_variation') {
+        dapfforwc_clear_woocommerce_caches();
     }
 });
 
-// Clear cache when a product is updated
-add_action('save_post_product', function ($post_id) {
-    $cache_file = __DIR__ . '/woocommerce_attributes_cache.json';
-    if (file_exists($cache_file)) {
-        wp_delete_file($cache_file);
+// 3. Terms (categories, tags, attributes) - create, update, delete
+add_action('created_term', function($term_id, $tt_id, $taxonomy) {
+    if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
+        dapfforwc_clear_woocommerce_caches();
     }
-});
+}, 10, 3);
+
+add_action('edited_term', function($term_id, $tt_id, $taxonomy) {
+    if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 3);
+
+add_action('delete_term', function($term_id, $tt_id, $taxonomy) {
+    if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 3);
+
+// 4. Product meta updates (price, stock, attributes, etc.)
+add_action('updated_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
+    if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
+        // Clear cache for important product meta fields
+        $important_meta_keys = [
+            '_price', '_regular_price', '_sale_price',
+            '_stock', '_stock_status', '_manage_stock',
+            '_weight', '_length', '_width', '_height',
+            '_sku', '_featured', '_visibility',
+            '_downloadable', '_virtual',
+            '_product_attributes'
+        ];
+        
+        if (in_array($meta_key, $important_meta_keys) || strpos($meta_key, '_') === 0) {
+            dapfforwc_clear_woocommerce_caches();
+        }
+    }
+}, 10, 4);
+
+add_action('added_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
+    if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 4);
+
+add_action('deleted_post_meta', function($meta_ids, $post_id, $meta_key, $meta_value) {
+    if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 4);
+
+// 5. WooCommerce specific hooks
+// Product stock changes
+add_action('woocommerce_product_set_stock', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_variation_set_stock', 'dapfforwc_clear_woocommerce_caches');
+
+// Product visibility changes
+add_action('woocommerce_product_set_visibility', 'dapfforwc_clear_woocommerce_caches');
+
+// Product feature status changes
+add_action('woocommerce_product_set_featured', 'dapfforwc_clear_woocommerce_caches');
+
+// 6. Bulk operations and imports
+add_action('woocommerce_product_bulk_edit_save', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_product_quick_edit_save', 'dapfforwc_clear_woocommerce_caches');
+
+// Product import/export
+add_action('woocommerce_product_import_inserted_product_object', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_product_import_updated_product_object', 'dapfforwc_clear_woocommerce_caches');
+
+// CSV import completion
+add_action('woocommerce_product_csv_importer_done', 'dapfforwc_clear_woocommerce_caches');
+
+// 7. Attribute-specific actions
+add_action('woocommerce_attribute_added', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_attribute_updated', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_attribute_deleted', 'dapfforwc_clear_woocommerce_caches');
+
+// 8. Category/Tag assignments
+add_action('set_object_terms', function($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids) {
+    if (get_post_type($object_id) === 'product' && dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+}, 10, 6);
+
+// 9. Third-party plugin compatibility
+// Clear cache when other plugins update product data
+add_action('woocommerce_process_product_meta', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_save_product_variation', 'dapfforwc_clear_woocommerce_caches');
+
+// 10. Administrative actions
+add_action('woocommerce_settings_saved', 'dapfforwc_clear_woocommerce_caches');
+add_action('woocommerce_tax_settings_saved', 'dapfforwc_clear_woocommerce_caches');
+
+// Helper function to check if taxonomy is WooCommerce related
+function dapfforwc_is_woocommerce_taxonomy($taxonomy) {
+    $wc_taxonomies = [
+        'product_cat',
+        'product_tag',
+        'product_shipping_class',
+        'product_type',
+        'product_visibility'
+    ];
+    
+    // Include custom product attributes
+    $attribute_taxonomies = wc_get_attribute_taxonomies();
+    foreach ($attribute_taxonomies as $attribute) {
+        $wc_taxonomies[] = 'pa_' . $attribute->attribute_name;
+    }
+    
+    return in_array($taxonomy, $wc_taxonomies);
+}
+
+
 function dapfforwc_get_shortcode_attributes_from_page($content, $shortcode)
 {
     // Use regex to match the shortcode and capture its attributes

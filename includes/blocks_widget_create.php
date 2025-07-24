@@ -2132,8 +2132,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     $db_tags = esc_attr($settings['tag']);
                     $db_attribute = esc_attr($settings['attribute']);
                     $db_attributeTerms = esc_attr($settings['attributeTerms']);
-                    $use_custom_template_design = esc_attr($settings['use_custom_template_design']);
-                    $per_page = esc_attr($settings['per_page']);
+                    $use_custom_template_design = isset($settings['use_custom_template_design']) ? esc_attr($settings['use_custom_template_design']) : '';
+                    $per_page =  isset($settings['per_page']) ? esc_attr($settings['per_page']) : '';
                     $mobile_responsive_style = esc_attr($settings['mobile_responsive_style']);
                     $output .= do_shortcode("[plugincy_filters use_custom_template_design=\"$use_custom_template_design\" mobile_responsive=\"$mobile_responsive_style\"  product_selector=\"$product_selector\" pagination_selector=\"$pagination_selector\" per_page=\"$per_page\"  category=\"$db_categories\" tag=\"$db_tags\" attribute=\"$db_attribute\" terms=\"$db_attributeTerms\"]");
                     break;
