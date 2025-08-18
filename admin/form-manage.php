@@ -18,13 +18,13 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
         echo "<p>if you want to use permalinks filter in your front page & archive page turn it on.</p>";
     } 
     elseif ($key === "use_attribute_type_in_permalinks") {
-        echo "<p>Enable this setting if you want permalinks Like <code>?filters=1&product_cat=compact-design&pa-size=large&product-tag=tag1</code></p>";
+        echo "<p>".esc_html__('Enable this setting if you want permalinks Like', 'dynamic-ajax-product-filters-for-woocommerce') ."<code>?filters=1&product_cat=compact-design&pa-size=large&product-tag=tag1</code></p>";
     } 
     elseif ($key === "show_loader") {
-        echo "<p><a href='#' id='customize_loader'>Customize</a> loading effect</p>";
+        echo "<p><a href='#' id='customize_loader'>".esc_html__('Customize', 'dynamic-ajax-product-filters-for-woocommerce') ."</a> ".esc_html__('loading effect', 'dynamic-ajax-product-filters-for-woocommerce') ."</p>";
     }
     elseif ($key === "enable_seo") {
-        echo "<p>Add \"robots\" meta tag in head tag of HTML page if filters have been activated.</p>";
+        echo "<p>".esc_html__('Add "robots" meta tag in head tag of HTML page if filters have been activated.', 'dynamic-ajax-product-filters-for-woocommerce') ."</p>";
 
         ?>
         <p>
@@ -71,6 +71,42 @@ function dapfforwc_show_rating_render()
 function dapfforwc_show_search_render()
 {
     dapfforwc_render_checkbox('show_search');
+}
+function dapfforwc_show_brand_render()
+{
+    dapfforwc_render_checkbox('show_brand');
+}
+function dapfforwc_show_author_render()
+{
+    dapfforwc_render_checkbox('show_author');
+}
+function dapfforwc_show_status_render()
+{
+    dapfforwc_render_checkbox('show_status');
+}
+function dapfforwc_show_onsale_render()
+{
+    dapfforwc_render_checkbox('show_onsale');
+}
+function dapfforwc_show_dimension_render()
+{
+    dapfforwc_render_checkbox('show_dimension');
+}
+function dapfforwc_show_sku_render()
+{
+    dapfforwc_render_checkbox('show_sku');
+}
+function dapfforwc_show_discount_render()
+{
+    dapfforwc_render_checkbox('show_discount');
+}
+function dapfforwc_show_date_filter_render()
+{
+    dapfforwc_render_checkbox('show_date_filter');
+}
+function dapfforwc_show_custom_fields_render()
+{
+    dapfforwc_render_checkbox('show_custom_fields');
 }
 function dapfforwc_use_filters_word_in_permalinks_render()
 {
@@ -138,9 +174,9 @@ function dapfforwc_use_url_filter_render()
         <legend><?php esc_html_e('Select URL Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'); ?></legend>
         <?php
         $types = [
-            'query_string' => __('With Query String (e.g., ?filters)', 'dynamic-ajax-product-filters-for-woocommerce'),
-            'pro_only' => __('With Permalinks (e.g., brand/size/color)', 'dynamic-ajax-product-filters-for-woocommerce'),
-            'ajax' => __('With Ajax', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'query_string' => esc_html__('With Query String (e.g., ?filters)', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'pro_only' => esc_html__('With Permalinks (e.g., brand/size/color)', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'ajax' => esc_html__('With Ajax', 'dynamic-ajax-product-filters-for-woocommerce'),
         ];
         foreach ($types as $value => $label) {
             // Check if the current value is "pro_only"

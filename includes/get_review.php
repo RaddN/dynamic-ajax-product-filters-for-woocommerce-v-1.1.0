@@ -9,6 +9,9 @@ add_action('admin_head', 'dapfforwc_add_review_popup');
 function dapfforwc_add_review_popup()
 {
     $install_time = get_option('dapfforwc_install_time');
+    if (!isset($_GET['_wpnonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
+        return; // Exit if nonce is not valid
+    }
     if (isset($_GET['page']) && $_GET['page'] === 'dapfforwc-admin') {
         
         if (!$install_time) {
@@ -32,7 +35,7 @@ function dapfforwc_add_review_popup()
                 <div id="review-popup" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:#fff; border:1px solid #ccc; padding:20px; z-index:1000;">
                     <h2>We Value Your Feedback!</h2>
                     <p>If you enjoy using <b>Dynamic AJAX Product Filters for WooCommerce</b>, please take a moment to leave us a review.</p>
-                    <a href="https://wordpress.org/support/plugin/dynamic-ajax-product-filters-for-woocommerce/reviews/" target="_blank" style="display:inline-block; padding:10px 15px; background:#0073aa; color:#fff; text-decoration:none; border-radius:5px;">Leave a Review</a>
+                    <a href="https://wordpress.org/support/plugin/dynamic-ajax-product-filters-for-woocommerce/reviews/" target="_blank" style="display:inline-block; padding:10px 15px; background:#432fb8; color:#fff; text-decoration:none; border-radius:5px;">Leave a Review</a>
                     <button id="close-popup" style="margin-top:10px; background:#f00; color:#fff; border:none; padding:10px; cursor:pointer;">Remind Me Later</button>
                     <button id="already-done" style="margin-top:10px; background:#ccc; color:#000; border:none; padding:10px; cursor:pointer;">Already Done</button>
                 </div>
@@ -51,7 +54,7 @@ function dapfforwc_add_review_popup()
                             document.getElementById('review-popup').style.display = 'none';
                             // Send AJAX request to set remind me later
                             const xhr = new XMLHttpRequest();
-                            xhr.open('POST', '<?php echo admin_url('admin-ajax.php'); ?>', true);
+                            xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                             xhr.send('action=dapfforwc_remind_me_later');
                         });
@@ -61,7 +64,7 @@ function dapfforwc_add_review_popup()
                             document.getElementById('review-popup').style.display = 'none';
                             // Send AJAX request to set already done
                             const xhr = new XMLHttpRequest();
-                            xhr.open('POST', '<?php echo admin_url('admin-ajax.php'); ?>', true);
+                            xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
                             xhr.send('action=dapfforwc_review_already_done');
                         });

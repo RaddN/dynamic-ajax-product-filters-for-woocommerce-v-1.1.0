@@ -15,6 +15,8 @@ function dapfforwc_check_woocommerce_duplicate_slugs() {
         if ($dismissed_time === false) {
             $dismissed_time = time(); // Default to today's date if option not set
             update_option('woocommerce_slug_check_dismissed_time', $dismissed_time);
+        } else {
+            $dismissed_time = intval($dismissed_time); // Ensure it's an integer
         }
 
         // Check if the option is not set or if the dismissed time is within the last 3 days

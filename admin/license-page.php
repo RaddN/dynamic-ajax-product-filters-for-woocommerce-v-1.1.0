@@ -19,19 +19,19 @@ class DAPFFORWC_License_Manager
 
     public function handle_license_actions()
     {
-        if (!isset($_POST['dapfforwcpro_license_action']) || !wp_verify_nonce($_POST['dapfforwcpro_license_nonce'], 'dapfforwcpro_license_nonce')) {
+        if (!isset($_POST['dapfforwcpro_license_action']) || !isset($_POST['dapfforwcpro_license_nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['dapfforwcpro_license_nonce'])), 'dapfforwcpro_license_nonce')) {
             return;
         }
 
-        $action = sanitize_text_field($_POST['dapfforwcpro_license_action']);
+        $action = sanitize_text_field(wp_unslash($_POST['dapfforwcpro_license_action']));
 
         // Start output buffering to prevent header issues
         ob_start();
 
         try {
             if ($action === 'activate') {
-                $license_key = sanitize_text_field($_POST['dapfforwcpro_license_key']);
-                
+                $license_key = isset($_POST['dapfforwcpro_license_key']) ? sanitize_text_field(wp_unslash($_POST['dapfforwcpro_license_key'])) : '';
+
                 if (empty($license_key)) {
                     $this->set_transient_notice('Please enter a valid license key.', 'error');
                     return;
@@ -226,32 +226,9 @@ class DAPFFORWC_License_Manager
                     return $wp_filesystem->rmdir($plugin_dir, true);
                 }
             }
-            
-            // Fallback to manual deletion
-            return $this->delete_directory($plugin_dir);
         }
         
         return true;
-    }
-
-    private function delete_directory($dir)
-    {
-        if (!is_dir($dir)) {
-            return false;
-        }
-
-        $files = array_diff(scandir($dir), array('.', '..'));
-        
-        foreach ($files as $file) {
-            $path = $dir . '/' . $file;
-            if (is_dir($path)) {
-                $this->delete_directory($path);
-            } else {
-                unlink($path);
-            }
-        }
-        
-        return rmdir($dir);
     }
 
     private function download_and_install_pro_plugin($download_url)
@@ -290,7 +267,7 @@ class DAPFFORWC_License_Manager
 
         // Clean up temp file
         if (file_exists($temp_file)) {
-            unlink($temp_file);
+            wp_delete_file($temp_file);
         }
 
         if (is_wp_error($install_result) || !$install_result) {
@@ -360,7 +337,7 @@ class DAPFFORWC_License_Manager
             
             <?php if ($license_status === 'valid' && $is_pro_active): ?>
                 <div class="notice notice-success">
-                    <p><strong>✓ Pro Version Activated!</strong> Your license is active and the Pro plugin is running.</p>
+                    <p><strong>✓ <?php echo esc_html__('Pro Version Activated!', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong> <?php echo esc_html__('Your license is active and the Pro plugin is running.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <form method="post" action="">
                     <?php wp_nonce_field('dapfforwcpro_license_nonce', 'dapfforwcpro_license_nonce'); ?>
@@ -368,11 +345,11 @@ class DAPFFORWC_License_Manager
                         <tbody>
                             <tr>
                                 <th scope="row">
-                                    <label>Current License Key</label>
+                                    <label><?php echo esc_html__('Current License Key', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
                                 </th>
                                 <td>
                                     <code><?php echo esc_html(substr($license_key, 0, 8) . '...' . substr($license_key, -8)); ?></code>
-                                    <p class="description">Your license is currently active.</p>
+                                    <p class="description"><?php echo esc_html__('Your license is currently active.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                                 </td>
                             </tr>
                         </tbody>
@@ -382,17 +359,17 @@ class DAPFFORWC_License_Manager
                 </form>
             <?php elseif ($license_status === 'valid' && !$is_pro_active): ?>
                 <div class="notice notice-warning">
-                    <p><strong>⚠ License Active but Pro Plugin Not Running!</strong> You have a valid license but the Pro plugin is not active.</p>
+                    <p><strong>⚠ <?php echo esc_html__('License Active but Pro Plugin Not Running!', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong><?php echo esc_html__('You have a valid license but the Pro plugin is not active.', 'dynamic-ajax-product-filters-for-woocommerce'); ?> </p>
                 </div>
                 <table class="form-table">
                     <tbody>
                         <tr>
                             <th scope="row">
-                                <label>Current License Key</label>
+                                <label><?php echo esc_html__('Current License Key', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
                             </th>
                             <td>
                                 <code><?php echo esc_html(substr($license_key, 0, 8) . '...' . substr($license_key, -8)); ?></code>
-                                <p class="description">License is valid but Pro plugin is not active. Click below to reinstall and activate the Pro plugin.</p>
+                                <p class="description"><?php echo esc_html__('License is valid but Pro plugin is not active. Click below to reinstall and activate the Pro plugin.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                             </td>
                         </tr>
                     </tbody>
@@ -402,14 +379,14 @@ class DAPFFORWC_License_Manager
                 <form method="post" action="" style="display: inline-block; padding: 10px 0; border: none;">
                     <?php wp_nonce_field('dapfforwcpro_license_nonce', 'dapfforwcpro_license_nonce'); ?>
                     <input type="hidden" name="dapfforwcpro_license_action" value="reinstall" />
-                    <input type="submit" class="button button-primary" value="Reinstall & Activate Pro Plugin" />
+                    <input type="submit" class="button button-primary" value="<?php echo esc_html__('Reinstall & Activate Pro Plugin', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
                 </form>
                 
                 <!-- Deactivate Form -->
                 <form method="post" action="" style="display: inline-block; margin-left: 10px; padding: 0; border: none;">
                     <?php wp_nonce_field('dapfforwcpro_license_nonce', 'dapfforwcpro_license_nonce'); ?>
                     <input type="hidden" name="dapfforwcpro_license_action" value="deactivate" />
-                    <input type="submit" class="button button-secondary" value="Deactivate License" onclick="return confirm('Are you sure you want to deactivate your license?');" />
+                    <input type="submit" class="button button-secondary" value="<?php echo esc_html__('Deactivate License', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" onclick="return confirm('<?php echo esc_html__('Are you sure you want to deactivate your license?', 'dynamic-ajax-product-filters-for-woocommerce'); ?>');" />
                 </form>
             <?php else: ?>
                 <form method="post" action="">
@@ -418,11 +395,11 @@ class DAPFFORWC_License_Manager
                         <tbody>
                             <tr>
                                 <th scope="row">
-                                    <label for="dapfforwcpro_license_key">License Key</label>
+                                    <label for="dapfforwcpro_license_key"><?php echo esc_html__('License Key', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
                                 </th>
                                 <td>
                                     <input type="text" id="dapfforwcpro_license_key" name="dapfforwcpro_license_key" value="<?php echo esc_attr($license_key); ?>" class="regular-text" placeholder="Enter your license key" />
-                                    <p class="description">Enter your license key to download and activate the Pro version.</p>
+                                    <p class="description"><?php echo esc_html__('Enter your license key to download and activate the Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                                 </td>
                             </tr>
                         </tbody>
@@ -433,7 +410,7 @@ class DAPFFORWC_License_Manager
             <?php endif; ?>
             
             <p class="description" style="padding-top: 10px;">
-                <strong>Need help?</strong> <a href="https://plugincy.com/support" target="_blank">Contact Support</a> | <a href="https://plugincy.com/my-account" target="_blank">Manage Your Licenses</a>
+                <strong><?php echo esc_html__('Need help?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong> <a href="https://plugincy.com/support" target="_blank"><?php echo esc_html__('Contact Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a> | <a href="https://plugincy.com/my-account" target="_blank"><?php echo esc_html__('Manage Your Licenses', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
             </p>
         </div>
         <?php

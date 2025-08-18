@@ -331,7 +331,7 @@
 }
 .wcapf_admin .loading-option.selected img,
 .wcapf_admin .loading-option:hover {
-  border: 2px solid #0073aa;
+  border: 2px solid #432fb8;
 }
 .wcapf_admin .checkmark {
   position: absolute;
@@ -353,7 +353,7 @@
 }
 .wcapf_admin .loading-option.selected img,
 .wcapf_admin .loading-option:hover {
-  border: 2px solid #0073aa;
+  border: 2px solid #432fb8;
 }
 .wcapf_admin .counter_arcs {
   width: 56px;
@@ -585,7 +585,7 @@
   display: block;
   margin-bottom: 10px;
 }
-#attribute-dropdown {
+#attribute-dropdown,select#main-texonomy-dropdown,select#child-attr-dropdown,select#child-custom-dropdown {
   width: 100%;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
@@ -593,7 +593,7 @@
   transition: border-color 0.3s ease;
   max-width: 100%;
 }
-#attribute-dropdown:focus {
+#attribute-dropdown:focus,select#main-texonomy-dropdown:focus,select#child-attr-dropdown:focus,select#child-custom-dropdown:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -699,6 +699,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  max-width: 250px;
 }
 .wcapf_admin .image-options > .term-option label {
   position: absolute;

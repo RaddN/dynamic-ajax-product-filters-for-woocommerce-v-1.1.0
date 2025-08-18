@@ -20,8 +20,32 @@ function dapfforwc_use_anchor_render()
 
 function dapfforwc_permalinks_prefix_render()
 {
-    global $dapfforwc_seo_permalinks_options;
-    $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
+    global $dapfforwc_seo_permalinks_options,$dapfforwc_advance_settings;
+    $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
+    $all_attributes = $all_data['attributes'] ?? [];
+    $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
+    $custom_fields = $all_data['custom_fields'] ?? [];
+    $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+    $attributes = [];
+    foreach ($all_attributes as $attribute) {
+        if (in_array($attribute['attribute_name'], $exclude_attributes)) {
+            continue;
+        }
+        $attributes[] = (object) [
+            'attribute_name' => $attribute['attribute_name'],
+            'attribute_label' => $attribute['attribute_label'],
+        ];
+    }
+    $all_custom_fields = [];
+    foreach ($custom_fields as $custom_field) {
+        if (in_array($custom_field['name'], $exclude_custom_fields)) {
+            continue;
+        }
+        $all_custom_fields[] = (object) [
+            'attribute_name' => $custom_field['name'],
+            'attribute_label' => $custom_field['label'],
+        ];
+    }
     $options = isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']) ? $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'] : [
         "product-category" => 'cata',
         'tag' => 'tags',
@@ -37,8 +61,11 @@ function dapfforwc_permalinks_prefix_render()
             'material' => 'material',
             'style' => 'style',
         ],
+        'custom' => !empty($all_custom_fields) ? array_reduce($all_custom_fields, function ($carry, $attr) {
+            $carry[$attr->attribute_name] = $attr->attribute_name;
+            return $carry;
+        }, []) : [],
     ];
-    $attributes = wc_get_attribute_taxonomies(); // Get WooCommerce attributes
 ?>
     <style>
         .attribute_prefix_list {
@@ -147,6 +174,26 @@ function dapfforwc_permalinks_prefix_render()
                 </div>
             <?php endforeach; ?>
         <?php endif; ?>
+        <?php if (!empty($all_custom_fields)) : ?>
+            <?php foreach ($all_custom_fields as $custom_field) : ?>
+                <div class="dapfforwc-form-group">
+                    <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>">
+                        <?php
+                        // translators: %s is replaced with the Custom Field label.
+                        printf(esc_html__('Custom Field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
+                        ?>
+                    </label>
+                    <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>"
+                        name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][custom][<?php echo esc_attr($custom_field->attribute_name); ?>]"
+                        value="<?php echo isset($options['custom']) && isset($options['custom'][$custom_field->attribute_name]) ? esc_attr($options['custom'][$custom_field->attribute_name]) : esc_attr($custom_field->attribute_name); ?>"
+                        <?php
+                        // translators: %s is replaced with the attribute label.
+                        $placeholder_text = sprintf(esc_attr__('custom_field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
+                        ?>
+                        placeholder="<?php echo esc_html($placeholder_text); ?>" />
+                </div>
+            <?php endforeach; ?>
+        <?php endif; ?>
     </div>
     <div class="dapfforwc-info-message" style="display: none;">
         Enable <b>"Use Attribute Type in Permalinks"</b> to manage the prefix. Currently your URL format is: <code>?filters=compact-design,large,tag1</code>
@@ -160,7 +207,7 @@ function dapfforwc_seo_title_callback()
     <div class="dapfforwc-form-group pro-only">
         <input disabled type="text" id="dapfforwc_seo_title" name="_pro[seo_title]"
             placeholder="<?php esc_attr_e('Enter SEO Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
-        <p class="description">Set a custom SEO title for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
+        <p class="description"><?php echo esc_html__('Set a custom SEO title for your permalinks.', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
 <?php
 }
@@ -173,7 +220,7 @@ function dapfforwc_seo_description_callback()
             rows="4"
             style="width: 100%; max-width: 400px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;"
             placeholder="<?php esc_attr_e('Enter SEO Description', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"></textarea>
-        <p class="description">Set a custom SEO description for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
+        <p class="description"><?php echo esc_html__('Set a custom SEO description for your permalinks.', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
 <?php
 }
@@ -184,7 +231,7 @@ function dapfforwc_seo_keywords_callback()
     <div class="dapfforwc-form-group pro-only">
         <input type="text" id="dapfforwc_seo_keywords" name="_pro[seo_keywords]"
             placeholder="<?php esc_attr_e('Enter SEO Keywords', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
-        <p class="description">Set custom SEO keywords for your permalinks. <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
+        <p class="description"><?php echo esc_html__('Set custom SEO keywords for your permalinks.', 'dynamic-ajax-product-filters-for-woocommerce'); ?> <code>{site_title} {page_title} {attribute_prefix} {value}</code></p>
     </div>
 <?php
 }

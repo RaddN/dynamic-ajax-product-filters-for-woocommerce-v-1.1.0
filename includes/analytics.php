@@ -144,7 +144,7 @@ class dapfforwc_cart_anaylytics
             'multisite' => is_multisite(),
             'wp_version' => get_bloginfo('version'),
             'php_version' => phpversion(),
-            'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+            'server_software' => sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown')),
             'mysql_version' => $wpdb->db_version(),
             'location' => $this->get_site_location(),
             'plugin_version' => $this->plugin_version,
@@ -358,7 +358,7 @@ class dapfforwc_cart_anaylytics
                 }
 
                 .feedback-option:hover {
-                    color: #0073aa;
+                    color: #432fb8;
                 }
 
                 .feedback-option input[type="radio"] {
@@ -382,8 +382,8 @@ class dapfforwc_cart_anaylytics
                 }
 
                 .feedback-option input[type="radio"]:checked+.radio-button {
-                    border-color: #0073aa;
-                    background: #0073aa;
+                    border-color: #432fb8;
+                    background: #432fb8;
                 }
 
                 .feedback-option input[type="radio"]:checked+.radio-button:after {
@@ -433,8 +433,8 @@ class dapfforwc_cart_anaylytics
 
                 .other-reason-container textarea:focus {
                     outline: none;
-                    border-color: #0073aa;
-                    box-shadow: 0 0 0 1px #0073aa;
+                    border-color: #432fb8;
+                    box-shadow: 0 0 0 1px #432fb8;
                 }
 
                 .modal-footer {
@@ -461,7 +461,7 @@ class dapfforwc_cart_anaylytics
                 }
 
                 .btn-primary {
-                    background: #0073aa;
+                    background: #432fb8;
                     color: white;
                 }
 
@@ -539,12 +539,12 @@ class dapfforwc_cart_anaylytics
 
                         // Send deactivation data
                         $.ajax({
-                            url: '<?php echo admin_url('admin-ajax.php'); ?>',
+                            url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
                             type: 'POST',
                             data: {
                                 action: 'send_deactivation_feedback',
                                 reason: reason || 'no-reason-provided',
-                                nonce: '<?php echo wp_create_nonce('deactivation_feedback'); ?>'
+                                nonce: '<?php echo esc_js(wp_create_nonce('deactivation_feedback')); ?>'
                             },
                             complete: function() {
                                 // Proceed with deactivation

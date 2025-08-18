@@ -72,7 +72,7 @@ class DAPFFORWC_Elementor_Category_Alternative
         $elements_manager->add_category(
             'plugincy',
             [
-                'title' => esc_html__('Plugincy', 'one-page-quick-checkout-for-woocommerce-pro') . $this->get_svg_icon(),
+                'title' => esc_html__('Plugincy', 'dynamic-ajax-product-filters-for-woocommerce') . $this->get_svg_icon(),
                 'icon' => 'plugincy-icon',
             ]
         );

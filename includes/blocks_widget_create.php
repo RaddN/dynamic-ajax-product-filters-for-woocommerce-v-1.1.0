@@ -77,7 +77,7 @@ function dapfforwc_generate_css($styles, $device = 'desktop', $hover = false, $a
             if (!is_array($value) || empty($value)) {
                 continue; // Skip empty values
             }
-            
+
             switch ($key) {
                 case 'font-size':
                 case 'width':
@@ -97,7 +97,7 @@ function dapfforwc_generate_css($styles, $device = 'desktop', $hover = false, $a
                     $css .= "$key: {$value['top']}px {$value['right']}px {$value['bottom']}px {$value['left']}px;";
                     break;
 
-                case 'progress-border-radius':
+                case 'plugrogress-border-radius':
                     if ($sliderProgress) {
                         $css .= "border-radius: {$value['top']}px {$value['right']}px {$value['bottom']}px {$value['left']}px;";
                     }
@@ -192,31 +192,34 @@ function dapfforwc_generate_css($styles, $device = 'desktop', $hover = false, $a
 function dapfforwc_render_dynamic_ajax_filter_block($attributes)
 {
     global $dapfforwc_options;
-    $filter_type = $attributes['filterType'];
-    $use_custom_design = $attributes['usecustomdesign']??'';
-    $perPage = isset($attributes['perPage']) ? intval($attributes['perPage']) : 12;
-    $filter_options_manage = isset($attributes['filterOptions'])?$attributes['filterOptions']:[];
-    $mobile_style = $attributes['mobileStyle'] ?? "style_1";
+    $filter_type = isset($attributes['filterType']) ? sanitize_key($attributes['filterType']) : '';
+    $use_custom_design = isset($attributes['usecustomdesign']) ? sanitize_key($attributes['usecustomdesign']) : '';
+    $perPage = isset($attributes['perPage']) ? intval(sanitize_key($attributes['perPage'])) : 12;
+    $filter_options_manage = isset($attributes['filterOptions']) ? $attributes['filterOptions'] : [];
+    $mobile_style = isset($attributes['mobileStyle']) ? sanitize_key($attributes['mobileStyle']) : "style_1";
     $output = '';
 
     // Extract styles
-    $form_style = $attributes['formStyle'] ?? [];
-    $container_style = $attributes['containerStyle'] ?? [];
-    $widget_title_style = $attributes['widgetTitleStyle'] ?? [];
-    $widget_items_style = $attributes['widgetItemsStyle'] ?? [];
-    $button_style = $attributes['buttonStyle'] ?? [];
-    $rating_style = $attributes['ratingStyle'] ?? [];
-    $reset_button_style = $attributes['resetButtonStyle'] ?? [];
-    $input_style = $attributes['inputStyle'] ?? [];
-    $slider_style = $attributes['sliderStyle'] ?? [];
-    $filter_word_mobile = $attributes['filterWordMobile'] ?? '';
-    $custom_css = $attributes['customCSS'] ?? '';
-    $class_name = $attributes['className'] ?? '';
+    $form_style = sanitize_key($attributes['formStyle'] ?? []);
+    $container_style = sanitize_key($attributes['containerStyle'] ?? []);
+    $widget_title_style = sanitize_key($attributes['widgetTitleStyle'] ?? []);
+    $widget_items_style = sanitize_key($attributes['widgetItemsStyle'] ?? []);
+    $button_style = sanitize_key($attributes['buttonStyle'] ?? []);
+    $rating_style = sanitize_key($attributes['ratingStyle'] ?? []);
+    $reset_button_style = sanitize_key($attributes['resetButtonStyle'] ?? []);
+    $input_style = sanitize_key($attributes['inputStyle'] ?? []);
+    $slider_style = sanitize_key($attributes['sliderStyle'] ?? []);
+    $filter_word_mobile = sanitize_key($attributes['filterWordMobile'] ?? '');
+    $custom_css = sanitize_key($attributes['customCSS'] ?? '');
+    $raw_class_name = isset($attributes['className']) ? (string) $attributes['className'] : '';
+    $class_parts = preg_split('/\s+/', $raw_class_name, -1, PREG_SPLIT_NO_EMPTY);
+    $class_parts = array_map('sanitize_html_class', $class_parts);
+    $class_name  = trim(implode(' ', array_filter($class_parts)));
 
-    $single_filter_inactive_style = $attributes['singleFilterInactiveStyle'] ?? [];
-    $single_filter_container_style = $attributes['singleFilterContainerStyle'] ?? [];
-    $single_filter_active_style = $attributes['singleFilterActiveStyle'] ?? [];
-    $single_filter_hover_style = $attributes['singleFilterHoverStyle'] ?? [];
+    $single_filter_inactive_style = sanitize_key($attributes['singleFilterInactiveStyle'] ?? []);
+    $single_filter_container_style = sanitize_key($attributes['singleFilterContainerStyle'] ?? []);
+    $single_filter_active_style = sanitize_key($attributes['singleFilterActiveStyle'] ?? []);
+    $single_filter_hover_style = sanitize_key($attributes['singleFilterHoverStyle'] ?? []);
 
 
     // Generate CSS for desktop, tablet, and smartphone
@@ -294,10 +297,25 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                     if ($options["id"] == "search_text" && !isset($dapfforwc_options["show_search"])) {
                         continue;
                     }
-                    if ($options["id"] !== "product-category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && !isset($dapfforwc_options["show_attributes"])) {
+                    if ($options["id"] == "rplurand" && !isset($dapfforwc_options["show_brand"])) {
                         continue;
                     }
-                    
+                    if ($options["id"] == "rpluthor" && !isset($dapfforwc_options["show_author"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "rplutock_status" && !isset($dapfforwc_options["show_status"])) {
+                        continue;
+                    }
+                    if ($options["id"] == "rpn_sale" && !isset($dapfforwc_options["show_onsale"])) {
+                        continue;
+                    }
+                    if ($options["id"] !== "product-category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && $options["id"] !== "show_brand" && $options["id"] !== "show_author" && $options["id"] !== "show_status" && $options["id"] !== "show_onsale" && !isset($dapfforwc_options["show_attributes"])) {
+                        continue;
+                    }
+                    if ($options["id"] !== "product-category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && $options["id"] !== "show_brand" && $options["id"] !== "show_author" && $options["id"] !== "show_status" && $options["id"] !== "show_onsale" && !isset($dapfforwc_options["show_custom_fields"])) {
+                        continue;
+                    }
+
                     $is_visible = $options["visible"] ? "flex" : "none";
                     $output .= '#' . $options["id"] . '{
                     order: ' . $index . '!important;
@@ -309,12 +327,12 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 }
                 $output .= '</style>';
             }
-            $product_selector = esc_attr($attributes['productSelector']);
-            $pagination_selector = esc_attr($attributes['paginationSelector']);
-            $db_categories = isset($attributes['category']) ? $attributes['category'] : '';
-            $db_tags = isset($attributes['tag']) ? $attributes['tag'] : '';
-            $db_attribute = isset($attributes['attribute']) ? $attributes['attribute'] : '';
-            $db_attribute_terms = isset($attributes['attributeTerms']) ? $attributes['attributeTerms'] : '';
+            $product_selector = isset($attributes['productSelector']) ? esc_attr($attributes['productSelector']) : '';
+            $pagination_selector = isset($attributes['paginationSelector']) ? esc_attr($attributes['paginationSelector']) : '';
+            $db_categories = isset($attributes['category']) ? sanitize_key($attributes['category']) : '';
+            $db_tags = isset($attributes['tag']) ? sanitize_key($attributes['tag']) : '';
+            $db_attribute = isset($attributes['attribute']) ? sanitize_key($attributes['attribute']) : '';
+            $db_attribute_terms = isset($attributes['attributeTerms']) ? sanitize_key($attributes['attributeTerms']) : '';
             $output .= '<style>';
             if ($form_style_css) {
                 $output .= 'form#product-filter {' . $form_style_css . '}';
@@ -344,13 +362,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter .slider {' . $slider_style_css . '}';
             }
             if ($slider_progress_style_css) {
-                $output .= 'form#product-filter .slider .progress {' . $slider_progress_style_css . '}';
+                $output .= 'form#product-filter .plugincy_slider .plugrogress {' . $slider_progress_style_css . '}';
             }
             if ($slider_thumb_style_css) {
                 $output .= 'form#product-filter input[type="range"]::-webkit-slider-thumb {' . $slider_thumb_style_css . '} input[type="range"]::-moz-range-thumb {' . $slider_thumb_style_css . '}';
             }
             if ($slider_tooltip_style_css) {
-                $output .= 'form#product-filter .progress-percentage:before,form#product-filter  .progress-percentage:after {' . $slider_tooltip_style_css . '}';
+                $output .= 'form#product-filter .plugrogress-percentage:before,form#product-filter  .plugrogress-percentage:after {' . $slider_tooltip_style_css . '}';
             }
             $output .= '
             
@@ -430,7 +448,29 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
   .dynamic-rating  input:checked ~ label:hover ~ label svg {' . $rating_active_css . '}';
             }
             $output .= '</style>';
-            $output .= '<div class="' . $class_name . '">' . do_shortcode("[plugincy_filters per_page = $perPage use_custom_template_design=\"$use_custom_design\"  mobile_responsive=\"$mobile_style\" product_selector=\"$product_selector\" pagination_selector=\"$pagination_selector\" category=\"$db_categories\" tag=\"$db_tags\" attribute=\"$db_attribute\" terms=\"$db_attribute_terms\"]") . '</div>';
+            // Build the wrapper <div>; only add class attribute if non-empty
+            $wrapper_open = '<div';
+            if ($class_name !== '') {
+                $wrapper_open .= ' class="' . esc_attr($class_name) . '"';
+            }
+            $wrapper_open .= '>';
+
+            // Escape shortcode attribute values that are strings
+            $shortcode = sprintf(
+                '[plugincy_filters per_page="%d" use_custom_template_design="%s" mobile_responsive="%s" product_selector="%s" pagination_selector="%s" category="%s" tag="%s" attribute="%s" terms="%s"]',
+                $perPage,
+                $use_custom_design,
+                $mobile_style,
+                $product_selector,
+                $pagination_selector,
+                $db_categories,
+                $db_tags,
+                $db_attribute,
+                $db_attribute_terms
+            );
+
+            $output .= $wrapper_open . do_shortcode($shortcode) . '</div>';
+
             break;
         case 'single':
             $filter_name = esc_attr($attributes['filterName']);
@@ -440,7 +480,12 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             $output .= '.rfilterbuttons ul li.checked {' . $single_filter_active_css . '}';
             $output .= '.rfilterbuttons ul li:hover {' . $single_filter_hover_css . '}';
             $output .= '</style>';
-            $output .= '<div class="' . $class_name . '">' . do_shortcode("[plugincy_filters_single name=\"$filter_name\"]") . '</div>';
+            $shortcode = sprintf('[plugincy_filters_single name="%s"]', $filter_name);
+
+            // 4) Output: escape only real HTML attributes
+            $output .= ($class_name !== '' ? '<div class="' . esc_attr($class_name) . '">' : '<div>')
+                . do_shortcode($shortcode)
+                . '</div>';
             break;
         case 'selected':
             $output .= '<style>';
@@ -449,7 +494,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             $output .= '.rfilterselected  ul li.checked {' . $single_filter_active_css . '}';
             $output .= '.rfilterselected  ul li:hover {' . $single_filter_hover_css . '}';
             $output .= '</style>';
-            $output .= '<div class="' . $class_name . '">' . do_shortcode('[plugincy_filters_selected]') . '</div>';
+            $output .= '<div class="' . esc_attr($class_name) . '">' . do_shortcode('[plugincy_filters_selected]') . '</div>';
             break;
     }
 
@@ -490,14 +535,47 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             if (! function_exists('wc_get_attribute_taxonomies')) {
                 return [];
             }
-            // Fetch WooCommerce attributes
-            $attributes = wc_get_attribute_taxonomies();
+
+            $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
+            $all_attributes = $all_data['attributes'] ?? [];
+            $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
+            $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+            $attributes = [];
+            foreach ($all_attributes as $attribute) {
+                if (in_array($attribute['attribute_name'], $exclude_attributes)) {
+                    continue;
+                }
+                $attributes[] = (object) [
+                    'attribute_name' => $attribute['attribute_name'],
+                    'attribute_label' => $attribute['attribute_label'],
+                ];
+            }
+            $custom_fields = $all_data['custom_fields'] ?? [];
+            $all_custom_fields = [];
+            foreach ($custom_fields as $custom_field) {
+                if (in_array($custom_field['name'], $exclude_custom_fields)) {
+                    continue;
+                }
+                $all_custom_fields[] = (object) [
+                    'attribute_name' => $custom_field['name'],
+                    'attribute_label' => $custom_field['label'],
+                ];
+            }
+
             $options = [
-                'search_text' => __('Search Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
-                'rating' => __('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
-                'price-range' => __('Price', 'dynamic-ajax-product-filters-for-woocommerce'),
-                "product-category" => __("product-category", 'dynamic-ajax-product-filters-for-woocommerce'),
-                'tag' => __('Tag', 'dynamic-ajax-product-filters-for-woocommerce'), 
+                'search_text' => esc_html__('Search Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'rating' => esc_html__('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'price-range' => esc_html__('Price', 'dynamic-ajax-product-filters-for-woocommerce'),
+                "category" => esc_html__("Category", 'dynamic-ajax-product-filters-for-woocommerce'),
+                'tag' => esc_html__('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'brands' => esc_html__('Brands', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'authors' => esc_html__('Authors', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'status' => esc_html__('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'sale_status' => esc_html__('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'dimensions' => esc_html__('Dimensions', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'sku' => esc_html__('SKU', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'discount' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'date_filter' => esc_html__('Date Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
             ];
 
             // Add attributes to options
@@ -505,29 +583,19 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 $options[$attribute->attribute_name] = $attribute->attribute_label;
             }
 
-            // Default settings
-            $default = [
-                [
-                    'element_type' => 'search_text',
+            foreach ($all_custom_fields as $attribute) {
+                $options[$attribute->attribute_name] = $attribute->attribute_label;
+            }
+
+            $default = [];
+
+            // add $options
+            foreach ($options as $key => $label) {
+                $default[] = [
+                    'element_type' => $key,
                     'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => 'rating',
-                    'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => 'price-range',
-                    'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => "product-category",
-                    'element_visible' => 'yes',
-                ],
-                [
-                    'element_type' => 'tag',
-                    'element_visible' => 'yes',
-                ], 
-            ];
+                ];
+            }
 
             // Add attributes to default
             foreach ($attributes as $attribute) {
@@ -547,7 +615,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
 
         public function get_title()
         {
-            return __('Dynamic Ajax Filter', 'dynamic-ajax-product-filters-for-woocommerce');
+            return esc_html__('Dynamic Ajax Filter', 'dynamic-ajax-product-filters-for-woocommerce');
         }
 
         public function get_icon()
@@ -567,19 +635,19 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'filter_options',
                 [
-                    'label' => __('Filter Options', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Filter Options', 'dynamic-ajax-product-filters-for-woocommerce'),
                 ]
             );
 
             $this->add_control(
                 'filter_type',
                 [
-                    'label'   => __('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'   => esc_html__('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'    => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'all'      => __('All Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'single'   => __('Single Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'selected' => __('Selected Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'all'      => esc_html__('All Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'single'   => esc_html__('Single Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'selected' => esc_html__('Selected Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'all',
                 ]
@@ -588,7 +656,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'product_selector',
                 [
-                    'label' => __('Product Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Product Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
                     'condition' => [
@@ -600,7 +668,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'pagination_selector',
                 [
-                    'label' => __('Pagination Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Pagination Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
                     'condition' => [
@@ -611,11 +679,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             // $this->add_control(
             //     'use_custom_template_design',
             //     [
-            //         'label'   => __('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
+            //         'label'   => esc_html__('Select Filter Type', 'dynamic-ajax-product-filters-for-woocommerce'),
             //         'type'    => \Elementor\Controls_Manager::SELECT,
             //         'options' => [
-            //             'yes'      => __('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
-            //             'no'   => __('No', 'dynamic-ajax-product-filters-for-woocommerce')                        
+            //             'yes'      => esc_html__('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+            //             'no'   => esc_html__('No', 'dynamic-ajax-product-filters-for-woocommerce')                        
             //         ],
             //         'default' => 'no',
             //     ]
@@ -624,7 +692,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'filter_name',
                 [
-                    'label' => __('attribute id', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('attribute id', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
                     'condition' => [
@@ -633,14 +701,14 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 ]
             );
 
-            
+
             $this->end_controls_section();
 
-             $this->start_controls_section(
+            $this->start_controls_section(
                 'Database_query_section',
                 [
-                    'label' => __('Database Query', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'description' => __('If you are not using [products] shortcode to display products, you can use these options to query options.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Database Query', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => esc_html__('If you are not using [products] shortcode to display products, you can use these options to query options.', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'condition' => [
                         'filter_type' => 'all',
                     ],
@@ -649,25 +717,25 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'category',
                 [
-                    'label' => __('Category', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Category', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
-                    'description' => __('Use Category slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => esc_html__('Use Category slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
                 ]
             );
             $this->add_control(
                 'tag',
                 [
-                    'label' => __('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
-                    'description' => __('Use Tag slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => esc_html__('Use Tag slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
                 ]
             );
             $this->add_control(
                 'attribute',
                 [
-                    'label' => __('Attribute', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Attribute', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
                 ]
@@ -675,10 +743,10 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'attributeTerms',
                 [
-                    'label' => __('Attribute Terms', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Attribute Terms', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
-                    'description' => __('Use Attribute terms slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => esc_html__('Use Attribute terms slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
                 ]
             );
 
@@ -689,7 +757,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'form_manage_section',
                 [
-                    'label' => __('Form Manage', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Form Manage', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'condition' => [
                         'filter_type' => 'all',
                     ],
@@ -699,23 +767,23 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'form_elements',
                 [
-                    'label' => __('Manage order & show/hide', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Manage order & show/hide', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::REPEATER,
                     'prevent_empty' => false,
                     'fields' => [
                         [
                             'name' => 'element_type',
-                            'label' => __('Element Type', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'label' => esc_html__('Element Type', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'type' => \Elementor\Controls_Manager::SELECT,
-                            'default' => "product-category",
+                            'default' => "category",
                             'options' => $allattribute['options'],
                         ],
                         [
                             'name' => 'element_visible',
-                            'label' => __('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'label' => esc_html__('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'type' => \Elementor\Controls_Manager::SWITCHER,
-                            'label_on' => __('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
-                            'label_off' => __('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'label_on' => esc_html__('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'label_off' => esc_html__('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'return_value' => 'yes',
                             'default' => 'yes',
                         ],
@@ -730,7 +798,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'mobile_responsive_style_section',
                 [
-                    'label' => __('Mobile Responsive Style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Mobile Responsive Style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'condition' => [
                         'filter_type' => 'all',
                     ],
@@ -740,13 +808,13 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'mobile_responsive_style',
                 [
-                    'label'   => __('Choose style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'   => esc_html__('Choose style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'    => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'style_1' => __('Style 1', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'style_2' => __('Style 2', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'style_3' => __('Style 3', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'style_4' => __('Style 4', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'style_1' => esc_html__('Style 1', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'style_2' => esc_html__('Style 2', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'style_3' => esc_html__('Style 3', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'style_4' => esc_html__('Style 4', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'style_4',
                 ]
@@ -761,7 +829,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'filters_mobile_style_section',
                 [
-                    'label' => __('Filters Word (Mobile)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Filters Word (Mobile)', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -772,10 +840,10 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'filters_word_visibility',
                 [
-                    'label'        => __('Show Filters Word on Mobile', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'        => esc_html__('Show Filters Word on Mobile', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'         => \Elementor\Controls_Manager::SWITCHER,
-                    'label_on'     => __('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'label_off'    => __('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label_on'     => esc_html__('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label_off'    => esc_html__('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'return_value' => 'none',
                     'default'      => 'block',
                     'selectors'    => [
@@ -792,7 +860,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'form_style_section',
                 [
-                    'label' => __('Form Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Form Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -803,7 +871,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'form_background',
                 [
-                    'label'     => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter' => 'background-color: {{VALUE}};',
@@ -813,7 +881,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'form_border_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -825,7 +893,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'form_padding',
                 [
-                    'label'      => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -837,7 +905,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'form_margin',
                 [
-                    'label'      => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -850,7 +918,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Box_Shadow::get_type(),
                 [
                     'name'      => 'form_box_shadow',
-                    'label'     => __('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector'  => 'form#product-filter',
                 ]
             );
@@ -858,7 +926,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'form_height',
                 [
-                    'label'      => __('Form Height', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Form Height', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', '%', 'em', 'vh'],
                     'range'      => [
@@ -892,7 +960,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'container_style_section',
                 [
-                    'label' => __('Container Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Container Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -903,7 +971,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'container_background',
                 [
-                    'label'     => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '.filter-group' => 'background-color: {{VALUE}};',
@@ -913,7 +981,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'container_border_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -925,7 +993,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'container_padding',
                 [
-                    'label'      => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -937,7 +1005,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'container_margin',
                 [
-                    'label'      => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -950,7 +1018,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Box_Shadow::get_type(),
                 [
                     'name'      => 'container_box_shadow',
-                    'label'     => __('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector'  => '.filter-group',
                 ]
             );
@@ -958,13 +1026,13 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'container_overflow',
                 [
-                    'label'     => __('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::SELECT,
                     'options'   => [
-                        'visible' => __('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'hidden'  => __('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'scroll'  => __('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'auto'    => __('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'visible' => esc_html__('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'hidden'  => esc_html__('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'scroll'  => esc_html__('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'auto'    => esc_html__('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default'   => 'visible',
                     'selectors' => [
@@ -980,7 +1048,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'title_styles',
                 [
-                    'label' => __('Widget Title Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Widget Title Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab' => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -992,7 +1060,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Background::get_type(),
                 [
                     'name'     => 'widget_title_background',
-                    'label'    => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
                     'selector' => '{{WRAPPER}} .filter-group .title',
                 ]
@@ -1002,7 +1070,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Typography::get_type(),
                 [
                     'name' => 'widget_title_typography',
-                    'label' => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => '{{WRAPPER}} .filter-group .title',
                 ]
             );
@@ -1010,7 +1078,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'widget_title_color',
                 [
-                    'label' => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .filter-group .title' => 'color: {{VALUE}} !important;',
@@ -1021,7 +1089,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_title_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -1033,23 +1101,23 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_title_alignment',
                 [
-                    'label' => __('Text Align', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Text Align', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::CHOOSE,
                     'options' => [
                         'left' => [
-                            'title' => __('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'title' => esc_html__('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'icon' => 'eicon-text-align-left',
                         ],
                         'center' => [
-                            'title' => __('Center', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'title' => esc_html__('Center', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'icon' => 'eicon-text-align-center',
                         ],
                         'space-between' => [
-                            'title' => __('space-between', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'title' => esc_html__('space-between', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'icon' => 'eicon-justify-space-between-h',
                         ],
                         'right' => [
-                            'title' => __('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
+                            'title' => esc_html__('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
                             'icon' => 'eicon-text-align-right',
                         ],
                     ],
@@ -1062,7 +1130,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_title_padding',
                 [
-                    'label' => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .filter-group .title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1073,7 +1141,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_title_margin',
                 [
-                    'label' => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .filter-group .title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1087,7 +1155,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'items_styles',
                 [
-                    'label' => __('Widget Items Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Widget Items Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab' => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1098,7 +1166,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_items_background_color',
                 [
-                    'label' => __('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .items' => 'background: {{VALUE}} !important;',
@@ -1110,7 +1178,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Typography::get_type(),
                 [
                     'name' => 'widget_items_typography',
-                    'label' => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => '{{WRAPPER}} .items label',
                 ]
             );
@@ -1118,7 +1186,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'widget_items_color',
                 [
-                    'label' => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .items label, .price-input span,.price-input .separator' => 'color: {{VALUE}};',
@@ -1129,7 +1197,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_items_padding',
                 [
-                    'label' => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .items' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1140,7 +1208,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_items_margin',
                 [
-                    'label' => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .items' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1151,7 +1219,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_items_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -1163,7 +1231,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'widget_items_gap',
                 [
-                    'label' => __('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SLIDER,
                     'selectors' => [
                         '{{WRAPPER}} .items' => 'display: flex ; flex-direction: column; gap: {{SIZE}}{{UNIT}};',
@@ -1179,7 +1247,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'section_button_style',
                 [
-                    'label' => __('Button Style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Button Style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1191,7 +1259,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Background::get_type(),
                 [
                     'name'     => 'button_background',
-                    'label'    => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
                     'selector' => 'form#product-filter button',
                 ]
@@ -1200,7 +1268,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'button_text_color',
                 [
-                    'label'     => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter button' => 'color: {{VALUE}};',
@@ -1211,7 +1279,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'button_hover_background',
                 [
-                    'label'     => __('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter button:hover' => 'background-color: {{VALUE}};',
@@ -1222,7 +1290,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'button_hover_text_color',
                 [
-                    'label'     => __('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter button:hover' => 'color: {{VALUE}};',
@@ -1234,7 +1302,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Border::get_type(),
                 [
                     'name'     => 'button_border',
-                    'label'    => __('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => 'form#product-filter button',
                 ]
             );
@@ -1242,7 +1310,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'button_padding',
                 [
-                    'label'      => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1254,7 +1322,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'button_margin',
                 [
-                    'label'      => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1265,7 +1333,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'button_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -1280,7 +1348,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'section_rating_style',
                 [
-                    'label' => __('Rating Style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Rating Style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1291,7 +1359,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'rating_size',
                 [
-                    'label'      => __('Rating Size', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Rating Size', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', 'em', '%'],
                     'range'      => [
@@ -1308,7 +1376,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'rating_inactive_color',
                 [
-                    'label'     => __('Inactive Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Inactive Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .dynamic-rating label, .items.rating svg' => 'fill: {{VALUE}};',
@@ -1319,7 +1387,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'rating_active_color',
                 [
-                    'label'     => __('Active Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Active Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .dynamic-rating  input:checked + label:hover,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover,{{WRAPPER}} .dynamic-rating  label:hover ~ input:checked ~ label,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover ~ label, .items.rating input:checked  + .plugincy-stars svg' => 'fill: {{VALUE}};',
@@ -1330,7 +1398,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'rating_hover_color',
                 [
-                    'label'     => __('Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .dynamic-rating input:checked ~ label,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover ~ label, .items.rating input:hover  + .plugincy-stars svg' => 'fill: {{VALUE}};',
@@ -1341,7 +1409,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'rating_gap',
                 [
-                    'label'      => __('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', 'em', '%'],
                     'range'      => [
@@ -1362,7 +1430,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'section_reset_button_style',
                 [
-                    'label' => __('Reset Button Style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Reset Button Style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1375,7 +1443,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Background::get_type(),
                 [
                     'name'     => 'reset_button_background',
-                    'label'    => __('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
                     'selector' => 'form#product-filter span.reset-value',
                 ]
@@ -1385,7 +1453,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Typography::get_type(),
                 [
                     'name'     => 'reset_button_typography',
-                    'label'    => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => 'form#product-filter span.reset-value',
                 ]
             );
@@ -1395,7 +1463,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'reset_button_text_color',
                 [
-                    'label'     => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter span.reset-value' => 'color: {{VALUE}} !important;',
@@ -1408,7 +1476,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'reset_button_hover_background',
                 [
-                    'label'     => __('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter span.reset-value:hover' => 'background-color: {{VALUE}};',
@@ -1420,7 +1488,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'reset_button_hover_text_color',
                 [
-                    'label'     => __('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter span.reset-value:hover' => 'color: {{VALUE}}!important;',
@@ -1433,7 +1501,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Border::get_type(),
                 [
                     'name'     => 'reset_button_border',
-                    'label'    => __('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => 'form#product-filter span.reset-value',
                 ]
             );
@@ -1442,7 +1510,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'reset_button_padding',
                 [
-                    'label'      => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1455,7 +1523,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'reset_button_margin',
                 [
-                    'label'      => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1470,7 +1538,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'section_input_style',
                 [
-                    'label' => __('Input Style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Input Style', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1482,7 +1550,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'input_background_color',
                 [
-                    'label'     => __('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter input[type="search"], form#product-filter input[type="number"]' => 'background-color: {{VALUE}};',
@@ -1494,7 +1562,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'input_text_color',
                 [
-                    'label'     => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         'form#product-filter input[type="search"], form#product-filter input[type="number"]' => 'color: {{VALUE}};',
@@ -1506,7 +1574,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'input_padding',
                 [
-                    'label'      => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1519,7 +1587,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'input_margin',
                 [
-                    'label'      => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
@@ -1532,7 +1600,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'input_border_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -1546,7 +1614,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Border::get_type(),
                 [
                     'name'     => 'input_border',
-                    'label'    => __('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'    => esc_html__('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => 'form#product-filter input[type="search"], form#product-filter input[type="number"]',
                 ]
             );
@@ -1556,7 +1624,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'slider_style',
                 [
-                    'label' => __('Slider', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Slider', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
@@ -1568,11 +1636,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'slider_background',
                 [
-                    'label'     => __('Slider Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Slider Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#ddd',
                     'selectors' => [
-                        '.slider' => 'background: {{VALUE}};',
+                        '.plugincy_slider' => 'background: {{VALUE}};',
                     ],
                 ]
             );
@@ -1581,7 +1649,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'slider_border_radius',
                 [
-                    'label'      => __('Slider Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Slider Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'range'      => [
                         'px' => [
@@ -1593,29 +1661,29 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '.slider' => 'border-radius: {{SIZE}}px;',
+                        '.plugincy_slider' => 'border-radius: {{SIZE}}px;',
                     ],
                 ]
             );
 
-            // Progress bar background
+            // plugrogress bar background
             $this->add_control(
                 'progress_background',
                 [
-                    'label'     => __('Progress Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('plugrogress Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#432fb8',
                     'selectors' => [
-                        '.slider .progress' => 'background: {{VALUE}};',
+                        '.plugincy_slider .plugrogress' => 'background: {{VALUE}};',
                     ],
                 ]
             );
 
-            // Progress bar border radius
+            // plugrogress bar border radius
             $this->add_control(
                 'progress_border_radius',
                 [
-                    'label'      => __('Progress Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('plugrogress Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'range'      => [
                         'px' => [
@@ -1627,7 +1695,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '.slider .progress' => 'border-radius: {{SIZE}}px;',
+                        '.plugincy_slider .plugrogress' => 'border-radius: {{SIZE}}px;',
                     ],
                 ]
             );
@@ -1636,7 +1704,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'thumb_margin',
                 [
-                    'label' => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         'input[type="range"]::-webkit-slider-thumb' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1649,7 +1717,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'thumb_width',
                 [
-                    'label'      => __('Thumb Size', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Thumb Size', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'range'      => [
                         'px' => [
@@ -1671,7 +1739,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'thumb_background',
                 [
-                    'label'     => __('Thumb Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Thumb Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#432fb8',
                     'selectors' => [
@@ -1685,11 +1753,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'tooltip_background',
                 [
-                    'label'     => __('Tooltip Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Tooltip Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => 'red',
                     'selectors' => [
-                        '.progress-percentage:before, .progress-percentage:after' => 'background: {{VALUE}};',
+                        '.plugrogress-percentage:before, .plugrogress-percentage:after' => 'background: {{VALUE}};',
                     ],
                 ]
             );
@@ -1703,7 +1771,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'single_filter_styles',
                 [
-                    'label' => __('Single Filter Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Single Filter Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab' => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'single',
@@ -1714,7 +1782,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'inactive_item_background',
                 [
-                    'label' => __('Inactive Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Inactive Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons li' => 'background-color: {{VALUE}};',
@@ -1724,7 +1792,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'active_item_background',
                 [
-                    'label' => __('Active Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Active Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul li.checked' => 'background-color: {{VALUE}};',
@@ -1734,7 +1802,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'active_item_color',
                 [
-                    'label' => __('Active Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Active Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul li.checked label' => 'color: {{VALUE}} !important;',
@@ -1746,7 +1814,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'inactive_item_hover_color',
                 [
-                    'label' => __('Inactive Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Inactive Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons li:hover' => 'color: {{VALUE}}',
@@ -1758,7 +1826,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Typography::get_type(),
                 [
                     'name' => 'inactive_item_typography',
-                    'label' => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => '{{WRAPPER}} .rfilterbuttons ul li',
                 ]
             );
@@ -1766,7 +1834,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'inactive_item_color',
                 [
-                    'label' => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul li label' => 'color: {{VALUE}} !important;',
@@ -1777,7 +1845,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'inactive_item_padding',
                 [
-                    'label' => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul li' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1788,7 +1856,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'inactive_item_margin',
                 [
-                    'label' => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul li' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1798,7 +1866,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'inactive_item_gap',
                 [
-                    'label' => __('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SLIDER,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterbuttons ul' => 'gap: {{SIZE}}{{UNIT}};',
@@ -1809,13 +1877,13 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'inactive_item_overflow',
                 [
-                    'label' => __('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'visible' => __('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'hidden'  => __('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'scroll'  => __('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'auto'    => __('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'visible' => esc_html__('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'hidden'  => esc_html__('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'scroll'  => esc_html__('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'auto'    => esc_html__('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'visible',
                     'selectors' => [
@@ -1826,12 +1894,12 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'inactive_item_flex_wrap',
                 [
-                    'label' => __('Flex Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Flex Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'nowrap'  => __('No Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'wrap'    => __('Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'wrap-reverse' => __('Wrap Reverse', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'nowrap'  => esc_html__('No Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'wrap'    => esc_html__('Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'wrap-reverse' => esc_html__('Wrap Reverse', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'wrap',
                     'selectors' => [
@@ -1846,7 +1914,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->start_controls_section(
                 'selected_filter_styles',
                 [
-                    'label' => __('Selected Filter Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Selected Filter Styles', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'tab' => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'selected',
@@ -1857,7 +1925,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_background',
                 [
-                    'label' => __('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterselected ul li.checked' => 'background-color: {{VALUE}};',
@@ -1868,7 +1936,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 \Elementor\Group_Control_Typography::get_type(),
                 [
                     'name' => 'selected_filter_typography',
-                    'label' => __('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'selector' => '{{WRAPPER}} .rfilterselected ul li.checked',
                 ]
             );
@@ -1876,7 +1944,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_color',
                 [
-                    'label' => __('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterselected ul li.checked label' => 'color: {{VALUE}} !important;',
@@ -1887,7 +1955,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_padding',
                 [
-                    'label' => __('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterselected ul li.checked' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1898,7 +1966,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_margin',
                 [
-                    'label' => __('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterselected ul' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
@@ -1908,7 +1976,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_radius',
                 [
-                    'label'      => __('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Border Radius', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
@@ -1919,7 +1987,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_gap',
                 [
-                    'label' => __('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SLIDER,
                     'selectors' => [
                         '{{WRAPPER}} .rfilterselected ul' => 'gap: {{SIZE}}{{UNIT}};',
@@ -1930,13 +1998,13 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_overflow',
                 [
-                    'label' => __('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Overflow', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'visible' => __('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'hidden'  => __('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'scroll'  => __('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'auto'    => __('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'visible' => esc_html__('Visible', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'hidden'  => esc_html__('Hidden', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'scroll'  => esc_html__('Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'auto'    => esc_html__('Auto', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'visible',
                     'selectors' => [
@@ -1948,7 +2016,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_height',
                 [
-                    'label'      => __('Height', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Height', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', '%', 'em', 'vh'],
                     'range'      => [
@@ -1977,12 +2045,12 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_flex_wrap',
                 [
-                    'label' => __('Flex Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label' => esc_html__('Flex Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'nowrap'  => __('No Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'wrap'    => __('Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'wrap-reverse' => __('Wrap Reverse', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'nowrap'  => esc_html__('No Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'wrap'    => esc_html__('Wrap', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'wrap-reverse' => esc_html__('Wrap Reverse', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'wrap',
                     'selectors' => [
@@ -1996,13 +2064,13 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_position',
                 [
-                    'label'   => __('Position', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'   => esc_html__('Position', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'    => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'default'  => __('Default', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'absolute' => __('Absolute', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'fixed'    => __('Fixed', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'sticky'   => __('Sticky', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'default'  => esc_html__('Default', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'absolute' => esc_html__('Absolute', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'fixed'    => esc_html__('Fixed', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'sticky'   => esc_html__('Sticky', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'default',
                     'selectors' => [
@@ -2014,11 +2082,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_orientation',
                 [
-                    'label'      => __('Vertical Orientation', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Vertical Orientation', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SELECT,
                     'options'    => [
-                        'top'    => __('Top', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'bottom' => __('Bottom', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'top'    => esc_html__('Top', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'bottom' => esc_html__('Bottom', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'condition'  => [
                         'selected_filter_position!' => 'default',
@@ -2029,7 +2097,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_offset',
                 [
-                    'label'      => __('Vertical Offset', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Vertical Offset', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', '%', 'em', 'vh'],
                     'range'      => [
@@ -2054,11 +2122,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_horizontal_orientation',
                 [
-                    'label'      => __('Horizontal Orientation', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Horizontal Orientation', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SELECT,
                     'options'    => [
-                        'left'  => __('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'right' => __('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'left'  => esc_html__('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'right' => esc_html__('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'condition'  => [
                         'selected_filter_position!' => 'default',
@@ -2069,7 +2137,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_responsive_control(
                 'selected_filter_horizontal_offset',
                 [
-                    'label'      => __('Horizontal Offset', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'      => esc_html__('Horizontal Offset', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'       => \Elementor\Controls_Manager::SLIDER,
                     'size_units' => ['px', '%', 'em', 'vw'],
                     'range'      => [
@@ -2094,7 +2162,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'selected_filter_z_index',
                 [
-                    'label'     => __('Z-Index', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('Z-Index', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::NUMBER,
                     'default'   => '',
                     'selectors' => [
@@ -2110,6 +2178,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
 
         protected function render()
         {
+            global $allowed_tags;
             $settings = $this->get_settings_for_display();
             $output = '';
 
@@ -2148,11 +2217,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     break;
             }
 
-            echo $output;
+            echo wp_kses($output, $allowed_tags);
         }
     }
 
     // Register the custom widget
     \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new Dapfforwc_Dynamic_Ajax_Filter_Widget());
 }
-add_action('elementor/init', 'dapfforwc_register_dynamic_ajax_filter_widget_elementor');
+add_action('elementor/init', 'dapfforwc_register_dynamic_ajax_filter_widget_elementor', 100);

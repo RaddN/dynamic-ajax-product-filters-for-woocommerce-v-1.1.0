@@ -7,8 +7,9 @@ if (!defined('ABSPATH')) {
 
 function dapfforwc_product_filter_shortcode($atts)
 {
-    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options;
+    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $allowed_tags;
 
+    
     // Define default attributes and merge with user-defined attributes
     $atts = shortcode_atts(array(
         'attribute' => '',
@@ -32,8 +33,13 @@ function dapfforwc_product_filter_shortcode($atts)
     // Get Categories, Tags, attributes using the existing function
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
     $all_cata = $all_data['categories'] ?? [];
+    $all_brands = $all_data['brands'] ?? [];
+    $all_authors = $all_data['authors'] ?? [];
+    $all_stock_status = $all_data['stock_status'] ?? [];
+    $all_sale_status = $all_data['sale_status'] ?? [];
     $all_tags = $all_data['tags'] ?? [];
     $all_attributes = $all_data['attributes'] ?? [];
+    $custom_fields = $all_data['custom_fields'] ?? [];
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         $shortcode = $dapfforwc_advance_settings["product_shortcode"] ?? 'products'; // Shortcode to search for
         $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
@@ -67,14 +73,30 @@ function dapfforwc_product_filter_shortcode($atts)
 
     $filteroptionsfromurl = [];
 
-    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce($_GET['gm-product-filter-nonce'], 'gm-product-filter-action')) {
+    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         if (isset($_GET['product-category'])) {
-            $filteroptionsfromurl["product-category[]"] = array_map('sanitize_text_field', explode(",", $_GET['product-category']));
+            $filteroptionsfromurl["product-category[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['product-category']))));
         }
         // check if 'tags' is set and sanitize it
         if (isset($_GET['tags'])) {
-            $filteroptionsfromurl["tag[]"] = array_map('sanitize_text_field', explode(",", $_GET['tags']));
+            $filteroptionsfromurl["tag[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['tags']))));
+        }
+        // check if 'brands' is set and sanitize it
+        if (isset($_GET['rplurand'])) {
+            $filteroptionsfromurl["rplurand[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplurand']))));
+        }
+        // check if 'authors' is set and sanitize it
+        if (isset($_GET['rpluthor'])) {
+            $filteroptionsfromurl["rpluthor[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpluthor']))));
+        }
+        // check if 'stock status' is set and sanitize it
+        if (isset($_GET['rplutock_status'])) {
+            $filteroptionsfromurl["rplutock_status[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplutock_status']))));
+        }
+        // check if 'sale status' is set and sanitize it
+        if (isset($_GET['rpn_sale'])) {
+            $filteroptionsfromurl["rpn_sale[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpn_sale']))));
         }
         // check if 'rplugpa_color', 'rplugpa_size', etc. are set and sanitize them
         // Dynamically get all attribute taxonomies from $all_attributes
@@ -89,24 +111,81 @@ function dapfforwc_product_filter_shortcode($atts)
                 // Convert 'rplugpa_brand' to 'attribute[brand][]' style key
                 if (strpos($taxonomy, 'rplugpa_') === 0) {
                     $attr_name = substr($taxonomy, 8); // Remove 'rplugpa_' prefix
-                    $filteroptionsfromurl["attribute"][$attr_name] = array_map('sanitize_text_field', explode(",", $_GET[$taxonomy]));
+                    $filteroptionsfromurl["attribute"][$attr_name] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET[$taxonomy]))));
+                }
+            }
+        }
+        // Dynamically get all custom taxonomies from $custom_fields
+        $custom_taxonomies = [];
+        if (!empty($custom_fields) && is_array($custom_fields)) {
+            foreach (array_keys($custom_fields) as $attr_key) {
+                $custom_taxonomies[] = 'rplugcusf_' . $attr_key;
+            }
+        }
+        foreach ($custom_taxonomies as $taxonomy) {
+            if (isset($_GET[$taxonomy])) {
+                // Convert 'rplugcusf_brand' to 'custom_meta[brand][]' style key
+                if (strpos($taxonomy, 'rplugcusf_') === 0) {
+                    $attr_name = substr($taxonomy, 10); // Remove 'rplugcusf_' prefix
+                    $filteroptionsfromurl["custom_meta"][$attr_name] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET[$taxonomy]))));
                 }
             }
         }
         // check if rating is set and sanitize it
         if (isset($_GET['rating'])) {
-            $filteroptionsfromurl["rating[]"] = array_map('sanitize_text_field', explode(",", $_GET['rating']));
+            $filteroptionsfromurl["rating[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rating']))));
         }
 
         // check if mn_price=10&mx_price=100 is set and sanitize it
         if (isset($_GET['mn_price']) && isset($_GET['mx_price'])) {
-            $filteroptionsfromurl["min_price"] = sanitize_text_field($_GET['mn_price']);
-            $filteroptionsfromurl["max_price"] = sanitize_text_field($_GET['mx_price']);
+            $filteroptionsfromurl["min_price"] = sanitize_text_field(wp_unslash($_GET['mn_price']));
+            $filteroptionsfromurl["max_price"] = sanitize_text_field(wp_unslash($_GET['mx_price']));
         }
 
         // check if plugincy_search is set and sanitize it
         if (isset($_GET['plugincy_search'])) {
-            $filteroptionsfromurl["plugincy_search"] = sanitize_text_field($_GET['plugincy_search']);
+            $filteroptionsfromurl["plugincy_search"] = sanitize_text_field(wp_unslash($_GET['plugincy_search']));
+        }
+
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['min_length'])) {
+            $filteroptionsfromurl["min_length"] = sanitize_text_field(wp_unslash($_GET['min_length']));
+        }
+        if (isset($_GET['max_length'])) {
+            $filteroptionsfromurl["max_length"] = sanitize_text_field(wp_unslash($_GET['max_length']));
+        }
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['min_width'])) {
+            $filteroptionsfromurl["min_width"] = sanitize_text_field(wp_unslash($_GET['min_width']));
+        }
+        if (isset($_GET['max_width'])) {
+            $filteroptionsfromurl["max_width"] = sanitize_text_field(wp_unslash($_GET['max_width']));
+        }
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['min_height'])) {
+            $filteroptionsfromurl["min_height"] = sanitize_text_field(wp_unslash($_GET['min_height']));
+        }
+        if (isset($_GET['max_height'])) {
+            $filteroptionsfromurl["max_height"] = sanitize_text_field(wp_unslash($_GET['max_height']));
+        }
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['min_weight'])) {
+            $filteroptionsfromurl["min_weight"] = sanitize_text_field(wp_unslash($_GET['min_weight']));
+        }
+        if (isset($_GET['max_weight'])) {
+            $filteroptionsfromurl["max_weight"] = sanitize_text_field(wp_unslash($_GET['max_weight']));
+        }
+        if (isset($_GET['max_weight'])) {
+            $filteroptionsfromurl["max_weight"] = sanitize_text_field(wp_unslash($_GET['max_weight']));
+        }
+        if (isset($_GET['sku'])) {
+            $filteroptionsfromurl["sku"] = sanitize_text_field(wp_unslash($_GET['sku']));
+        }
+        if (isset($_GET['discount'])) {
+            $filteroptionsfromurl["discount"] = sanitize_text_field(wp_unslash($_GET['discount']));
+        }
+        if (isset($_GET['date_filter'])) {
+            $filteroptionsfromurl["date_filter"] = sanitize_text_field(wp_unslash($_GET['date_filter']));
         }
     }
 
@@ -136,7 +215,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
             $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
-            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
                 $is_all_cata = true;
                 $make_default_selected = true;
@@ -169,7 +248,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
@@ -196,7 +275,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $make_default_selected = true;
         }
     }
-    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? $_GET['filters'] : '') === [""]  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""]  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
@@ -213,6 +292,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
         $prefix = $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] ?? "";
+
         // Get all query variables
         $query_vars = $_GET;
 
@@ -225,6 +305,10 @@ function dapfforwc_product_filter_shortcode($atts)
                 if ($key === 'attribute') {
                     foreach ($val as $attr_key => $attr_val) {
                         $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
+                    }
+                } else if ($key === 'custom') {
+                    foreach ($val as $custom_key => $custom_val) {
+                        $reverse_prefix[$custom_val] = ['type' => 'attribute', 'key' => $custom_key]; //maybe a error here
                     }
                 } else {
                     $reverse_prefix[$val] = ['type' => $key];
@@ -257,7 +341,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $default_filter = (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"]))) ? array_merge(
         $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
         $parsed_filters,
-        explode(',', $_GET['filters'] ?? ''),
+        isset($_GET['filters']) && $_GET['filters'] !== "1" ? explode(',', sanitize_text_field(wp_unslash($_GET['filters'] ?? ''))) : [],
         $request_parts,
         $filteroptionsfromurl
     ) :  array_merge_recursive(
@@ -290,8 +374,6 @@ function dapfforwc_product_filter_shortcode($atts)
             update_option('dapfforwc_options', $dapfforwc_options);
         }
     }
-
-    $formOutPut = "";
     $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
     $products_id_by_rating = [];
     if (!empty($ratings)) {
@@ -310,12 +392,39 @@ function dapfforwc_product_filter_shortcode($atts)
         array_column($all_cata, 'slug'),
         array_column($all_cata, 'products')
     );
+    $brands_lookup = array_combine(
+        array_column($all_brands, 'slug'),
+        array_column($all_brands, 'products')
+    );
+    $authors_lookup = array_combine(
+        array_column($all_authors, 'slug'),
+        array_column($all_authors, 'products')
+    );
+    $stock_status_lookup = array_combine(
+        array_column($all_stock_status, 'slug'),
+        array_column($all_stock_status, 'products')
+    );
+    $sale_status_lookup = array_combine(
+        array_column($all_sale_status, 'slug'),
+        array_column($all_sale_status, 'products')
+    );
     $tag_lookup = array_combine(
         array_column($all_tags, 'slug'),
         array_column($all_tags, 'products')
     );
     $all_data_objects = [];
     $all_data_objects["plugincy_search"] = $default_filter["plugincy_search"] ?? "";
+    $all_data_objects["min_length"] = $default_filter["min_length"] ?? "";
+    $all_data_objects["max_length"] = $default_filter["max_length"] ?? "";
+    $all_data_objects["min_width"] = $default_filter["min_width"] ?? "";
+    $all_data_objects["max_width"] = $default_filter["max_width"] ?? "";
+    $all_data_objects["min_height"] = $default_filter["min_height"] ?? "";
+    $all_data_objects["max_height"] = $default_filter["max_height"] ?? "";
+    $all_data_objects["min_weight"] = $default_filter["min_weight"] ?? "";
+    $all_data_objects["max_weight"] = $default_filter["max_weight"] ?? "";
+    $all_data_objects["sku"] = $default_filter["sku"] ?? "";
+    $all_data_objects["discount"] = $default_filter["discount"] ?? "";
+    $all_data_objects["date_filter"] = $default_filter["date_filter"] ?? "";
     $all_data_objects["rating[]"] = $default_filter["rating[]"] ?? [];
 
     // Match Filters
@@ -338,6 +447,89 @@ function dapfforwc_product_filter_shortcode($atts)
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
     }
+
+    // filter by brands
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_brand_with_ids = array_intersect_key($brands_lookup, array_flip(array_filter($default_filter["rplurand[]"] ?? [])));
+    } else {
+        // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
+        $brand_slugs = array_filter($default_filter["rplurand[]"] ?? []);
+        // Collect numeric keys as possible category slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $brand_slugs, true)) {
+                $brand_slugs[] = $val;
+            }
+        }
+        $matched_brand_with_ids = array_intersect_key($brands_lookup, array_flip($brand_slugs));
+    }
+    $all_data_objects["rplurand[]"] = array_keys($matched_brand_with_ids);
+    if ($second_operator === 'AND') {
+        $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_intersect(...array_values($matched_brand_with_ids)));
+    } else {
+        $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_brand_with_ids))));
+    }
+    // filter by authors
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_author_with_ids = array_intersect_key($authors_lookup, array_flip(array_filter($default_filter["rpluthor[]"] ?? [])));
+    } else {
+        // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
+        $author_slugs = array_filter($default_filter["rpluthor[]"] ?? []);
+        // Collect numeric keys as possible category slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $author_slugs, true)) {
+                $author_slugs[] = $val;
+            }
+        }
+        $matched_author_with_ids = array_intersect_key($authors_lookup, array_flip($author_slugs));
+    }
+    $all_data_objects["rpluthor[]"] = array_keys($matched_author_with_ids);
+    if ($second_operator === 'AND') {
+        $products_id_by_author = empty($matched_author_with_ids) ? [] : array_values(array_intersect(...array_values($matched_author_with_ids)));
+    } else {
+        $products_id_by_author = empty($matched_author_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_author_with_ids))));
+    }
+    // filter by stock status
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_stock_status_with_ids = array_intersect_key($stock_status_lookup, array_flip(array_filter($default_filter["rplutock_status[]"] ?? [])));
+    } else {
+        // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
+        $stock_status_slugs = array_filter($default_filter["rplutock_status[]"] ?? []);
+        // Collect numeric keys as possible category slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $stock_status_slugs, true)) {
+                $stock_status_slugs[] = $val;
+            }
+        }
+        $matched_stock_status_with_ids = array_intersect_key($stock_status_lookup, array_flip($stock_status_slugs));
+    }
+    $all_data_objects["rplutock_status[]"] = array_keys($matched_stock_status_with_ids);
+    if ($second_operator === 'AND') {
+        $products_id_by_stock_status = empty($matched_stock_status_with_ids) ? [] : array_values(array_intersect(...array_values($matched_stock_status_with_ids)));
+    } else {
+        $products_id_by_stock_status = empty($matched_stock_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_stock_status_with_ids))));
+    }
+    // filter by sale status
+    if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
+        $matched_sale_status_with_ids = array_intersect_key($sale_status_lookup, array_flip(array_filter($default_filter["rpn_sale[]"] ?? [])));
+    } else {
+        // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
+        $sale_status_slugs = array_filter($default_filter["rpn_sale[]"] ?? []);
+        // Collect numeric keys as possible category slugs
+        foreach ($default_filter as $key => $val) {
+            if (is_numeric($key) && is_string($val) && !in_array($val, $sale_status_slugs, true)) {
+                $sale_status_slugs[] = $val;
+            }
+        }
+        $matched_sale_status_with_ids = array_intersect_key($sale_status_lookup, array_flip($sale_status_slugs));
+    }
+    $all_data_objects["rpn_sale[]"] = array_keys($matched_sale_status_with_ids);
+    if ($second_operator === 'AND') {
+        $products_id_by_sale_status = empty($matched_sale_status_with_ids) ? [] : array_values(array_intersect(...array_values($matched_sale_status_with_ids)));
+    } else {
+        $products_id_by_sale_status = empty($matched_sale_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_sale_status_with_ids))));
+    }
+    // filter by tags
+
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
         $matched_tag_with_ids = array_intersect_key($tag_lookup, array_flip(array_filter($default_filter["tag[]"] ?? [])));
     } else {
@@ -359,6 +551,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_tag_with_ids))));
     }
 
+    // filter by attribute
 
     // Match Attributes
     $products_id_by_attributes = [];
@@ -421,27 +614,82 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-
     $common_values = empty($products_id_by_attributes) ? [] : array_intersect(...$products_id_by_attributes);
 
+    // filter by custom_meta
+    // Match custom_meta
+    $products_id_by_custom_meta = [];
+    $match_custom_meta_with_ids = [];
 
-    if (empty($products_id_by_cata) && empty($products_id_by_tag) && empty($common_values)) {
-        $products_ids = [];
-    } elseif (empty($products_id_by_cata) && empty($products_id_by_tag) && !empty($common_values)) {
-        $products_ids = $common_values;
-    } elseif (empty($products_id_by_cata) && !empty($products_id_by_tag) && empty($common_values)) {
-        $products_ids = $products_id_by_tag;
-    } elseif (!empty($products_id_by_cata) && empty($products_id_by_tag) && empty($common_values)) {
-        $products_ids = $products_id_by_cata;
-    } elseif (!empty($products_id_by_cata) && !empty($products_id_by_tag) && empty($common_values)) {
-        $products_ids = array_values(array_intersect($products_id_by_cata, $products_id_by_tag));
-    } elseif (!empty($products_id_by_cata) && empty($products_id_by_tag) && !empty($common_values)) {
-        $products_ids = array_values(array_intersect($products_id_by_cata, $common_values));
-    } elseif (empty($products_id_by_cata) && !empty($products_id_by_tag) && !empty($common_values)) {
-        $products_ids = array_values(array_intersect($products_id_by_tag, $common_values));
-    } else {
-        $products_ids = array_values(array_intersect($products_id_by_cata, $products_id_by_tag, $common_values));
+    // Collect all custom_meta slugs from default_filter["custom_meta"] (array) and numeric keys (string values)
+    $custom_meta_slugs_by_tax = [];
+    if (isset($default_filter["custom_meta"]) && is_array($default_filter["custom_meta"])) {
+        foreach ($default_filter["custom_meta"] as $taxonomy => $slugs) {
+            if (is_array($slugs)) {
+                foreach ($slugs as $slug) {
+                    $custom_meta_slugs_by_tax[$taxonomy][] = $slug;
+                }
+            }
+        }
     }
+
+    // Also check numeric keys for possible custom_meta slugs
+    foreach ($default_filter as $key => $val) {
+        if (is_numeric($key) && is_string($val) && $val !== '') {
+            // Try to match this value to any custom_meta term slug
+            foreach ($custom_fields as $taxonomy => $lookup) {
+                if (isset($lookup['terms']) && is_array($lookup['terms'])) {
+                    foreach ($lookup['terms'] as $term) {
+                        if ($term['slug'] === $val) {
+                            $custom_meta_slugs_by_tax[$taxonomy][] = $val;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Remove duplicates
+    foreach ($custom_meta_slugs_by_tax as $taxonomy => $slugs) {
+        $custom_meta_slugs_by_tax[$taxonomy] = array_unique($slugs);
+    }
+
+    // Now build $match_custom_meta_with_ids and $all_data_objects
+    if ((is_array($custom_fields) || is_object($custom_fields))) {
+        foreach ($custom_fields as $taxonomy => $lookup) {
+            if (isset($lookup['terms']) && is_array($lookup['terms'])) {
+                foreach ($lookup['terms'] as $term) {
+                    if (in_array($term['slug'], $custom_meta_slugs_by_tax[$taxonomy] ?? [])) {
+                        $match_custom_meta_with_ids[$taxonomy][] = $term['products'];
+                        $all_data_objects['custom_meta[' . $taxonomy . '][]'][] = $term['slug'];
+                    }
+                }
+            }
+        }
+    }
+
+    if ($second_operator === 'AND') {
+        foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
+            $products_id_by_custom_meta[] = array_values(array_intersect(...$products));
+        }
+    } else {
+        foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
+            $products_id_by_custom_meta[] = array_values(array_unique(array_merge(...$products)));
+        }
+    }
+
+    $common_values_custom_meta = empty($products_id_by_custom_meta) ? [] : array_intersect(...$products_id_by_custom_meta);
+
+    $products_ids = dapfforwc_getFilteredProductIds(
+        $products_id_by_cata,
+        $products_id_by_tag,
+        $products_id_by_brand,
+        $common_values,
+        $common_values_custom_meta,
+        $products_id_by_author,
+        $products_id_by_stock_status,
+        $products_id_by_sale_status
+    );
     if (!empty($products_id_by_rating) && !empty($products_ids)) {
         $products_ids = array_values(array_intersect($products_ids, $products_id_by_rating));
     } elseif (!empty($products_id_by_rating) && empty($products_ids)) {
@@ -449,9 +697,10 @@ function dapfforwc_product_filter_shortcode($atts)
     }
 
     $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
+
     // Cache file path
     $cache_file = __DIR__ . '/min_max_prices_cache.json';
-    $referer = $_SERVER['REQUEST_URI'];
+    $referer = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
 
     // Use $referer to generate a unique cache key
     $cache_key = md5($referer);
@@ -465,7 +714,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce($_GET['gm-product-filter-nonce'], 'gm-product-filter-action')) {
+    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
         $cache_key_url = isset($_GET["_wp_http_referer"]) ? sanitize_text_field(wp_unslash($_GET["_wp_http_referer"])) : '';
         $cache_key = md5($cache_key_url);
         if (isset($min_max_prices_cache[$cache_key])) {
@@ -485,15 +734,87 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
 
     ob_start(); // Start output buffering
-?>
-    <style>
 
-        #product-filter .progress-percentage:before {
+    if ($template_options['active_template'] && $template_options['active_template'] === 'clean') { ?>
+        <style>
+            #product-filter .filter-group .title {
+                padding: 10px 0 14px;
+            }
+
+            #product-filter .filter-group .items {
+                padding: 20px 0 10px;
+            }
+
+            #product-filter .filter-group {
+                margin-bottom: 0;
+            }
+        </style>
+
+    <?php } elseif ($template_options['active_template'] && $template_options['active_template'] === 'shadow') { ?>
+        <style>
+            #product-filter .filter-group {
+                box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
+            }
+
+            #product-filter .filter-group .title {
+                padding: 10px 13px 10px 14px;
+            }
+
+            #product-filter .filter-group .items {
+                padding: 20px 10px;
+            }
+
+            #product-filter .filter-group {
+                margin-bottom: 15px;
+            }
+        </style>
+
+    <?php } ?>
+    <style>
+        #product-filter .plugrogress-percentage:after,
+        #product-filter .plugrogress-percentage:before,
+        #product-filter .plugincy_slider .plugrogress,
+        #product-filter .plugincy-search-submit {
+            background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        .rfilterbuttons ul li.checked,
+        .rfilterselected ul li.checked,
+        #product-filter .items.button_check label {
+            border: 1px solid <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        #product-filter label.image-option {
+            border: 2px solid <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        #product-filter input[type="range"]::-webkit-slider-thumb {
+            background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        #product-filter input[type="range"]::-moz-range-thumb {
+            background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        #product-filter .checkbox_hide .filter-checkbox:checked+span {
+            color: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+        }
+
+        #product-filter .filter-group .items {
+            width: 100%;
+            border-top: 1px solid <?php echo esc_html($template_options["border_color"] ?? '#eee'); ?>;
+        }
+
+        #product-filter span.reset-value {
+            background: <?php echo esc_html($template_options["secondary_color"] ?? '#ff4d4d'); ?>;
+        }
+
+        #product-filter .plugrogress-percentage:before {
             content: "0";
             content: "<?php echo esc_html($all_data_objects["min_price"]); ?>";
         }
 
-        #product-filter .progress-percentage:after {
+        #product-filter .plugrogress-percentage:after {
             content: "";
             content: "<?php echo esc_html($all_data_objects["max_price"]); ?>";
         }
@@ -639,7 +960,7 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php }
 
     if ($atts['mobile_responsive'] === 'style_3' ||  $atts['mobile_responsive'] === 'style_4') { ?>
-        <button id="filter-button" style="position: fixed; z-index: 999; bottom: 20px; right: 20px; background-color: #041a57; color: white; border: none; border-radius: 50%; width: min-content; aspect-ratio: 1; display: flex ; align-items: center; justify-content: center;padding: 13px;">
+        <button id="filter-button" style="position: fixed;z-index: 9999999999;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 30px;height: 30px;">
             <svg style=" width: 20px; fill: #fff; " xmlns="https://www.w3.org/2000/svg" viewBox="0 0 512 512" role="graphics-symbol" aria-hidden="false" aria-label="">
                 <path d="M3.853 54.87C10.47 40.9 24.54 32 40 32H472C487.5 32 501.5 40.9 508.1 54.87C514.8 68.84 512.7 85.37 502.1 97.33L320 320.9V448C320 460.1 313.2 471.2 302.3 476.6C291.5 482 278.5 480.9 268.8 473.6L204.8 425.6C196.7 419.6 192 410.1 192 400V320.9L9.042 97.33C-.745 85.37-2.765 68.84 3.854 54.87L3.853 54.87z"></path>
             </svg>
@@ -652,14 +973,15 @@ function dapfforwc_product_filter_shortcode($atts)
         <?php
         echo '<div class="rfilterselected" id="mobileonly"><div><ul></ul></div></div>';
     }
-    if ($atts['mobile_responsive'] === 'style_3') { ?>
-            <script>
-                jQuery(document).ready(function($) {
-                    function isMobile() {
-                        return $(window).width() < 768; // Adjust the width as needed
+    if ($atts['mobile_responsive'] === 'style_3') {
+        wp_add_inline_script('urlfilter-ajax', "
+         jQuery(document).ready(function($) {
+                    let isMobile = false;
+                    if (window.innerWidth <= 768) {
+                        isMobile = true;
                     }
 
-                    if (isMobile()) {
+                    if (isMobile) {
                         $('#filter-cancel-button').on('click', function(event) {
                             event.preventDefault();
                             $('.mobile-filter').slideUp();
@@ -677,17 +999,18 @@ function dapfforwc_product_filter_shortcode($atts)
                         });
                     }
                 });
-            </script>
-        <?php }
+         ");
+    }
 
-    if ($atts['mobile_responsive'] === 'style_4') { ?>
-            <script>
-                jQuery(document).ready(function($) {
-                    function isMobile() {
-                        return $(window).width() < 768; // Adjust the width as needed
+    if ($atts['mobile_responsive'] === 'style_4') {
+        wp_add_inline_script('urlfilter-ajax', "
+         jQuery(document).ready(function($) {
+                    let isMobile = false;
+                    if (window.innerWidth <= 768) {
+                        isMobile = true;
                     }
 
-                    if (isMobile()) {
+                    if (isMobile) {
                         $('#filter-button').on('click', function(event) {
                             event.preventDefault();
                             $('.mobile-filter').toggleClass('open');
@@ -705,15 +1028,14 @@ function dapfforwc_product_filter_shortcode($atts)
                         });
                     }
                 });
-            </script>
-        <?php } ?>
+         ");
+    } ?>
 
 
-        <form id="product-filter" method="POST" data-mobile-style='<?php echo $atts['mobile_responsive']; ?>'
-            data-product_show_settings='
-        <?php
-        echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
-        ?>'
+        <form id="product-filter" method="POST" data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
+            data-product_show_settings='<?php
+                                        echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
+                                        ?>'
             <?php if (!empty($atts['product_selector'])) {
                 echo 'data-product_selector="' . esc_attr($atts["product_selector"]) . '"';
             } ?>
@@ -740,7 +1062,7 @@ function dapfforwc_product_filter_shortcode($atts)
             // Look for price in $_GET using the prefix
             $price_from_url = null;
             if ($price_prefix && isset($_GET[$price_prefix])) {
-                $price_from_url = $_GET[$price_prefix];
+                $price_from_url = sanitize_text_field(wp_unslash($_GET[$price_prefix]));
             }
 
             if ($price_from_url) {
@@ -786,8 +1108,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 "plugincy_search" => isset($all_data_objects["plugincy_search"]) ? $all_data_objects["plugincy_search"] : "",
                 "rating[]" => isset($all_data_objects["rating[]"]) ? $all_data_objects["rating[]"] : [],
             ];
-            echo dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false);
-            echo $formOutPut;
+            echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $allowed_tags);
             echo '</form>';
             if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
         </div>
@@ -796,8 +1117,13 @@ function dapfforwc_product_filter_shortcode($atts)
 
     <!-- Loader HTML -->
     <?php
-    global $allowed_tags;
-    echo $dapfforwc_options["loader_html"] ?? '<div id="loader" style="display:none;"></div>'; ?>
+
+    echo wp_kses(
+        $dapfforwc_options["loader_html"] ??
+            '<div id="loader" style="display:none;"></div>',
+        $allowed_tags
+    );
+    ?>
     <style>
         <?php echo wp_kses($dapfforwc_options["loader_css"] ?? '#loader {
                 width: 56px;
@@ -820,15 +1146,16 @@ function dapfforwc_product_filter_shortcode($atts)
         <!-- AJAX results will be displayed here -->
     </div>
 
-    <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
+<?php if ($atts['mobile_responsive'] === 'style_1') {
+        wp_add_inline_script('urlfilter-ajax', "
+         document.addEventListener('DOMContentLoaded', function() {
                 // Function to check if the device is mobile
-                function isMobile() {
-                    return window.innerWidth <= 768; // Adjust the width as needed
+                let isMobile = false;
+                if (window.innerWidth <= 768) {
+                    isMobile = true;
                 }
 
-                if (isMobile()) {
+                if (isMobile) {
                     const titles = document.querySelectorAll('.filter-group .title');
                     const items = document.querySelectorAll('.filter-group .items');
 
@@ -868,11 +1195,9 @@ function dapfforwc_product_filter_shortcode($atts)
                     });
                 }
             });
-        </script>
-    <?php } ?>
-
-
-<?php
+         
+         ");
+    }
 
     // End output buffering and return content
     return ob_get_clean();
@@ -900,7 +1225,7 @@ function dapfforwc_customSort($a, $b)
 }
 function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, $name, $attribute, $singlevalueSelect, $count, $min_price = 0, $max_price = null, $min_max_prices = [], $disable_unselected = false)
 {
-    $default_max_price = !isset($dapfforwc_styleoptions["price"]["auto_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : (ceil(floatval($min_max_prices['max'] ?? $max_price)));
+    $default_max_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['max'] ?? $max_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 10000);
     $output = '';
 
     switch ($sub_option) {
@@ -944,7 +1269,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
         case 'image':
         case 'image_no_border':
-            $image_url = $dapfforwc_styleoptions[$attribute]['images'][$value] ?? 'default-image.jpg';
+            $brand_image_url = dapfforwc_get_wc_brand_image_by_slug($value);
+            $image_url = $brand_image_url ?? $dapfforwc_styleoptions[$attribute]['images'][$value] ?? 'default-image.jpg';
             $border_class = ($sub_option === 'image_no_border') ? 'no-border' : '';
             $output .= '<label class="image-option ' . $border_class . '">
             <span class="image-title">' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span>
@@ -954,6 +1280,9 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
                 $attachment_id = attachment_url_to_postid($image_url);
                 if ($attachment_id) {
                     $output .= wp_get_attachment_image($attachment_id, 'thumbnail', false, array('alt' => esc_attr($title)));
+                } else {
+                    // generate svg with name
+                    $output .= '<svg style="width: 100%; height: 100%;" width="78" height="80" viewBox="0 0 78 80" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#2563eb;stop-opacity:1"/><stop offset="100%" style="stop-color:#1d4ed8;stop-opacity:1"/></linearGradient><filter id="b" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="2" dy="2" stdDeviation="2" flood-color="#000" flood-opacity=".3"/></filter></defs><rect width="78" height="80" rx="8" ry="8" fill="url(#a)" filter="url(#b)"/><text x="39" y="32" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" fill="#fff" text-anchor="middle">' . $title . '</text><path stroke="rgba(255,255,255,0.4)" d="M12 42h54"/><text x="39" y="52" font-family="Arial, Helvetica, sans-serif" font-size="7" fill="rgba(255,255,255,0.7)" text-anchor="middle">PREMIUM BRAND</text></svg>';
                 }
             }
 
@@ -963,7 +1292,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'select2':
         case 'select2_classic':
         case 'select':
-            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option" value="' . $value . '"' . ($checked ? 'selected' : '') . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</option>';
+            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</option>';
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
@@ -984,8 +1313,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
           <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
-      <div class="slider">
-        <div class="progress"></div>
+      <div class="plugincy_slider">
+        <div class="plugrogress"></div>
       </div>
       <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
@@ -1002,8 +1331,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
           <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
-      <div class="slider">
-        <div class="progress"></div>
+      <div class="plugincy_slider">
+        <div class="plugrogress"></div>
       </div>
       <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
@@ -1020,8 +1349,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
         </div>
-        <div class="slider">
-        <div class="progress progress-percentage"></div>
+        <div class="plugincy_slider">
+        <div class="plugrogress plugrogress-percentage"></div>
         </div>
         <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
@@ -1210,12 +1539,16 @@ function dapfforwc_product_filter_shortcode_selected()
 }
 add_shortcode('plugincy_filters_selected', 'dapfforwc_product_filter_shortcode_selected');
 
-
 function dapfforwc_get_updated_filters($product_ids, $all_data = [])
 {
     $categories = [];
     $attributes = [];
     $tags = [];
+    $brands = [];
+    $authors = [];
+    $custom_fields = [];
+    $stock_status = [];
+    $sale_status = [];
 
     if (!empty($product_ids)) {
         // Get attributes with terms
@@ -1255,6 +1588,65 @@ function dapfforwc_get_updated_filters($product_ids, $all_data = [])
             }
         }
 
+        // Brands
+        if (is_array($all_data['brands'] ?? []) || is_object($all_data['brands'] ?? [])) {
+            foreach ($all_data['brands'] ?? [] as $term_id => $brand) {
+                if (!empty(array_intersect($product_ids, $brand['products']))) {
+                    $brands[$term_id] = (object) [
+                        'term_id' => $term_id,
+                        'name'    => $brand['name'],
+                        'slug'    => $brand['slug'],
+                        'taxonomy' => 'product_brand',
+                        'count'   => count(array_intersect($brand['products'], $product_ids)),
+                    ];
+                }
+            }
+        }
+
+        // Authors
+        if (is_array($all_data['authors'] ?? []) || is_object($all_data['authors'] ?? [])) {
+            foreach ($all_data['authors'] ?? [] as $author_id => $author) {
+                if (!empty(array_intersect($product_ids, $author['products']))) {
+                    $authors[$author_id] = (object) [
+                        'term_id' => $author_id,
+                        'name' => $author['name'],
+                        'slug' => $author['slug'],
+                        'count'   => count(array_intersect($author['products'], $product_ids)),
+                    ];
+                }
+            }
+        }
+
+        // Stock Status
+        if (is_array($all_data['stock_status'] ?? []) || is_object($all_data['stock_status'] ?? [])) {
+            foreach ($all_data['stock_status'] ?? [] as $status_id => $status) {
+                if (!empty(array_intersect($product_ids, $status['products']))) {
+                    $stock_status[$status_id] = (object) [
+                        'term_id' => $status_id,
+                        'name'    => $status['name'],
+                        'slug'    => $status['slug'],
+                        'taxonomy' => 'stock_status',
+                        'count'   => count(array_intersect($status['products'], $product_ids)),
+                    ];
+                }
+            }
+        }
+
+        // Sale Status
+        if (is_array($all_data['sale_status'] ?? []) || is_object($all_data['sale_status'] ?? [])) {
+            foreach ($all_data['sale_status'] ?? [] as $status_id => $status) {
+                if (!empty(array_intersect($product_ids, $status['products']))) {
+                    $sale_status[$status_id] = (object) [
+                        'term_id' => $status_id,
+                        'name'    => $status['name'],
+                        'slug'    => $status['slug'],
+                        'taxonomy' => 'sale_status',
+                        'count'   => count(array_intersect($status['products'], $product_ids)),
+                    ];
+                }
+            }
+        }
+
         // Extract attributes
         if (is_array($all_data['attributes'] ?? []) || is_object($all_data['attributes'] ?? [])) {
             foreach ($all_data['attributes'] ?? [] as $attribute) {
@@ -1277,11 +1669,41 @@ function dapfforwc_get_updated_filters($product_ids, $all_data = [])
                 }
             }
         }
+
+        // Extract custom fields (similar to attributes)
+        if (is_array($all_data['custom_fields'] ?? []) || is_object($all_data['custom_fields'] ?? [])) {
+            foreach ($all_data['custom_fields'] ?? [] as $custom_field) {
+                $field_name = $custom_field['name'];
+                $field_label = $custom_field['label'];
+                $terms = $custom_field['terms'];
+
+                if (is_array($terms) || is_object($terms)) {
+                    foreach ($terms as $term) {
+                        // Check if the term's products match the provided product IDs
+                        if (!empty(array_intersect($product_ids, $term['products']))) {
+                            $custom_fields[$field_name][] = [
+                                'field_name' => $field_name,
+                                'field_label' => $field_label,
+                                'name'    => $term['name'],
+                                'slug'    => $term['slug'],
+                                'count'   => count(array_intersect($term['products'], $product_ids)),
+                            ];
+                        }
+                    }
+                }
+            }
+        }
     }
+
     return [
         'categories' => array_values($categories), // Return as array
         'attributes' => $attributes,
         'tags' => array_values($tags), // Return as array
+        'brands' => array_values($brands), // Return as array
+        'authors' => array_values($authors), // Return as array
+        'custom_fields' => $custom_fields, // Return custom fields like attributes
+        'stock_status' => array_values($stock_status), // Return as array
+        'sale_status' => array_values($sale_status), // Return as array
     ];
 }
 
@@ -1298,21 +1720,30 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
         return json_decode(file_get_contents($cache_file), true);
     }
 
-    $data = ['attributes' => [], 'categories' => [], 'tags' => []];
+    $data = [
+        'attributes' => [],
+        'categories' => [],
+        'tags' => [],
+        'brands' => [],
+        'authors' => [],
+        'custom_fields' => [],
+        'stock_status' => [],
+        'sale_status' => []
+    ];
 
-    // Optimized query with direct attribute taxonomy check
+    // Query for taxonomies (categories, tags, brands, attributes)
     $query = $wpdb->prepare("
-    SELECT t.term_id, t.name, t.slug, tr.object_id, tt.taxonomy, a.attribute_name, a.attribute_label, tt.parent
-    FROM {$wpdb->prefix}terms AS t
-    INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON t.term_id = tt.term_id
-    LEFT JOIN {$wpdb->prefix}term_relationships AS tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
-    LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
-    INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
-    WHERE (tt.taxonomy IN (%s, %s) OR a.attribute_name IS NOT NULL)
-    AND p.post_type = 'product' 
-    AND p.post_status = 'publish'
-    ORDER BY t.term_id
-", 'product_cat', 'product_tag');
+        SELECT t.term_id, t.name, t.slug, tr.object_id, tt.taxonomy, a.attribute_name, a.attribute_label, tt.parent
+        FROM {$wpdb->prefix}terms AS t
+        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON t.term_id = tt.term_id
+        LEFT JOIN {$wpdb->prefix}term_relationships AS tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
+        LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
+        INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
+        WHERE (tt.taxonomy IN (%s, %s, %s) OR a.attribute_name IS NOT NULL)
+        AND p.post_type = 'product' 
+        AND p.post_status = 'publish'
+        ORDER BY t.term_id
+    ", 'product_cat', 'product_tag', 'product_brand');
 
     $results = $wpdb->get_results($query, ARRAY_A);
 
@@ -1342,6 +1773,16 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
                 if ($row['object_id'] && !in_array($row['object_id'], $data['tags'][$term_id]['products'])) {
                     $data['tags'][$term_id]['products'][] = $row['object_id'];
                 }
+            } elseif ($taxonomy === 'product_brand') {
+                $data['brands'][$term_id] = $data['brands'][$term_id] ?? [
+                    'name' => $row['name'],
+                    'slug' => $row['slug'],
+                    'products' => []
+                ];
+
+                if ($row['object_id'] && !in_array($row['object_id'], $data['brands'][$term_id]['products'])) {
+                    $data['brands'][$term_id]['products'][] = $row['object_id'];
+                }
             } elseif (!empty($row['attribute_name'])) {
                 $attr_name = $row['attribute_name'];
                 $data['attributes'][$attr_name] = $data['attributes'][$attr_name] ?? [
@@ -1365,9 +1806,211 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
         }
     }
 
+    // Separate query for authors (post_author)
+    $authors_query = "
+        SELECT p.post_author, u.display_name, u.user_login, p.ID as product_id
+        FROM {$wpdb->prefix}posts p
+        INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+        WHERE p.post_type = 'product' 
+        AND p.post_status = 'publish'
+        AND p.post_author > 0
+        ORDER BY u.display_name
+    ";
+
+    $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
+
+    if (!empty($authors_results)) {
+        foreach ($authors_results as $row) {
+            $author_id = $row['post_author'];
+            $product_id = $row['product_id'];
+
+            $data['authors'][$author_id] = $data['authors'][$author_id] ?? [
+                'name' => $row['display_name'],
+                'slug' => $row['user_login'],
+                'products' => []
+            ];
+
+            if (!in_array($product_id, $data['authors'][$author_id]['products'])) {
+                $data['authors'][$author_id]['products'][] = $product_id;
+            }
+        }
+    }
+
+    // Improved Query for Stock Status and Sale Status (handling variable products correctly)
+    $stock_sale_query = "
+        SELECT DISTINCT 
+            p.ID as product_id,
+            p.post_title,
+            -- Get actual product type
+            COALESCE(p_type.meta_value, 
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM {$wpdb->prefix}posts v 
+                    WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                ) THEN 'variable' ELSE 'simple' END
+            ) as actual_product_type,
+            p_stock.meta_value as parent_stock_status,
+            p_sale.meta_value as parent_sale_price,  
+            p_regular.meta_value as parent_regular_price,
+            -- Check if any variation has sale price for variable products
+            CASE 
+                WHEN COALESCE(p_type.meta_value, 
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM {$wpdb->prefix}posts v 
+                        WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                    ) THEN 'variable' ELSE 'simple' END
+                ) = 'variable' THEN
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                            INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                            WHERE v.post_parent = p.ID 
+                            AND v.post_type = 'product_variation' 
+                            AND v.post_status = 'publish'
+                            AND v_sale.meta_value IS NOT NULL 
+                            AND v_sale.meta_value != ''
+                            AND v_sale.meta_value != '0'
+                            AND CAST(v_sale.meta_value AS DECIMAL(10,2)) > 0
+                            AND v_regular.meta_value IS NOT NULL
+                            AND v_regular.meta_value != ''
+                            AND CAST(v_sale.meta_value AS DECIMAL(10,2)) < CAST(v_regular.meta_value AS DECIMAL(10,2))
+                        ) THEN 1
+                        ELSE 0
+                    END
+                ELSE
+                    CASE 
+                        WHEN p_sale.meta_value IS NOT NULL 
+                            AND p_sale.meta_value != '' 
+                            AND p_sale.meta_value != '0'
+                            AND CAST(p_sale.meta_value AS DECIMAL(10,2)) > 0
+                            AND p_regular.meta_value IS NOT NULL
+                            AND p_regular.meta_value != ''
+                            AND CAST(p_sale.meta_value AS DECIMAL(10,2)) < CAST(p_regular.meta_value AS DECIMAL(10,2))
+                        THEN 1
+                        ELSE 0
+                    END
+            END as is_on_sale,
+            -- Check stock status for variable products
+            CASE 
+                WHEN COALESCE(p_type.meta_value, 
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM {$wpdb->prefix}posts v 
+                        WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                    ) THEN 'variable' ELSE 'simple' END
+                ) = 'variable' THEN
+                    CASE 
+                        WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
+                            WHERE v.post_parent = p.ID 
+                            AND v.post_type = 'product_variation' 
+                            AND v.post_status = 'publish'
+                            AND (v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL)
+                        ) THEN 'instock'
+                        ELSE 'outofstock'
+                    END
+                ELSE COALESCE(p_stock.meta_value, 'instock')
+            END as final_stock_status
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta p_stock ON p.ID = p_stock.post_id AND p_stock.meta_key = '_stock_status'
+        LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
+        LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
+        LEFT JOIN {$wpdb->prefix}postmeta p_type ON p.ID = p_type.post_id AND p_type.meta_key = '_product_type'
+        WHERE p.post_type = 'product' 
+        AND p.post_status = 'publish'
+    ";
+
+    $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
+
+    // Initialize stock status and sale status arrays
+    $data['stock_status'] = [
+        0 => ['name' => 'In Stock', 'slug' => 'instock', 'products' => []],
+        1 => ['name' => 'Out of Stock', 'slug' => 'outofstock', 'products' => []]
+    ];
+
+    $data['sale_status'] = [
+        0 => ['name' => 'On Sale', 'slug' => 'onsale', 'products' => []],
+        1 => ['name' => 'Not on Sale', 'slug' => 'notonsale', 'products' => []]
+    ];
+
+    if (!empty($stock_sale_results)) {
+        foreach ($stock_sale_results as $row) {
+            $product_id = $row['product_id'];
+            $product_title = $row['post_title'];
+            $actual_type = $row['actual_product_type'];
+            $stock_status = $row['final_stock_status'];
+            $is_on_sale = intval($row['is_on_sale']);
+
+            // Determine stock status
+            if ($stock_status === 'instock') {
+                $data['stock_status'][0]['products'][] = $product_id;
+            } else {
+                $data['stock_status'][1]['products'][] = $product_id;
+            }
+
+            // Determine sale status
+            if ($is_on_sale === 1) {
+                $data['sale_status'][0]['products'][] = $product_id;
+            } else {
+                $data['sale_status'][1]['products'][] = $product_id;
+            }
+        }
+    }
+
+    // Query for custom fields (postmeta)
+    $custom_fields_query = "
+        SELECT pm.meta_key, pm.meta_value, pm.post_id
+        FROM {$wpdb->prefix}postmeta pm
+        INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+        WHERE p.post_type = 'product' 
+        AND p.post_status = 'publish'
+        AND pm.meta_key NOT LIKE '\\_%'  -- Exclude WordPress internal meta keys
+        AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')  -- Exclude WooCommerce internal fields
+        AND pm.meta_value != ''
+        AND pm.meta_value IS NOT NULL
+        ORDER BY pm.meta_key, pm.meta_value
+    ";
+
+    $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
+
+    if (!empty($custom_fields_results)) {
+        foreach ($custom_fields_results as $row) {
+            $meta_key = $row['meta_key'];
+            $meta_value = $row['meta_value'];
+            $product_id = $row['post_id'];
+
+            // Initialize custom field structure if not exists
+            $data['custom_fields'][$meta_key] = $data['custom_fields'][$meta_key] ?? [
+                'label' => ucwords(str_replace(['_', '-'], ' ', $meta_key)), // Generate human-readable label
+                'name' => $meta_key,
+                'terms' => []
+            ];
+
+            // Create a slug from the meta value
+            $value_slug = sanitize_title($meta_value);
+
+            // Initialize term structure if not exists
+            $data['custom_fields'][$meta_key]['terms'][$value_slug] = $data['custom_fields'][$meta_key]['terms'][$value_slug] ?? [
+                'name' => $meta_value,
+                'slug' => $value_slug,
+                'products' => []
+            ];
+
+            // Add product to this custom field term if not already present
+            if (!in_array($product_id, $data['custom_fields'][$meta_key]['terms'][$value_slug]['products'])) {
+                $data['custom_fields'][$meta_key]['terms'][$value_slug]['products'][] = $product_id;
+            }
+        }
+    }
+
     // Convert associative term arrays to indexed arrays
     foreach ($data['attributes'] as $key => $attr) {
         $data['attributes'][$key]['terms'] = array_values($attr['terms']);
+    }
+
+    // Convert associative custom field term arrays to indexed arrays
+    foreach ($data['custom_fields'] as $key => $field) {
+        $data['custom_fields'][$key]['terms'] = array_values($field['terms']);
     }
 
     // Save to cache
@@ -1375,6 +2018,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 
     return $data;
 }
+
 function dapfforwc_get_woocommerce_product_details()
 {
     global $wpdb;
@@ -1386,38 +2030,43 @@ function dapfforwc_get_woocommerce_product_details()
         return json_decode(file_get_contents($cache_file), true);
     }
 
-    // Query for all products with their meta data, categories, and thumbnail URLs
+    // Query for all products with their meta data, categories, and required fields
     $query = "
-    SELECT p.ID, p.post_title, p.post_name, p.post_modified, p.menu_order, p.post_excerpt,
-           MAX(CASE WHEN pm.meta_key = '_price' THEN pm.meta_value END) AS price,
-           MAX(CASE WHEN pm.meta_key = '_sale_price' THEN pm.meta_value END) AS sale_price,
-           MAX(CASE WHEN pm.meta_key = '_regular_price' THEN pm.meta_value END) AS regular_price,
-           MAX(CASE WHEN pm.meta_key = '_min_variation_price' THEN pm.meta_value END) AS min_variation_price,
-           MAX(CASE WHEN pm.meta_key = '_max_variation_price' THEN pm.meta_value END) AS max_variation_price,
-           MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
-           MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
-           MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
-           MAX(CASE WHEN pm.meta_key = '_product_type' THEN pm.meta_value END) AS product_type,
-           MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
-           MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
-           (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
-            INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-            INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
-            WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS categories,
-           (SELECT GROUP_CONCAT(t.slug SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
-            INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-            INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
-            WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS category_slugs,
-           (SELECT CONCAT('" . home_url() . "/wp-content/uploads/', 
-                          pm2.meta_value) 
-            FROM {$wpdb->prefix}postmeta pm2 
-            WHERE pm2.post_id = p.ID AND pm2.meta_key = '_thumbnail_id') AS thumbnail_id,
-           (SELECT guid FROM {$wpdb->prefix}posts WHERE ID = (SELECT meta_value FROM {$wpdb->prefix}postmeta WHERE post_id = p.ID AND meta_key = '_thumbnail_id')) AS product_image
-    FROM {$wpdb->prefix}posts p
-    LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
-    WHERE p.post_type = 'product'
-    AND p.post_status = 'publish'
-    GROUP BY p.ID
+        SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
+               u.display_name AS author_name,
+               MAX(CASE WHEN pm.meta_key = '_price' THEN pm.meta_value END) AS price,
+               MAX(CASE WHEN pm.meta_key = '_sale_price' THEN pm.meta_value END) AS sale_price,
+               MAX(CASE WHEN pm.meta_key = '_regular_price' THEN pm.meta_value END) AS regular_price,
+               MAX(CASE WHEN pm.meta_key = '_min_variation_price' THEN pm.meta_value END) AS min_variation_price,
+               MAX(CASE WHEN pm.meta_key = '_max_variation_price' THEN pm.meta_value END) AS max_variation_price,
+               MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
+               MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
+               MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
+               MAX(CASE WHEN pm.meta_key = '_product_type' THEN pm.meta_value END) AS product_type,
+               MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
+               MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
+               MAX(CASE WHEN pm.meta_key = '_length' THEN pm.meta_value END) AS length,
+               MAX(CASE WHEN pm.meta_key = '_width' THEN pm.meta_value END) AS width,
+               MAX(CASE WHEN pm.meta_key = '_height' THEN pm.meta_value END) AS height,
+               MAX(CASE WHEN pm.meta_key = '_weight' THEN pm.meta_value END) AS weight,
+               (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
+                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
+                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS categories,
+               (SELECT GROUP_CONCAT(t.slug SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
+                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
+                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS category_slugs,
+               (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
+                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
+                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_brand') AS product_brands
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+        LEFT JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+        WHERE p.post_type = 'product'
+        AND p.post_status = 'publish'
+        GROUP BY p.ID
     ";
 
     $results = $wpdb->get_results($query, ARRAY_A);
@@ -1427,47 +2076,202 @@ function dapfforwc_get_woocommerce_product_details()
         foreach ($results as $row) {
             $product_id = $row['ID'];
 
+            // Get the actual product type - WooCommerce might store it differently
+            $actual_product_type = '';
+
+            // First try from the main query result
+            if (!empty($row['product_type'])) {
+                $actual_product_type = $row['product_type'];
+            } else {
+                // If not found, query directly for this product's type
+                $type_query = $wpdb->prepare("
+                    SELECT meta_value 
+                    FROM {$wpdb->prefix}postmeta 
+                    WHERE post_id = %d AND meta_key = '_product_type'
+                ", $product_id);
+                $direct_type = $wpdb->get_var($type_query);
+                $actual_product_type = $direct_type ?: 'simple';
+            }
+
+            // Also check if product has variations (alternative detection method)
+            $has_variations = $wpdb->get_var($wpdb->prepare("
+                SELECT COUNT(*) 
+                FROM {$wpdb->prefix}posts 
+                WHERE post_parent = %d AND post_type = 'product_variation' AND post_status = 'publish'
+            ", $product_id));
+
+            // If we found variations but type says simple, it's likely variable
+            if ($has_variations > 0 && $actual_product_type === 'simple') {
+                $actual_product_type = 'variable';
+            }
+
             // Determine product type and pricing
-            $product_type = $row['product_type'] ?: 'simple';
+            $product_type = $actual_product_type;
             $price = '';
+            $regular_price = '';
+            $sale_price = '';
             $sale_active = false;
+            $discount_percentage = 0;
 
             if ($product_type === 'variable') {
-                $price = $row['min_variation_price'] ?: '';
-                $min_sale_price = $row['min_variation_sale_price'] ?: '';
-                $sale_active = !empty($min_sale_price) && $min_sale_price == $price;
+
+                // For variable products, we need to get prices directly from variations
+                $variation_query = $wpdb->prepare("
+                    SELECT 
+                        v.ID as variation_id,
+                        v.post_title as variation_title,
+                        v_price.meta_value as current_price,
+                        v_regular.meta_value as regular_price_val,
+                        v_sale.meta_value as sale_price_val
+                    FROM {$wpdb->prefix}posts v
+                    LEFT JOIN {$wpdb->prefix}postmeta v_price ON v.ID = v_price.post_id AND v_price.meta_key = '_price'
+                    LEFT JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                    LEFT JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                    WHERE v.post_parent = %d 
+                    AND v.post_type = 'product_variation' 
+                    AND v.post_status = 'publish'
+                ", $product_id);
+
+                $variation_data = $wpdb->get_results($variation_query, ARRAY_A);
+
+                $all_prices = [];
+                $all_regular_prices = [];
+                $all_sale_prices = [];
+                $has_any_sale = false;
+
+                foreach ($variation_data as $variation) {
+                    $variation_id = $variation['variation_id'];
+                    $current_price = $variation['current_price'];
+                    $regular_price_val = $variation['regular_price_val'];
+                    $sale_price_val = $variation['sale_price_val'];
+
+                    // Collect current prices (what customer actually pays)
+                    if (!empty($current_price) && is_numeric($current_price) && floatval($current_price) > 0) {
+                        $all_prices[] = floatval($current_price);
+                    }
+
+                    // Collect regular prices
+                    if (!empty($regular_price_val) && is_numeric($regular_price_val) && floatval($regular_price_val) > 0) {
+                        $all_regular_prices[] = floatval($regular_price_val);
+                    }
+
+                    // Check if this variation has a sale price
+                    if (
+                        !empty($sale_price_val) && is_numeric($sale_price_val) && floatval($sale_price_val) > 0 &&
+                        !empty($regular_price_val) && is_numeric($regular_price_val) &&
+                        floatval($sale_price_val) < floatval($regular_price_val)
+                    ) {
+
+                        $has_any_sale = true;
+                        $all_sale_prices[] = floatval($sale_price_val);
+                    }
+                }
+
+                // Set prices based on variation data
+                $price = !empty($all_prices) ? strval(min($all_prices)) : ($row['min_variation_price'] ?: '');
+                $regular_price = !empty($all_regular_prices) ? strval(min($all_regular_prices)) : ($row['min_variation_regular_price'] ?: '');
+                $sale_active = $has_any_sale;
+
+                if ($has_any_sale && !empty($all_sale_prices)) {
+                    $sale_price = strval(min($all_sale_prices));
+                    $min_sale = min($all_sale_prices);
+                    $corresponding_regular = !empty($all_regular_prices) ? min($all_regular_prices) : 0;
+
+                    if ($corresponding_regular > 0) {
+                        $discount_percentage = round((($corresponding_regular - $min_sale) / $corresponding_regular) * 100, 2);
+                    }
+                } else {
+                    $sale_price = '';
+                }
             } else {
+
+                // Simple product logic
                 $regular_price = $row['regular_price'] ?: '';
                 $sale_price = $row['sale_price'] ?: '';
                 $price = $row['price'] ?: $regular_price;
-                $sale_active = !empty($sale_price) && $sale_price == $price;
+
+                $sale_active = !empty($sale_price) && $sale_price !== '0' && !empty($regular_price) &&
+                    floatval($sale_price) > 0 && floatval($sale_price) < floatval($regular_price);
+
+                // Calculate discount percentage
+                if ($sale_active) {
+                    $discount_percentage = round((($regular_price - $sale_price) / $regular_price) * 100, 2);
+                }
             }
 
             // Get rating
             $rating = floatval($row['average_rating']) ?: 0;
 
-            // Get product image directly from the query
-            $product_image = $row['product_image'];
-
             // Get product categories
-            $product_category = array_map(function ($name, $slug) {
-                return ['name' => $name, 'slug' => $slug];
-            }, explode(', ', $row['categories']), explode(', ', $row['category_slugs']));
+            $product_category = [];
+            if (!empty($row['categories']) && !empty($row['category_slugs'])) {
+                $category_names = explode(', ', $row['categories']);
+                $category_slugs = explode(', ', $row['category_slugs']);
+                $product_category = array_map(function ($name, $slug) {
+                    return ['name' => $name, 'slug' => $slug];
+                }, $category_names, $category_slugs);
+            }
+
+            // Get stock status - handle variable products
+            $stock_status = 'instock'; // default
+            if ($product_type === 'variable') {
+                // Check if any variation is in stock
+                $variation_stock_query = $wpdb->prepare("
+                    SELECT COUNT(*) as in_stock_count
+                    FROM {$wpdb->prefix}posts v
+                    LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
+                    WHERE v.post_parent = %d 
+                    AND v.post_type = 'product_variation' 
+                    AND v.post_status = 'publish'
+                    AND (v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL)
+                ", $product_id);
+
+                $stock_result = $wpdb->get_var($variation_stock_query);
+                $stock_status = ($stock_result > 0) ? 'instock' : 'outofstock';
+            } else {
+                $stock_status = $row['stock_status'] ?: 'instock';
+            }
+
+            // Get additional custom meta fields
+            $custom_meta = [];
+            $custom_meta_query = $wpdb->prepare("
+                SELECT meta_key, meta_value 
+                FROM {$wpdb->prefix}postmeta 
+                WHERE post_id = %d 
+                AND meta_key NOT LIKE '_%%' 
+                AND meta_key NOT IN ('_edit_lock', '_edit_last')
+                AND meta_value IS NOT NULL 
+                AND meta_value != ''
+            ", $product_id);
+
+            $custom_meta_results = $wpdb->get_results($custom_meta_query, ARRAY_A);
+            foreach ($custom_meta_results as $meta) {
+                $custom_meta[$meta['meta_key']] = $meta['meta_value'];
+            }
 
             $products[$product_id] = [
                 'ID' => $product_id,
                 'post_title' => $row['post_title'],
-                'post_name' => $row['post_name'],
+                'publish_date' => $row['publish_date'],
                 'price' => $price,
+                'regular_price' => $regular_price,
+                'sale_price' => $sale_price,
                 'rating' => $rating,
-                'post_modified' => $row['post_modified'],
                 'menu_order' => intval($row['menu_order']),
                 'on_sale' => $sale_active,
-                'product_image' => $product_image,
-                'product_excerpt' => $row['post_excerpt'],
+                'discount_percentage' => $discount_percentage,
                 'product_sku' => $row['sku'] ?: '',
-                'product_stock' => $row['stock_status'] ?: 'instock',
+                'product_stock' => $stock_status,
+                'product_type' => $product_type,
                 'product_category' => $product_category,
+                'product_brand' => $row['product_brands'] ?: '',
+                'author' => $row['author_name'] ?: '',
+                'author_id' => intval($row['post_author']),
+                'length' => $row['length'] ?: '',
+                'width' => $row['width'] ?: '',
+                'height' => $row['height'] ?: '',
+                'weight' => $row['weight'] ?: '',
+                'custom_meta' => $custom_meta,
             ];
         }
     }
@@ -1475,12 +2279,8 @@ function dapfforwc_get_woocommerce_product_details()
     // Convert to indexed array for better JSON compatibility
     $product_data = ['products' => $products];
 
-    // Save to cache with error handling
-    file_put_contents($cache_file, json_encode($product_data, JSON_UNESCAPED_UNICODE));
-
     return $product_data;
 }
-
 
 /**
  * Comprehensive WooCommerce Cache Clearing System
@@ -1488,13 +2288,14 @@ function dapfforwc_get_woocommerce_product_details()
  */
 
 // Function to clear all cache files
-function dapfforwc_clear_woocommerce_caches() {
+function dapfforwc_clear_woocommerce_caches()
+{
     $cache_files = [
         __DIR__ . '/woocommerce_attributes_cache.json',
         __DIR__ . '/woocommerce_product_details.json',
         __DIR__ . '/min_max_prices_cache.json'
     ];
-    
+
     foreach ($cache_files as $cache_file) {
         if (file_exists($cache_file)) {
             wp_delete_file($cache_file);
@@ -1504,22 +2305,22 @@ function dapfforwc_clear_woocommerce_caches() {
 
 // 1. Product updates (create, update, delete, status change)
 add_action('save_post_product', 'dapfforwc_clear_woocommerce_caches');
-add_action('wp_trash_post', function($post_id) {
+add_action('wp_trash_post', function ($post_id) {
     if (get_post_type($post_id) === 'product') {
         dapfforwc_clear_woocommerce_caches();
     }
 });
-add_action('untrashed_post', function($post_id) {
+add_action('untrashed_post', function ($post_id) {
     if (get_post_type($post_id) === 'product') {
         dapfforwc_clear_woocommerce_caches();
     }
 });
-add_action('deleted_post', function($post_id) {
+add_action('deleted_post', function ($post_id) {
     if (get_post_type($post_id) === 'product') {
         dapfforwc_clear_woocommerce_caches();
     }
 });
-add_action('transition_post_status', function($new_status, $old_status, $post) {
+add_action('transition_post_status', function ($new_status, $old_status, $post) {
     if ($post->post_type === 'product' && $new_status !== $old_status) {
         dapfforwc_clear_woocommerce_caches();
     }
@@ -1527,62 +2328,72 @@ add_action('transition_post_status', function($new_status, $old_status, $post) {
 
 // 2. Product variations
 add_action('save_post_product_variation', 'dapfforwc_clear_woocommerce_caches');
-add_action('wp_trash_post', function($post_id) {
+add_action('wp_trash_post', function ($post_id) {
     if (get_post_type($post_id) === 'product_variation') {
         dapfforwc_clear_woocommerce_caches();
     }
 });
-add_action('deleted_post', function($post_id) {
+add_action('deleted_post', function ($post_id) {
     if (get_post_type($post_id) === 'product_variation') {
         dapfforwc_clear_woocommerce_caches();
     }
 });
 
 // 3. Terms (categories, tags, attributes) - create, update, delete
-add_action('created_term', function($term_id, $tt_id, $taxonomy) {
+add_action('created_term', function ($term_id, $tt_id, $taxonomy) {
     if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
         dapfforwc_clear_woocommerce_caches();
     }
 }, 10, 3);
 
-add_action('edited_term', function($term_id, $tt_id, $taxonomy) {
+add_action('edited_term', function ($term_id, $tt_id, $taxonomy) {
     if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
         dapfforwc_clear_woocommerce_caches();
     }
 }, 10, 3);
 
-add_action('delete_term', function($term_id, $tt_id, $taxonomy) {
+add_action('delete_term', function ($term_id, $tt_id, $taxonomy) {
     if (dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
         dapfforwc_clear_woocommerce_caches();
     }
 }, 10, 3);
 
 // 4. Product meta updates (price, stock, attributes, etc.)
-add_action('updated_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
+add_action('updated_post_meta', function ($meta_id, $post_id, $meta_key, $meta_value) {
     if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
         // Clear cache for important product meta fields
         $important_meta_keys = [
-            '_price', '_regular_price', '_sale_price',
-            '_stock', '_stock_status', '_manage_stock',
-            '_weight', '_length', '_width', '_height',
-            '_sku', '_featured', '_visibility',
-            '_downloadable', '_virtual',
+            '_price',
+            '_regular_price',
+            '_sale_price',
+            '_stock',
+            '_stock_status',
+            '_manage_stock',
+            '_weight',
+            '_length',
+            '_width',
+            '_height',
+            '_sku',
+            '_featured',
+            '_visibility',
+            '_downloadable',
+            '_virtual',
             '_product_attributes'
         ];
-        
+
         if (in_array($meta_key, $important_meta_keys) || strpos($meta_key, '_') === 0) {
             dapfforwc_clear_woocommerce_caches();
         }
     }
 }, 10, 4);
 
-add_action('added_post_meta', function($meta_id, $post_id, $meta_key, $meta_value) {
+add_action('added_post_meta', function ($meta_id, $post_id, $meta_key, $meta_value) {
     if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
         dapfforwc_clear_woocommerce_caches();
     }
 }, 10, 4);
 
-add_action('deleted_post_meta', function($meta_ids, $post_id, $meta_key, $meta_value) {
+add_action('deleted_post_meta', function ($meta_ids, $post_id, $meta_key, $meta_value) {
     if (get_post_type($post_id) === 'product' || get_post_type($post_id) === 'product_variation') {
         dapfforwc_clear_woocommerce_caches();
     }
@@ -1616,7 +2427,7 @@ add_action('woocommerce_attribute_updated', 'dapfforwc_clear_woocommerce_caches'
 add_action('woocommerce_attribute_deleted', 'dapfforwc_clear_woocommerce_caches');
 
 // 8. Category/Tag assignments
-add_action('set_object_terms', function($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids) {
+add_action('set_object_terms', function ($object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids) {
     if (get_post_type($object_id) === 'product' && dapfforwc_is_woocommerce_taxonomy($taxonomy)) {
         dapfforwc_clear_woocommerce_caches();
     }
@@ -1632,7 +2443,8 @@ add_action('woocommerce_settings_saved', 'dapfforwc_clear_woocommerce_caches');
 add_action('woocommerce_tax_settings_saved', 'dapfforwc_clear_woocommerce_caches');
 
 // Helper function to check if taxonomy is WooCommerce related
-function dapfforwc_is_woocommerce_taxonomy($taxonomy) {
+function dapfforwc_is_woocommerce_taxonomy($taxonomy)
+{
     $wc_taxonomies = [
         'product_cat',
         'product_tag',
@@ -1640,13 +2452,13 @@ function dapfforwc_is_woocommerce_taxonomy($taxonomy) {
         'product_type',
         'product_visibility'
     ];
-    
+
     // Include custom product attributes
     $attribute_taxonomies = wc_get_attribute_taxonomies();
     foreach ($attribute_taxonomies as $attribute) {
         $wc_taxonomies[] = 'pa_' . $attribute->attribute_name;
     }
-    
+
     return in_array($taxonomy, $wc_taxonomies);
 }
 
