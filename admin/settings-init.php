@@ -369,6 +369,10 @@ function dapfforwc_sanitize_template_options($input)
         $sanitized['active_template'] = sanitize_text_field(wp_unslash($input['active_template']));
     }
 
+    if (isset($input['background_color'])) {
+        $sanitized['background_color'] = sanitize_hex_color(wp_unslash($input['background_color']));
+    }
+
     if (isset($input['primary_color'])) {
         $sanitized['primary_color'] = sanitize_hex_color(wp_unslash($input['primary_color']));
     }
@@ -379,6 +383,10 @@ function dapfforwc_sanitize_template_options($input)
 
     if (isset($input['border_color'])) {
         $sanitized['border_color'] = sanitize_hex_color(wp_unslash($input['border_color']));
+    }
+
+    if (isset($input['text_color'])) {
+        $sanitized['text_color'] = sanitize_hex_color(wp_unslash($input['text_color']));
     }
 
     return $sanitized;

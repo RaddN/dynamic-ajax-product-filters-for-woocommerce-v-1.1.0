@@ -9,13 +9,14 @@ function dapfforwc_product_filter_shortcode($atts)
 {
     global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $allowed_tags;
 
-    
+
     // Define default attributes and merge with user-defined attributes
     $atts = shortcode_atts(array(
         'attribute' => '',
         'terms' => '',
         'category' => '',
         'tag' => '',
+        'layout' => 'sidebar',
         'product_selector' => '',
         'pagination_selector' => '',
         'mobile_responsive' => 'style_4',
@@ -734,6 +735,168 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
 
     ob_start(); // Start output buffering
+    if ($atts['layout'] === 'top_view') {
+        // Add your custom styles for the top_view layout here
+?>
+        <style>
+            @media (min-width: 781px) {
+
+                /* Product Filter Styles */
+                #product-filter {
+                    display: flex;
+                    flex-direction: row;
+                    gap: 12px;
+                    overflow-x: auto;
+                    overflow-y: hidden;
+                    padding-bottom: 50vh;
+                    margin-bottom: -50vh;
+                    padding-left: 2px;
+                    scrollbar-width: thin;
+                    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+                    scrollbar-width: none;
+                }
+
+                .mobile-filter {
+                    position: relative;
+                }
+
+                .mobile-filter:hover .plugincy-next-button,
+                .mobile-filter:hover .plugincy-prev-button {
+                    display: flex !important;
+                    position: absolute;
+                    z-index: 9999;
+                    justify-content: center;
+                    top: 10px;
+                    transform: translate(0);
+                    align-items: center;
+                }
+
+                .mobile-filter:hover .plugincy-next-button {
+                    right: 0;
+                }
+
+                .mobile-filter:hover .plugincy-prev-button {
+                    left: 0;
+                }
+
+                .plugincy-next-button,
+                .plugincy-prev-button {
+                    width: 30px;
+                    height: 30px;
+                    min-width: 30px;
+                    min-height: 30px;
+                    max-width: 30px;
+                    max-height: 30px;
+                    padding: 0;
+                    margin: 0;
+                    border-radius: 50%;
+                    background: #ffffff;
+                    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+                    color: #000;
+                    transition: all 0.5s;
+                }
+
+                .navigation-buttons button:hover {
+                    background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?> !important;
+                    color: #ffffff;
+                }
+
+                /* Webkit scrollbar styling for better cross-browser support */
+                #product-filter::-webkit-scrollbar {
+                    display: none;
+                    /* Hide default scrollbar for WebKit browsers */
+                }
+
+                #product-filter::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+
+                #product-filter::-webkit-scrollbar-thumb {
+                    background: rgba(0, 0, 0, 0.2);
+                    border-radius: 3px;
+                }
+
+                #product-filter::-webkit-scrollbar-thumb:hover {
+                    background: rgba(0, 0, 0, 0.3);
+                }
+
+                /* Filter group container */
+                .filter-group {
+                    position: relative;
+                    min-width: max-content;
+                    flex-shrink: 0;
+                }
+
+                /* Filter group title */
+                .filter-group .title {
+                    white-space: nowrap;
+                    font-weight: 500;
+                    user-select: none;
+                    cursor: pointer;
+                    transition: all 0.2s ease;
+                }
+
+                #product-filter .filter-group.rating {
+                    overflow: visible !important;
+                }
+
+                /* Dropdown items container */
+                .filter-group>*:not(.title) {
+                    position: absolute !important;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    z-index: 1000;
+                    background: #ffffff;
+                    border: 1px solid rgba(0, 0, 0, 0.1);
+                    border-radius: 4px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                    transform: translateY(8px);
+                    transition: all 0.2s ease;
+                    min-width: 200px;
+                }
+
+                /* Show dropdown items on hover or focus */
+                .filter-group:hover .items,
+                .filter-group:focus-within .items {
+                    transform: translateY(4px);
+                }
+
+            }
+        </style>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const productFilter = document.getElementById('product-filter');
+                const nextButton = document.querySelector('.plugincy-next-button');
+                const prevButton = document.querySelector('.plugincy-prev-button');
+
+                if (productFilter) {
+                    productFilter.addEventListener('wheel', function(e) {
+                        // Prevent default vertical scroll
+                        e.preventDefault();
+
+                        // Scroll horizontally instead
+                        // Use deltaY for better cross-browser compatibility
+                        const scrollAmount = e.deltaY || e.deltaX;
+                        productFilter.scrollLeft += scrollAmount;
+                    });
+
+                    if (nextButton) {
+                        nextButton.addEventListener('click', function() {
+                            productFilter.scrollLeft += 200; // Scroll right
+                        });
+                    }
+
+                    if (prevButton) {
+                        prevButton.addEventListener('click', function() {
+                            productFilter.scrollLeft -= 200; // Scroll left
+                        });
+                    }
+                }
+            });
+        </script>
+    <?php
+    }
 
     if ($template_options['active_template'] && $template_options['active_template'] === 'clean') { ?>
         <style>
@@ -766,6 +929,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
             #product-filter .filter-group {
                 margin-bottom: 15px;
+                border-radius: 8px;
             }
         </style>
 
@@ -775,7 +939,22 @@ function dapfforwc_product_filter_shortcode($atts)
         #product-filter .plugrogress-percentage:before,
         #product-filter .plugincy_slider .plugrogress,
         #product-filter .plugincy-search-submit {
-            background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?>;
+            background: <?php echo esc_html($template_options["primary_color"] ?? '#432fb8'); ?> !important;
+        }
+
+        #product-filter .filter-group {
+            background: <?php echo esc_html($template_options["background_color"] ?? 'rgba(255, 255, 255, 0.7)'); ?>;
+        }
+
+        #product-filter .filter-group,
+        #product-filter .filter-group .title,
+        form#product-filter label,
+        form#product-filter legend {
+            color: <?php echo esc_html($template_options["text_color"] ?? '#000000'); ?>;
+        }
+
+        span.plugincy-stars svg {
+            fill: <?php echo esc_html($template_options["text_color"] ?? '#000000'); ?>;
         }
 
         .rfilterbuttons ul li.checked,
@@ -960,7 +1139,7 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php }
 
     if ($atts['mobile_responsive'] === 'style_3' ||  $atts['mobile_responsive'] === 'style_4') { ?>
-        <button id="filter-button" style="position: fixed;z-index: 9999999999;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 30px;height: 30px;">
+        <button id="filter-button" style="position: fixed;z-index: 9999999999;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
             <svg style=" width: 20px; fill: #fff; " xmlns="https://www.w3.org/2000/svg" viewBox="0 0 512 512" role="graphics-symbol" aria-hidden="false" aria-label="">
                 <path d="M3.853 54.87C10.47 40.9 24.54 32 40 32H472C487.5 32 501.5 40.9 508.1 54.87C514.8 68.84 512.7 85.37 502.1 97.33L320 320.9V448C320 460.1 313.2 471.2 302.3 476.6C291.5 482 278.5 480.9 268.8 473.6L204.8 425.6C196.7 419.6 192 410.1 192 400V320.9L9.042 97.33C-.745 85.37-2.765 68.84 3.854 54.87L3.853 54.87z"></path>
             </svg>
@@ -1030,9 +1209,14 @@ function dapfforwc_product_filter_shortcode($atts)
                 });
          ");
     } ?>
-
-
-        <form id="product-filter" method="POST" data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
+        <!-- Navigation Buttons -->
+        <button type="button" class="plugincy-prev-button" aria-label="Previous" style="display: none;">
+            &#8592;
+        </button>
+        <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
+            &#8594;
+        </button>
+        <form id="product-filter" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
             data-product_show_settings='<?php
                                         echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
                                         ?>'
@@ -1042,6 +1226,7 @@ function dapfforwc_product_filter_shortcode($atts)
             <?php if (!empty($atts['pagination_selector'])) {
                 echo 'data-pagination_selector="' . esc_attr($atts["pagination_selector"]) . '"';
             } ?>>
+
             <?php
             $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
             // Get min price from URL if present, using the correct prefix from SEO permalinks options

@@ -3,7 +3,6 @@ form#product-filter * {
 }
 form#product-filter label,
 form#product-filter legend {
-  color: #111827;
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -33,7 +32,6 @@ form#product-filter .items.color_value label {
   gap: 7px;
   align-items: center;
   font-family: "Open Sans", sans-serif !important;
-  color: #727272;
   font-weight: 400;
 }
 #product-filter .filter-group select {
@@ -89,7 +87,6 @@ div#roverlay {
 }
 #product-filter .filter-group .title {
   background: 0 0;
-  color: #000;
   text-align: center;
   display: flex;
   justify-content: space-between;
@@ -105,9 +102,7 @@ div#roverlay {
   text-transform: capitalize;
 }
 #product-filter .filter-group {
-  background: rgba(255, 255, 255, 0.7);
   padding: 5px 10px 1px;
-  border-radius: 8px;
 }
 #product-filter .filter-group .items {
   width: 100%;
@@ -275,7 +270,7 @@ form.rfilterbuttons * {
 #product-filter input[type="checkbox"].filter-square-check {
   -webkit-appearance: checkbox !important;
 }
-#product-filter .items.checkbox_hide input{
+#product-filter .items.checkbox_hide input {
   display: none !important;
 }
 #product-filter .filter-radio-check:hover,
@@ -374,6 +369,13 @@ form.rfilterbuttons * {
   min-height: 5px;
   border: none !important;
   padding: 0;
+  background-color: transparent !important;
+}
+#product-filter input[type="range"]::-webkit-slider-track {
+  background: transparent;
+}
+#product-filter input[type="range"]::-moz-range-track {
+    background: transparent;
 }
 #product-filter input[type="range"]::-webkit-slider-thumb {
   height: 17px;
@@ -700,4 +702,9 @@ form#product-filter .unified-dimension-input-container input {
 }
 .rfilterselected ul li {
   display: flex;
+}
+
+form#product-filter [type="checkbox"],
+form#product-filter [type="radio"] {
+  padding: 0;
 }

@@ -344,7 +344,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= '.filter-group .title {' . $widget_title_style_css . '}';
             }
             if ($widget_items_style_css) {
-                $output .= '.filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;} label { color: unset !important; }';
+                $output .= '.filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;}';
             }
             if ($button_style_css) {
                 $output .= 'form#product-filter button {' . $button_style_css . '}';
@@ -475,7 +475,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
         case 'single':
             $filter_name = esc_attr($attributes['filterName']);
             $output .= '<style>';
-            $output .= '.rfilterbuttons li{' . $single_filter_inactive_css . '}label { color: unset !important; }';
+            $output .= '.rfilterbuttons li{' . $single_filter_inactive_css . '}';
             $output .= '.rfilterbuttons ul {' . $single_filter_container_css . '}';
             $output .= '.rfilterbuttons ul li.checked {' . $single_filter_active_css . '}';
             $output .= '.rfilterbuttons ul li:hover {' . $single_filter_hover_css . '}';
@@ -489,7 +489,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             break;
         case 'selected':
             $output .= '<style>';
-            $output .= '.rfilterselected  li{' . $single_filter_inactive_css . '}label { color: unset !important; }';
+            $output .= '.rfilterselected  li{' . $single_filter_inactive_css . '}';
             $output .= '.rfilterselected  ul {' . $single_filter_container_css . '}';
             $output .= '.rfilterselected  ul li.checked {' . $single_filter_active_css . '}';
             $output .= '.rfilterselected  ul li:hover {' . $single_filter_hover_css . '}';

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 }
 
 
-global $template_options,$allowed_tags;
+global $template_options, $allowed_tags;
 ?>
 
 <div class="dapfforwc-template-container">
@@ -157,36 +157,99 @@ global $template_options,$allowed_tags;
     <div class="dapfforwc-color-settings">
         <h2><?php esc_html_e('Color Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
         <form method="post" action="options.php">
-            <?php
-            settings_fields('dapfforwc_template_options_group');
-            ?>
+            <?php settings_fields('dapfforwc_template_options_group'); ?>
             <input type="hidden" name="dapfforwc_template_options[active_template]" value="<?php echo esc_attr($template_options['active_template']); ?>">
             <table class="form-table">
                 <tr>
+                    <th scope="row"><?php esc_html_e('Background Color', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
+                    <td>
+                        <div style="display: flex; align-items: center; gap: 12px;">
+                            <input type="text"
+                                name="dapfforwc_template_options[background_color]"
+                                value="<?php echo esc_attr($template_options['background_color'] ?? '#ffffffb3'); ?>"
+                                class="dapfforwc-color-picker"
+                                id="dapfforwc-bg-color"
+                                data-alpha="true"
+                                data-default-color="#ffffffb3"
+                                style="width:160px;">
+                        </div>
+                    </td>
+                </tr>
+                <tr>
                     <th scope="row"><?php esc_html_e('Primary Color', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
                     <td>
-                        <input type="color" name="dapfforwc_template_options[primary_color]" value="#667eea" class="dapfforwc-color-picker">
-                        <p class="description"><?php esc_html_e('Used for main buttons, active elements, and highlights', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                        <input type="text"
+                            name="dapfforwc_template_options[primary_color]"
+                            value="<?php echo esc_attr($template_options['primary_color'] ?? '#432fb8'); ?>"
+                            class="dapfforwc-color-picker"
+                            data-alpha="true"
+                            data-default-color="#432fb8"
+                            style="width:160px;">
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><?php esc_html_e('Secondary Color', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
                     <td>
-                        <input type="color" name="dapfforwc_template_options[secondary_color]" value="<?php echo esc_attr($template_options['secondary_color']); ?>" class="dapfforwc-color-picker">
-                        <p class="description"><?php esc_html_e('Used for backgrounds, hover states, and secondary elements', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                        <input type="text"
+                            name="dapfforwc_template_options[secondary_color]"
+                            value="<?php echo esc_attr($template_options['secondary_color'] ?? '#ff4d4d'); ?>"
+                            class="dapfforwc-color-picker"
+                            data-alpha="true"
+                            data-default-color="#ff4d4d"
+                            style="width:160px;">
                     </td>
                 </tr>
                 <tr>
                     <th scope="row"><?php esc_html_e('Border Color', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
                     <td>
-                        <input type="color" name="dapfforwc_template_options[border_color]" value="<?php echo esc_attr($template_options['border_color']); ?>" class="dapfforwc-color-picker">
-                        <p class="description"><?php esc_html_e('Used for borders and dividers', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                        <input type="text"
+                            name="dapfforwc_template_options[border_color]"
+                            value="<?php echo esc_attr($template_options['border_color'] ?? '#eeeeee'); ?>"
+                            class="dapfforwc-color-picker"
+                            data-alpha="true"
+                            data-default-color="#eeeeee"
+                            style="width:160px;">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><?php esc_html_e('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
+                    <td>
+                        <input type="text"
+                            name="dapfforwc_template_options[text_color]"
+                            value="<?php echo esc_attr($template_options['text_color'] ?? '#000000'); ?>"
+                            class="dapfforwc-color-picker"
+                            data-alpha="true"
+                            data-default-color="#000000"
+                            style="width:160px;">
                     </td>
                 </tr>
             </table>
             <?php submit_button(); ?>
         </form>
+        <script>
+            jQuery(document).ready(function($) {
+                // Initialize color pickers with alpha support
+                $('.dapfforwc-color-picker').each(function() {
+                    var $input = $(this);
+                    var defaultColor = $input.data('default-color');
+
+                    $input.wpColorPicker({
+                        defaultColor: defaultColor,
+                        change: function(event, ui) {
+                            // Update value when color changes
+                            $input.val(ui.color.toString());
+                        },
+                        clear: function() {
+                            // Reset to default color
+                            $input.val(defaultColor);
+                        },
+                        palettes: true
+                    });
+                });
+            });
+        </script>
     </div>
+
 </div>
 
 <!-- Preview Modal -->
