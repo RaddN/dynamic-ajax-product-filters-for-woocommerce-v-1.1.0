@@ -24,6 +24,10 @@ function dapfforwc_register_dynamic_ajax_filter_block()
                 'type' => 'string',
                 'default' => 'all',
             ),
+            'filterLayout' => array(
+                'type' => 'string',
+                'default' => 'sidebar',
+            ),
             'productSelector' => array(
                 'type' => 'string',
                 'default' => '',
@@ -193,6 +197,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
 {
     global $dapfforwc_options;
     $filter_type = isset($attributes['filterType']) ? sanitize_key($attributes['filterType']) : '';
+    $filter_layout = isset($attributes['filterLayout']) ? sanitize_key($attributes['filterLayout']) : '';
     $use_custom_design = isset($attributes['usecustomdesign']) ? sanitize_key($attributes['usecustomdesign']) : '';
     $perPage = isset($attributes['perPage']) ? intval(sanitize_key($attributes['perPage'])) : 12;
     $filter_options_manage = isset($attributes['filterOptions']) ? $attributes['filterOptions'] : [];
@@ -457,8 +462,9 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
 
             // Escape shortcode attribute values that are strings
             $shortcode = sprintf(
-                '[plugincy_filters per_page="%d" use_custom_template_design="%s" mobile_responsive="%s" product_selector="%s" pagination_selector="%s" category="%s" tag="%s" attribute="%s" terms="%s"]',
+                '[plugincy_filters per_page="%d" layout="%s" use_custom_template_design="%s" mobile_responsive="%s" product_selector="%s" pagination_selector="%s" category="%s" tag="%s" attribute="%s" terms="%s"]',
                 $perPage,
+                $filter_layout,
                 $use_custom_design,
                 $mobile_style,
                 $product_selector,
@@ -671,6 +677,22 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Pagination Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::TEXT,
                     'default' => '',
+                    'condition' => [
+                        'filter_type' => 'all',
+                    ],
+                ]
+            );
+
+            $this->add_control(
+                'filter_layout',
+                [
+                    'label'   => esc_html__('Select Filter Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'type'    => \Elementor\Controls_Manager::SELECT,
+                    'options' => [
+                        'sidebar'      => esc_html__('Sidebar Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'top_view'      => esc_html__('Top View Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    ],
+                    'default' => 'sidebar',
                     'condition' => [
                         'filter_type' => 'all',
                     ],
@@ -2204,7 +2226,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     $use_custom_template_design = isset($settings['use_custom_template_design']) ? esc_attr($settings['use_custom_template_design']) : '';
                     $per_page =  isset($settings['per_page']) ? esc_attr($settings['per_page']) : '';
                     $mobile_responsive_style = esc_attr($settings['mobile_responsive_style']);
-                    $output .= do_shortcode("[plugincy_filters use_custom_template_design=\"$use_custom_template_design\" mobile_responsive=\"$mobile_responsive_style\"  product_selector=\"$product_selector\" pagination_selector=\"$pagination_selector\" per_page=\"$per_page\"  category=\"$db_categories\" tag=\"$db_tags\" attribute=\"$db_attribute\" terms=\"$db_attributeTerms\"]");
+                    $filter_layout = esc_attr($settings['filter_layout']);
+                    $output .= do_shortcode("[plugincy_filters layout=\"$filter_layout\" use_custom_template_design=\"$use_custom_template_design\" mobile_responsive=\"$mobile_responsive_style\"  product_selector=\"$product_selector\" pagination_selector=\"$pagination_selector\" per_page=\"$per_page\"  category=\"$db_categories\" tag=\"$db_tags\" attribute=\"$db_attribute\" terms=\"$db_attributeTerms\"]");
                     break;
 
                 case 'single':

@@ -744,7 +744,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 /* Product Filter Styles */
                 #product-filter {
                     display: flex;
-                    flex-direction: row;
+                    flex-direction: row !important;
                     gap: 12px;
                     overflow-x: auto;
                     overflow-y: hidden;
@@ -754,6 +754,10 @@ function dapfforwc_product_filter_shortcode($atts)
                     scrollbar-width: thin;
                     scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
                     scrollbar-width: none;
+                }
+
+                .plugincy_layout_top_view .items {
+                    display: none !important;
                 }
 
                 .mobile-filter {
@@ -893,6 +897,27 @@ function dapfforwc_product_filter_shortcode($atts)
                         });
                     }
                 }
+
+                // on click outside of #product-filter add dapfforwc-hidden-important class on .items
+                document.addEventListener('click', function(event) {
+                    if (!productFilter.contains(event.target)) {
+                        const items = productFilter.querySelectorAll('#product-filter .filter-group>*:not(.title)');
+                        const svgs = productFilter.querySelectorAll('#product-filter .filter-group .title svg');
+
+                        items.forEach(function(item) {
+                            if (!item.classList.contains('dapfforwc-hidden-important')) {
+                                item.classList.add('dapfforwc-hidden-important');
+                            }
+                        });
+
+                        // remove .rotated from svgs
+                        svgs.forEach(function(svg) {
+                            if (svg.classList.contains('rotated')) {
+                                svg.classList.remove('rotated');
+                            }
+                        });
+                    }
+                });
             });
         </script>
     <?php
@@ -1216,7 +1241,7 @@ function dapfforwc_product_filter_shortcode($atts)
         <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
             &#8594;
         </button>
-        <form id="product-filter" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
+        <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
             data-product_show_settings='<?php
                                         echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
                                         ?>'

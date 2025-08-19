@@ -375,7 +375,7 @@ form.rfilterbuttons * {
   background: transparent;
 }
 #product-filter input[type="range"]::-moz-range-track {
-    background: transparent;
+  background: transparent;
 }
 #product-filter input[type="range"]::-webkit-slider-thumb {
   height: 17px;
@@ -707,4 +707,8 @@ form#product-filter .unified-dimension-input-container input {
 form#product-filter [type="checkbox"],
 form#product-filter [type="radio"] {
   padding: 0;
+}
+.plugincy-next-button,
+.plugincy-prev-button {
+  display: none !important;
 }
