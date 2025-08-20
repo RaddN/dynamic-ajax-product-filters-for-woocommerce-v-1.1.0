@@ -175,26 +175,6 @@ function dapfforwc_permalinks_prefix_render()
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>
-            <?php if (!empty($all_custom_fields)) : ?>
-                <?php foreach ($all_custom_fields as $custom_field) : ?>
-                    <div class="dapfforwc-form-group">
-                        <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>">
-                            <?php
-                            // translators: %s is replaced with the Custom Field label.
-                            printf(esc_html__('Custom Field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
-                            ?>
-                        </label>
-                        <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>"
-                            name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][custom][<?php echo esc_attr($custom_field->attribute_name); ?>]"
-                            value="<?php echo isset($options['custom']) && isset($options['custom'][$custom_field->attribute_name]) ? esc_attr($options['custom'][$custom_field->attribute_name]) : esc_attr($custom_field->attribute_name); ?>"
-                            <?php
-                            // translators: %s is replaced with the attribute label.
-                            $placeholder_text = sprintf(esc_attr__('custom_field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
-                            ?>
-                            placeholder="<?php echo esc_html($placeholder_text); ?>" />
-                    </div>
-                <?php endforeach; ?>
-            <?php endif; ?>
         </div>
         <div style=" text-align: center; ">
             <button type="button" id="dapfforwcpro_see_more_btn" style="margin-top: 10px; padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; cursor: pointer;">

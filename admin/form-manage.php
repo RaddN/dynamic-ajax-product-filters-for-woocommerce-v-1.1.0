@@ -7,8 +7,8 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
 {
     global $$settings;
 ?>
-    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" ? ' pro-only' : ''; ?>">
-        <input <?php echo $key === "use_anchor" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
+    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" || $key === "show_custom_fields"  ? ' pro-only' : ''; ?>">
+        <input <?php echo $key === "use_anchor" || $key === "show_custom_fields" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" || $key === "show_custom_fields" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php $key === "use_anchor" || $key === "show_custom_fields" ? '' : checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
         <span class="slider round"></span>
         <span class="switch-on">On</span>
         <span class="switch-off">Off</span>

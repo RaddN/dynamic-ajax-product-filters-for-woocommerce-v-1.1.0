@@ -22,7 +22,6 @@ function dapfforwc_settings_init()
         'show_sku' => "",
         'show_discount' => "",
         'show_date_filter' => "",
-        'show_custom_fields' => "",
         'use_url_filter' => 'query_string',
         'update_filter_options' => "on",
         'show_loader' => "on",

@@ -49,24 +49,25 @@ if (!defined('ABSPATH')) {
         (object) ['attribute_name' => 'price', 'attribute_label' => esc_html__('Price', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'rating', 'attribute_label' => esc_html__('Rating', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'brands', 'attribute_label' => esc_html__('Brands', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'authors', 'attribute_label' => esc_html__('Authors', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'status', 'attribute_label' => esc_html__('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'sale_status', 'attribute_label' => esc_html__('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'sale_status', 'attribute_label' => esc_html__('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'dimensions', 'attribute_label' => esc_html__('Dimensions', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'sku', 'attribute_label' => esc_html__('SKU', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'discount', 'attribute_label' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce')],
-        // (object) ['attribute_name' => 'date_filter', 'attribute_label' => esc_html__('Post Date', 'dynamic-ajax-product-filters-for-woocommerce')],
+
+        (object) ['attribute_name' => 'authors', 'attribute_label' => esc_html__('Authors', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'status', 'attribute_label' => esc_html__('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'sale_status', 'attribute_label' => esc_html__('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'dimensions', 'attribute_label' => esc_html__('Dimensions', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'sku', 'attribute_label' => esc_html__('SKU', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'discount', 'attribute_label' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'date_filter', 'attribute_label' => esc_html__('Post Date', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'search', 'attribute_label' => esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')],
     ];
     $dapfforwc_extra_main_options = [
         (object) ['attribute_name' => "attributes", 'attribute_label' => esc_html__('Attributes', 'dynamic-ajax-product-filters-for-woocommerce')],
-        (object) ['attribute_name' => "custom_fields", 'attribute_label' => esc_html__('Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce')],
+        // (object) ['attribute_name' => "custom_fields", 'attribute_label' => esc_html__('Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce')],
     ];
 
 
 
     // Combine attributes and extra options
-    $dapfforwc_all_options = array_merge($dapfforwc_attributes, $all_custom_fields, $dapfforwc_extra_options);
+    $dapfforwc_all_options = array_merge($dapfforwc_attributes, $dapfforwc_extra_options);
     $main_texonomy = array_merge($dapfforwc_extra_options, $dapfforwc_extra_main_options);
 
     // Get the first attribute for default display
@@ -174,11 +175,41 @@ if (!defined('ABSPATH')) {
         <div id="style-options-container">
             <?php foreach ($dapfforwc_all_options as $option) :
                 $dapfforwc_attribute_name = $option->attribute_name;
+                if (
+                    $dapfforwc_attribute_name === 'authors' ||
+                    $dapfforwc_attribute_name === 'status' ||
+                    $dapfforwc_attribute_name === 'sale_status' ||
+                    $dapfforwc_attribute_name === 'dimensions' ||
+                    $dapfforwc_attribute_name === 'sku' ||
+                    $dapfforwc_attribute_name === 'discount' ||
+                    $dapfforwc_attribute_name === 'date_filter' ||
+                    $dapfforwc_attribute_name === 'search'
+                ) { ?>
+                    <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
+                        <div class="optional_settings">
+                            <h4>Optional Settings:</h4>
+
+                            <div class="row" style="padding-top: 16px;">
+                                <div class="col-6">
+                                    <div class="setting-item">
+                                        <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                        <label>
+                                            <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
+                                            <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php
+                    continue; // Skip custom fields in this loop
+                }
                 $dapfforwc_selected_style = $dapfforwc_form_styles[$dapfforwc_attribute_name]['type'] ?? 'dropdown';
                 $dapfforwc_sub_option = $dapfforwc_form_styles[$dapfforwc_attribute_name]['sub_option'] ?? ''; // current stored in database
                 global $dapfforwc_sub_options; //get from root page
 
-            ?>
+                ?>
                 <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
                     <h3 class="section-title"><?php echo esc_html($option->attribute_label); ?> <?php echo esc_html__('Filter Style', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
 
@@ -454,6 +485,13 @@ if (!defined('ABSPATH')) {
                                             </label>
                                         </div>
                                     <?php } ?>
+                                    <div class="setting-item">
+                                        <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                        <label>
+                                            <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
+                                            <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>

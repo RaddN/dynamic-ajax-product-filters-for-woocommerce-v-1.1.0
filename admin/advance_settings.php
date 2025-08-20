@@ -134,7 +134,7 @@ function dapfforwc_exclude_custom_fields_render()
         ];
     }
     ?>
-    <select id="exclude_custom_fields" multiple style="scrollbar-width: thin;min-width: 141px;">
+    <select disabled class="pro-only" id="exclude_custom_fields" multiple style="scrollbar-width: thin;min-width: 141px;">
         <?php foreach ($dapfforwc_attributes as $option) : ?>
             <option value="<?php echo esc_attr($option->attribute_name); ?>" 
                 <?php echo in_array($option->attribute_name, $exclude_custom_fields) ? 'selected' : ''; ?>>
@@ -143,7 +143,7 @@ function dapfforwc_exclude_custom_fields_render()
         <?php endforeach; ?>
     </select>
 
-    <input type="hidden" name="dapfforwc_advance_options[exclude_custom_fields]" id="exclude_custom_fields-string" value="<?php echo esc_attr(implode(',', $exclude_custom_fields)); ?>">
+    <input disabled type="hidden" name="dapfforwc_advance_options[exclude_custom_fields]" id="exclude_custom_fields-string" value="<?php echo esc_attr(implode(',', $exclude_custom_fields)); ?>">
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
