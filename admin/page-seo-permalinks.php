@@ -20,7 +20,7 @@ function dapfforwc_use_anchor_render()
 
 function dapfforwc_permalinks_prefix_render()
 {
-    global $dapfforwc_seo_permalinks_options,$dapfforwc_advance_settings;
+    global $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings;
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
     $all_attributes = $all_data['attributes'] ?? [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
@@ -68,7 +68,7 @@ function dapfforwc_permalinks_prefix_render()
     ];
 ?>
     <style>
-        .attribute_prefix_list {
+        .attribute_prefix_list .prefix_list_container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
@@ -130,70 +130,89 @@ function dapfforwc_permalinks_prefix_render()
         });
     </script>
     <div class="attribute_prefix_list" style="margin-bottom: 10px;">
-        <div class="dapfforwc-form-group">
-            <label for="dapfforwc_category_prefix"><?php esc_html_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
-            <input type="text" id="dapfforwc_category_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][product-category]"
-                value="<?php echo isset($options["product-category"]) ? esc_attr($options["product-category"]) : 'cata'; ?>"
-                placeholder="<?php esc_attr_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+        <div class="prefix_list_container" style="height: 440px; overflow:hidden; transition: height 0.3s ease;">
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_category_prefix"><?php esc_html_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_category_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][product-category]"
+                    value="<?php echo isset($options["product-category"]) ? esc_attr($options["product-category"]) : 'cata'; ?>"
+                    placeholder="<?php esc_attr_e("product-category", 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_tag_prefix"><?php esc_html_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_tag_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][tag]"
+                    value="<?php echo isset($options['tag']) ? esc_attr($options['tag']) : 'tags'; ?>"
+                    placeholder="<?php esc_attr_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_price_prefix"><?php esc_html_e('Price', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_price_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][price]"
+                    value="<?php echo isset($options['price']) ? esc_attr($options['price']) : 'price'; ?>"
+                    placeholder="<?php esc_attr_e('Price', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_rating_prefix"><?php esc_html_e('Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_rating_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][rating]"
+                    value="<?php echo isset($options['rating']) ? esc_attr($options['rating']) : 'rating'; ?>"
+                    placeholder="<?php esc_attr_e('Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <?php if (!empty($attributes)) : ?>
+                <?php foreach ($attributes as $attribute) : ?>
+                    <div class="dapfforwc-form-group">
+                        <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>">
+                            <?php
+                            // translators: %s is replaced with the attribute label.
+                            printf(esc_html__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
+                            ?>
+                        </label>
+                        <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>"
+                            name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][attribute][<?php echo esc_attr($attribute->attribute_name); ?>]"
+                            value="<?php echo isset($options['attribute'][$attribute->attribute_name]) ? esc_attr($options['attribute'][$attribute->attribute_name]) : esc_attr($attribute->attribute_name); ?>"
+                            <?php
+                            // translators: %s is replaced with the attribute label.
+                            $placeholder_text = sprintf(esc_attr__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
+                            ?>
+                            placeholder="<?php echo esc_html($placeholder_text); ?>" />
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <?php if (!empty($all_custom_fields)) : ?>
+                <?php foreach ($all_custom_fields as $custom_field) : ?>
+                    <div class="dapfforwc-form-group">
+                        <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>">
+                            <?php
+                            // translators: %s is replaced with the Custom Field label.
+                            printf(esc_html__('Custom Field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
+                            ?>
+                        </label>
+                        <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>"
+                            name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][custom][<?php echo esc_attr($custom_field->attribute_name); ?>]"
+                            value="<?php echo isset($options['custom']) && isset($options['custom'][$custom_field->attribute_name]) ? esc_attr($options['custom'][$custom_field->attribute_name]) : esc_attr($custom_field->attribute_name); ?>"
+                            <?php
+                            // translators: %s is replaced with the attribute label.
+                            $placeholder_text = sprintf(esc_attr__('custom_field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
+                            ?>
+                            placeholder="<?php echo esc_html($placeholder_text); ?>" />
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </div>
-        <div class="dapfforwc-form-group">
-            <label for="dapfforwc_tag_prefix"><?php esc_html_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
-            <input type="text" id="dapfforwc_tag_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][tag]"
-                value="<?php echo isset($options['tag']) ? esc_attr($options['tag']) : 'tags'; ?>"
-                placeholder="<?php esc_attr_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+        <div style=" text-align: center; ">
+            <button type="button" id="dapfforwcpro_see_more_btn" style="margin-top: 10px; padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; cursor: pointer;">
+                <?php esc_html_e('See More', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+            </button>
         </div>
-        <div class="dapfforwc-form-group">
-            <label for="dapfforwc_price_prefix"><?php esc_html_e('Price', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
-            <input type="text" id="dapfforwc_price_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][price]"
-                value="<?php echo isset($options['price']) ? esc_attr($options['price']) : 'price'; ?>"
-                placeholder="<?php esc_attr_e('Price', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
-        </div>
-        <div class="dapfforwc-form-group">
-            <label for="dapfforwc_rating_prefix"><?php esc_html_e('Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
-            <input type="text" id="dapfforwc_rating_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][rating]"
-                value="<?php echo isset($options['rating']) ? esc_attr($options['rating']) : 'rating'; ?>"
-                placeholder="<?php esc_attr_e('Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
-        </div>
-        <?php if (!empty($attributes)) : ?>
-            <?php foreach ($attributes as $attribute) : ?>
-                <div class="dapfforwc-form-group">
-                    <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>">
-                        <?php
-                        // translators: %s is replaced with the attribute label.
-                        printf(esc_html__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
-                        ?>
-                    </label>
-                    <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>"
-                        name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][attribute][<?php echo esc_attr($attribute->attribute_name); ?>]"
-                        value="<?php echo isset($options['attribute'][$attribute->attribute_name]) ? esc_attr($options['attribute'][$attribute->attribute_name]) : esc_attr($attribute->attribute_name); ?>"
-                        <?php
-                        // translators: %s is replaced with the attribute label.
-                        $placeholder_text = sprintf(esc_attr__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
-                        ?>
-                        placeholder="<?php echo esc_html($placeholder_text); ?>" />
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
-        <?php if (!empty($all_custom_fields)) : ?>
-            <?php foreach ($all_custom_fields as $custom_field) : ?>
-                <div class="dapfforwc-form-group">
-                    <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>">
-                        <?php
-                        // translators: %s is replaced with the Custom Field label.
-                        printf(esc_html__('Custom Field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
-                        ?>
-                    </label>
-                    <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($custom_field->attribute_name); ?>"
-                        name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][custom][<?php echo esc_attr($custom_field->attribute_name); ?>]"
-                        value="<?php echo isset($options['custom']) && isset($options['custom'][$custom_field->attribute_name]) ? esc_attr($options['custom'][$custom_field->attribute_name]) : esc_attr($custom_field->attribute_name); ?>"
-                        <?php
-                        // translators: %s is replaced with the attribute label.
-                        $placeholder_text = sprintf(esc_attr__('custom_field (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($custom_field->attribute_label));
-                        ?>
-                        placeholder="<?php echo esc_html($placeholder_text); ?>" />
-                </div>
-            <?php endforeach; ?>
-        <?php endif; ?>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                var seeMoreBtn = document.getElementById('dapfforwcpro_see_more_btn');
+                var prefixListContainer = document.querySelector('.attribute_prefix_list > div');
+                if (seeMoreBtn && prefixListContainer) {
+                    seeMoreBtn.addEventListener('click', function() {
+                        prefixListContainer.style.height = 'auto';
+                        seeMoreBtn.style.display = 'none';
+                    });
+                }
+            });
+        </script>
     </div>
     <div class="dapfforwc-info-message" style="display: none;">
         Enable <b>"Use Attribute Type in Permalinks"</b> to manage the prefix. Currently your URL format is: <code>?filters=compact-design,large,tag1</code>

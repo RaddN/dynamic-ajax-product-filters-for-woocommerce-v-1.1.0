@@ -6,11 +6,6 @@
   font-size: 24px;
   margin-bottom: 20px;
 }
-.wcapf_admin .wrap form {
-  background-color: #fff;
-  padding: 20px;
-  border: 1px solid #ddd;
-}
 .wcapf_admin .switch {
   position: relative;
   display: inline-block;
@@ -468,7 +463,6 @@
 .wcapf_admin_page .nav-tab-wrapper {
   background: #fff;
   border-radius: 8px 8px 0 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 0 !important;
   display: flex;
   flex-wrap: wrap;
@@ -585,7 +579,10 @@
   display: block;
   margin-bottom: 10px;
 }
-#attribute-dropdown,select#main-texonomy-dropdown,select#child-attr-dropdown,select#child-custom-dropdown {
+#attribute-dropdown,
+select#main-texonomy-dropdown,
+select#child-attr-dropdown,
+select#child-custom-dropdown {
   width: 100%;
   border: 2px solid #e2e8f0;
   border-radius: 8px;
@@ -593,7 +590,10 @@
   transition: border-color 0.3s ease;
   max-width: 100%;
 }
-#attribute-dropdown:focus,select#main-texonomy-dropdown:focus,select#child-attr-dropdown:focus,select#child-custom-dropdown:focus {
+#attribute-dropdown:focus,
+select#main-texonomy-dropdown:focus,
+select#child-attr-dropdown:focus,
+select#child-custom-dropdown:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
@@ -782,11 +782,11 @@
   background: none !important;
 }
 .professional-notice {
-  background: #f7f8fd;
-  border-left: 4px solid #667eea;
+  background: #fff;
+  border: 1px solid #eee;
   padding: 18px 22px;
-  border-radius: 6px;
-  margin-top: 32px;
+  border-radius: 11px;
+  margin-top: 15px;
   margin-bottom: 0;
 }
 .professional-notice a {
@@ -799,5 +799,75 @@
   color: #5a67d8;
 }
 div#wpfooter {
-    display: none !important;
+  display: none !important;
+}
+
+.wcapf_admin .col-md-7 {
+  flex: 0 0 70%;
+  max-width: 70%;
+}
+.wcapf_admin .col-md-5 {
+  flex: 0 0 29%;
+  max-width: 29%;
+}
+.wcapf_admin .col-md-3 {
+  flex: 0 0 25%;
+  max-width: 25%;
+}
+
+@media (max-width: 1350px) {
+  .wcapf_admin .col-md-7,
+  .wcapf_admin .col-md-5,
+  .wcapf_admin .col-md-3 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+}
+
+.wcapf_admin .plugincy-card {
+  padding: 20px;
+  border-radius: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background-color: #ffffff;
+}
+.wcapf_admin .plugincy-card-header {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+.wcapf_admin .plugincy-card-header-icon {
+  background: #764ba2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 7px;
+}
+.wcapf_admin code.plugincy-code-box {
+  display: block;
+  padding: 1rem;
+  border: 1px solid #eee;
+  background: #f9f3ff;
+  border-radius: 0.5rem;
+  color: #764ba2;
+  font-weight: bold;
+}
+
+.wcapf_admin p.plugincy-code-description {
+  margin: 10px 0 10px 3px;
+}
+
+.wcapf_admin .step svg {
+  margin-bottom: -4px;
+}
+.wcapf_admin p.support-links a {
+  text-decoration: none;
+}
+
+.wcapf_admin p.support-links {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 32px;
 }

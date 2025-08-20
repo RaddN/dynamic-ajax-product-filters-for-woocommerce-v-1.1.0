@@ -1315,8 +1315,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $default_data_objects = [
                 "min_price" => $min_price,
                 "max_price" => $max_price,
-                "plugincy_search" => isset($all_data_objects["plugincy_search"]) ? $all_data_objects["plugincy_search"] : "",
-                "rating[]" => isset($all_data_objects["rating[]"]) ? $all_data_objects["rating[]"] : [],
+                ...$filteroptionsfromurl
             ];
             echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $allowed_tags);
             echo '</form>';
