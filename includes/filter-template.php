@@ -1694,7 +1694,7 @@ function dapfforwc_product_filter_shortcode_single($atts)
     }
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $name = $atts['name'];
+    $name = esc_attr($atts['name']);
     $terms = [];
 
     if (isset($all_data['categories']) && $name === 'product_cat') {
@@ -1721,7 +1721,7 @@ function dapfforwc_product_filter_shortcode_single($atts)
     }
 
     // Generate the output
-    $output = '<form class="rfilterbuttons" id="' . $atts['name'] . '"><ul>';
+    $output = '<form class="rfilterbuttons" id="' . esc_attr($atts['name']) . '"><ul>';
     // Show all terms by default
     foreach ($terms as $term) {
         $term_id = esc_attr($term['term_id']);

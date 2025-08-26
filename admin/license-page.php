@@ -333,8 +333,8 @@ class DAPFFORWC_License_Manager
         $is_pro_active = $this->is_pro_version_active();
 ?>
         <div class="wrap" style="background: #fff; padding: 1rem;">
-            <div class="plugincy-card-header">
-                <div class="plugincy-card-header-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="plugincy-dapfforwc-card-header">
+                <div class="plugincy-dapfforwc-card-header-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
                     <svg fill="#fff" width="16" height="16" viewBox="0 0 0.48 0.48" xmlns="http://www.w3.org/2000/svg">
                         <path d="M.276.293.195.374H.142v.053H.089V.48H0V.391L.187.204A.2.2 0 0 1 .178.151a.151.151 0 1 1 .097.141zM.427.107A.053.053 0 1 0 .374.16.053.053 0 0 0 .427.107" />
                     </svg>

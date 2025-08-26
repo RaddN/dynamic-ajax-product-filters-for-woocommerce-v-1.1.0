@@ -28,7 +28,7 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
 
         ?>
         <p>
-            <h4 for="seo_meta_tag"><?php esc_html_e('Choose Meta Tag:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
+            <h4 for="seo_meta_tag" style="margin: 20px 0 10px;"><?php esc_html_e('Choose Meta Tag:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
             <select name="dapfforwc_seo_permalinks_options[seo_meta_tag]" id="seo_meta_tag">
                 <?php
                 $meta_tag_options = [

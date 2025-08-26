@@ -72,6 +72,7 @@ function dapfforwc_permalinks_prefix_render()
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             gap: 15px;
+            row-gap: 0;
         }
 
         .dapfforwc-form-group {

@@ -149,7 +149,7 @@ function dapfforwc_settings_init()
         'dapfforwc_style_section',
         '<p class="page-title">' . esc_html__('Form Style Configuration', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>',
         function () {
-            echo '<p style="padding-bottom: 20px; border-bottom: 2px solid #f1f5f9;">' . esc_html__('Customize the appearance and behavior of your filter components with our comprehensive styling options', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
+            echo '<p style="padding-bottom: 20px;">' . esc_html__('Customize the appearance and behavior of your filter components with our comprehensive styling options', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
         },
         'dapfforwc-style'
     );

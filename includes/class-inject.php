@@ -212,6 +212,7 @@ class dapfforwc_Custom_Class_Injector
      */
     public function end_pagination_capture()
     {
+        global $allowed_tags;
         if (!$this->is_capturing_pagination) {
             return;
         }
@@ -267,7 +268,7 @@ class dapfforwc_Custom_Class_Injector
             $html
         );
 
-        echo $html;
+        echo wp_kses($html, $allowed_tags);
     }
 
 
@@ -540,11 +541,12 @@ if (!class_exists('dapfforwc_Pagination_Normalizer')) {
 
         public function capture_end()
         {
+            global $allowed_tags;
             if (!function_exists('is_woocommerce') || !is_woocommerce() || is_singular('product')) {
                 return;
             }
             $html = ob_get_clean();
-            echo $this->inject_into_any_pagination($html);
+            echo wp_kses($this->inject_into_any_pagination($html), $allowed_tags);
         }
 
         /* ----------------------------------------------
