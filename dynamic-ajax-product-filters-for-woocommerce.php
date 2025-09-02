@@ -2723,3 +2723,22 @@ class dapfforwc_Widget_selected_filter extends WP_Widget {
         return $instance;
     }
 }
+
+
+
+// Enqueue your script in WordPress
+add_action('wp_enqueue_scripts', function () {
+    wp_add_inline_script('jquery-core', "
+        (function() {
+            function isDebugMode() {
+                return new URLSearchParams(window.location.search).get('plugincydebug') === 'true';
+            }
+            
+            window.plugincydebugLog = function() {
+                if (isDebugMode() && console && console.log) {
+                    console.log.apply(console, arguments);
+                }
+            };
+        })();
+    ");
+});
