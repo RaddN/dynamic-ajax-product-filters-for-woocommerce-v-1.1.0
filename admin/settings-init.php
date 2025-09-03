@@ -215,9 +215,9 @@ function dapfforwc_settings_init()
     add_settings_field('exclude_custom_fields', esc_html__('Exclude Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_exclude_custom_fields_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_attributes = $all_data['attributes'] ?? [];
+    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
-    $custom_fields = $all_data['custom_fields'] ?? [];
+    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
     $attributes = [];
     foreach ($all_attributes as $attribute) {
@@ -295,7 +295,7 @@ function dapfforwc_settings_init()
     );
 
     // add_settings_field('use_filters_word_in_permalinks', esc_html__('Use Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+    if (isset($dapfforwc_options["use_url_filter"]) && $dapfforwc_options["use_url_filter"] !== "ajax") {
         add_settings_field('use_attribute_type_in_permalinks', esc_html__('Use Attribute Type in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_attribute_type_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
         // add_settings_field('filters_word_in_permalinks', esc_html__('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
         add_settings_field('permalinks_prefix', esc_html__('Permalinks Prefix', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_permalinks_prefix_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
@@ -308,12 +308,12 @@ function dapfforwc_settings_init()
         'dapfforwc-seo-permalinks'
     );
 
-    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+    if (isset($dapfforwc_options["use_url_filter"]) && $dapfforwc_options["use_url_filter"] !== "ajax") {
         // add Enable SEO option
         add_settings_field('enable_seo', esc_html__('Enable SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_enable_seo_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
     }
     add_settings_field('use_anchor', esc_html__('Make filter link indexable for best SEO', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_anchor_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_section');
-    if ($dapfforwc_options["use_url_filter"] !== "ajax") {
+    if (isset($dapfforwc_options["use_url_filter"]) && $dapfforwc_options["use_url_filter"] !== "ajax") {
         // Add the "SEO Title" field
         add_settings_field(
             'seo_title',
@@ -342,7 +342,7 @@ function dapfforwc_settings_init()
             'dapfforwc_seo_section'
         );
     }
-    if ($dapfforwc_options["use_url_filter"] === "ajax") {
+    if (isset($dapfforwc_options["use_url_filter"]) && $dapfforwc_options["use_url_filter"] === "ajax") {
         add_settings_field(
             'use_url_filter_notice',
             '',

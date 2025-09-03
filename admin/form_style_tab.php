@@ -12,10 +12,10 @@ if (!defined('ABSPATH')) {
 
     // Fetch WooCommerce attributes
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_cata = $all_data['categories'] ?? [];
-    $all_tags = $all_data['tags'] ?? [];
-    $all_attributes = $all_data['attributes'] ?? [];
-    $all_brands = $all_data['brands'] ?? [];
+    $all_cata = isset($all_data['categories']) ? $all_data['categories'] : [];
+    $all_tags = isset($all_data['tags']) ? $all_data['tags'] : [];
+    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
+    $all_brands = isset($all_data['brands']) ? $all_data['brands'] : [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
     $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
     $dapfforwc_attributes = [];
@@ -28,7 +28,7 @@ if (!defined('ABSPATH')) {
             'attribute_label' => $attribute['attribute_label'],
         ];
     }
-    $custom_fields = $all_data['custom_fields'] ?? [];
+    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $all_custom_fields = [];
     foreach ($custom_fields as $custom_field) {
         if (in_array($custom_field['name'], $exclude_custom_fields)) {
@@ -324,7 +324,7 @@ if (!defined('ABSPATH')) {
                                             <?php foreach ($dapfforwc_terms as $term) :
                                                 if (isset($term['slug'])) {
                                                     $brand_image_url = dapfforwc_get_wc_brand_image_by_slug($term['slug']);
-                                                    $dapfforwc_image_value = $brand_image_url ?? $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term['slug']] ?? ''; // Fetch stored image URL
+                                                    $dapfforwc_image_value = isset($brand_image_url) && !empty($brand_image_url) ? $brand_image_url : $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term['slug']] ?? ''; // Fetch stored image URL
                                                 } else {
                                                     $dapfforwc_image_value = '';
                                                 }

@@ -123,7 +123,7 @@ form.rfilterbuttons * {
   cursor: pointer;
 }
 #product-filter .items.button_check label,
-#product-filter .items.color label,
+#product-filter .items.plugincy_color label,
 #product-filter .items.color_circle label,
 #product-filter .items.color_no_border label,
 #product-filter .items.image label,
@@ -139,7 +139,7 @@ form.rfilterbuttons * {
   padding: 5px;
 }
 #product-filter .items.button_check input,
-#product-filter .items.color input,
+#product-filter .items.plugincy_color input,
 #product-filter .items.color_circle input,
 #product-filter .items.color_no_border input,
 #product-filter .items.image input,
@@ -166,7 +166,7 @@ form.rfilterbuttons * {
   height: 20px !important;
 }
 #product-filter .items.button_check,
-#product-filter .items.color,
+#product-filter .items.plugincy_color,
 #product-filter .items.color_circle,
 #product-filter .items.color_no_border,
 #product-filter .items.image,
@@ -195,7 +195,7 @@ form.rfilterbuttons * {
   grid-template-columns: repeat(auto-fit, minmax(70px, 1fr)) !important;
 }
 #product-filter .items.button_check input:checked,
-#product-filter .items.color input:checked,
+#product-filter .items.plugincy_color input:checked,
 #product-filter .items.color_circle input:checked,
 #product-filter .items.color_no_border input:checked,
 #product-filter .items.color_value input:checked,
@@ -611,13 +611,13 @@ form#product-filter .checkbox label {
   cursor: pointer;
 }
 
-form#product-filter .items.color label:hover,
+form#product-filter .items.plugincy_color label:hover,
 form#product-filter .items.color_no_border label:hover,
 form#product-filter .items.color_circle label:hover {
   position: relative;
 }
 
-form#product-filter .items.color label:hover .value,
+form#product-filter .items.plugincy_color label:hover .value,
 form#product-filter .items.color_no_border label:hover .value,
 form#product-filter .items.color_circle label:hover .value {
   display: block !important;
@@ -631,7 +631,7 @@ form#product-filter .items.color_circle label:hover .value {
   font-size: 11px !important;
   width: max-content;
 }
-.items.color label:hover .value:before,
+.items.plugincy_color label:hover .value:before,
 form#product-filter .items.color_no_border label:hover .value:before,
 form#product-filter .items.color_circle label:hover .value:before {
   content: "";

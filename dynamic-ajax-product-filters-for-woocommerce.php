@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.3.8
+ * Version:     1.3.9
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.3.8');
+define('DAPFFORWC_VERSION', '1.3.9');
 
 // Global Variables
 global $allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
@@ -210,7 +210,7 @@ $allowed_tags = array(
         'defer' => array(),
         'charset' => array(),
     ), // Be cautious with scripts
-    
+
     // Style and Meta Tags
     'style' => array(
         'type' => array(),
@@ -238,7 +238,7 @@ $allowed_tags = array(
         'href' => array(),
         'target' => array(),
     ),
-    
+
     // Document Structure
     'html' => array(
         'lang' => array(),
@@ -287,7 +287,7 @@ $allowed_tags = array(
         'id' => array(),
         'role' => array(),
     ),
-    
+
     // Form Elements
     'form' => array(
         'action' => array(),
@@ -434,7 +434,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Media Elements
     'audio' => array(
         'src' => array(),
@@ -510,7 +510,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Interactive Elements
     'details' => array(
         'open' => array(),
@@ -526,7 +526,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Text Content Elements
     'pre' => array(
         'id' => array(),
@@ -609,7 +609,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Table Elements (Enhanced)
     'caption' => array(
         'id' => array(),
@@ -637,7 +637,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Definition Lists
     'dl' => array(
         'id' => array(),
@@ -651,7 +651,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Ruby Annotations
     'ruby' => array(
         'id' => array(),
@@ -665,7 +665,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Bidirectional Text
     'bdi' => array(
         'dir' => array(),
@@ -677,7 +677,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Web Components
     'template' => array(
         'id' => array(),
@@ -688,7 +688,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Math and Science
     'math' => array(
         'display' => array(),
@@ -696,7 +696,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Canvas and Graphics
     'canvas' => array(
         'width' => array(),
@@ -704,7 +704,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // Obsolete but sometimes needed
     'center' => array(
         'id' => array(),
@@ -717,7 +717,7 @@ $allowed_tags = array(
         'id' => array(),
         'class' => array(),
     ),
-    
+
     // SVG Tags
     'svg' => array(
         'xmlns' => array(),
@@ -1030,108 +1030,313 @@ $allowed_tags = array(
 
 
 // Allow extensive CSS properties for WordPress
-add_filter( 'safe_style_css', function( $styles ) {
-    return array_merge( $styles, array(
+add_filter('safe_style_css', function ($styles) {
+    return array_merge($styles, array(
         // Layout & Positioning
-        'display', 'visibility', 'opacity', 'position', 'top', 'right', 'bottom', 'left',
-        'z-index', 'float', 'clear', 'clip', 'clip-path',
-        
+        'display',
+        'visibility',
+        'opacity',
+        'position',
+        'top',
+        'right',
+        'bottom',
+        'left',
+        'z-index',
+        'float',
+        'clear',
+        'clip',
+        'clip-path',
+
         // Box Model
-        'width', 'height', 'max-width', 'max-height', 'min-width', 'min-height',
-        'box-sizing', 'aspect-ratio',
-        
+        'width',
+        'height',
+        'max-width',
+        'max-height',
+        'min-width',
+        'min-height',
+        'box-sizing',
+        'aspect-ratio',
+
         // Margins & Padding
-        'margin', 'margin-top', 'margin-right', 'margin-bottom', 'margin-left',
-        'margin-block', 'margin-inline', 'margin-block-start', 'margin-block-end',
-        'margin-inline-start', 'margin-inline-end',
-        'padding', 'padding-top', 'padding-right', 'padding-bottom', 'padding-left',
-        'padding-block', 'padding-inline', 'padding-block-start', 'padding-block-end',
-        'padding-inline-start', 'padding-inline-end',
-        
+        'margin',
+        'margin-top',
+        'margin-right',
+        'margin-bottom',
+        'margin-left',
+        'margin-block',
+        'margin-inline',
+        'margin-block-start',
+        'margin-block-end',
+        'margin-inline-start',
+        'margin-inline-end',
+        'padding',
+        'padding-top',
+        'padding-right',
+        'padding-bottom',
+        'padding-left',
+        'padding-block',
+        'padding-inline',
+        'padding-block-start',
+        'padding-block-end',
+        'padding-inline-start',
+        'padding-inline-end',
+
         // Borders
-        'border', 'border-top', 'border-right', 'border-bottom', 'border-left',
-        'border-width', 'border-top-width', 'border-right-width', 'border-bottom-width', 'border-left-width',
-        'border-style', 'border-top-style', 'border-right-style', 'border-bottom-style', 'border-left-style',
-        'border-color', 'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
-        'border-radius', 'border-top-left-radius', 'border-top-right-radius', 'border-bottom-left-radius', 'border-bottom-right-radius',
-        'border-image', 'border-image-source', 'border-image-slice', 'border-image-width', 'border-image-outset', 'border-image-repeat',
-        'border-collapse', 'border-spacing',
-        
+        'border',
+        'border-top',
+        'border-right',
+        'border-bottom',
+        'border-left',
+        'border-width',
+        'border-top-width',
+        'border-right-width',
+        'border-bottom-width',
+        'border-left-width',
+        'border-style',
+        'border-top-style',
+        'border-right-style',
+        'border-bottom-style',
+        'border-left-style',
+        'border-color',
+        'border-top-color',
+        'border-right-color',
+        'border-bottom-color',
+        'border-left-color',
+        'border-radius',
+        'border-top-left-radius',
+        'border-top-right-radius',
+        'border-bottom-left-radius',
+        'border-bottom-right-radius',
+        'border-image',
+        'border-image-source',
+        'border-image-slice',
+        'border-image-width',
+        'border-image-outset',
+        'border-image-repeat',
+        'border-collapse',
+        'border-spacing',
+
         // Background
-        'background', 'background-color', 'background-image', 'background-position', 'background-position-x', 'background-position-y',
-        'background-repeat', 'background-size', 'background-attachment', 'background-origin', 'background-clip',
+        'background',
+        'background-color',
+        'background-image',
+        'background-position',
+        'background-position-x',
+        'background-position-y',
+        'background-repeat',
+        'background-size',
+        'background-attachment',
+        'background-origin',
+        'background-clip',
         'background-blend-mode',
-        
+
         // Typography
-        'color', 'font', 'font-family', 'font-size', 'font-weight', 'font-style', 'font-variant',
-        'font-stretch', 'font-display', 'font-feature-settings', 'font-variation-settings',
-        'line-height', 'letter-spacing', 'word-spacing', 'text-align', 'text-align-last',
-        'text-decoration', 'text-decoration-line', 'text-decoration-color', 'text-decoration-style', 'text-decoration-thickness',
-        'text-transform', 'text-indent', 'text-shadow', 'text-overflow', 'text-rendering',
-        'white-space', 'word-wrap', 'word-break', 'overflow-wrap', 'hyphens',
-        'writing-mode', 'text-orientation', 'direction', 'unicode-bidi',
-        
+        'color',
+        'font',
+        'font-family',
+        'font-size',
+        'font-weight',
+        'font-style',
+        'font-variant',
+        'font-stretch',
+        'font-display',
+        'font-feature-settings',
+        'font-variation-settings',
+        'line-height',
+        'letter-spacing',
+        'word-spacing',
+        'text-align',
+        'text-align-last',
+        'text-decoration',
+        'text-decoration-line',
+        'text-decoration-color',
+        'text-decoration-style',
+        'text-decoration-thickness',
+        'text-transform',
+        'text-indent',
+        'text-shadow',
+        'text-overflow',
+        'text-rendering',
+        'white-space',
+        'word-wrap',
+        'word-break',
+        'overflow-wrap',
+        'hyphens',
+        'writing-mode',
+        'text-orientation',
+        'direction',
+        'unicode-bidi',
+
         // List Styles
-        'list-style', 'list-style-type', 'list-style-position', 'list-style-image',
-        
+        'list-style',
+        'list-style-type',
+        'list-style-position',
+        'list-style-image',
+
         // Table Styles
-        'table-layout', 'caption-side', 'empty-cells',
-        
+        'table-layout',
+        'caption-side',
+        'empty-cells',
+
         // Positioning & Alignment
-        'vertical-align', 'object-fit', 'object-position',
-        
+        'vertical-align',
+        'object-fit',
+        'object-position',
+
         // Overflow & Scrolling
-        'overflow', 'overflow-x', 'overflow-y', 'overflow-anchor', 'overscroll-behavior',
-        'overscroll-behavior-x', 'overscroll-behavior-y', 'scroll-behavior', 'scroll-margin',
-        'scroll-padding', 'scroll-snap-type', 'scroll-snap-align',
-        
+        'overflow',
+        'overflow-x',
+        'overflow-y',
+        'overflow-anchor',
+        'overscroll-behavior',
+        'overscroll-behavior-x',
+        'overscroll-behavior-y',
+        'scroll-behavior',
+        'scroll-margin',
+        'scroll-padding',
+        'scroll-snap-type',
+        'scroll-snap-align',
+
         // Flexbox
-        'flex', 'flex-direction', 'flex-wrap', 'flex-flow', 'justify-content', 'align-items', 'align-content', 'align-self',
-        'order', 'flex-grow', 'flex-shrink', 'flex-basis',
-        
+        'flex',
+        'flex-direction',
+        'flex-wrap',
+        'flex-flow',
+        'justify-content',
+        'align-items',
+        'align-content',
+        'align-self',
+        'order',
+        'flex-grow',
+        'flex-shrink',
+        'flex-basis',
+
         // Grid
-        'grid', 'grid-template', 'grid-template-columns', 'grid-template-rows', 'grid-template-areas',
-        'grid-auto-columns', 'grid-auto-rows', 'grid-auto-flow',
-        'grid-column', 'grid-column-start', 'grid-column-end',
-        'grid-row', 'grid-row-start', 'grid-row-end',
-        'grid-area', 'gap', 'row-gap', 'column-gap', 'grid-gap', 'grid-row-gap', 'grid-column-gap',
-        'justify-items', 'justify-self', 'place-items', 'place-self', 'place-content',
-        
+        'grid',
+        'grid-template',
+        'grid-template-columns',
+        'grid-template-rows',
+        'grid-template-areas',
+        'grid-auto-columns',
+        'grid-auto-rows',
+        'grid-auto-flow',
+        'grid-column',
+        'grid-column-start',
+        'grid-column-end',
+        'grid-row',
+        'grid-row-start',
+        'grid-row-end',
+        'grid-area',
+        'gap',
+        'row-gap',
+        'column-gap',
+        'grid-gap',
+        'grid-row-gap',
+        'grid-column-gap',
+        'justify-items',
+        'justify-self',
+        'place-items',
+        'place-self',
+        'place-content',
+
         // Transforms & Animations
-        'transform', 'transform-origin', 'transform-style', 'transform-box', 'perspective', 'perspective-origin',
+        'transform',
+        'transform-origin',
+        'transform-style',
+        'transform-box',
+        'perspective',
+        'perspective-origin',
         'backface-visibility',
-        'transition', 'transition-property', 'transition-duration', 'transition-timing-function', 'transition-delay',
-        'animation', 'animation-name', 'animation-duration', 'animation-timing-function', 'animation-delay',
-        'animation-iteration-count', 'animation-direction', 'animation-fill-mode', 'animation-play-state',
-        
+        'transition',
+        'transition-property',
+        'transition-duration',
+        'transition-timing-function',
+        'transition-delay',
+        'animation',
+        'animation-name',
+        'animation-duration',
+        'animation-timing-function',
+        'animation-delay',
+        'animation-iteration-count',
+        'animation-direction',
+        'animation-fill-mode',
+        'animation-play-state',
+
         // Visual Effects
-        'box-shadow', 'filter', 'backdrop-filter', 'mix-blend-mode', 'isolation',
-        'outline', 'outline-color', 'outline-style', 'outline-width', 'outline-offset',
-        'resize', 'cursor', 'pointer-events', 'user-select', 'touch-action',
-        
+        'box-shadow',
+        'filter',
+        'backdrop-filter',
+        'mix-blend-mode',
+        'isolation',
+        'outline',
+        'outline-color',
+        'outline-style',
+        'outline-width',
+        'outline-offset',
+        'resize',
+        'cursor',
+        'pointer-events',
+        'user-select',
+        'touch-action',
+
         // Print Styles
-        'page-break-before', 'page-break-after', 'page-break-inside', 'break-before', 'break-after', 'break-inside',
-        
+        'page-break-before',
+        'page-break-after',
+        'page-break-inside',
+        'break-before',
+        'break-after',
+        'break-inside',
+
         // Logical Properties (modern CSS)
-        'block-size', 'inline-size', 'min-block-size', 'min-inline-size', 'max-block-size', 'max-inline-size',
-        'inset', 'inset-block', 'inset-inline', 'inset-block-start', 'inset-block-end', 'inset-inline-start', 'inset-inline-end',
-        
+        'block-size',
+        'inline-size',
+        'min-block-size',
+        'min-inline-size',
+        'max-block-size',
+        'max-inline-size',
+        'inset',
+        'inset-block',
+        'inset-inline',
+        'inset-block-start',
+        'inset-block-end',
+        'inset-inline-start',
+        'inset-inline-end',
+
         // Container Queries
-        'container-type', 'container-name', 'container',
-        
+        'container-type',
+        'container-name',
+        'container',
+
         // Content & Generated Content
-        'content', 'quotes', 'counter-reset', 'counter-increment',
-        
+        'content',
+        'quotes',
+        'counter-reset',
+        'counter-increment',
+
         // Miscellaneous
-        'all', 'contain', 'will-change', 'appearance', 'caret-color', 'tab-size',
-        'column-count', 'column-width', 'column-gap', 'column-rule', 'column-rule-color', 'column-rule-style', 'column-rule-width',
-        'column-span', 'column-fill', 'columns',
+        'all',
+        'contain',
+        'will-change',
+        'appearance',
+        'caret-color',
+        'tab-size',
+        'column-count',
+        'column-width',
+        'column-gap',
+        'column-rule',
+        'column-rule-color',
+        'column-rule-style',
+        'column-rule-width',
+        'column-span',
+        'column-fill',
+        'columns',
 
         // svg style
-        'stop-color','stop-opacity'
-        
+        'stop-color',
+        'stop-opacity'
+
     ));
-} );
+});
 
 
 // Define sub-options
@@ -1145,7 +1350,7 @@ $dapfforwc_sub_options = [
         'checkbox_hide' => 'Checkbox Hide',
     ],
     'color' => [
-        'color' => 'Color',
+        'plugincy_color' => 'Color',
         'color_no_border' => 'Color Without Border',
         'color_circle' => 'Color Circle',
         'color_value' => 'Color With Value',
@@ -1222,7 +1427,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.3.8', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.3.9', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -1233,9 +1438,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.3.8');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.3.8');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.3.8', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.3.9');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.3.9');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.3.9', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -1364,13 +1569,13 @@ function dapfforwc_admin_scripts($hook)
         return; // Load only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
-    wp_enqueue_style('wp-color-picker'); 
+    wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.3.8');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.3.9');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.3.8', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.3.9', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1643,7 +1848,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.3.8');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.3.9');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -1788,10 +1993,10 @@ function dapfforwc_get_product_attributes()
     global $dapfforwc_advance_settings;
     // Fetch WooCommerce attribute taxonomies
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_attributes = $all_data['attributes'] ?? [];
+    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
     $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
-    $custom_fields = $all_data['custom_fields'] ?? [];
+    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $result = [];
 
     foreach ($all_attributes as $attribute) {
@@ -1845,7 +2050,7 @@ function dapfforwc_replacement($current_place, $query_params, $site_title, $page
             // Format as "attribute seperator between {attribute_prefix} & {value} value1, value2"
             if (!empty($formatted_values)) {
                 preg_match('/{attribute_prefix}(.*?)\{value\}/', $current_place, $matches);
-                $separator = $matches[1] ?? '-';
+                $separator = isset($matches[1]) ? $matches[1] : '-';
                 $formatted_pairs[] = $param . "{$separator}" . implode(', ', $formatted_values);
             }
         } elseif (strpos($current_place, '{value}') !== false) {
@@ -1944,7 +2149,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.3.8",
+            "1.3.9",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2526,7 +2731,8 @@ add_action('wp_ajax_dapfforwc_activate_template', 'dapfforwc_ajax_activate_templ
 /**
  * Register the widget
  */
-function dapfforwc_register_widget() {
+function dapfforwc_register_widget()
+{
     register_widget('dapfforwc_Widget_filters');
 }
 add_action('widgets_init', 'dapfforwc_register_widget');
@@ -2534,12 +2740,14 @@ add_action('widgets_init', 'dapfforwc_register_widget');
 /**
  * Plugincy Widget Filter Class
  */
-class dapfforwc_Widget_filters extends WP_Widget {
-    
+class dapfforwc_Widget_filters extends WP_Widget
+{
+
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(
             'plugincy_widget',
             esc_html__('Dynamic Ajax Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -2549,17 +2757,18 @@ class dapfforwc_Widget_filters extends WP_Widget {
             )
         );
     }
-    
+
     /**
      * Front-end display of widget
      */
-    public function widget($args, $instance) {
+    public function widget($args, $instance)
+    {
         global $allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
             return;
         }
-        
+
         $content = '[plugincy_filters]';
 
         echo wp_kses($args['before_widget'], $allowed_tags);
@@ -2569,24 +2778,26 @@ class dapfforwc_Widget_filters extends WP_Widget {
 
         echo wp_kses($args['after_widget'], $allowed_tags);
     }
-    
+
     /**
      * Back-end widget form
      */
-    public function form($instance) {
+    public function form($instance)
+    {
         $content = '[plugincy_filters]';
-        ?>
-        <p> <?php echo esc_attr( $content ); ?></p>
-        <?php
+    ?>
+        <p> <?php echo esc_attr($content); ?></p>
+    <?php
     }
-    
+
     /**
      * Sanitize widget form values as they are saved
      */
-    public function update($new_instance, $old_instance) {
+    public function update($new_instance, $old_instance)
+    {
         $instance = array();
         $instance['content'] = '[plugincy_filters]';
-        
+
         return $instance;
     }
 }
@@ -2596,18 +2807,21 @@ class dapfforwc_Widget_filters extends WP_Widget {
 
 // Register the widget for [plugincy_filters_single name="selector_here"]
 
-function dapfforwc_register_single_filter_widget() {
+function dapfforwc_register_single_filter_widget()
+{
     register_widget('dapfforwc_Widget_single_filter');
 }
 add_action('widgets_init', 'dapfforwc_register_single_filter_widget');
 
 // dapfforwc_Widget_single_filter
-class dapfforwc_Widget_single_filter extends WP_Widget {
+class dapfforwc_Widget_single_filter extends WP_Widget
+{
 
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(
             'plugincy_widget_single',
             esc_html__('Dynamic Ajax Single Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -2621,7 +2835,8 @@ class dapfforwc_Widget_single_filter extends WP_Widget {
     /**
      * Front-end display of widget
      */
-    public function widget($args, $instance) {
+    public function widget($args, $instance)
+    {
         global $allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
@@ -2639,9 +2854,10 @@ class dapfforwc_Widget_single_filter extends WP_Widget {
     /**
      * Back-end widget form
      */
-    public function form($instance) {
+    public function form($instance)
+    {
         $selector = !empty($instance['selector']) ? $instance['selector'] : '';
-        ?>
+    ?>
         <p>
             <label for="<?php echo esc_attr($this->get_field_id('selector')); ?>">
                 <?php esc_html_e('Selector Name:', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
@@ -2651,13 +2867,14 @@ class dapfforwc_Widget_single_filter extends WP_Widget {
         <p>
             <small><?php esc_html_e('Enter the selector name for the single filter shortcode.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></small>
         </p>
-        <?php
+    <?php
     }
 
     /**
      * Sanitize widget form values as they are saved
      */
-    public function update($new_instance, $old_instance) {
+    public function update($new_instance, $old_instance)
+    {
         $instance = array();
         $instance['selector'] = !empty($new_instance['selector']) ? sanitize_text_field($new_instance['selector']) : '';
         return $instance;
@@ -2666,17 +2883,20 @@ class dapfforwc_Widget_single_filter extends WP_Widget {
 
 // Register the widget for [plugincy_filters_selected]
 
-function dapfforwc_register_selected_filter_widget() {
+function dapfforwc_register_selected_filter_widget()
+{
     register_widget('dapfforwc_Widget_selected_filter');
 }
 add_action('widgets_init', 'dapfforwc_register_selected_filter_widget');
 // dapfforwc_Widget_selected_filter
-class dapfforwc_Widget_selected_filter extends WP_Widget {
+class dapfforwc_Widget_selected_filter extends WP_Widget
+{
 
     /**
      * Constructor
      */
-    public function __construct() {
+    public function __construct()
+    {
         parent::__construct(
             'plugincy_widget_selected',
             esc_html__('Dynamic Ajax Selected Filter', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -2690,7 +2910,8 @@ class dapfforwc_Widget_selected_filter extends WP_Widget {
     /**
      * Front-end display of widget
      */
-    public function widget($args, $instance) {
+    public function widget($args, $instance)
+    {
         global $allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
@@ -2707,19 +2928,21 @@ class dapfforwc_Widget_selected_filter extends WP_Widget {
     /**
      * Back-end widget form
      */
-    public function form($instance) {
+    public function form($instance)
+    {
         $content = '[plugincy_filters_selected]';
-        ?>
-        <p> <?php echo esc_attr( $content ); ?></p>
-        <?php
+    ?>
+        <p> <?php echo esc_attr($content); ?></p>
+<?php
     }
 
     /**
      * Sanitize widget form values as they are saved
      */
-    public function update($new_instance, $old_instance) {
+    public function update($new_instance, $old_instance)
+    {
         $instance = array();
-        
+
         return $instance;
     }
 }
@@ -2742,3 +2965,22 @@ add_action('wp_enqueue_scripts', function () {
         })();
     ");
 });
+
+// Function to clear all cache files
+function dapfforwc_clear_woocommerce_caches()
+{
+    $cache_files = [
+        plugin_dir_path(__FILE__) . 'includes/woocommerce_attributes_cache.json',
+        plugin_dir_path(__FILE__) . 'includes/woocommerce_product_details.json',
+        plugin_dir_path(__FILE__) . 'includes/min_max_prices_cache.json',
+    ];
+
+    foreach ($cache_files as $cache_file) {
+        if (file_exists($cache_file)) {
+            wp_delete_file($cache_file);
+        }
+    }
+}
+
+
+register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');

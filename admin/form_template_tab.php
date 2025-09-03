@@ -166,7 +166,7 @@ global $template_options, $allowed_tags;
                         <div style="display: flex; align-items: center; gap: 12px;">
                             <input type="text"
                                 name="dapfforwc_template_options[background_color]"
-                                value="<?php echo esc_attr($template_options['background_color'] ?? '#ffffffb3'); ?>"
+                                value="<?php echo esc_attr(isset($template_options['background_color']) ? $template_options['background_color'] : '#ffffffb3'); ?>"
                                 class="dapfforwc-color-picker"
                                 id="dapfforwc-bg-color"
                                 data-alpha="true"
@@ -180,7 +180,7 @@ global $template_options, $allowed_tags;
                     <td>
                         <input type="text"
                             name="dapfforwc_template_options[primary_color]"
-                            value="<?php echo esc_attr($template_options['primary_color'] ?? '#432fb8'); ?>"
+                            value="<?php echo esc_attr(isset($template_options['primary_color']) ? $template_options['primary_color'] : '#432fb8'); ?>"
                             class="dapfforwc-color-picker"
                             data-alpha="true"
                             data-default-color="#432fb8"
@@ -192,7 +192,7 @@ global $template_options, $allowed_tags;
                     <td>
                         <input type="text"
                             name="dapfforwc_template_options[secondary_color]"
-                            value="<?php echo esc_attr($template_options['secondary_color'] ?? '#ff4d4d'); ?>"
+                            value="<?php echo esc_attr(isset($template_options['secondary_color']) ? $template_options['secondary_color'] : '#ff4d4d'); ?>"
                             class="dapfforwc-color-picker"
                             data-alpha="true"
                             data-default-color="#ff4d4d"
@@ -204,7 +204,7 @@ global $template_options, $allowed_tags;
                     <td>
                         <input type="text"
                             name="dapfforwc_template_options[border_color]"
-                            value="<?php echo esc_attr($template_options['border_color'] ?? '#eeeeee'); ?>"
+                            value="<?php echo esc_attr(isset($template_options['border_color']) ? $template_options['border_color'] : '#eeeeee'); ?>"
                             class="dapfforwc-color-picker"
                             data-alpha="true"
                             data-default-color="#eeeeee"
@@ -216,7 +216,7 @@ global $template_options, $allowed_tags;
                     <td>
                         <input type="text"
                             name="dapfforwc_template_options[text_color]"
-                            value="<?php echo esc_attr($template_options['text_color'] ?? '#000000'); ?>"
+                            value="<?php echo esc_attr(isset($template_options['text_color']) ? $template_options['text_color'] : '#000000'); ?>"
                             class="dapfforwc-color-picker"
                             data-alpha="true"
                             data-default-color="#000000"

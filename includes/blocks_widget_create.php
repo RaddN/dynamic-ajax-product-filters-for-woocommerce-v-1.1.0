@@ -205,26 +205,26 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
     $output = '';
 
     // Extract styles
-    $form_style = sanitize_key($attributes['formStyle'] ?? []);
-    $container_style = sanitize_key($attributes['containerStyle'] ?? []);
-    $widget_title_style = sanitize_key($attributes['widgetTitleStyle'] ?? []);
-    $widget_items_style = sanitize_key($attributes['widgetItemsStyle'] ?? []);
-    $button_style = sanitize_key($attributes['buttonStyle'] ?? []);
-    $rating_style = sanitize_key($attributes['ratingStyle'] ?? []);
-    $reset_button_style = sanitize_key($attributes['resetButtonStyle'] ?? []);
-    $input_style = sanitize_key($attributes['inputStyle'] ?? []);
-    $slider_style = sanitize_key($attributes['sliderStyle'] ?? []);
-    $filter_word_mobile = sanitize_key($attributes['filterWordMobile'] ?? '');
-    $custom_css = sanitize_key($attributes['customCSS'] ?? '');
+    $form_style = sanitize_key(isset($attributes['formStyle']) ? $attributes['formStyle'] : []);
+    $container_style = sanitize_key(isset($attributes['containerStyle']) ? $attributes['containerStyle'] : []);
+    $widget_title_style = sanitize_key(isset($attributes['widgetTitleStyle']) ? $attributes['widgetTitleStyle'] : []);
+    $widget_items_style = sanitize_key(isset($attributes['widgetItemsStyle']) ? $attributes['widgetItemsStyle'] : []);
+    $button_style = sanitize_key(isset($attributes['buttonStyle']) ? $attributes['buttonStyle'] : []);
+    $rating_style = sanitize_key(isset($attributes['ratingStyle']) ? $attributes['ratingStyle'] : []);
+    $reset_button_style = sanitize_key(isset($attributes['resetButtonStyle']) ? $attributes['resetButtonStyle'] : []);
+    $input_style = sanitize_key(isset($attributes['inputStyle']) ? $attributes['inputStyle'] : []);
+    $slider_style = sanitize_key(isset($attributes['sliderStyle']) ? $attributes['sliderStyle'] : []);
+    $filter_word_mobile = sanitize_key(isset($attributes['filterWordMobile']) ? $attributes['filterWordMobile'] : '');
+    $custom_css = sanitize_key(isset($attributes['customCSS']) ? $attributes['customCSS'] : '');
     $raw_class_name = isset($attributes['className']) ? (string) $attributes['className'] : '';
     $class_parts = preg_split('/\s+/', $raw_class_name, -1, PREG_SPLIT_NO_EMPTY);
     $class_parts = array_map('sanitize_html_class', $class_parts);
     $class_name  = trim(implode(' ', array_filter($class_parts)));
 
-    $single_filter_inactive_style = sanitize_key($attributes['singleFilterInactiveStyle'] ?? []);
-    $single_filter_container_style = sanitize_key($attributes['singleFilterContainerStyle'] ?? []);
-    $single_filter_active_style = sanitize_key($attributes['singleFilterActiveStyle'] ?? []);
-    $single_filter_hover_style = sanitize_key($attributes['singleFilterHoverStyle'] ?? []);
+    $single_filter_inactive_style = sanitize_key(isset($attributes['singleFilterInactiveStyle']) ? $attributes['singleFilterInactiveStyle'] : []);
+    $single_filter_container_style = sanitize_key(isset($attributes['singleFilterContainerStyle']) ? $attributes['singleFilterContainerStyle'] : []);
+    $single_filter_active_style = sanitize_key(isset($attributes['singleFilterActiveStyle']) ? $attributes['singleFilterActiveStyle'] : []);
+    $single_filter_hover_style = sanitize_key(isset($attributes['singleFilterHoverStyle']) ? $attributes['singleFilterHoverStyle'] : []);
 
 
     // Generate CSS for desktop, tablet, and smartphone
@@ -543,7 +543,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             }
 
             $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-            $all_attributes = $all_data['attributes'] ?? [];
+            $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
             $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
             $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
             $attributes = [];
@@ -556,7 +556,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'attribute_label' => $attribute['attribute_label'],
                 ];
             }
-            $custom_fields = $all_data['custom_fields'] ?? [];
+            $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
             $all_custom_fields = [];
             foreach ($custom_fields as $custom_field) {
                 if (in_array($custom_field['name'], $exclude_custom_fields)) {

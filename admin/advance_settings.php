@@ -5,8 +5,8 @@ if (!defined('ABSPATH')) {
 // Render the "Product Selector" field
 function dapfforwc_product_selector_callback()
 {
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
-    $product_selector = isset($dapfforwc_options['product_selector']) ? esc_attr($dapfforwc_options['product_selector']) : '.products';
+    global $dapfforwc_advance_settings;
+    $product_selector = isset($dapfforwc_advance_settings['product_selector']) ? esc_attr($dapfforwc_advance_settings['product_selector']) : '.products';
 ?>
     <input type="text" name="dapfforwc_advance_options[product_selector]" value="<?php echo esc_attr($product_selector); ?>" placeholder=".products">
     <p class="description">
@@ -18,8 +18,8 @@ function dapfforwc_product_selector_callback()
 // Render the "Pagination Selector" field
 function dapfforwc_pagination_selector_callback()
 {
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
-    $pagination_selector = isset($dapfforwc_options['pagination_selector']) ? esc_attr($dapfforwc_options['pagination_selector']) : '.woocommerce-pagination ul.page-numbers';
+    global $dapfforwc_advance_settings;
+    $pagination_selector = isset($dapfforwc_advance_settings['pagination_selector']) ? esc_attr($dapfforwc_advance_settings['pagination_selector']) : '.woocommerce-pagination ul.page-numbers';
 ?>
     <input type="text" name="dapfforwc_advance_options[pagination_selector]" value="<?php echo esc_attr($pagination_selector); ?>" placeholder=".woocommerce-pagination ul.page-numbers">
     <p class="description">
@@ -30,8 +30,8 @@ function dapfforwc_pagination_selector_callback()
 // Render the "Product Shortcode Selector" field
 function dapfforwc_product_shortcode_callback()
 {
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
-    $product_shortcode = isset($dapfforwc_options['product_shortcode']) ? esc_attr($dapfforwc_options['product_shortcode']) : 'products';
+    global $dapfforwc_advance_settings;
+    $product_shortcode = isset($dapfforwc_advance_settings['product_shortcode']) ? esc_attr($dapfforwc_advance_settings['product_shortcode']) : 'products';
 ?>
     <input type="text" name="dapfforwc_advance_options[product_shortcode]" value="<?php echo esc_attr($product_shortcode); ?>" placeholder="products">
     <p class="description">
@@ -61,10 +61,10 @@ function dapfforwc_default_value_selected_render()
 function dapfforwc_render_advance_checkbox($key, $message = null)
 {
     global $allowed_tags;
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
+    global $dapfforwc_advance_settings;
 ?>
     <label class="switch <?php echo esc_attr($key); ?>">
-        <input type='checkbox' name='dapfforwc_advance_options[<?php echo esc_attr($key); ?>]' <?php checked(isset($dapfforwc_options[$key]) && $dapfforwc_options[$key] === "on"); ?>>
+        <input type='checkbox' name='dapfforwc_advance_options[<?php echo esc_attr($key); ?>]' <?php checked(isset($dapfforwc_advance_settings[$key]) && $dapfforwc_advance_settings[$key] === "on"); ?>>
         <span class="slider round"></span>
         <span class="switch-on">On</span>
         <span class="switch-off">Off</span>
@@ -77,10 +77,10 @@ function dapfforwc_render_advance_checkbox($key, $message = null)
 
 function dapfforwc_exclude_attributes_render()
 {
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
-    $exclude_attributes = isset($dapfforwc_options['exclude_attributes']) ? explode(',', $dapfforwc_options['exclude_attributes']) : []; // Convert string to array
+    global $dapfforwc_advance_settings;
+    $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : []; // Convert string to array
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_attributes = $all_data['attributes'] ?? [];
+    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $dapfforwc_attributes = [];
     
     foreach ($all_attributes as $attribute) {
@@ -121,10 +121,10 @@ function dapfforwc_exclude_attributes_render()
 }
 function dapfforwc_exclude_custom_fields_render()
 {
-    $dapfforwc_options = get_option('dapfforwc_advance_options') ?: [];
-    $exclude_custom_fields = isset($dapfforwc_options['exclude_custom_fields']) ? explode(',', $dapfforwc_options['exclude_custom_fields']) : []; // Convert string to array
+    global $dapfforwc_advance_settings;
+    $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : []; // Convert string to array
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $custom_fields = $all_data['custom_fields'] ?? [];
+    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $dapfforwc_attributes = [];
     
     foreach ($custom_fields as $attribute) {

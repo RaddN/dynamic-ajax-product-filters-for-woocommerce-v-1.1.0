@@ -22,9 +22,9 @@ function dapfforwc_permalinks_prefix_render()
 {
     global $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings;
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_attributes = $all_data['attributes'] ?? [];
+    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
-    $custom_fields = $all_data['custom_fields'] ?? [];
+    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
     $attributes = [];
     foreach ($all_attributes as $attribute) {

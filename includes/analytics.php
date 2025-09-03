@@ -144,7 +144,7 @@ class dapfforwc_cart_anaylytics
             'multisite' => is_multisite(),
             'wp_version' => get_bloginfo('version'),
             'php_version' => phpversion(),
-            'server_software' => sanitize_text_field(wp_unslash($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown')),
+            'server_software' => sanitize_text_field(wp_unslash(isset($_SERVER['SERVER_SOFTWARE']) ? $_SERVER['SERVER_SOFTWARE'] : 'Unknown')),
             'mysql_version' => $wpdb->db_version(),
             'location' => $this->get_site_location(),
             'plugin_version' => $this->plugin_version,
