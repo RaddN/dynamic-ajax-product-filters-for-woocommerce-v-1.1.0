@@ -282,12 +282,12 @@ if (!defined('ABSPATH')) {
                         }
                         if ($dapfforwc_attribute_name !== "product-category" && $dapfforwc_attribute_name !== "tag") {
                         ?>
-                            <div class="advanced-options <?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_selected_style === 'color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
+                            <div class="advanced-options <?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
                                 <h4 class="advanced-title" style="margin: 0;"><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
                                 <?php if (!empty($dapfforwc_terms)) : ?>
 
                                     <!-- Color Options -->
-                                    <div class="color" style="display: <?php echo $dapfforwc_selected_style === 'color' ? 'block' : 'none'; ?>;">
+                                    <div class="plugincy_color" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' ? 'block' : 'none'; ?>;">
                                         <h5><?php esc_html_e('Set Colors for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
                                         <div class="color-options">
                                             <?php foreach ($dapfforwc_terms as $term) :
