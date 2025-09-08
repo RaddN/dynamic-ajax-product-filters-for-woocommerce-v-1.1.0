@@ -58,6 +58,7 @@ if (!defined('ABSPATH')) {
         (object) ['attribute_name' => 'discount', 'attribute_label' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'date_filter', 'attribute_label' => esc_html__('Post Date', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'search', 'attribute_label' => esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'reset_btn', 'attribute_label' => esc_html__('Reset Button', 'dynamic-ajax-product-filters-for-woocommerce')],
     ];
     $dapfforwc_extra_main_options = [
         (object) ['attribute_name' => "attributes", 'attribute_label' => esc_html__('Attributes', 'dynamic-ajax-product-filters-for-woocommerce')],
@@ -183,23 +184,52 @@ if (!defined('ABSPATH')) {
                     $dapfforwc_attribute_name === 'sku' ||
                     $dapfforwc_attribute_name === 'discount' ||
                     $dapfforwc_attribute_name === 'date_filter' ||
-                    $dapfforwc_attribute_name === 'search'
+                    $dapfforwc_attribute_name === 'search' ||
+                    $dapfforwc_attribute_name === 'reset_btn'
                 ) { ?>
                     <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
                         <div class="optional_settings">
-                            <h4>Optional Settings:</h4>
-
-                            <div class="row" style="padding-top: 16px;">
-                                <div class="col-6">
-                                    <div class="setting-item">
-                                        <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                        <label>
-                                            <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
-                                            <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
-                                        </label>
+                            <h4><?php esc_html_e('Optional Settings:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
+                            <?php if ($dapfforwc_attribute_name !== 'reset_btn') { ?>
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            <?php }
+                            if ($dapfforwc_attribute_name === 'search') { ?>
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $placeholder = isset($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[placeholder][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($placeholder); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php }
+                            if ($dapfforwc_attribute_name === 'search' || $dapfforwc_attribute_name === 'reset_btn') { ?>
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Button Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $btntext = isset($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($btntext); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php } ?>
                         </div>
                     </div>
                 <?php
@@ -215,7 +245,11 @@ if (!defined('ABSPATH')) {
 
                     <!-- Primary Options -->
                     <div class="primary_options">
-                        <?php foreach ($dapfforwc_sub_options as $key => $label) : ?>
+                        <?php foreach ($dapfforwc_sub_options as $key => $label) :
+                            if ($dapfforwc_attribute_name === 'brands' && ($key === "plugincy_color" || $key === "price" || $key === "rating")) {
+                                continue;
+                            }
+                        ?>
                             <label class="<?php echo esc_attr($key);
                                             echo $dapfforwc_selected_style === $key ? ' active' : ''; ?>" style="display:<?php echo $key === 'price' || $key === 'rating' ? 'none' : 'block'; ?>;">
                                 <span class="active" style="display:none;">

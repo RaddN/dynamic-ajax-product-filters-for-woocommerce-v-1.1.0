@@ -555,7 +555,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.3.9.5</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.3.9.7</span>
                 </div>
             </div>
 
@@ -1150,20 +1150,39 @@ function dapfforwc_admin_page_content()
                     </div>
                     <?php $checkmark = '<svg width="20" height="20" viewBox="0 0 0.6 0.6" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.227 0.083a0.333 0.333 0 0 1 0.149 0 0.189 0.189 0 0 1 0.142 0.142 0.333 0.333 0 0 1 0 0.149 0.189 0.189 0 0 1 -0.143 0.143 0.333 0.333 0 0 1 -0.149 0A0.189 0.189 0 0 1 0.083 0.374a0.333 0.333 0 0 1 0 -0.149 0.189 0.189 0 0 1 0.142 -0.142m0.15 0.179A0.013 0.013 0 1 0 0.354 0.242L0.281 0.321 0.243 0.283a0.013 0.013 0 0 0 -0.02 0.02l0.048 0.048a0.012 0.012 0 0 0 0.021 0z" fill="#4caf50"/></svg>'; ?>
                     <div class="plugincy-dapfforwc-card-body steps" style="padding-top:10px;">
+
                         <div class="step">
-                            <?php echo wp_kses($checkmark, $allowed_tags); ?> <b><?php echo esc_html__('Filters not responding?', 'dynamic-ajax-product-filters-for-woocommerce'); ?> </b><?php echo esc_html__('Adjust the selectors in the Advanced Settings to match your theme.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/" target="_blank" class="step-link"><?php echo esc_html__('View docs', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
+                            <?php echo wp_kses($checkmark, $allowed_tags); ?>
+                            <b><?php echo esc_html__('Filters not updating?', 'dynamic-ajax-product-filters-for-woocommerce'); ?> </b>
+                            <?php echo esc_html__('If you are using a cache plugin, clear the cache. If the issue still persists, go to the Advanced Settings tab and click "Clear Cache".', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                         </div>
 
                         <div class="step">
-                            <?php echo wp_kses($checkmark, $allowed_tags); ?> <b><?php echo esc_html__('Filters behaving unexpectedly?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b> <?php echo esc_html__('Temporarily deactivate other filter plugins to check for conflicts.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            <?php echo wp_kses($checkmark, $allowed_tags); ?>
+                            <b><?php echo esc_html__('Filters not responding?', 'dynamic-ajax-product-filters-for-woocommerce'); ?> </b>
+                            <?php echo esc_html__('Adjust the selectors in the Advanced Settings to match your theme.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/" target="_blank" class="step-link">
+                                <?php echo esc_html__('View docs', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
                         </div>
 
                         <div class="step">
-                            <?php echo wp_kses($checkmark, $allowed_tags); ?> <b><?php echo esc_html__('Still facing issues?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b> <?php echo esc_html__('Reach out to Plugincy Support as we’re always here to help.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            <a href="https://plugincy.com/support/" target="_blank" class="support-link"><?php echo esc_html__('Plugincy Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
+                            <?php echo wp_kses($checkmark, $allowed_tags); ?>
+                            <b><?php echo esc_html__('Filters behaving unexpectedly?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b>
+                            <?php echo esc_html__('Temporarily deactivate other filter plugins to check for conflicts.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                         </div>
+
+                        <div class="step">
+                            <?php echo wp_kses($checkmark, $allowed_tags); ?>
+                            <b><?php echo esc_html__('Still facing issues?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b>
+                            <?php echo esc_html__('Reach out to Plugincy Support as we’re always here to help.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            <a href="https://plugincy.com/support/" target="_blank" class="support-link">
+                                <?php echo esc_html__('Plugincy Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </a>
+                        </div>
+
                     </div>
+
                 </div>
             </div>
         </div>

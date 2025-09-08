@@ -1171,8 +1171,8 @@ function dapfforwc_product_filter_shortcode($atts)
         </button>
         <div class="mobile-filter">
             <div class="sm-top-btn" id="mobileonly" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding: 20px;margin-bottom: 10px;">
-                <button id="filter-cancel-button" style="background: none;padding:0;color: #000;"> Cancel </button>
-                <p style="margin: 0;" id="rcountproduct">Show(5)</p>
+                <button id="filter-cancel-button" style="background: none !important;padding:0;color: #000;"> Cancel </button>
+                <p style="margin: 0;" id="rcountproduct">Showing(All)</p>
             </div>
         <?php
         echo '<div class="rfilterselected" id="mobileonly"><div><ul></ul></div></div>';
