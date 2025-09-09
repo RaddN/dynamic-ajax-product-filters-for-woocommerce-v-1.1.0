@@ -385,6 +385,7 @@ form.rfilterbuttons * {
   border: 1px solid white;
   position: relative;
   z-index: 9999;
+  margin-top: -7px;  
 }
 #product-filter input[type="range"]::-moz-range-thumb {
   height: 17px;
@@ -666,6 +667,8 @@ form#product-filter
 }
 #product-filter input[type="range"]::-webkit-slider-runnable-track {
   box-shadow: none;
+  height: 6px;
+  background: transparent;
 }
 
 #product-filter input[type="range"]::-moz-range-track {
