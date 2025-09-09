@@ -27,7 +27,7 @@ function dapfforwc_settings_init()
         'show_loader' => "on",
         'pages' => [],
         'loader_html' => '<div id="loader" style="display:none;"></div>',
-        'loader_css' => '#loader { width: 56px; height: 56px; border-radius: 50%; background: conic-gradient(#0000 10%,#474bff); -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0); animation: spinner-zp9dbg 1s infinite linear; } @keyframes spinner-zp9dbg { to { transform: rotate(1turn); } }',
+        'loader_css' => '#loader { width: 56px; height: 56px; border-radius: 50%; -webkit-mask: radial-gradient(farthest-side,#0000 calc(100% - 9px),#000 0); animation: spinner-zp9dbg 1s infinite linear; } @keyframes spinner-zp9dbg { to { transform: rotate(1turn); } }',
         'use_custom_template' => 0,
         'custom_template_code' => '',
         'product_selector' => '.products',

@@ -20,8 +20,6 @@ form#product-filter .items.color_value label {
 #product-filter :focus:focus-visible {
   outline: none !important;
 }
-#product-filter .items.select,
-#product-filter .items.select2,
 #product-filter .range-input,
 #product-filter .plugincy_slider {
   position: relative;
@@ -188,7 +186,7 @@ form.rfilterbuttons * {
 }
 #product-filter .items.image,
 #product-filter .items.image_no_border {
-  display: grid !important;
+  display: grid;
   grid-template-columns: repeat(3, 1fr);
 }
 #product-filter .items.button_check {

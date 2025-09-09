@@ -760,12 +760,12 @@ function dapfforwc_product_filter_shortcode($atts)
                     display: none !important;
                 }
 
-                .mobile-filter {
+                .plugincy_filter_wrapper {
                     position: relative;
                 }
 
-                .mobile-filter:hover .plugincy-next-button,
-                .mobile-filter:hover .plugincy-prev-button {
+                .plugincy_filter_wrapper:hover .plugincy-next-button,
+                .plugincy_filter_wrapper:hover .plugincy-prev-button {
                     display: flex !important;
                     position: absolute;
                     z-index: 9999;
@@ -775,11 +775,11 @@ function dapfforwc_product_filter_shortcode($atts)
                     align-items: center;
                 }
 
-                .mobile-filter:hover .plugincy-next-button {
+                .plugincy_filter_wrapper:hover .plugincy-next-button {
                     right: 0;
                 }
 
-                .mobile-filter:hover .plugincy-prev-button {
+                .plugincy_filter_wrapper:hover .plugincy-prev-button {
                     left: 0;
                 }
 
@@ -1038,7 +1038,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
             #product-filter:before {
                 content: "Filter";
-                background: linear-gradient(90deg, #041a57, #d62229);
+                background: <?php echo esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#432fb8'); ?>;
                 color: white;
                 padding: 10px 11px;
                 width: 60px;
@@ -1076,6 +1076,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 padding: 20px 15px;
                 box-shadow: #efefef99 0 -4px 10px 4px;
                 z-index: 999;
+                top: 70px;
             }
         }
 
@@ -1093,11 +1094,6 @@ function dapfforwc_product_filter_shortcode($atts)
             }
 
             @media (max-width: 781px) {
-                .items {
-                    display: flex !important;
-                    flex-direction: column;
-                }
-
                 .mobile-filter {
                     position: fixed;
                     z-index: 999;
@@ -1132,11 +1128,6 @@ function dapfforwc_product_filter_shortcode($atts)
             }
 
             @media (max-width: 781px) {
-                .items {
-                    display: flex !important;
-                    flex-direction: column;
-                }
-
                 .mobile-filter {
                     position: fixed;
                     z-index: 999;
@@ -1234,92 +1225,93 @@ function dapfforwc_product_filter_shortcode($atts)
                 });
          ");
     } ?>
-        <!-- Navigation Buttons -->
-        <button type="button" class="plugincy-prev-button" aria-label="Previous" style="display: none;">
-            &#8592;
-        </button>
-        <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
-            &#8594;
-        </button>
-        <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
-            data-product_show_settings='<?php
-                                        echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
-                                        ?>'
-            <?php if (!empty($atts['product_selector'])) {
-                echo 'data-product_selector="' . esc_attr($atts["product_selector"]) . '"';
-            } ?>
-            <?php if (!empty($atts['pagination_selector'])) {
-                echo 'data-pagination_selector="' . esc_attr($atts["pagination_selector"]) . '"';
-            } ?>>
+        <div class="plugincy_filter_wrapper" style="position: relative;">
+            <!-- Navigation Buttons -->
+            <button type="button" class="plugincy-prev-button" aria-label="Previous" style="display: none;">
+                &#8592;
+            </button>
+            <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
+                &#8594;
+            </button>
+            <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
+                data-product_show_settings='<?php
+                                            echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
+                                            ?>'
+                <?php if (!empty($atts['product_selector'])) {
+                    echo 'data-product_selector="' . esc_attr($atts["product_selector"]) . '"';
+                } ?>
+                <?php if (!empty($atts['pagination_selector'])) {
+                    echo 'data-pagination_selector="' . esc_attr($atts["pagination_selector"]) . '"';
+                } ?>>
 
-            <?php
-            $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
-            // Get min price from URL if present, using the correct prefix from SEO permalinks options
-            $min_price = $all_data_objects["min_price"];
+                <?php
+                $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
+                // Get min price from URL if present, using the correct prefix from SEO permalinks options
+                $min_price = $all_data_objects["min_price"];
 
-            // Get max price from URL if present, using the correct prefix from SEO permalinks options
-            $max_price = $all_data_objects["max_price"];
+                // Get max price from URL if present, using the correct prefix from SEO permalinks options
+                $max_price = $all_data_objects["max_price"];
 
-            // Check for price filter in URL
-            $price_prefix = 'price';
-            if (
-                isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price']) &&
-                !empty($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'])
-            ) {
-                $price_prefix = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'];
-            }
-
-            // Look for price in $_GET using the prefix
-            $price_from_url = null;
-            if ($price_prefix && isset($_GET[$price_prefix])) {
-                $price_from_url = sanitize_text_field(wp_unslash($_GET[$price_prefix]));
-            }
-
-            if ($price_from_url) {
-                // Accept both "min-max" and "min,max" formats
-                if (strpos($price_from_url, '-') !== false) {
-                    list($min_from_url, $max_from_url) = explode('-', $price_from_url, 2);
-                } elseif (strpos($price_from_url, ',') !== false) {
-                    list($min_from_url, $max_from_url) = explode(',', $price_from_url, 2);
-                } else {
-                    $min_from_url = $price_from_url;
-                    $max_from_url = null;
+                // Check for price filter in URL
+                $price_prefix = 'price';
+                if (
+                    isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price']) &&
+                    !empty($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'])
+                ) {
+                    $price_prefix = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'];
                 }
-                if (is_numeric($min_from_url)) {
-                    $min_price = floatval($min_from_url);
+
+                // Look for price in $_GET using the prefix
+                $price_from_url = null;
+                if ($price_prefix && isset($_GET[$price_prefix])) {
+                    $price_from_url = sanitize_text_field(wp_unslash($_GET[$price_prefix]));
                 }
-                if (isset($max_from_url) && is_numeric($max_from_url)) {
-                    $max_price = floatval($max_from_url);
-                }
-            }
-            echo '<div class="default_values" style="display:none;">';
-            if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on'))) {
-                foreach ($all_data_objects as $key => $value) {
-                    if (empty($value) || $key === "plugincy_search" || $key === "min_price" || $key === "max_price") {
-                        continue;
-                    }
-                    if ($key === "tag[]") {
-                        $key = "tags[]";
-                    }
-                    if (is_array($value)) {
-                        foreach ($value as $v) {
-                            echo '<input type="checkbox" name="' . esc_attr($key) . '" value="' . esc_attr($v) . '" checked>';
-                        }
+
+                if ($price_from_url) {
+                    // Accept both "min-max" and "min,max" formats
+                    if (strpos($price_from_url, '-') !== false) {
+                        list($min_from_url, $max_from_url) = explode('-', $price_from_url, 2);
+                    } elseif (strpos($price_from_url, ',') !== false) {
+                        list($min_from_url, $max_from_url) = explode(',', $price_from_url, 2);
                     } else {
-                        echo '<input type="checkbox" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '" checked>';
+                        $min_from_url = $price_from_url;
+                        $max_from_url = null;
+                    }
+                    if (is_numeric($min_from_url)) {
+                        $min_price = floatval($min_from_url);
+                    }
+                    if (isset($max_from_url) && is_numeric($max_from_url)) {
+                        $max_price = floatval($max_from_url);
                     }
                 }
-            }
-            echo '</div>';
-            wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
-            $default_data_objects = [
-                "min_price" => $min_price,
-                "max_price" => $max_price,
-                ...$filteroptionsfromurl
-            ];
-            echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $allowed_tags);
-            echo '</form>';
-            if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
+                echo '<div class="default_values" style="display:none;">';
+                if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on'))) {
+                    foreach ($all_data_objects as $key => $value) {
+                        if (empty($value) || $key === "plugincy_search" || $key === "min_price" || $key === "max_price") {
+                            continue;
+                        }
+                        if ($key === "tag[]") {
+                            $key = "tags[]";
+                        }
+                        if (is_array($value)) {
+                            foreach ($value as $v) {
+                                echo '<input type="checkbox" name="' . esc_attr($key) . '" value="' . esc_attr($v) . '" checked>';
+                            }
+                        } else {
+                            echo '<input type="checkbox" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '" checked>';
+                        }
+                    }
+                }
+                echo '</div>';
+                wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
+                $default_data_objects = [
+                    "min_price" => $min_price,
+                    "max_price" => $max_price,
+                    ...$filteroptionsfromurl
+                ];
+                echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $allowed_tags);
+                echo '</form></div>';
+                if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
         </div>
     <?php }
     ?>
@@ -1334,7 +1326,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 width: 56px;
                 height: 56px;
                 border-radius: 50%;
-                background: conic-gradient(#0000 10%, #474bff);
+                background: conic-gradient(#0000 10%, '.esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#432fb8').');
                 -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
                 animation: spinner-zp9dbg 1s infinite linear;
             }
@@ -1349,55 +1341,65 @@ function dapfforwc_product_filter_shortcode($atts)
 
 <?php if ($atts['mobile_responsive'] === 'style_1') {
         wp_add_inline_script('urlfilter-ajax', "
-         document.addEventListener('DOMContentLoaded', function() {
-                // Function to check if the device is mobile
-                let isMobile = false;
-                if (window.innerWidth <= 768) {
-                    isMobile = true;
-                }
+         function initializeMobileFilters() {
+  if (window.innerWidth <= 768) {
+    const titles = document.querySelectorAll('.filter-group .title');
+    const items  = document.querySelectorAll('.filter-group .items');
 
-                if (isMobile) {
-                    const titles = document.querySelectorAll('.filter-group .title');
-                    const items = document.querySelectorAll('.filter-group .items');
+    function hideAll() {
+      items.forEach(item => item.style.setProperty('display', 'none', 'important'));
+      titles.forEach(title => {
+        const svg = title.querySelector('svg');
+        if (svg) svg.classList.remove('rotated');
+      });
+    }
 
-                    // Function to hide all items
-                    function hideAllItems() {
-                        items.forEach(item => {
-                            item.style.setProperty('display', 'none', 'important'); // Use !important to hide items
-                        });
-                    }
+    // Start hidden
+    hideAll();
 
-                    // Add click event listener to each title
-                    titles.forEach(title => {
-                        title.addEventListener('click', function(event) {
-                            // Prevent hiding the items when clicking on the title
-                            event.stopPropagation();
+    titles.forEach(title => {
+      title.addEventListener('click', function (e) {
+        e.stopPropagation();
 
-                            // Toggle the visibility of the items
-                            const currentItems = this.nextElementSibling;
-                            if (currentItems.style.display === 'block') {
-                                currentItems.style.setProperty('display', 'none', 'important'); // Hide items
-                            } else {
-                                hideAllItems(); // Hide all first                                
-                                if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border') || currentItems.classList.contains('button_check')) {
-                                    currentItems.style.setProperty('display', 'grid', 'important');
-                                } else if (currentItems.classList.contains('plugincy_color') || currentItems.classList.contains('color_no_border') || currentItems.classList.contains('color_circle')) {
-                                    currentItems.style.setProperty('display', 'flex', 'important');
-                                } else {
-                                    currentItems.style.setProperty('display', 'block', 'important');
-                                }
-                            }
-                        });
-                    });
+        // Toggle current
+        const currentItems = this.nextElementSibling;
+        if (currentItems.style.display === 'block') {
+            currentItems.style.setProperty('display', 'none', 'important'); // Hide items
+        } else {
+            hideAll(); // Hide all first                                
+            if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border') || currentItems.classList.contains('button_check')) {
+                currentItems.style.setProperty('display', 'grid', 'important');
+            } else if (currentItems.classList.contains('plugincy_color') || currentItems.classList.contains('color_no_border') || currentItems.classList.contains('color_circle')) {
+                currentItems.style.setProperty('display', 'flex', 'important');
+            } else {
+                currentItems.style.setProperty('display', 'block', 'important');
+            }
+        }
 
-                    // Click event to hide all items when clicking outside
-                    document.addEventListener('click', function() {
-                        hideAllItems();
-                    });
-                }
-            });
-         
-         ");
+        // Toggle arrow rotation
+        const svg = this.querySelector('svg');
+        if (svg) svg.classList.toggle('rotated');
+      });
+    });
+
+    // Click outside to hide all
+    document.addEventListener('click', function (e) {
+      if (!e.target.closest('.plugincy_filter_wrapper')) {
+        hideAll();
+      }
+    });
+  }}
+
+    // Call function on DOM content loaded
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeMobileFilters();
+    });
+
+    // Call function after AJAX requests complete
+    jQuery(document).ajaxComplete(function() {
+        initializeMobileFilters();
+    });
+");
     }
 
     // End output buffering and return content
