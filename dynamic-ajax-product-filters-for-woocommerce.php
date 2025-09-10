@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.3.9.8
+ * Version:     1.3.9.27
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,10 +23,10 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.3.9.8');
+define('DAPFFORWC_VERSION', '1.3.9.27');
 
 // Global Variables
-global $allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
+global $dapfforwc_allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
 
 $template_options = get_option('dapfforwc_template_options') ?: [
     'active_template' => 'clean',
@@ -81,7 +81,7 @@ $dapfforwc_front_page = isset($dapfforwc_front_page_id) ? get_post($dapfforwc_fr
 // Get the slug of the front page
 $dapfforwc_front_page_slug = isset($dapfforwc_front_page) ? $dapfforwc_front_page->post_name : "";
 
-$allowed_tags = array(
+$dapfforwc_allowed_tags = array(
     'a' => array(
         'href' => array(),
         'title' => array(),
@@ -244,6 +244,7 @@ $allowed_tags = array(
         'lang' => array(),
         'dir' => array(),
         'class' => array(),
+        'style' => array(),
     ),
     'head' => array(),
     'body' => array(
@@ -255,36 +256,43 @@ $allowed_tags = array(
     'header' => array(
         'class' => array(),
         'id' => array(),
+        'style' => array(),
         'role' => array(),
     ),
     'footer' => array(
         'class' => array(),
         'id' => array(),
+        'style' => array(),
         'role' => array(),
     ),
     'nav' => array(
         'class' => array(),
+        'style' => array(),
         'id' => array(),
         'role' => array(),
     ),
     'main' => array(
         'class' => array(),
+        'style' => array(),
         'id' => array(),
         'role' => array(),
     ),
     'section' => array(
         'class' => array(),
         'id' => array(),
+        'style' => array(),
         'role' => array(),
     ),
     'article' => array(
         'class' => array(),
+        'style' => array(),
         'id' => array(),
         'role' => array(),
     ),
     'aside' => array(
         'class' => array(),
         'id' => array(),
+        'style' => array(),
         'role' => array(),
     ),
 
@@ -292,6 +300,7 @@ $allowed_tags = array(
     'form' => array(
         'action' => array(),
         'method' => array(),
+        'style' => array(),
         'enctype' => array(),
         'target' => array(),
         'name' => array(),
@@ -309,6 +318,7 @@ $allowed_tags = array(
         'type' => array(),
         'name' => array(),
         'value' => array(),
+        'style' => array(),
         'placeholder' => array(),
         'id' => array(),
         'class' => array(),
@@ -344,6 +354,7 @@ $allowed_tags = array(
         'class' => array(),
         'placeholder' => array(),
         'rows' => array(),
+        'style' => array(),
         'cols' => array(),
         'required' => array(),
         'disabled' => array(),
@@ -362,6 +373,7 @@ $allowed_tags = array(
         'multiple' => array(),
         'size' => array(),
         'required' => array(),
+        'style' => array(),
         'disabled' => array(),
         'autofocus' => array(),
         'form' => array(),
@@ -369,11 +381,13 @@ $allowed_tags = array(
     'option' => array(
         'value' => array(),
         'selected' => array(),
+        'style' => array(),
         'disabled' => array(),
         'label' => array(),
     ),
     'optgroup' => array(
         'label' => array(),
+        'style' => array(),
         'disabled' => array(),
     ),
     'button' => array(
@@ -381,6 +395,7 @@ $allowed_tags = array(
         'name' => array(),
         'value' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
         'disabled' => array(),
         'form' => array(),
@@ -395,32 +410,38 @@ $allowed_tags = array(
         'form' => array(),
         'id' => array(),
         'class' => array(),
+        'style' => array(),
     ),
     'fieldset' => array(
         'disabled' => array(),
         'form' => array(),
+        'style' => array(),
         'name' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'legend' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'datalist' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'output' => array(
         'for' => array(),
         'form' => array(),
         'name' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'plugrogress' => array(
         'value' => array(),
         'max' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
@@ -429,6 +450,7 @@ $allowed_tags = array(
         'min' => array(),
         'max' => array(),
         'low' => array(),
+        'style' => array(),
         'high' => array(),
         'optimum' => array(),
         'id' => array(),
@@ -440,6 +462,7 @@ $allowed_tags = array(
         'src' => array(),
         'controls' => array(),
         'autoplay' => array(),
+        'style' => array(),
         'loop' => array(),
         'muted' => array(),
         'preload' => array(),
@@ -454,6 +477,7 @@ $allowed_tags = array(
         'loop' => array(),
         'muted' => array(),
         'preload' => array(),
+        'style' => array(),
         'poster' => array(),
         'width' => array(),
         'height' => array(),
@@ -463,6 +487,7 @@ $allowed_tags = array(
     ),
     'source' => array(
         'src' => array(),
+        'style' => array(),
         'type' => array(),
         'media' => array(),
         'sizes' => array(),
@@ -471,6 +496,7 @@ $allowed_tags = array(
     'track' => array(
         'kind' => array(),
         'src' => array(),
+        'style' => array(),
         'srclang' => array(),
         'label' => array(),
         'default' => array(),
@@ -480,12 +506,14 @@ $allowed_tags = array(
         'type' => array(),
         'width' => array(),
         'height' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'object' => array(
         'data' => array(),
         'type' => array(),
+        'style' => array(),
         'name' => array(),
         'width' => array(),
         'height' => array(),
@@ -496,12 +524,14 @@ $allowed_tags = array(
     'param' => array(
         'name' => array(),
         'value' => array(),
+        'style' => array(),
     ),
     'iframe' => array(
         'src' => array(),
         'srcdoc' => array(),
         'name' => array(),
         'width' => array(),
+        'style' => array(),
         'height' => array(),
         'sandbox' => array(),
         'allow' => array(),
@@ -516,13 +546,16 @@ $allowed_tags = array(
         'open' => array(),
         'id' => array(),
         'class' => array(),
+        'style' => array(),
     ),
     'summary' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'dialog' => array(
         'open' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
@@ -530,110 +563,134 @@ $allowed_tags = array(
     // Text Content Elements
     'pre' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'code' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'kbd' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'samp' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'var' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'small' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'sub' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'sup' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'mark' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'del' => array(
         'datetime' => array(),
+        'style' => array(),
         'cite' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'ins' => array(
         'datetime' => array(),
+        'style' => array(),
         'cite' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'q' => array(
         'cite' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'cite' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'abbr' => array(
         'title' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'dfn' => array(
         'title' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'time' => array(
         'datetime' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'data' => array(
         'value' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'address' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
     // Table Elements (Enhanced)
     'caption' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'thead' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'tbody' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'tfoot' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'colgroup' => array(
         'span' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
     'col' => array(
         'span' => array(),
+        'style' => array(),
         'id' => array(),
         'class' => array(),
     ),
@@ -641,28 +698,34 @@ $allowed_tags = array(
     // Definition Lists
     'dl' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'dt' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'dd' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
     // Ruby Annotations
     'ruby' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'rt' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'rp' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
@@ -670,22 +733,26 @@ $allowed_tags = array(
     'bdi' => array(
         'dir' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'bdo' => array(
         'dir' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
     // Web Components
     'template' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'slot' => array(
         'name' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
@@ -694,6 +761,7 @@ $allowed_tags = array(
         'display' => array(),
         'xmlns' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
@@ -702,16 +770,19 @@ $allowed_tags = array(
         'width' => array(),
         'height' => array(),
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
 
     // Obsolete but sometimes needed
     'center' => array(
         'id' => array(),
+        'style' => array(),
         'class' => array(),
     ),
     'font' => array(
         'size' => array(),
+        'style' => array(),
         'color' => array(),
         'face' => array(),
         'id' => array(),
@@ -892,11 +963,13 @@ $allowed_tags = array(
     'defs' => array(
         'class' => array(),
         'id' => array(),
+        'style' => array(),
     ),
     'symbol' => array(
         'id' => array(),
         'viewBox' => array(),
         'class' => array(),
+        'style' => array(),
         'preserveAspectRatio' => array(),
     ),
     'marker' => array(
@@ -905,6 +978,7 @@ $allowed_tags = array(
         'markerHeight' => array(),
         'refX' => array(),
         'refY' => array(),
+        'style' => array(),
         'orient' => array(),
         'markerUnits' => array(),
         'class' => array(),
@@ -913,6 +987,7 @@ $allowed_tags = array(
         'id' => array(),
         'x1' => array(),
         'y1' => array(),
+        'style' => array(),
         'x2' => array(),
         'y2' => array(),
         'gradientUnits' => array(),
@@ -923,6 +998,7 @@ $allowed_tags = array(
         'id' => array(),
         'x1' => array(),
         'y1' => array(),
+        'style' => array(),
         'x2' => array(),
         'y2' => array(),
         'gradientUnits' => array(),
@@ -933,6 +1009,7 @@ $allowed_tags = array(
         'id' => array(),
         'cx' => array(),
         'cy' => array(),
+        'style' => array(),
         'r' => array(),
         'fx' => array(),
         'fy' => array(),
@@ -945,6 +1022,7 @@ $allowed_tags = array(
         'cx' => array(),
         'cy' => array(),
         'r' => array(),
+        'style' => array(),
         'fx' => array(),
         'fy' => array(),
         'gradientUnits' => array(),
@@ -961,11 +1039,13 @@ $allowed_tags = array(
     'clipPath' => array(
         'id' => array(),
         'class' => array(),
+        'style' => array(),
         'clipPathUnits' => array(),
     ),
     'mask' => array(
         'id' => array(),
         'class' => array(),
+        'style' => array(),
         'maskUnits' => array(),
         'maskContentUnits' => array(),
         'x' => array(),
@@ -978,6 +1058,7 @@ $allowed_tags = array(
         'x' => array(),
         'y' => array(),
         'width' => array(),
+        'style' => array(),
         'height' => array(),
         'patternUnits' => array(),
         'patternContentUnits' => array(),
@@ -989,6 +1070,7 @@ $allowed_tags = array(
         'id' => array(),
         'x' => array(),
         'y' => array(),
+        'style' => array(),
         'width' => array(),
         'height' => array(),
         'filterUnits' => array(),
@@ -997,18 +1079,21 @@ $allowed_tags = array(
     ),
     'feGaussianBlur' => array(
         'in' => array(),
+        'style' => array(),
         'stdDeviation' => array(),
         'result' => array(),
     ),
     'feOffset' => array(
         'in' => array(),
         'dx' => array(),
+        'style' => array(),
         'dy' => array(),
         'result' => array(),
     ),
     'feDropShadow' => array(
         'dx' => array(),
         'dy' => array(),
+        'style' => array(),
         'stdDeviation' => array(),
         'flood-color' => array(),
         'flood-opacity' => array(),
@@ -1017,6 +1102,7 @@ $allowed_tags = array(
         'x' => array(),
         'y' => array(),
         'width' => array(),
+        'style' => array(),
         'height' => array(),
         'href' => array(),
         'xlink:href' => array(),
@@ -1333,7 +1419,8 @@ add_filter('safe_style_css', function ($styles) {
 
         // svg style
         'stop-color',
-        'stop-opacity'
+        'stop-opacity',
+        'fill'
 
     ));
 });
@@ -1427,7 +1514,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.3.9.8', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.3.9.27', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -1438,9 +1525,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.3.9.8');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.3.9.8');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.3.9.8', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.3.9.27');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.3.9.27');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.3.9.27', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -1571,11 +1658,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.3.9.8');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.3.9.27');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.3.9.8', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.3.9.27', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1848,7 +1935,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.3.9.8');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.3.9.27');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2149,7 +2236,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.3.9.8",
+            "1.3.9.27",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2763,7 +2850,7 @@ class dapfforwc_Widget_filters extends WP_Widget
      */
     public function widget($args, $instance)
     {
-        global $allowed_tags;
+        global $dapfforwc_allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
             return;
@@ -2771,12 +2858,12 @@ class dapfforwc_Widget_filters extends WP_Widget
 
         $content = '[plugincy_filters]';
 
-        echo wp_kses($args['before_widget'], $allowed_tags);
+        echo wp_kses($args['before_widget'], $dapfforwc_allowed_tags);
 
         // Process shortcodes and display content
         echo do_shortcode(wpautop($content));
 
-        echo wp_kses($args['after_widget'], $allowed_tags);
+        echo wp_kses($args['after_widget'], $dapfforwc_allowed_tags);
     }
 
     /**
@@ -2837,7 +2924,7 @@ class dapfforwc_Widget_single_filter extends WP_Widget
      */
     public function widget($args, $instance)
     {
-        global $allowed_tags;
+        global $dapfforwc_allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
             return;
@@ -2846,9 +2933,9 @@ class dapfforwc_Widget_single_filter extends WP_Widget
         $selector = !empty($instance['selector']) ? $instance['selector'] : 'selector_here';
         $content = '[plugincy_filters_single name="' . esc_attr($selector) . '"]';
 
-        echo wp_kses($args['before_widget'], $allowed_tags);
+        echo wp_kses($args['before_widget'], $dapfforwc_allowed_tags);
         echo do_shortcode(wpautop($content));
-        echo wp_kses($args['after_widget'], $allowed_tags);
+        echo wp_kses($args['after_widget'], $dapfforwc_allowed_tags);
     }
 
     /**
@@ -2912,17 +2999,17 @@ class dapfforwc_Widget_selected_filter extends WP_Widget
      */
     public function widget($args, $instance)
     {
-        global $allowed_tags;
+        global $dapfforwc_allowed_tags;
         // Only display on WooCommerce archive pages
         if (!is_shop() && !is_product_category() && !is_product_tag() && !is_product_taxonomy()) {
             return;
         }
         $content = '[plugincy_filters_selected]';
 
-        echo wp_kses($args['before_widget'], $allowed_tags);
+        echo wp_kses($args['before_widget'], $dapfforwc_allowed_tags);
         // No dynamic content required, just output shortcode
         echo do_shortcode($content);
-        echo wp_kses($args['after_widget'], $allowed_tags);
+        echo wp_kses($args['after_widget'], $dapfforwc_allowed_tags);
     }
 
     /**
@@ -2948,13 +3035,13 @@ class dapfforwc_Widget_selected_filter extends WP_Widget
 }
 
 
-add_action( 'widgets_init', function () {
-    if ( function_exists( 'wp_use_widgets_block_editor' ) && wp_use_widgets_block_editor() ) {
-        unregister_widget( 'dapfforwc_Widget_filters' );
-        unregister_widget( 'dapfforwc_Widget_single_filter' );
-        unregister_widget( 'dapfforwc_Widget_selected_filter' );
+add_action('widgets_init', function () {
+    if (function_exists('wp_use_widgets_block_editor') && wp_use_widgets_block_editor()) {
+        unregister_widget('dapfforwc_Widget_filters');
+        unregister_widget('dapfforwc_Widget_single_filter');
+        unregister_widget('dapfforwc_Widget_selected_filter');
     }
-} );
+});
 
 
 // Enqueue your script in WordPress

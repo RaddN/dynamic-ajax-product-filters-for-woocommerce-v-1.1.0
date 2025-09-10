@@ -212,7 +212,7 @@ class dapfforwc_Custom_Class_Injector
      */
     public function end_pagination_capture()
     {
-        global $allowed_tags;
+        global $dapfforwc_allowed_tags;
         if (!$this->is_capturing_pagination) {
             return;
         }
@@ -268,7 +268,7 @@ class dapfforwc_Custom_Class_Injector
             $html
         );
 
-        echo wp_kses($html, $allowed_tags);
+        echo wp_kses($html, $dapfforwc_allowed_tags);
     }
 
 
@@ -411,7 +411,7 @@ class dapfforwc_Custom_Class_Injector
 
     public function end_orderby_capture()
     {
-        global $allowed_tags;
+        global $dapfforwc_allowed_tags;
 
         $content = ob_get_contents();
         ob_end_clean();
@@ -428,7 +428,7 @@ class dapfforwc_Custom_Class_Injector
             $content = str_replace('<form', '<form class="' . $this->custom_classes['orderby'] . '"', $content);
         }
 
-        echo wp_kses($content, $allowed_tags);
+        echo wp_kses($content, $dapfforwc_allowed_tags);
     }
 
     /**
@@ -541,12 +541,12 @@ if (!class_exists('dapfforwc_Pagination_Normalizer')) {
 
         public function capture_end()
         {
-            global $allowed_tags;
+            global $dapfforwc_allowed_tags;
             if (!function_exists('is_woocommerce') || !is_woocommerce() || is_singular('product')) {
                 return;
             }
             $html = ob_get_clean();
-            echo wp_kses($this->inject_into_any_pagination($html), $allowed_tags);
+            echo wp_kses($this->inject_into_any_pagination($html), $dapfforwc_allowed_tags);
         }
 
         /* ----------------------------------------------

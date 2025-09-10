@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 }
 
 
-global $template_options, $allowed_tags;
+global $template_options, $dapfforwc_allowed_tags;
 ?>
 
 <div class="dapfforwc-template-container">
@@ -77,7 +77,7 @@ global $template_options, $allowed_tags;
         ?>
             <div class="dapfforwc-template-card <?php echo $is_active ? 'active' : ''; ?>" data-template-id="<?php echo esc_attr($template['id']); ?>">
                 <div class="dapfforwc-template-image">
-                    <?php echo wp_kses($template['image'], $allowed_tags); ?>
+                    <?php echo wp_kses($template['image'], $dapfforwc_allowed_tags); ?>
                     <div class="dapfforwc-template-status">
                         <?php if ($is_active) : ?>
                             <span class="active-badge"><?php esc_html_e('Active', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>

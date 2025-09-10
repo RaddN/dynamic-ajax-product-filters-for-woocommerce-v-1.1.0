@@ -84,7 +84,6 @@ div#roverlay {
   background: 0 0;
 }
 #product-filter .filter-group .title {
-  background: 0 0;
   text-align: center;
   display: flex;
   justify-content: space-between;
@@ -385,7 +384,7 @@ form.rfilterbuttons * {
   border: 1px solid white;
   position: relative;
   z-index: 9999;
-  margin-top: -7px;  
+  margin-top: -7px;
 }
 #product-filter input[type="range"]::-moz-range-thumb {
   height: 17px;

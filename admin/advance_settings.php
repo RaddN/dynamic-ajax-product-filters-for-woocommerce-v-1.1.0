@@ -60,7 +60,7 @@ function dapfforwc_default_value_selected_render()
 
 function dapfforwc_render_advance_checkbox($key, $message = null)
 {
-    global $allowed_tags;
+    global $dapfforwc_allowed_tags;
     global $dapfforwc_advance_settings;
 ?>
     <label class="switch <?php echo esc_attr($key); ?>">
@@ -71,7 +71,7 @@ function dapfforwc_render_advance_checkbox($key, $message = null)
     </label>
     <?php
     if (isset($message) && !empty($message)) {
-        echo "<p class='description' style='max-width: 800px;'>" . wp_kses($message, $allowed_tags) . "</p>";
+        echo "<p class='description' style='max-width: 800px;'>" . wp_kses($message, $dapfforwc_allowed_tags) . "</p>";
     }
 }
 

@@ -7,7 +7,7 @@ if (!defined('ABSPATH')) {
 
 function dapfforwc_product_filter_shortcode($atts)
 {
-    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $allowed_tags;
+    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $dapfforwc_allowed_tags;
 
 
     // Define default attributes and merge with user-defined attributes
@@ -901,8 +901,8 @@ function dapfforwc_product_filter_shortcode($atts)
                 // on click outside of #product-filter add dapfforwc-hidden-important class on .items
                 document.addEventListener('click', function(event) {
                     if (!productFilter.contains(event.target)) {
-                        const items = productFilter.querySelectorAll('#product-filter .filter-group>*:not(.title)');
-                        const svgs = productFilter.querySelectorAll('#product-filter .filter-group .title svg');
+                        const items = productFilter.querySelectorAll("#product-filter .filter-group .items");
+                        const svgs = productFilter.querySelectorAll("#product-filter .filter-group .title svg");
 
                         items.forEach(function(item) {
                             if (!item.classList.contains('dapfforwc-hidden-important')) {
@@ -1054,6 +1054,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 gap: 10px;
                 height: 66px;
                 margin-left: 64px;
+                scrollbar-width: thin;
             }
 
             .filter-group .title {
@@ -1077,6 +1078,22 @@ function dapfforwc_product_filter_shortcode($atts)
                 box-shadow: #efefef99 0 -4px 10px 4px;
                 z-index: 999;
                 top: 70px;
+            }
+
+            .dafilter-word--show #product-filter:before {
+                display: block;
+            }
+
+            .dafilter-word--show form#product-filter {
+                margin-left: 64px;
+            }
+
+            .dafilter-word--hide #product-filter:before {
+                display: none;
+            }
+
+            .dafilter-word--hide form#product-filter {
+                margin-left: 0;
             }
         }
 
@@ -1107,6 +1124,8 @@ function dapfforwc_product_filter_shortcode($atts)
                     margin: 5px !important;
                     display: none;
                     top: 20%;
+                    transform: translateX(-50%);
+                    left: 50%;
                 }
 
                 .rfilterselected ul {
@@ -1309,7 +1328,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     "max_price" => $max_price,
                     ...$filteroptionsfromurl
                 ];
-                echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $allowed_tags);
+                echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on') ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $dapfforwc_allowed_tags);
                 echo '</form></div>';
                 if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
         </div>
@@ -1319,14 +1338,14 @@ function dapfforwc_product_filter_shortcode($atts)
     <!-- Loader HTML -->
     <?php
 
-    echo wp_kses('<div id="loader" style="display:none;"></div>', $allowed_tags);
+    echo wp_kses('<div id="loader" style="display:none;"></div>', $dapfforwc_allowed_tags);
     ?>
     <style>
         <?php echo wp_kses('#loader {
                 width: 56px;
                 height: 56px;
                 border-radius: 50%;
-                background: conic-gradient(#0000 10%, '.esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#432fb8').');
+                background: conic-gradient(#0000 10%, ' . esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#432fb8') . ');
                 -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
                 animation: spinner-zp9dbg 1s infinite linear;
             }
@@ -1335,7 +1354,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 to {
                     transform: rotate(1turn);
                 }
-            }', $allowed_tags); ?>
+            }', $dapfforwc_allowed_tags); ?>
     </style>
     <div id="roverlay" style="display: none;"></div>
 

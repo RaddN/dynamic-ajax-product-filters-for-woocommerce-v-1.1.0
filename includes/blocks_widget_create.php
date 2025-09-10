@@ -545,7 +545,6 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
             $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
             $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
-            $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
             $attributes = [];
             foreach ($all_attributes as $attribute) {
                 if (in_array($attribute['attribute_name'], $exclude_attributes)) {
@@ -556,18 +555,6 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'attribute_label' => $attribute['attribute_label'],
                 ];
             }
-            $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
-            $all_custom_fields = [];
-            foreach ($custom_fields as $custom_field) {
-                if (in_array($custom_field['name'], $exclude_custom_fields)) {
-                    continue;
-                }
-                $all_custom_fields[] = (object) [
-                    'attribute_name' => $custom_field['name'],
-                    'attribute_label' => $custom_field['label'],
-                ];
-            }
-
             $options = [
                 'search_text' => esc_html__('Search Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'rating' => esc_html__('Rating', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -586,10 +573,6 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
 
             // Add attributes to options
             foreach ($attributes as $attribute) {
-                $options[$attribute->attribute_name] = $attribute->attribute_label;
-            }
-
-            foreach ($all_custom_fields as $attribute) {
                 $options[$attribute->attribute_name] = $attribute->attribute_label;
             }
 
@@ -730,12 +713,25 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 'Database_query_section',
                 [
                     'label' => esc_html__('Database Query', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'description' => esc_html__('If you are not using [products] shortcode to display products, you can use these options to query options.', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'condition' => [
                         'filter_type' => 'all',
                     ],
                 ]
             );
+
+            $this->add_control(
+                'database_query_note',
+                [
+                    'type'            => \Elementor\Controls_Manager::RAW_HTML,
+                    'raw'             => esc_html__(
+                        'If you are not using [products] shortcode to display products, you can use these options to query.',
+                        'dynamic-ajax-product-filters-for-woocommerce'
+                    ),
+                    // Optional: Elementor’s panel alert styling classes
+                    'content_classes' => 'elementor-panel-alert elementor-panel-alert-info',
+                ]
+            );
+
             $this->add_control(
                 'category',
                 [
@@ -860,17 +856,17 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             );
 
             $this->add_control(
-                'filters_word_visibility',
+                'filters_word_mode',
                 [
-                    'label'        => esc_html__('Show Filters Word on Mobile', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'type'         => \Elementor\Controls_Manager::SWITCHER,
-                    'label_on'     => esc_html__('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'label_off'    => esc_html__('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'return_value' => 'none',
-                    'default'      => 'block',
-                    'selectors'    => [
-                        '#product-filter:before' => 'display: {{VALUE}};',
+                    'label'       => esc_html__('Filters Word (Mobile)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'type'        => \Elementor\Controls_Manager::SELECT,
+                    'default'     => 'show',
+                    'options'     => [
+                        'show' => esc_html__('Show', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'hide' => esc_html__('Hide', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
+                    // This appends a class like "dafilter-word--show" or "dafilter-word--hide" to the widget wrapper
+                    'prefix_class' => 'dafilter-word--',
                 ]
             );
 
@@ -896,7 +892,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter' => 'background-color: {{VALUE}};',
+                        '.plugincy_filter_wrapper' => 'background-color: {{VALUE}};',
                     ],
                 ]
             );
@@ -907,7 +903,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        'form#product-filter' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '.plugincy_filter_wrapper' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -919,7 +915,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '.plugincy_filter_wrapper' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -931,7 +927,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '.plugincy_filter_wrapper' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -941,7 +937,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'      => 'form_box_shadow',
                     'label'     => esc_html__('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector'  => 'form#product-filter',
+                    'selector'  => '.plugincy_filter_wrapper',
                 ]
             );
 
@@ -970,7 +966,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         ],
                     ],
                     'selectors'  => [
-                        'form#product-filter' => 'height: {{SIZE}}{{UNIT}};',
+                        '.plugincy_filter_wrapper' => 'height: {{SIZE}}{{UNIT}};',
                     ],
                 ]
             );
@@ -996,7 +992,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '.filter-group' => 'background-color: {{VALUE}};',
+                        '#product-filter .filter-group' => 'background-color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1007,7 +1003,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        '.filter-group' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .filter-group' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1019,7 +1015,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        '.filter-group' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .filter-group' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1031,7 +1027,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        '.filter-group' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .filter-group' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1041,7 +1037,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'      => 'container_box_shadow',
                     'label'     => esc_html__('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector'  => '.filter-group',
+                    'selector'  => '#product-filter .filter-group',
                 ]
             );
 
@@ -1058,7 +1054,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     ],
                     'default'   => 'visible',
                     'selectors' => [
-                        '.filter-group' => 'overflow: {{VALUE}};',
+                        '#product-filter .filter-group' => 'overflow: {{VALUE}};',
                     ],
                 ]
             );
@@ -1115,7 +1111,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        '{{WRAPPER}} .filter-group .title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .filter-group .title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1155,7 +1151,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .filter-group .title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1166,7 +1162,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .filter-group .title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1211,7 +1207,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .items label, .price-input span,.price-input .separator' => 'color: {{VALUE}};',
+                        '{{WRAPPER}} .items label, .price-input span,.price-input .separator' => 'color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1222,7 +1218,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .items' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .items' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1233,7 +1229,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .items' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .items' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1245,7 +1241,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        '{{WRAPPER}} .items' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} .items' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1256,7 +1252,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Gap', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::SLIDER,
                     'selectors' => [
-                        '{{WRAPPER}} .items' => 'display: flex ; flex-direction: column; gap: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}} .items' => 'display: flex !important; flex-direction: column; gap: {{SIZE}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1283,7 +1279,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'name'     => 'button_background',
                     'label'    => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
-                    'selector' => 'form#product-filter button',
+                    'selector' => '{{WRAPPER}} form#product-filter button',
                 ]
             );
 
@@ -1293,7 +1289,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter button' => 'color: {{VALUE}};',
+                        '{{WRAPPER}} form#product-filter button' => 'color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1304,7 +1300,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Hover Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter button:hover' => 'background-color: {{VALUE}};',
+                        '{{WRAPPER}} form#product-filter button:hover' => 'background-color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1315,7 +1311,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Hover Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        'form#product-filter button:hover' => 'color: {{VALUE}};',
+                        '{{WRAPPER}} form#product-filter button:hover' => 'color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1325,7 +1321,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'     => 'button_border',
                     'label'    => esc_html__('Border', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector' => 'form#product-filter button',
+                    'selector' => '{{WRAPPER}} form#product-filter button',
                 ]
             );
 
@@ -1336,7 +1332,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} form#product-filter button' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1348,7 +1344,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        'form#product-filter button' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} form#product-filter button' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1359,7 +1355,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        'form#product-filter button' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} form#product-filter button' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1391,7 +1387,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         ],
                     ],
                     'selectors'  => [
-                        '{{WRAPPER}} .dynamic-rating  label:before, .items.rating svg' => 'width: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}} .dynamic-rating  label:before, .items.rating svg' => 'width: {{SIZE}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1401,7 +1397,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Inactive Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .dynamic-rating label, .items.rating svg' => 'fill: {{VALUE}};',
+                        '{{WRAPPER}} .dynamic-rating label, .items.rating svg' => 'fill: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1412,7 +1408,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Active Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .dynamic-rating  input:checked + label:hover,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover,{{WRAPPER}} .dynamic-rating  label:hover ~ input:checked ~ label,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover ~ label, .items.rating input:checked  + .plugincy-stars svg' => 'fill: {{VALUE}};',
+                        '{{WRAPPER}} .dynamic-rating  input:checked + label:hover,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover,{{WRAPPER}} .dynamic-rating  label:hover ~ input:checked ~ label,{{WRAPPER}} .dynamic-rating  input:checked ~ label:hover ~ label, .items.rating input:checked  + .plugincy-stars svg' => 'fill: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1423,7 +1419,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Hover Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .dynamic-rating input:checked ~ label,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover ~ label, .items.rating input:hover  + .plugincy-stars svg' => 'fill: {{VALUE}};',
+                        '{{WRAPPER}} .dynamic-rating input:checked ~ label,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover,{{WRAPPER}} .dynamic-rating:not(:checked) label:hover ~ label, .items.rating input:hover  + .plugincy-stars svg' => 'fill: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1441,7 +1437,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         ],
                     ],
                     'selectors'  => [
-                        '{{WRAPPER}} .dynamic-rating  label:before, .items.rating svg ' => 'margin: {{SIZE}}{{UNIT}};',
+                        '{{WRAPPER}} .dynamic-rating  label:before, .items.rating svg ' => 'margin: {{SIZE}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1662,7 +1658,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#ddd',
                     'selectors' => [
-                        '.plugincy_slider' => 'background: {{VALUE}};',
+                        '{{WRAPPER}} .plugincy_slider' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1683,7 +1679,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '.plugincy_slider' => 'border-radius: {{SIZE}}px;',
+                        '{{WRAPPER}} .plugincy_slider' => 'border-radius: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1696,7 +1692,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#432fb8',
                     'selectors' => [
-                        '.plugincy_slider .plugrogress' => 'background: {{VALUE}};',
+                        '{{WRAPPER}} .plugincy_slider .plugrogress' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1717,7 +1713,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '.plugincy_slider .plugrogress' => 'border-radius: {{SIZE}}px;',
+                        '{{WRAPPER}} .plugincy_slider .plugrogress' => 'border-radius: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1729,8 +1725,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        'input[type="range"]::-webkit-slider-thumb' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
-                        'input[type="range"]::-moz-range-thumb'    => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb'    => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1751,8 +1747,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 17,
                     ],
                     'selectors'  => [
-                        'input[type="range"]::-webkit-slider-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px;',
-                        'input[type="range"]::-moz-range-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px;',
+                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
+                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1765,8 +1761,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => '#432fb8',
                     'selectors' => [
-                        'input[type="range"]::-webkit-slider-thumb' => 'background:{{VALUE}};',
-                        'input[type="range"]::-moz-range-thumb' => 'background: {{VALUE}};',
+                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'background:{{VALUE}} !important;',
+                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1779,7 +1775,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'default'   => 'red',
                     'selectors' => [
-                        '.plugrogress-percentage:before, .plugrogress-percentage:after' => 'background: {{VALUE}};',
+                        '{{WRAPPER}} .plugrogress-percentage:before, .plugrogress-percentage:after' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -2200,7 +2196,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
 
         protected function render()
         {
-            global $allowed_tags;
+            global $dapfforwc_allowed_tags;
             $settings = $this->get_settings_for_display();
             $output = '';
 
@@ -2240,7 +2236,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     break;
             }
 
-            echo wp_kses($output, $allowed_tags);
+            echo wp_kses($output, $dapfforwc_allowed_tags);
         }
     }
 
