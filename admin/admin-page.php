@@ -1129,13 +1129,21 @@ function dapfforwc_admin_page_content()
                         <h3 style="margin: 0;">Shortcodes for Displaying Filters</h3>
                     </div>
                     <div class="plugincy-dapfforwc-card-body">
-                        <code class="plugincy-code-box">[plugincy_filters]</code>
+                        <code class="plugincy-code-box">[plugincy_filters layout="top_view/sidebar"]</code>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <code class="plugincy-code-box">[plugincy_filters_selected]</code>
                         <p class="plugincy-code-description"><?php echo esc_html__('Displays selected filters.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/" target="_blank" class="plugincy-learn-more-link"><?php echo esc_html__('Learn more about using shortcodes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
+                        <div class="plugincy-shortcode-note" style="margin-top:15px; padding:10px; border:1px solid #e2e2e2; border-radius:6px; background:#f9f9f9; display:flex; align-items:center; gap:8px;">
+                            <span class="dashicons dashicons-filter" style="color:#ff6b35; font-size:18px;"></span>
+                            <p style="margin:0; font-size:13px; line-height:1.5;">
+                                <?php echo esc_html__('Tip: Instead of shortcodes, we recommend using our Elementor widget & Gutenberg block for easier management.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                <br>
+                                <b><?php echo esc_html__('Dynamic Ajax Filter (Block/Widget)', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b>
+                            </p>
+                        </div>
                     </div>
                 </div>
 

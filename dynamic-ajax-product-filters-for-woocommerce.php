@@ -2948,6 +2948,14 @@ class dapfforwc_Widget_selected_filter extends WP_Widget
 }
 
 
+add_action( 'widgets_init', function () {
+    if ( function_exists( 'wp_use_widgets_block_editor' ) && wp_use_widgets_block_editor() ) {
+        unregister_widget( 'dapfforwc_Widget_filters' );
+        unregister_widget( 'dapfforwc_Widget_single_filter' );
+        unregister_widget( 'dapfforwc_Widget_selected_filter' );
+    }
+} );
+
 
 // Enqueue your script in WordPress
 add_action('wp_enqueue_scripts', function () {
