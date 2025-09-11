@@ -1979,7 +1979,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
             if ($taxonomy === 'product_cat') {
                 $data['categories'][$term_id] = $data['categories'][$term_id] ?? [
                     'name' => $row['name'],
-                    'slug' => $row['slug'],
+                    'slug' => rawurldecode($row['slug']),
                     'parent' => $row['parent'],
                     'products' => []
                 ];
@@ -1990,7 +1990,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
             } elseif ($taxonomy === 'product_tag') {
                 $data['tags'][$term_id] = $data['tags'][$term_id] ?? [
                     'name' => $row['name'],
-                    'slug' => $row['slug'],
+                    'slug' => rawurldecode($row['slug']),
                     'products' => []
                 ];
 
@@ -2000,7 +2000,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
             } elseif ($taxonomy === 'product_brand') {
                 $data['brands'][$term_id] = $data['brands'][$term_id] ?? [
                     'name' => $row['name'],
-                    'slug' => $row['slug'],
+                    'slug' => rawurldecode($row['slug']),
                     'products' => []
                 ];
 
@@ -2019,7 +2019,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
                 $data['attributes'][$attr_name]['terms'][$term_id] = $data['attributes'][$attr_name]['terms'][$term_id] ?? [
                     'term_id' => $term_id,
                     'name' => $row['name'],
-                    'slug' => $row['slug'],
+                    'slug' => rawurldecode($row['slug']),
                     'products' => []
                 ];
 
