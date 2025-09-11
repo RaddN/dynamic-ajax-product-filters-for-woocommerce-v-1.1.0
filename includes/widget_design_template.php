@@ -203,7 +203,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
             if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
-                $formOutPut .= '<select name="product-category[]" class="select filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
+                $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                 $formOutPut .= '<option class="filter-checkbox" > Any </option>';
             }
         }

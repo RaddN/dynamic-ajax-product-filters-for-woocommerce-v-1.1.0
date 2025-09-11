@@ -490,14 +490,16 @@ if (!defined('ABSPATH')) {
 
 
                                         <!-- Single Selection Option -->
-                                        <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' ? 'none' : 'block'; ?> ;">
-                                            <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                            <label>
-                                                <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['single_selection'] ?? '', 'yes'); ?>>
-                                                <?php esc_html_e('Only one value can be selected at a time', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                            </label>
-                                        </div>
+                                        <?php if ($dapfforwc_attribute_name !== "rating") { ?>
+                                            <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' ? 'none' : 'block'; ?> ;">
+                                                <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"
+                                                        <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['single_selection'] ?? '', 'yes'); ?>>
+                                                    <?php esc_html_e('Only one value can be selected at a time', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                </label>
+                                            </div>
+                                        <?php } ?>
 
                                         <!-- Show/Hide Number of Products -->
                                         <div class="setting-item show-product-count">

@@ -845,7 +845,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
 
                 /* Dropdown items container */
-                .filter-group>*:not(.title) {
+                .filter-group .items {
                     position: absolute !important;
                     top: 100%;
                     left: 0;
@@ -868,59 +868,60 @@ function dapfforwc_product_filter_shortcode($atts)
 
             }
         </style>
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const productFilter = document.getElementById('product-filter');
-                const nextButton = document.querySelector('.plugincy-next-button');
-                const prevButton = document.querySelector('.plugincy-prev-button');
+    <?php wp_add_inline_script('urlfilter-ajax', "
+            document.addEventListener('DOMContentLoaded', function () {
+  if (window.innerWidth > 768) {
+    const productFilter = document.getElementById('product-filter');
+    const nextButton = document.querySelector('.plugincy-next-button');
+    const prevButton = document.querySelector('.plugincy-prev-button');
 
-                if (productFilter) {
-                    productFilter.addEventListener('wheel', function(e) {
-                        // Prevent default vertical scroll
-                        e.preventDefault();
+    if (productFilter) {
+      // Horizontal scroll for the filter rail, but NOT when hovering .items
+      productFilter.addEventListener('wheel', function (e) {
+        // If the wheel event started inside .items, let the browser handle it
+        if (e.target.closest('#product-filter .items')) return;
 
-                        // Scroll horizontally instead
-                        // Use deltaY for better cross-browser compatibility
-                        const scrollAmount = e.deltaY || e.deltaX;
-                        productFilter.scrollLeft += scrollAmount;
-                    });
+        // Otherwise, hijack to horizontal scroll
+        e.preventDefault();
+        const delta = (typeof e.deltaY === 'number' ? e.deltaY : 0) ||
+                      (typeof e.deltaX === 'number' ? e.deltaX : 0) ||
+                      (typeof e.wheelDelta === 'number' ? -e.wheelDelta : 0);
+        productFilter.scrollLeft += delta;
+      }, { passive: false }); // ensure preventDefault works
 
-                    if (nextButton) {
-                        nextButton.addEventListener('click', function() {
-                            productFilter.scrollLeft += 200; // Scroll right
-                        });
-                    }
+      if (nextButton) {
+        nextButton.addEventListener('click', function () {
+          productFilter.scrollLeft += 200;
+        });
+      }
+      if (prevButton) {
+        prevButton.addEventListener('click', function () {
+          productFilter.scrollLeft -= 200;
+        });
+      }
 
-                    if (prevButton) {
-                        prevButton.addEventListener('click', function() {
-                            productFilter.scrollLeft -= 200; // Scroll left
-                        });
-                    }
-                }
+      // Click outside -> hide items & reset icons
+      document.addEventListener('click', function (event) {
+        if (!productFilter.contains(event.target)) {
+          const items = productFilter.querySelectorAll('#product-filter .filter-group .items');
+          const svgs = productFilter.querySelectorAll('#product-filter .filter-group .title svg');
 
-                // on click outside of #product-filter add dapfforwc-hidden-important class on .items
-                document.addEventListener('click', function(event) {
-                    if (!productFilter.contains(event.target)) {
-                        const items = productFilter.querySelectorAll("#product-filter .filter-group .items");
-                        const svgs = productFilter.querySelectorAll("#product-filter .filter-group .title svg");
+          items.forEach(function (item) {
+            if (!item.classList.contains('dapfforwc-hidden-important')) {
+              item.classList.add('dapfforwc-hidden-important');
+            }
+          });
 
-                        items.forEach(function(item) {
-                            if (!item.classList.contains('dapfforwc-hidden-important')) {
-                                item.classList.add('dapfforwc-hidden-important');
-                            }
-                        });
-
-                        // remove .rotated from svgs
-                        svgs.forEach(function(svg) {
-                            if (svg.classList.contains('rotated')) {
-                                svg.classList.remove('rotated');
-                            }
-                        });
-                    }
-                });
-            });
-        </script>
-    <?php
+          svgs.forEach(function (svg) {
+            if (svg.classList.contains('rotated')) {
+              svg.classList.remove('rotated');
+            }
+          });
+        }
+      });
+    }
+  }
+});", 100);
     }
 
     if ($template_options['active_template'] && $template_options['active_template'] === 'clean') { ?>
@@ -1366,7 +1367,10 @@ function dapfforwc_product_filter_shortcode($atts)
     const items  = document.querySelectorAll('.filter-group .items');
 
     function hideAll() {
-      items.forEach(item => item.style.setProperty('display', 'none', 'important'));
+      items.forEach(item => {
+        item.classList.add('dapfforwc-hidden-important');
+        item.style.removeProperty('display');
+      });
       titles.forEach(title => {
         const svg = title.querySelector('svg');
         if (svg) svg.classList.remove('rotated');
@@ -1382,8 +1386,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
         // Toggle current
         const currentItems = this.nextElementSibling;
-        if (currentItems.style.display === 'block') {
-            currentItems.style.setProperty('display', 'none', 'important'); // Hide items
+        if (!currentItems.classList.contains('dapfforwc-hidden-important')) {
+            currentItems.style.removeProperty('display');
         } else {
             hideAll(); // Hide all first                                
             if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border') || currentItems.classList.contains('button_check')) {
@@ -1394,10 +1398,6 @@ function dapfforwc_product_filter_shortcode($atts)
                 currentItems.style.setProperty('display', 'block', 'important');
             }
         }
-
-        // Toggle arrow rotation
-        const svg = this.querySelector('svg');
-        if (svg) svg.classList.toggle('rotated');
       });
     });
 

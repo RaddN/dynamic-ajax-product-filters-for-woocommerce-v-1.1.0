@@ -555,7 +555,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.3.9.27</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.3.9.32</span>
                 </div>
             </div>
 
@@ -1139,7 +1139,7 @@ function dapfforwc_admin_page_content()
                         <div class="plugincy-shortcode-note" style="margin-top:15px; padding:10px; border:1px solid #e2e2e2; border-radius:6px; background:#f9f9f9; display:flex; align-items:center; gap:8px;">
                             <span class="dashicons dashicons-filter" style="color:#ff6b35; font-size:18px;"></span>
                             <p style="margin:0; font-size:13px; line-height:1.5;">
-                                <?php echo esc_html__('Tip: Instead of shortcodes, we recommend using our Elementor widget & Gutenberg block for easier management.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                <?php echo esc_html__('Tips: Instead of shortcodes, we recommend using our Elementor widget & Gutenberg block for easier management.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                 <br>
                                 <b><?php echo esc_html__('Dynamic Ajax Filter (Block/Widget)', 'dynamic-ajax-product-filters-for-woocommerce'); ?></b>
                             </p>
