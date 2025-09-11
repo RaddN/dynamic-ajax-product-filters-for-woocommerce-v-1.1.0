@@ -748,8 +748,8 @@ function dapfforwc_product_filter_shortcode($atts)
                     gap: 12px;
                     overflow-x: auto;
                     overflow-y: hidden;
-                    padding-bottom: 50vh;
-                    margin-bottom: -50vh;
+                    padding-bottom: 100vh;
+                    margin-bottom: -100vh;
                     padding-left: 2px;
                     scrollbar-width: thin;
                     scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
