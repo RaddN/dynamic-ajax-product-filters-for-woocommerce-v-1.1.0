@@ -246,7 +246,7 @@ if (!defined('ABSPATH')) {
                     <!-- Primary Options -->
                     <div class="primary_options">
                         <?php foreach ($dapfforwc_sub_options as $key => $label) :
-                            if ($dapfforwc_attribute_name === 'brands' && ($key === "plugincy_color" || $key === "price" || $key === "rating")) {
+                            if (($dapfforwc_attribute_name === 'brands' || $dapfforwc_attribute_name === 'product-category' || $dapfforwc_attribute_name === 'tag') && ($key === "plugincy_color" || $key === "price" || $key === "rating")) {
                                 continue;
                             }
                         ?>
@@ -490,7 +490,7 @@ if (!defined('ABSPATH')) {
 
 
                                         <!-- Single Selection Option -->
-                                        <?php if ($dapfforwc_attribute_name !== "rating") { ?>
+                                        <?php if ($dapfforwc_attribute_name !== "rating" && $dapfforwc_attribute_name !== "price") { ?>
                                             <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' ? 'none' : 'block'; ?> ;">
                                                 <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                 <label>

@@ -714,8 +714,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $discount_value = isset($default_filter["discount"]) ? $default_filter["discount"] : '';
 
         $formOutPut .= '<div class="discount-input-group">';
-        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="20" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
-        $formOutPut .= '<span class="discount-unit">% or more</span>';
+        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="'.esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce').'" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
         $formOutPut .= '</div>';
 
         $formOutPut .= '</div>';
