@@ -716,3 +716,6 @@ form#product-filter .discount-input-group input {
     max-width: 100%;
     min-width: 100%;
 }
+
+#roverlay, #loader { opacity:0 !important; visibility:hidden !important; transition:opacity .15s linear; }
+#roverlay.is-visible, #loader.is-visible { opacity:1 !important; visibility:visible !important; display: block !important; }
