@@ -726,12 +726,16 @@ function dapfforwc_product_filter_shortcode($atts)
             file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
         }
     } else {
-        $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
-        $min_max_prices_cache[$cache_key] = $min_max_prices;
-        file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
+        if (isset($min_max_prices_cache[$cache_key])) {
+            $min_max_prices = $min_max_prices_cache[$cache_key];
+        } else {
+            $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+            $min_max_prices_cache[$cache_key] = $min_max_prices;
+            file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
+        }
     }
 
-    $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : 0;
+    $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval(isset($dapfforwc_styleoptions["price"]["min_price"]) ? $dapfforwc_styleoptions["price"]["min_price"] : 0));
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval(isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 100000000000));
 
     ob_start(); // Start output buffering
@@ -1448,6 +1452,7 @@ function dapfforwc_customSort($a, $b)
 function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, $name, $attribute, $singlevalueSelect, $count, $min_price = 0, $max_price = null, $min_max_prices = [], $disable_unselected = false)
 {
     $default_max_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['max'] ?? $max_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 10000);
+    $default_min_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['min'] ?? $min_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["min_price"]) ? $dapfforwc_styleoptions["price"]["min_price"] : 0);
     $output = '';
 
     switch ($sub_option) {
@@ -1520,65 +1525,65 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
-        <input  type="number" id="min-price" name="mn_price" min="0" max="' . $default_max_price . '" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
+        <input  type="number" id="min-price" name="mn_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
         <label for="max-price">Max Price:</label>
-        <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
+        <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
             $output .= '<div class="price-input">
         <div class="field">
           <span>Min</span>
-          <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="mn_price" class="input-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
           <span>Max</span>
-          <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="plugincy_slider">
         <div class="plugrogress"></div>
       </div>
       <div class="range-input">
-        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
-        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '" >
+        <input  type="range" id="price-range-max" class="range-max" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $max_price . '">
       </div>';
             break;
         case 'slider2':
             $output .= '<div class="price-input plugincy-align-center">
         <div class="field">
-          <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+          <input  type="number" id="min-price" name="mn_price" class="input-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-          <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+          <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
       <div class="plugincy_slider">
         <div class="plugrogress"></div>
       </div>
       <div class="range-input">
-        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '" >
-        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '" >
+        <input  type="range" id="price-range-max" class="range-max" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $max_price . '">
       </div>';
             break;
         case 'price':
             $output .= '<div class="price-input" style="visibility: hidden; margin: 0;">
         <div class="field">
-            <input  type="number" id="min-price" name="mn_price" class="input-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
+            <input  type="number" id="min-price" name="mn_price" class="input-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-            <input  type="number" id="max-price" name="mx_price" min="0" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
+            <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
         </div>
         <div class="plugincy_slider">
         <div class="plugrogress plugrogress-percentage"></div>
         </div>
         <div class="range-input">
-        <input  type="range" id="price-range-min" class="range-min" min="0" max="' . $default_max_price . '" value="' . $min_price . '">
-        <input  type="range" id="price-range-max" class="range-max" min="0" max="' . $default_max_price . '" value="' . $max_price . '">
+        <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
+        <input  type="range" id="price-range-max" class="range-max" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $max_price . '">
         </div>';
             break;
         case 'rating-text':
@@ -2502,6 +2507,9 @@ function dapfforwc_get_woocommerce_product_details()
 
     // Convert to indexed array for better JSON compatibility
     $product_data = ['products' => $products];
+
+    // Save to cache
+    file_put_contents($cache_file, json_encode($product_data, JSON_UNESCAPED_UNICODE));
 
     return $product_data;
 }

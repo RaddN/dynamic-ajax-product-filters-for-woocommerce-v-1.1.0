@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.4.0.2
+ * Version:     1.4.0.16
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.4.0.2');
+define('DAPFFORWC_VERSION', '1.4.0.16');
 
 // Global Variables
 global $dapfforwc_allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
@@ -118,6 +118,7 @@ $dapfforwc_allowed_tags = array(
         'height' => array(), // Allow height attribute
         'style' => array(),
         'id' => array(),
+        'data-src' => array(),
     ),
     'h1' => array(
         'class' => array(),
@@ -1514,7 +1515,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.0.2', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.0.16', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -1525,9 +1526,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.0.2');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.0.2');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.0.2', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.0.16');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.0.16');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.0.16', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -1567,11 +1568,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.0.2');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.0.16');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.0.2', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.0.16', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1844,7 +1845,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.0.2');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.0.16');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2145,7 +2146,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.4.0.2",
+            "1.4.0.16",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2250,7 +2251,7 @@ function dapfforwc_sidebar_to_top_inline_scripts()
                 return;
             }
 
-            if($filterForm.data("mobile-style") !== "style_1" && $filterForm.data("mobile-style") !== "style_2"){
+            if ($filterForm.data("mobile-style") !== "style_1" && $filterForm.data("mobile-style") !== "style_2") {
                 return;
             }
 
@@ -2996,29 +2997,105 @@ register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
 
 
 
-
 /**
- * Lightweight render for gm-product-filter AJAX fetches.
- * Works with: /shop/?gm-product-filter-nonce=XXXX&...
+ * Ultra-light fragment mode for gm-product-filter AJAX.
+ * Goal: Emit only the needed HTML markup, nothing else.
  */
 
 if (!function_exists('gm_pf_is_fragment_request')) {
     function gm_pf_is_fragment_request(): bool {
+        // Cheap, safe guard
         if (empty($_GET['gm-product-filter-nonce'])) return false;
-        $nonce = sanitize_text_field( wp_unslash($_GET['gm-product-filter-nonce']) );
+        $nonce = sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce']));
         return (bool) wp_verify_nonce($nonce, 'gm-product-filter-action');
     }
 }
 
+/** ------------------------------------------------------------------------
+ * Constants & helpers
+ * --------------------------------------------------------------------- */
+if (!defined('GM_PF_PLACEHOLDER')) {
+    // 1×1 transparent GIF (43 bytes) — avoids browser quirks with src=""
+    define('GM_PF_PLACEHOLDER', '');
+}
+
 /**
- *  A) Stop styles/scripts from being printed
- *  We do this late, after everything enqueues, and then dequeue/deregister.
+ * Rewrite an <img ...> tag to lazy placeholder.
+ */
+if (!function_exists('gm_pf_rewrite_img_html')) {
+    function gm_pf_rewrite_img_html(string $html): string {
+        if (!gm_pf_is_fragment_request() || strpos($html, '<img') === false) return $html;
+
+        // Remove eager hints that can trigger loads
+        $html = preg_replace('/\s(srcset|sizes|loading|decoding|fetchpriority)="[^"]*"/i', '', $html);
+
+        // Replace src with placeholder, move real URL to data-src, ensure class exists
+        $html = preg_replace_callback(
+            '/<img\b([^>]*?)\ssrc="([^"]+)"([^>]*)>/i',
+            static function ($m) {
+                $pre  = $m[1];
+                $src  = $m[2];
+                $post = $m[3];
+
+                if (preg_match('/\bclass="([^"]*)"/i', $pre . $post, $cm)) {
+                    $cls = trim($cm[1] . ' gm-pf-lazy');
+                    $pre = preg_replace('/\bclass="[^"]*"/i', ' class="' . esc_attr($cls) . '" ', $pre);
+                } else {
+                    $pre .= ' class="gm-pf-lazy" ';
+                }
+
+                return '<img' . $pre . ' src="' . GM_PF_PLACEHOLDER . '" data-src="' . esc_url($src) . '"' . $post . '>';
+            },
+            $html
+        );
+
+        return $html;
+    }
+}
+
+/** ------------------------------------------------------------------------
+ * HEAD/SCRIPT/CSS suppression (works even if theme hard-codes tags)
+ * --------------------------------------------------------------------- */
+add_action('init', function () {
+    if (!gm_pf_is_fragment_request()) return;
+
+    // Stop resource hints (dns-prefetch, preconnect, font/style preloads)
+    remove_action('wp_head', 'wp_resource_hints', 2);
+    add_filter('wp_resource_hints', static fn() => [], 999);
+
+    // Block core printers (prevents many default tags)
+    remove_action('wp_head', 'wp_print_styles', 8);
+    remove_action('wp_head', 'wp_print_head_scripts', 9);
+    remove_action('wp_footer', 'wp_print_footer_scripts', 20);
+
+    // Block block-theme "Global Styles" and SVG filters
+    remove_action('wp_enqueue_scripts', 'wp_enqueue_global_styles');
+    remove_action('wp_body_open', 'wp_global_styles_render_svg_filters');
+
+    // Trim misc head noise
+    remove_action('wp_head', 'rsd_link');
+    remove_action('wp_head', 'wlwmanifest_link');
+    remove_action('wp_head', 'wp_shortlink_wp_head');
+    remove_action('wp_head', 'feed_links', 2);
+    remove_action('wp_head', 'feed_links_extra', 3);
+
+    // Emojis + oEmbed + REST links
+    remove_action('wp_head', 'print_emoji_detection_script', 7);
+    remove_action('admin_print_scripts', 'print_emoji_detection_script');
+    remove_action('wp_print_styles', 'print_emoji_styles');
+    remove_action('admin_print_styles', 'print_emoji_styles');
+    remove_action('wp_head', 'wp_oembed_add_discovery_links', 10);
+    remove_action('wp_head', 'rest_output_link_wp_head', 10);
+    remove_action('template_redirect', 'rest_output_link_header', 11);
+}, 1);
+
+/**
+ * Dequeue/deregister anything that still gets enqueued.
+ * Also neuter tag writers in case something slips through late.
  */
 add_action('wp_enqueue_scripts', function () {
     if (!gm_pf_is_fragment_request()) return;
 
-    // Dequeue ALL styles/scripts.
-    // (If you must keep something, whitelist it before the foreach and skip.)
     global $wp_styles, $wp_scripts;
 
     if ($wp_styles && !empty($wp_styles->queue)) {
@@ -3034,74 +3111,119 @@ add_action('wp_enqueue_scripts', function () {
         }
     }
 
-    // Also nuke anything that sneaks in later.
+    // Known inline handles (WP 5.9+)
+    wp_dequeue_style('global-styles');
+    wp_deregister_style('global-styles');
+    wp_dequeue_style('classic-theme-styles');
+    wp_deregister_style('classic-theme-styles');
+
     add_filter('style_loader_tag',  '__return_empty_string', 9999);
     add_filter('script_loader_tag', '__return_empty_string', 9999, 3);
 }, 9999);
 
 /**
- *  B) Prevent images from loading (server-side)
- *     Convert <img src="..."> → <img class="gm-pf-lazy" src="data:..." data-src="real">
+ * Output buffer (final guard) — strips hard-coded tags in header.php.
+ * Only runs in fragment mode; safe for all themes.
  */
+add_action('template_redirect', function () {
+    if (!gm_pf_is_fragment_request()) return;
+
+    // Remove heavy footer actions (trackers, etc.)
+    remove_all_actions('wp_footer');
+
+    ob_start(static function ($html) {
+        // Kill stylesheets and style/font preloads
+        $html = preg_replace('#<link[^>]+rel=["\']stylesheet["\'][^>]*>#i', '', $html);
+        $html = preg_replace('#<link[^>]+rel=["\']preload["\'][^>]+as=["\'](?:style|font)["\'][^>]*>#i', '', $html);
+        // Kill inline <style> and all <script> blocks
+        $html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $html);
+        $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);
+        // Optionally strip <head> content entirely for max speed
+        $html = preg_replace('#<head\b[^>]*>.*?</head>#is', '', $html);
+        // Optional: remove theme header/footer wrappers from fragments
+        $html = preg_replace('#<header\b[^>]*>.*?</header>#is', '', $html);
+        $html = preg_replace('#<footer\b[^>]*>.*?</footer>#is', '', $html);
+        return $html;
+    });
+}, 0);
+
+add_action('shutdown', function () {
+    if (!gm_pf_is_fragment_request()) return;
+    if (ob_get_level()) { @ob_end_flush(); }
+}, PHP_INT_MAX);
+
+/** ------------------------------------------------------------------------
+ * Image rewriting (attachments, thumbnails, avatars, content)
+ * --------------------------------------------------------------------- */
 add_filter('wp_get_attachment_image_attributes', function ($attr) {
     if (!gm_pf_is_fragment_request()) return $attr;
 
     if (!empty($attr['src'])) {
         $attr['data-src'] = $attr['src'];
-        // 1x1 transparent gif (tiny)
-        $attr['src'] = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
+        $attr['src']      = GM_PF_PLACEHOLDER;
     }
+
+    // Avoid any eager loads
+    unset($attr['srcset'], $attr['sizes'], $attr['loading'], $attr['decoding'], $attr['fetchpriority']);
+
     $attr['class'] = trim(($attr['class'] ?? '') . ' gm-pf-lazy');
-    // Remove srcset/sizes to avoid eager loads
-    unset($attr['srcset'], $attr['sizes']);
+
+    // Less layout work, smaller markup
+    unset($attr['width'], $attr['height']);
+
     return $attr;
 }, 10, 1);
 
-/**
- *  C) Catch themes that print <img> manually (fallback)
- *     Lightweight rewrite on post thumbnail HTML.
- */
 add_filter('post_thumbnail_html', function ($html) {
-    if (!gm_pf_is_fragment_request() || strpos($html, '<img') === false) return $html;
-
-    // Move src/srcset to data-src/data-srcset, inject placeholder src and class
-    $html = preg_replace('/\s(srcset|sizes)="[^"]*"/i', '', $html); // strip srcset/sizes
-    $html = preg_replace_callback(
-        '/<img\b([^>]*?)\ssrc="([^"]+)"([^>]*)>/i',
-        function ($m) {
-            $attrs_before = $m[1];
-            $real_src     = $m[2];
-            $attrs_after  = $m[3];
-            $placeholder  = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
-            // ensure gm-pf-lazy class present
-            if (preg_match('/\bclass="([^"]*)"/i', $attrs_before.$attrs_after, $cm)) {
-                $cls = trim($cm[1] . ' gm-pf-lazy');
-                $attrs_before = preg_replace('/\bclass="[^"]*"/i', ' class="'.esc_attr($cls).'" ', $attrs_before);
-            } else {
-                $attrs_before .= ' class="gm-pf-lazy" ';
-            }
-            return '<img'.$attrs_before.' src="'.$placeholder.'" data-src="'.esc_url($real_src).'"'.$attrs_after.'>';
-        },
-        $html
-    );
-    return $html;
+    return gm_pf_rewrite_img_html($html);
 }, 10, 1);
 
-/**
- *  D) Optional extra trimming for speed during fragment fetches
- */
+add_filter('get_avatar', function ($html) {
+    return gm_pf_rewrite_img_html($html);
+}, 10, 1);
+
+add_filter('the_content', function ($content) {
+    return gm_pf_rewrite_img_html($content);
+}, 9);
+
+/** ------------------------------------------------------------------------
+ * WooCommerce & Query trimming
+ * --------------------------------------------------------------------- */
+add_filter('woocommerce_enable_cart_session', function ($enabled) {
+    return gm_pf_is_fragment_request() ? false : $enabled;
+}, 10, 1);
+
+add_filter('woocommerce_use_cart_session', function ($use) {
+    return gm_pf_is_fragment_request() ? false : $use;
+}, 10, 1);
+
+add_filter('woocommerce_cart_hash', function ($hash) {
+    return gm_pf_is_fragment_request() ? '' : $hash;
+}, 10, 1);
+
+add_action('pre_get_posts', function (WP_Query $q) {
+    if (!gm_pf_is_fragment_request()) return;
+    if (!$q->is_main_query() || !$q->is_post_type_archive('product')) return;
+
+    $q->set('cache_results', true);
+    $q->set('suppress_filters', false);
+    $q->set('no_found_rows', true);             // no pagination in fragments
+    // Uncomment if your loop doesn’t need these:
+    // $q->set('update_post_meta_cache', false);
+    // $q->set('update_post_term_cache', false);
+}, 99);
+
+/** ------------------------------------------------------------------------
+ * Headers & cosmetics
+ * --------------------------------------------------------------------- */
 add_action('init', function () {
     if (!gm_pf_is_fragment_request()) return;
+    add_filter('show_admin_bar', '__return_false', 999);
+});
 
-    // Stop emojis & embeds
-    remove_action('wp_head', 'print_emoji_detection_script', 7);
-    remove_action('admin_print_scripts', 'print_emoji_detection_script');
-    remove_action('wp_print_styles', 'print_emoji_styles');
-    remove_action('admin_print_styles', 'print_emoji_styles');
-    remove_action('wp_head', 'wp_oembed_add_discovery_links', 10);
-    remove_action('wp_head', 'rest_output_link_wp_head', 10);
-    remove_action('template_redirect', 'rest_output_link_header', 11);
-
-    // WooCommerce structured data can be expensive
-    add_filter('woocommerce_structured_data_enabled', '__return_false', 99);
+add_action('send_headers', function () {
+    if (!gm_pf_is_fragment_request()) return;
+    header('X-GM-PF-Fragment: 1');   // debug flag
+    header('Connection: keep-alive');
+    header('Cache-Control: no-store, max-age=0'); // personalized, keep off
 });

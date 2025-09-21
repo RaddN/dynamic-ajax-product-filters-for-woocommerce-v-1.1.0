@@ -555,7 +555,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.2</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.16</span>
                 </div>
             </div>
 
@@ -1192,6 +1192,8 @@ function dapfforwc_admin_page_content()
                     </div>
 
                 </div>
+                <?php dapfforwc_render_admin_faq(); ?>
+
             </div>
         </div>
     </div>
@@ -1462,4 +1464,120 @@ function dapfforwc_activate_template()
     wp_send_json_success(esc_html__('Template activated successfully.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 add_action('wp_ajax_dapfforwc_activate_template', 'dapfforwc_activate_template');
+
+// --- Admin FAQ renderer ---
+function dapfforwc_render_admin_faq()
+{
+    // You can localize/edit these freely
+    $faqs = [
+        [
+            'q' => __('Will this plugin work with my theme?', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'a' => __('Yes—most themes work out of the box. If products don’t update, adjust selectors in Advanced Settings → “Selectors”, then Clear Cache.', 'dynamic-ajax-product-filters-for-woocommerce'),
+        ],
+        [
+            'q' => __('Do the filters support pretty/SEO URLs?', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'a' => __('Yes. See the “SEO & Permalinks Setup” tab to configure prefixes and enable attribute-based permalinks.', 'dynamic-ajax-product-filters-for-woocommerce'),
+        ],
+        [
+            'q' => __('How to reorder filter widget?', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'a' => __('To reorder, use our built-in Dynamic Ajax Filter block or Elementor widget. You can see the “Form Manage” option there. Just drag & drop for re-order.', 'dynamic-ajax-product-filters-for-woocommerce'),
+        ],
+        [
+            'q' => __('How can I speed up filtering?', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'a' => __('Enable caching at the server/plugin level, use smaller per-page sizes, and avoid overly broad queries. Our built-in AJAX cache also helps.', 'dynamic-ajax-product-filters-for-woocommerce'),
+        ]
+    ];
+?>
+    <div class="plugincy-dapfforwc-card" style="margin-top:16px;">
+        <div class="plugincy-dapfforwc-card-header">
+            <div class="plugincy-dapfforwc-card-header-icon" style="background:#6b46c1;">
+                <span class="dashicons dashicons-editor-help" style="color:#fff;"></span>
+            </div>
+            <h3 style="margin:0;"><?php echo esc_html__('Frequently Asked Questions', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+        </div>
+
+        <div class="plugincy-dapfforwc-card-body dapfforwc-faq">
+            <?php foreach ($faqs as $i => $item):
+                $qid = 'dapfforwc-faq-' . intval($i);
+            ?>
+                <div class="dapfforwc-faq-item">
+                    <button class="dapfforwc-faq-q" type="button" aria-expanded="false" aria-controls="<?php echo esc_attr($qid); ?>">
+                        <span class="dashicons dashicons-arrow-right-alt2"></span>
+                        <?php echo esc_html($item['q']); ?>
+                    </button>
+                    <div id="<?php echo esc_attr($qid); ?>" class="dapfforwc-faq-a" hidden>
+                        <p><?php echo esc_html($item['a']); ?></p>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <style>
+        .dapfforwc-faq {
+            display: flex;
+            flex-direction: column;
+            gap: 10px
+        }
+
+        .dapfforwc-faq-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            background: #fff
+        }
+
+        .dapfforwc-faq-q {
+            width: 100%;
+            text-align: left;
+            background: #f8fafc;
+            border: 0;
+            border-radius: 6px 6px 0 0;
+            padding: 10px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2d3748
+        }
+
+        .dapfforwc-faq-q[aria-expanded="true"] {
+            background: #edf2f7
+        }
+
+        .dapfforwc-faq-q .dashicons {
+            transition: transform .2s ease
+        }
+
+        .dapfforwc-faq-q[aria-expanded="true"] .dashicons {
+            transform: rotate(90deg)
+        }
+
+        .dapfforwc-faq-a {
+            padding: 10px 12px;
+            color: #4a5568
+        }
+
+        .dapfforwc-faq-a p {
+            margin: 0
+        }
+    </style>
+
+    <script>
+        (function() {
+            document.addEventListener('click', function(e) {
+                const btn = e.target.closest('.dapfforwc-faq-q');
+                if (!btn) return;
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                const panelId = btn.getAttribute('aria-controls');
+                const panel = document.getElementById(panelId);
+                if (!panel) return;
+                btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+                panel.hidden = expanded;
+            });
+        })();
+    </script>
+<?php
+}
+
 ?>
