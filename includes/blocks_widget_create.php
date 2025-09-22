@@ -1656,9 +1656,9 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'label'     => esc_html__('Slider Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
-                    'default'   => '#ddd',
+                    'default'   => '',
                     'selectors' => [
-                        '{{WRAPPER}} .plugincy_slider' => 'background: {{VALUE}} !important;',
+                        '{{WRAPPER}} #product-filter .plugincy_slider' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1679,7 +1679,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '{{WRAPPER}} .plugincy_slider' => 'border-radius: {{SIZE}}px !important;',
+                        '{{WRAPPER}} #product-filter .plugincy_slider' => 'border-radius: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1688,11 +1688,11 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'progress_background',
                 [
-                    'label'     => esc_html__('plugrogress Background', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'label'     => esc_html__('progress Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
-                    'default'   => '#432fb8',
+                    'default'   => '',
                     'selectors' => [
-                        '{{WRAPPER}} .plugincy_slider .plugrogress' => 'background: {{VALUE}} !important;',
+                        '{{WRAPPER}} #product-filter .plugincy_slider .plugrogress' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1713,7 +1713,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         'size' => 5,
                     ],
                     'selectors'  => [
-                        '{{WRAPPER}} .plugincy_slider .plugrogress' => 'border-radius: {{SIZE}}px !important;',
+                        '{{WRAPPER}} #product-filter .plugincy_slider .plugrogress' => 'border-radius: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1725,8 +1725,8 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
-                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb'    => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-webkit-slider-thumb' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-moz-range-thumb'    => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1743,12 +1743,10 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                             'max' => 50,
                         ],
                     ],
-                    'default'    => [
-                        'size' => 17,
-                    ],
+                    'default'    => [],
                     'selectors'  => [
-                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
-                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-webkit-slider-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-moz-range-thumb' => 'width: {{SIZE}}px; height: {{SIZE}}px !important;',
                     ],
                 ]
             );
@@ -1759,10 +1757,10 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'label'     => esc_html__('Thumb Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
-                    'default'   => '#432fb8',
+                    'default'   => '',
                     'selectors' => [
-                        '{{WRAPPER}} input[type="range"]::-webkit-slider-thumb' => 'background:{{VALUE}} !important;',
-                        '{{WRAPPER}} input[type="range"]::-moz-range-thumb' => 'background: {{VALUE}} !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-webkit-slider-thumb' => 'background:{{VALUE}} !important;',
+                        '{{WRAPPER}} #product-filter input[type="range"]::-moz-range-thumb' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1773,9 +1771,9 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'label'     => esc_html__('Tooltip Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
-                    'default'   => 'red',
+                    'default'   => '',
                     'selectors' => [
-                        '{{WRAPPER}} .plugrogress-percentage:before, .plugrogress-percentage:after' => 'background: {{VALUE}} !important;',
+                        '{{WRAPPER}} #product-filter .plugrogress-percentage:before, {{WRAPPER}} #product-filter .plugrogress-percentage:after' => 'background: {{VALUE}} !important;',
                     ],
                 ]
             );

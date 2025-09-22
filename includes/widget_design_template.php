@@ -95,13 +95,28 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     <?php
     // display search
     // Initialize variables with default values
-    $sub_option = "";
+    $sub_option = "plugincy_search";
     $minimizable = "arrow";
+
+    // Check if 'search' key exists in the style options
+    if (isset($dapfforwc_styleoptions['search'])) {
+        // Fetch the sub_option value safely
+        $sub_option = $dapfforwc_styleoptions['search']['sub_option'] ?? $sub_option;
+
+        // Check if 'minimize' key exists and fetch its type
+        if (isset($dapfforwc_styleoptions['search']['minimize'])) {
+            $minimizable = $dapfforwc_styleoptions['search']['minimize']['type'] ?? $minimizable;
+        }
+    }
 
     $formOutPut .= '<div id="search_text" class="filter-group search_text" style="display: ' . (isset($dapfforwc_options['show_search']) && !empty($dapfforwc_options['show_search']) ? 'block' : 'none !important') . ';"><div class="title plugincy_collapsable_' . esc_attr($minimizable) . '">' . ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["search"]) && $dapfforwc_styleoptions["widget_title"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')) . ($minimizable === "arrow" || $minimizable === "minimize_initial"  ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') . '</div>';
     $formOutPut .= '<div class="items"><div class="search-container">';
     $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="search" id="plugincy-search-field" class="search-field" placeholder="' . ((isset($dapfforwc_styleoptions["placeholder"]) && isset($dapfforwc_styleoptions["placeholder"]["search"]) && $dapfforwc_styleoptions["placeholder"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["placeholder"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')) . '&hellip;" value="' . ($search_txt !== '' ? $search_txt : (isset($default_filter["plugincy_search"]) ? $default_filter["plugincy_search"] : '')) . '" name="plugincy_search" />';
-    $formOutPut .= ' <button class="plugincy-search-submit">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["search"]) && $dapfforwc_styleoptions["btntext"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["search"]) : esc_html__('Search', 'dynamic-ajax-product-filters-for-woocommerce')) . '</button>';
+    if ($sub_option === "icon_search") {
+        $formOutPut .= ' <button class="plugincy-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" xml:space="preserve" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4"/></svg></button>';
+    } else {
+        $formOutPut .= ' <button class="plugincy-search-submit">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["search"]) && $dapfforwc_styleoptions["btntext"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["search"]) : esc_html__('Search', 'dynamic-ajax-product-filters-for-woocommerce')) . '</button>';
+    }
     $formOutPut .= '</div></div>';
     $formOutPut .= '</div>';
     // search ends
@@ -714,7 +729,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $discount_value = isset($default_filter["discount"]) ? $default_filter["discount"] : '';
 
         $formOutPut .= '<div class="discount-input-group">';
-        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="'.esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce').'" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
+        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="' . esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce') . '" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
         $formOutPut .= '</div>';
 
         $formOutPut .= '</div>';
