@@ -68,6 +68,30 @@ global $template_options, $dapfforwc_allowed_tags;
         </svg>',
                 'description' => esc_html__('Card UI with subtle box shadow (matches provided reference).', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'features' => ['Box shadow card', 'Soft border', 'Compact spacing']
+            ],
+            [
+                'id' => 'modern',
+                'name' => esc_html__('Modern Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'pro',
+                'image' => '<svg width="200" height="150" viewBox="-14 -14 302 372" xmlns="http://www.w3.org/2000/svg"><defs><filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity=".12"/></filter><style>.item{font:500 14px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#2b2b2b}.subitem{font:500 13px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#4a4a4a}.count{font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central}.muted{stroke:#e8e8e8;stroke-width:1}.pill{fill:#0f7abf}</style></defs><g filter="url(#softShadow)"><rect x="12" y="12" width="276" height="280" rx="10" fill="#fff"/></g><path d="M10 25v260" stroke="#0f7abf" stroke-width="3" stroke-linecap="round"/><text x="36" y="45" fill="#333" style="font:600 16px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial">Categories</text><path style="stroke:#0f7abf;stroke-width:3;stroke-linecap:round" d="M36 60h226"/><text class="item" x="36" y="95">Surgical Gastro</text><g transform="translate(246 86)"><circle class="pill" r="14"/><text class="count">9</text></g><path class="muted" d="M60 110v40"/><text class="subitem" x="76" y="136">Camera Box</text><g transform="translate(246 129)"><circle class="pill" r="14"/><text class="count">0</text></g><path class="muted" d="M36 160h226"/><text class="item" x="36" y="190">Urology</text><g transform="translate(246 181)"><circle class="pill" r="14"/><text class="count">0</text></g><path class="muted" d="M60 206v64"/><rect x="64" y="214" width="190" height="26" rx="4" style="fill:#f4f9fe"/><text class="subitem" x="76" y="232" fill="#0f7abf">Olympus</text><g transform="translate(246 227)"><circle class="pill" r="14"/><text class="count">0</text></g><text class="subitem" x="76" y="266">Stor 2 Box</text><g transform="translate(246 259)"><circle class="pill" r="14"/><text class="count">0</text></g></svg>',
+                'description' => esc_html__('Card UI with subtle box shadow (matches provided reference).', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'features' => ['Box shadow card', 'Soft border', 'Compact spacing']
+            ],
+            [
+                'id' => 'basic',
+                'name' => esc_html__('Basic Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'pro',
+                'image' => '<svg width="200" height="150" xmlns="http://www.w3.org/2000/svg"><path fill="#fff" stroke="#e2e8f0" d="M0 0h200v150H0z"/><text x="20" y="30" font-family="Arial" font-size="12" font-weight="600" fill="#2d3748">Category</text><path fill="none" stroke="#cbd5e0" d="M20 50h10v10H20z"/><text x="38" y="59" font-family="Arial" font-size="11" fill="#4a5568">Laptop</text><text x="100" y="59" font-family="Arial" font-size="10" fill="#a0aec0">(12)</text><path fill="none" stroke="#cbd5e0" d="M20 70h10v10H20z"/><text x="38" y="79" font-family="Arial" font-size="11" fill="#4a5568">MacBook</text><text x="100" y="79" font-family="Arial" font-size="10" fill="#a0aec0">(5)</text><path fill="none" stroke="#cbd5e0" d="M20 90h10v10H20z"/><text x="38" y="99" font-family="Arial" font-size="11" fill="#4a5568">Desktop</text><text x="100" y="99" font-family="Arial" font-size="10" fill="#a0aec0">(8)</text><path fill="none" stroke="#cbd5e0" d="M20 110h10v10H20z"/><text x="38" y="119" font-family="Arial" font-size="11" fill="#4a5568">Linux</text><text x="100" y="119" font-family="Arial" font-size="10" fill="#a0aec0">(3)</text></svg>',
+                'description' => esc_html__('Card UI with subtle box shadow (matches provided reference).', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'features' => ['Box shadow card', 'Soft border', 'Compact spacing']
+            ],
+            [
+                'id' => 'basic_bordered',
+                'name' => esc_html__('Basic Bordered Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'pro',
+                'image' => '<svg width="220" height="170" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#fff"/><text x="16" y="24" font-family="Arial" font-size="13" font-weight="700" fill="#2d3748" letter-spacing=".3">FILTRÉ PAR</text><path stroke="#e2e8f0" stroke-width="3" stroke-linecap="round" d="M16 32h32"/><text x="16" y="64" font-family="Arial" font-size="13" fill="#2d3748">Bleu</text><text x="204" y="64" font-family="Arial" font-size="12" fill="#a0aec0" text-anchor="end">(12)</text><path stroke="#edf2f7" d="M16 76h188"/><text x="16" y="96" font-family="Arial" font-size="13" fill="#2d3748">Gris</text><text x="204" y="96" font-family="Arial" font-size="12" fill="#a0aec0" text-anchor="end">(33)</text><path stroke="#edf2f7" d="M16 108h188"/><text x="16" y="128" font-family="Arial" font-size="13" fill="#2d3748">Marron</text><text x="204" y="128" font-family="Arial" font-size="12" fill="#a0aec0" text-anchor="end">(13)</text><path stroke="#edf2f7" d="M16 140h188"/><text x="16" y="160" font-family="Arial" font-size="13" fill="#2d3748">Noisette</text><text x="204" y="160" font-family="Arial" font-size="12" fill="#a0aec0" text-anchor="end">(12)</text></svg>',
+                'description' => esc_html__('Card UI with subtle box shadow (matches provided reference).', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'features' => ['Box shadow card', 'Soft border', 'Compact spacing']
             ]
         ];
 
@@ -79,7 +103,7 @@ global $template_options, $dapfforwc_allowed_tags;
                 <div class="dapfforwc-template-image">
                     <?php echo wp_kses($template['image'], $dapfforwc_allowed_tags); ?>
                     <div class="dapfforwc-template-status">
-                        <?php if ($is_active) : ?>
+                        <?php if ($is_active && $template_type === 'free') : ?>
                             <span class="active-badge"><?php esc_html_e('Active', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
                         <?php else : ?>
                             <span class="inactive-badge"><?php esc_html_e('Inactive', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
@@ -112,17 +136,21 @@ global $template_options, $dapfforwc_allowed_tags;
                     <?php endif; ?>
 
                     <div class="dapfforwc-template-actions">
-                        <?php if (!$is_active) : ?>
+                        <?php if (!$is_active && $template_type === 'free') : ?>
                             <button class="button button-primary activate-template" data-template="<?php echo esc_attr($template['id']); ?>">
                                 <span class="button-text"><?php esc_html_e('Activate', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
                                 <span class="button-spinner" style="display: none;">
                                     <span class="spinner is-active"></span>
                                 </span>
                             </button>
-                        <?php else : ?>
+                        <?php elseif($is_active && $template_type === 'free') : ?>
                             <span class="current-template">
                                 <span class="dashicons dashicons-yes-alt"></span>
                                 <?php esc_html_e('Activated', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                            </span>
+                        <?php else: ?>
+                            <span class="button" style="border: 1px solid #ff5a36;color:#ff5a36">
+                                <?php esc_html_e('Pro Feature Only', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                             </span>
                         <?php endif; ?>
                         <button class="button preview-template" data-template="<?php echo esc_attr($template['id']); ?>">
@@ -772,272 +800,420 @@ global $template_options, $dapfforwc_allowed_tags;
 </style>
 
 <script>
-    jQuery(document).ready(function($) {
-        // Template data for previews
-        const templateData = <?php echo json_encode($templates); ?>;
+/* global jQuery, ajaxurl, wp */
+(function ($) {
+  'use strict';
 
-        // Handle template activation
-        $('.activate-template').on('click', function() {
-            var $button = $(this);
-            var $card = $button.closest('.dapfforwc-template-card');
-            var templateId = $button.data('template');
+  /**
+   * CONFIG
+   * Prefer localizing this from PHP:
+   * wp_localize_script( 'your-handle', 'dapfforwcConfig', [
+   *   'templates'      => $templates,
+   *   'activeTemplate' => $template_options['active_template'],
+   *   'nonce'          => wp_create_nonce('dapfforwc_template_nonce'),
+   *   'i18n'           => [ 'activate' => __( 'Activate', 'dynamic-ajax-product-filters-for-woocommerce' ), ... ]
+   * ] );
+   */
+  const CONFIG = (function () {
+    const i18nFallback = {
+      activate:        <?php echo json_encode( __( 'Activate', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      activated:       <?php echo json_encode( __( 'Activated', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      active:          <?php echo json_encode( __( 'Active', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      inactive:        <?php echo json_encode( __( 'Inactive', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      proOnly:         <?php echo json_encode( __( 'Pro Features Only', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      activateThis:    <?php echo json_encode( __( 'Activate This Template', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      keyFeatures:     <?php echo json_encode( __( 'Key Features:', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      errorActivate:   <?php echo json_encode( __( 'Error activating template. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      networkError:    <?php echo json_encode( __( 'Network error. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      category:        <?php echo json_encode( __( 'Category', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      categories:      <?php echo json_encode( __( 'Categories', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      dismissNotice:   'Dismiss this notice.'
+    };
 
-            // Show loading state
-            $button.addClass('loading');
-            $('.dapfforwc-loading-overlay').fadeIn(200);
+    // If you localized via wp_localize_script, use that first:
+    const cfg = window.dapfforwcConfig || {};
 
-            $.ajax({
-                url: ajaxurl,
-                type: 'POST',
-                data: {
-                    action: 'dapfforwc_activate_template',
-                    template_id: templateId,
-                    nonce: '<?php echo esc_js(wp_create_nonce("dapfforwc_template_nonce")); ?>'
-                },
-                success: function(response) {
-                    if (response.success) {
-                        // Update UI immediately without page reload
-                        updateActiveTemplate(templateId);
+    return {
+      templates:      cfg.templates || <?php echo json_encode( $templates ); ?>,
+      activeTemplate: cfg.activeTemplate || <?php echo json_encode( (string) ($template_options['active_template'] ?? '') ); ?>,
+      nonce:          cfg.nonce || <?php echo json_encode( wp_create_nonce('dapfforwc_template_nonce') ); ?>,
+      i18n:           Object.assign(i18nFallback, cfg.i18n || {})
+    };
+  })();
 
-                        // Show success message
-                        showNotification('success', response.data);
+  // ---------- Helpers ----------
+  const $body    = $(document.body);
+  const selectors = {
+    card:              '.dapfforwc-template-card',
+    activateBtn:       '.activate-template',
+    currentBadge:      '.current-template',
+    statusBadgeActive: '.active-badge',
+    statusBadgeInact:  '.inactive-badge',
+    loadingOverlay:    '.dapfforwc-loading-overlay',
+    hiddenActiveInput: 'input[name="dapfforwc_template_options[active_template]"]',
+    previewBtn:        '.preview-template, .preview-template-btn',
+    modal:             '#dapfforwc-preview-modal',
+    modalClose:        '.dapfforwc-modal-close, #close-preview, .dapfforwc-modal-backdrop',
+    modalContent:      '.dapfforwc-modal-content',
+    previewName:       '#preview-template-name',
+    previewDesc:       '#preview-template-description',
+    previewFeatures:   '#preview-features',
+    previewActivate:   '#activate-from-preview',
+    demoWidget:        '#demo-widget'
+  };
 
-                        // Add success animation
-                        $card.addClass('just-activated');
-                        setTimeout(() => $card.removeClass('just-activated'), 600);
+  const ui = {
+    showOverlay() { $(selectors.loadingOverlay).fadeIn(150); },
+    hideOverlay() { $(selectors.loadingOverlay).fadeOut(150); },
 
-                    } else {
-                        showNotification('error', response.data || '<?php esc_html_e("Error activating template. Please try again.", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-                    }
-                },
-                error: function() {
-                    showNotification('error', '<?php esc_html_e("Network error. Please try again.", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-                },
-                complete: function() {
-                    $button.removeClass('loading');
-                    $('.dapfforwc-loading-overlay').fadeOut(200);
-                }
-            });
-        });
-
-        // Update Activated in UI
-        // In form_template_tab.php, update the updateActiveTemplate function
-        function updateActiveTemplate(templateId) {
-            // Remove active state from all cards
-            $('.dapfforwc-template-card').removeClass('active');
-            $('.active-badge').removeClass('active-badge').addClass('inactive-badge').text('<?php esc_html_e("Inactive", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-            $('.current-template').replaceWith('<button class="button button-primary activate-template" data-template="' + $('.current-template').closest('[data-template-id]').data('template-id') + '"><span class="button-text"><?php esc_html_e("Activate", "dynamic-ajax-product-filters-for-woocommerce"); ?></span><span class="button-spinner" style="display: none;"><span class="spinner is-active"></span></span></button>');
-
-            // Set new Activated
-            var $newActiveCard = $('[data-template-id="' + templateId + '"]');
-            $newActiveCard.addClass('active');
-            $newActiveCard.find('.inactive-badge').removeClass('inactive-badge').addClass('active-badge').text('<?php esc_html_e("Active", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-            $newActiveCard.find('.activate-template').replaceWith('<span class="current-template"><span class="dashicons dashicons-yes-alt"></span><?php esc_html_e("Activated", "dynamic-ajax-product-filters-for-woocommerce"); ?></span>');
-
-            // Update the hidden form field to preserve the Activated
-            $('input[name="dapfforwc_template_options[active_template]"]').val(templateId);
-
-            // Re-bind event handlers for new activate buttons
-            $('.activate-template').off('click').on('click', function() {
-                var $button = $(this);
-                var $card = $button.closest('.dapfforwc-template-card');
-                var templateId = $button.data('template');
-
-                // Show loading state
-                $button.addClass('loading');
-                $('.dapfforwc-loading-overlay').fadeIn(200);
-
-                $.ajax({
-                    url: ajaxurl,
-                    type: 'POST',
-                    data: {
-                        action: 'dapfforwc_activate_template',
-                        template_id: templateId,
-                        nonce: '<?php echo esc_js(wp_create_nonce("dapfforwc_template_nonce")); ?>'
-                    },
-                    success: function(response) {
-                        if (response.success) {
-                            // Update UI immediately without page reload
-                            updateActiveTemplate(templateId);
-
-                            // Show success message
-                            showNotification('success', response.data);
-
-                            // Add success animation
-                            $card.addClass('just-activated');
-                            setTimeout(() => $card.removeClass('just-activated'), 600);
-
-                        } else {
-                            showNotification('error', response.data || '<?php esc_html_e("Error activating template. Please try again.", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-                        }
-                    },
-                    error: function() {
-                        showNotification('error', '<?php esc_html_e("Network error. Please try again.", "dynamic-ajax-product-filters-for-woocommerce"); ?>');
-                    },
-                    complete: function() {
-                        $button.removeClass('loading');
-                        $('.dapfforwc-loading-overlay').fadeOut(200);
-                    }
-                });
-            });
-        }
-
-        // Handle template preview
-        $('.preview-template, .preview-template-btn').on('click', function() {
-            var templateId = $(this).data('template');
-            var template = templateData.find(t => t.id === templateId);
-
-            if (template) {
-                showPreviewModal(template);
-            }
-        });
-
-        // Show preview modal
-        // In the document ready function, update the showPreviewModal function to check if the template is active
-        function showPreviewModal(template) {
-            $('#preview-template-name').text(template.name);
-            $('#preview-template-description').text(template.description);
-
-            // Check if this template is currently active
-            var isActive = template.id === '<?php echo esc_attr($template_options['active_template']); ?>';
-
-            // Build features list
-            var featuresHtml = '<h5><?php esc_html_e("Key Features:", "dynamic-ajax-product-filters-for-woocommerce"); ?></h5><ul>';
-            template.features.forEach(function(feature) {
-                featuresHtml += '<li><span class="dashicons dashicons-yes-alt"></span>' + feature + '</li>';
-            });
-            featuresHtml += '</ul>';
-            $('#preview-features').html(featuresHtml);
-
-            // Create demo widget based on template
-            createDemoWidget(template);
-
-            // Set up activate button
-            $('#activate-from-preview').data('template', template.id);
-
-            // Update button text based on active state
-            if (isActive) {
-                $('#activate-from-preview')
-                    .html('<span class="dashicons dashicons-yes-alt"></span> <?php esc_html_e("Activated", "dynamic-ajax-product-filters-for-woocommerce"); ?>')
-                    .prop('disabled', true)
-                    .removeClass('button-primary')
-                    .addClass('button-secondary');
-            } else {
-                $('#activate-from-preview')
-                    .html('<?php esc_html_e("Activate This Template", "dynamic-ajax-product-filters-for-woocommerce"); ?>')
-                    .prop('disabled', false)
-                    .removeClass('button-secondary')
-                    .addClass('button-primary');
-            }
-
-            // Show modal
-            $('#dapfforwc-preview-modal').fadeIn(300);
-            $('body').addClass('modal-open');
-        }
-
-        // Create demo widget
-        function createDemoWidget(template) {
-            var demoHtml = '';
-
-            switch (template.id) {
-                case 'clean':
-                    demoHtml = `
-      <div style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;">
-        <div style="padding:14px;border-bottom:1px solid #e2e8f0;">
-          <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">Category</h4>
+    notify(type, message) {
+      const $n = $(`
+        <div class="notice notice-${type} is-dismissible dapfforwc-notification"
+             style="position:fixed;top:32px;right:20px;z-index:100001;max-width:350px;animation:slideInRight .3s ease;">
+          <p></p>
+          <button type="button" class="notice-dismiss"><span class="screen-reader-text">${CONFIG.i18n.dismissNotice}</span></button>
         </div>
-        <div style="padding:14px;">
-          ${['Laptop','MacBook','Desktop','Linux','Tablet'].map(l => `
-            <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer;">
-              <input type="checkbox" style="accent-color:#667eea;">
-              <span style="font-size:13px;color:#4a5568;">${l}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>`;
-                    break;
+      `);
+      $n.find('p').text(message);
+      $body.append($n);
 
-                case 'shadow':
-                    demoHtml = `
-      <div style="border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.08);">
-        <div style="padding:16px;border-bottom:1px solid #e2e8f0;">
-          <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">Category</h4>
-        </div>
-        <div style="padding:16px;">
-          ${['Laptop','MacBook','Desktop','Linux','Tablet'].map(l => `
-            <label style="display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer;">
-              <input type="checkbox" style="accent-color:#667eea;">
-              <span style="font-size:14px;color:#2d3748;">${l}</span>
-            </label>
-          `).join('')}
-        </div>
-      </div>`;
-                    break;
-            }
+      // Auto-dismiss
+      setTimeout(() => $n.fadeOut(200, () => $n.remove()), 4000);
 
+      // Manual dismiss
+      $n.on('click', '.notice-dismiss', function () {
+        $(this).closest('.dapfforwc-notification').fadeOut(200, function () { $(this).remove(); });
+      });
+    },
 
-            $('#demo-widget').html(demoHtml);
-        }
+    setButtonLoading($btn, loading) {
+      if (loading) {
+        $btn.addClass('loading').prop('disabled', true);
+      } else {
+        $btn.removeClass('loading').prop('disabled', false);
+      }
+    }
+  };
 
-        // Handle activate from preview
-        $('#activate-from-preview').on('click', function() {
-            var templateId = $(this).data('template');
-            $('#dapfforwc-preview-modal').fadeOut(300);
-            $('body').removeClass('modal-open');
+  // ---------- Data ----------
+  function getTemplateById(id) {
+    return CONFIG.templates.find(t => String(t.id) === String(id)) || null;
+  }
 
-            // Trigger activation
-            $('[data-template="' + templateId + '"].activate-template').trigger('click');
-        });
+  // ---------- Activation Flow ----------
+  function activateTemplate(templateId, $triggerBtn) {
+    ui.showOverlay();
+    if ($triggerBtn) ui.setButtonLoading($triggerBtn, true);
 
-        // Close modal
-        $('.dapfforwc-modal-close, #close-preview, .dapfforwc-modal-backdrop').on('click', function() {
-            $('#dapfforwc-preview-modal').fadeOut(300);
-            $('body').removeClass('modal-open');
-        });
-
-        // Show notification
-        function showNotification(type, message) {
-            var notificationHtml = `
-                <div class="notice notice-${type} is-dismissible dapfforwc-notification" style="position: fixed; top: 32px; right: 20px; z-index: 100001; max-width: 350px; animation: slideInRight 0.3s ease;">
-                    <p>${message}</p>
-                    <button type="button" class="notice-dismiss">
-                        <span class="screen-reader-text">Dismiss this notice.</span>
-                    </button>
-                </div>
-            `;
-
-            $('body').append(notificationHtml);
-
-            // Auto dismiss after 4 seconds
-            setTimeout(function() {
-                $('.dapfforwc-notification').fadeOut(300, function() {
-                    $(this).remove();
-                });
-            }, 4000);
-
-            // Manual dismiss
-            $('.dapfforwc-notification .notice-dismiss').on('click', function() {
-                $(this).closest('.dapfforwc-notification').fadeOut(300, function() {
-                    $(this).remove();
-                });
-            });
-        }
-
-        // Prevent modal close on content click
-        $('.dapfforwc-modal-content').on('click', function(e) {
-            e.stopPropagation();
-        });
-
-        // Add CSS for animations
-        $('<style>').prop('type', 'text/css').html(`
-            @keyframes slideInRight {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            .modal-open { overflow: hidden; }
-        `).appendTo('head');
+    return $.ajax({
+      url: ajaxurl,
+      type: 'POST',
+      dataType: 'json',
+      data: {
+        action:      'dapfforwc_activate_template',
+        template_id: templateId,
+        nonce:       CONFIG.nonce
+      }
+    }).done(function (response) {
+      if (response && response.success) {
+        updateActiveTemplateUI(templateId);
+        ui.notify('success', response.data || CONFIG.i18n.activated);
+        // Optional micro-animation:
+        const $card = $(`${selectors.card}[data-template-id="${templateId}"]`);
+        $card.addClass('just-activated');
+        setTimeout(() => $card.removeClass('just-activated'), 600);
+      } else {
+        ui.notify('error', (response && response.data) || CONFIG.i18n.errorActivate);
+      }
+    }).fail(function () {
+      ui.notify('error', CONFIG.i18n.networkError);
+    }).always(function () {
+      if ($triggerBtn) ui.setButtonLoading($triggerBtn, false);
+      ui.hideOverlay();
     });
+  }
+
+  function updateActiveTemplateUI(templateId) {
+    // 1) Clear states
+    const $cards = $(selectors.card);
+    $cards.removeClass('active');
+
+    // Update badges
+    $cards.find(selectors.statusBadgeActive)
+      .removeClass('active-badge')
+      .addClass('inactive-badge')
+      .text(CONFIG.i18n.inactive);
+
+    // Replace any "current" static badges with actionable buttons
+    $cards.find(selectors.currentBadge).each(function () {
+      const $badge = $(this);
+      // find host card to fetch its template-id
+      const $hostCard = $badge.closest(selectors.card);
+      const hostId = $hostCard.data('template-id');
+      $badge.replaceWith(
+        `<button class="button button-primary activate-template" data-template="${hostId}">
+           <span class="button-text">${CONFIG.i18n.activate}</span>
+           <span class="button-spinner" style="display:none;"><span class="spinner is-active"></span></span>
+         </button>`
+      );
+    });
+
+    // 2) Set the chosen one active
+    const $activeCard = $(`${selectors.card}[data-template-id="${templateId}"]`);
+    $activeCard.addClass('active');
+    $activeCard.find(selectors.statusBadgeInact)
+      .removeClass('inactive-badge')
+      .addClass('active-badge')
+      .text(CONFIG.i18n.active);
+
+    // Swap button → static “Activated” pill
+    $activeCard.find(selectors.activateBtn).replaceWith(
+      `<span class="current-template">
+         <span class="dashicons dashicons-yes-alt"></span> ${CONFIG.i18n.activated}
+       </span>`
+    );
+
+    // 3) Persist in hidden field
+    $(selectors.hiddenActiveInput).val(templateId);
+
+    // 4) Update our in-memory value
+    CONFIG.activeTemplate = String(templateId);
+  }
+
+  // ---------- Preview Modal ----------
+  function openPreviewModal(template) {
+    $(selectors.previewName).text(template.name || '');
+    $(selectors.previewDesc).text(template.description || '');
+
+    // Build features list
+    const feats = Array.isArray(template.features) ? template.features : [];
+    const featHtml = [
+      `<h5>${CONFIG.i18n.keyFeatures}</h5>`,
+      '<ul>',
+      ...feats.map(f => `<li><span class="dashicons dashicons-yes-alt"></span> ${String(f)}</li>`),
+      '</ul>'
+    ].join('');
+    $(selectors.previewFeatures).html(featHtml);
+
+    // Build demo widget
+    buildDemoWidget(template);
+
+    // Configure activate button
+    const $act = $(selectors.previewActivate).data('template', template.id);
+    const isActive = String(template.id) === String(CONFIG.activeTemplate);
+    const isFree   = String(template.type || 'free') === 'free';
+
+    if (isActive && isFree) {
+      $act.html(`<span class="dashicons dashicons-yes-alt"></span> ${CONFIG.i18n.activated}`)
+          .prop('disabled', true)
+          .removeClass('button-primary')
+          .addClass('button-secondary');
+    } else if (!isFree) {
+      $act.text(CONFIG.i18n.proOnly)
+          .prop('disabled', true)
+          .removeClass('button-primary')
+          .addClass('button-secondary');
+    } else {
+      $act.text(CONFIG.i18n.activateThis)
+          .prop('disabled', false)
+          .removeClass('button-secondary')
+          .addClass('button-primary');
+    }
+
+    $(selectors.modal).fadeIn(200);
+    $body.addClass('modal-open');
+  }
+
+  function closePreviewModal() {
+    $(selectors.modal).fadeOut(200);
+    $body.removeClass('modal-open');
+  }
+
+  // ---------- Demo Widget (purely illustrative) ----------
+  function buildDemoWidget(template) {
+    const catLabel  = CONFIG.i18n.category;
+    const catsLabel = CONFIG.i18n.categories;
+
+    let demoHtml = '';
+    switch (String(template.id)) {
+      case 'clean':
+        demoHtml = `
+          <div style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;">
+            <div style="padding:14px;border-bottom:1px solid #e2e8f0;">
+              <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">${catLabel}</h4>
+            </div>
+            <div style="padding:14px;">
+              ${['Laptop','MacBook','Desktop','Linux','Tablet'].map(l => `
+                <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer;">
+                  <input type="checkbox" style="accent-color:#667eea;">
+                  <span style="font-size:13px;color:#4a5568;">${l}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>`;
+        break;
+
+      case 'shadow':
+        demoHtml = `
+          <div style="border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.08);">
+            <div style="padding:16px;border-bottom:1px solid #e2e8f0;">
+              <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">${catLabel}</h4>
+            </div>
+            <div style="padding:16px;">
+              ${['Laptop','MacBook','Desktop','Linux','Tablet'].map(l => `
+                <label style="display:flex;align-items:center;gap:8px;margin:10px 0;cursor:pointer;">
+                  <input type="checkbox" style="accent-color:#667eea;">
+                  <span style="font-size:14px;color:#2d3748;">${l}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>`;
+        break;
+
+      case 'modern':
+        demoHtml = `
+          <div style="border:1px solid #e2e8f0;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(0,0,0,.08);width:240px;overflow:hidden;">
+            <div style="padding:16px;border-bottom:1px solid #e2e8f0;">
+              <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">${catsLabel}</h4>
+            </div>
+            <div style="padding:12px 16px;">
+              ${[
+                {label:'Surgical Gastro', count:9, sub:[{label:'Camera Box',count:0}]},
+                {label:'Urology', count:0, sub:[{label:'Olympus',count:0},{label:'Stor 2 Box',count:0}]}
+              ].map(cat => `
+                <div style="margin:10px 0;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;font-size:14px;font-weight:600;color:#2d3748;margin-bottom:6px;">
+                    <span>${cat.label}</span>
+                    <span style="background:#3182ce;color:#fff;font-size:12px;font-weight:700;border-radius:9999px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;">${cat.count}</span>
+                  </div>
+                  ${cat.sub.map(sub => `
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#4a5568;margin:0 0 0 12px;padding:4px 0 4px 6px;border-left:1px solid #dbdbdb;cursor:pointer;"
+                         onmouseover="this.style.background='#ebf8ff';this.style.color='#3182ce';this.style.borderLeft='3px solid #3182ce';"
+                         onmouseout="this.style.background='';this.style.color='#4a5568';this.style.borderLeft='1px solid #dbdbdb';">
+                      <span>${sub.label}</span>
+                      <span style="background:#3182ce;color:#fff;font-size:12px;font-weight:700;border-radius:9999px;min-width:22px;height:22px;display:flex;align-items:center;justify-content:center;">${sub.count}</span>
+                    </div>
+                  `).join('')}
+                </div>
+              `).join('')}
+            </div>
+          </div>`;
+        break;
+
+      case 'basic':
+        demoHtml = `
+          <div style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;">
+            <div style="padding:14px 14px 0;">
+              <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">${catLabel}</h4>
+            </div>
+            <div style="padding:14px;">
+              ${['Laptop','MacBook','Desktop','Linux','Tablet'].map(l => `
+                <label style="display:flex;align-items:center;gap:8px;margin:8px 0;cursor:pointer;width:100%;">
+                  <input type="checkbox" style="accent-color:#667eea;">
+                  <span style="display:flex;justify-content:space-between;width:100%;">
+                    <span style="font-size:13px;color:#4a5568;">${l}</span>
+                    <span>(10)</span>
+                  </span>
+                </label>
+              `).join('')}
+            </div>
+          </div>`;
+        break;
+
+      case 'basic_bordered': {
+        const items = [
+          { label: 'Laptop',  count: 12 },
+          { label: 'MacBook', count: 33 },
+          { label: 'Desktop', count: 13 },
+          { label: 'Linux',   count: 12 },
+          { label: 'Tablet',  count: 14 }
+        ];
+        demoHtml = `
+          <div style="border:1px solid #e2e8f0;border-radius:8px;background:#fff;">
+            <div style="padding:14px 14px 0;">
+              <h4 style="margin:0;font-size:14px;font-weight:600;color:#2d3748;">${catLabel}</h4>
+              <div style="height:3px;background-color:rgba(0,0,0,0.1);width:30px;margin:.5em 0 0;"></div>
+            </div>
+            <div style="padding:8px 14px 14px;">
+              ${items.map((it, i) => `
+                <label style="display:block;margin:12px 0 0;cursor:pointer;${i ? 'border-top:1px solid #edf2f7;padding-top:12px;' : ''}">
+                  <span style="display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;">
+                    <span style="font-size:13px;color:#2d3748;">${it.label}</span>
+                    <span style="font-size:12px;color:#a0aec0;">(${it.count})</span>
+                  </span>
+                </label>
+              `).join('')}
+            </div>
+          </div>`;
+        break;
+      }
+
+      default:
+        demoHtml = '<div style="padding:16px;color:#666;">No preview available.</div>';
+    }
+
+    $(selectors.demoWidget).html(demoHtml);
+  }
+
+  // ---------- Events (delegated) ----------
+  $(document)
+    // Activate from card button
+    .on('click', selectors.activateBtn, function () {
+      const $btn = $(this);
+      const templateId = $btn.data('template');
+      if (!templateId) return;
+      activateTemplate(templateId, $btn);
+    })
+
+    // Open preview (from card or elsewhere)
+    .on('click', selectors.previewBtn, function () {
+      const templateId = $(this).data('template');
+      const template   = getTemplateById(templateId);
+      if (template) openPreviewModal(template);
+    })
+
+    // Activate from preview footer
+    .on('click', selectors.previewActivate, function () {
+      const templateId = $(this).data('template');
+      if (!templateId) return;
+      closePreviewModal();
+      // Find the corresponding card button if present (nice UX), else pass null
+      const $cardBtn = $(`${selectors.activateBtn}[data-template="${templateId}"]`).first();
+      activateTemplate(templateId, $cardBtn.length ? $cardBtn : null);
+    })
+
+    // Modal closing
+    .on('click', selectors.modalClose, function () {
+      closePreviewModal();
+    })
+
+    // Prevent modal backdrop click from closing when clicking inside content
+    .on('click', selectors.modalContent, function (e) {
+      e.stopPropagation();
+    });
+
+  // ---------- One-time CSS (animation) ----------
+  (function injectKeyframes() {
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.textContent = `
+      @keyframes slideInRight {
+        from { transform: translateX(100%); opacity: 0; }
+        to   { transform: translateX(0);   opacity: 1; }
+      }
+      .modal-open { overflow: hidden; }
+    `;
+    document.head.appendChild(style);
+  })();
+
+  // ---------- Initial paint (ensure correct active state on load) ----------
+  if (CONFIG.activeTemplate) {
+    updateActiveTemplateUI(CONFIG.activeTemplate);
+  }
+
+})(jQuery);
 </script>
+
 
 <?php
 

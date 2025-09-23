@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.4.0.26
+ * Version:     1.4.0.28
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.4.0.26');
+define('DAPFFORWC_VERSION', '1.4.0.28');
 
 // Global Variables
 global $dapfforwc_allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
@@ -1520,7 +1520,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.0.26', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.0.28', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -1531,9 +1531,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.0.26');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.0.26');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.0.26', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.0.28');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.0.28');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.0.28', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -1573,11 +1573,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.0.26');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.0.28');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.0.26', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.0.28', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1850,7 +1850,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.0.26');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.0.28');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2151,7 +2151,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.4.0.26",
+            "1.4.0.28",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2709,7 +2709,7 @@ function dapfforwc_ajax_activate_template()
     }
 
     // Validate template ID
-    $valid_templates = ['clean', 'shadow'];
+    $valid_templates = ['clean', 'shadow', 'modern', 'basic', 'basic_bordered'];
     if (!in_array($template_id, $valid_templates, true)) {
         wp_send_json_error(esc_html__('Invalid template selected.', 'dynamic-ajax-product-filters-for-woocommerce'));
     }
@@ -2724,6 +2724,9 @@ function dapfforwc_ajax_activate_template()
         $template_names = [
             'clean'  => esc_html__('Minimal Template', 'dynamic-ajax-product-filters-for-woocommerce'),
             'shadow' => esc_html__('Elevated Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'modern' => esc_html__('Modern Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'basic' => esc_html__('Basic Template', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'basic_bordered' => esc_html__('Basic Bordered Template', 'dynamic-ajax-product-filters-for-woocommerce'),
         ];
 
         // translators: %s: Template name.
@@ -3206,17 +3209,6 @@ add_filter('woocommerce_cart_hash', function ($hash) {
     return gm_pf_is_fragment_request() ? '' : $hash;
 }, 10, 1);
 
-add_action('pre_get_posts', function (WP_Query $q) {
-    if (!gm_pf_is_fragment_request()) return;
-    if (!$q->is_main_query() || !$q->is_post_type_archive('product')) return;
-
-    $q->set('cache_results', true);
-    $q->set('suppress_filters', false);
-    $q->set('no_found_rows', true);             // no pagination in fragments
-    // Uncomment if your loop doesn’t need these:
-    // $q->set('update_post_meta_cache', false);
-    // $q->set('update_post_term_cache', false);
-}, 99);
 
 /** ------------------------------------------------------------------------
  * Headers & cosmetics

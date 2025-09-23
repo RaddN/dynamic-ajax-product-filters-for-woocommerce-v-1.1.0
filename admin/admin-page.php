@@ -388,7 +388,7 @@ function dapfforwc_get_loading_effects()
 {
     $loading_effects = [
         [
-            'name' => 'Basic',
+            'name' => 'Basic ',
             'value' => 'basic',
             'html' => '<div class="basic" style="display:none;" id="loader"></div>',
             'css' => '.basic {
@@ -555,7 +555,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.26</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.28</span>
                 </div>
             </div>
 

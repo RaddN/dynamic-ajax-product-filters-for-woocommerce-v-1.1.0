@@ -928,22 +928,7 @@ function dapfforwc_product_filter_shortcode($atts)
 });", 100);
     }
 
-    if ($template_options['active_template'] && $template_options['active_template'] === 'clean') { ?>
-        <style>
-            #product-filter .filter-group .title {
-                padding: 10px 0 14px;
-            }
-
-            #product-filter .filter-group .items {
-                padding: 20px 0 10px;
-            }
-
-            #product-filter .filter-group {
-                margin-bottom: 0;
-            }
-        </style>
-
-    <?php } elseif ($template_options['active_template'] && $template_options['active_template'] === 'shadow') { ?>
+    if ($template_options['active_template'] && $template_options['active_template'] === 'shadow') { ?>
         <style>
             #product-filter .filter-group {
                 box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
@@ -963,7 +948,22 @@ function dapfforwc_product_filter_shortcode($atts)
             }
         </style>
 
-    <?php } ?>
+    <?php } else { ?>
+        <style>
+            #product-filter .filter-group .title {
+                padding: 10px 0 14px;
+            }
+
+            #product-filter .filter-group .items {
+                padding: 20px 0 10px;
+            }
+
+            #product-filter .filter-group {
+                margin-bottom: 0;
+            }
+        </style>
+    <?php
+    } ?>
     <style>
         #product-filter .plugrogress-percentage:after,
         #product-filter .plugrogress-percentage:before,
@@ -1457,27 +1457,27 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
     switch ($sub_option) {
         case 'checkbox':
-            $output .= '<label><input  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
+            $output .= '<label><input  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
         case 'button_check':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'radio_check':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio-check" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio-check" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'radio':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'square':
         case 'square_check':
-            $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span>' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span></label>';
+            $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
             break;
 
         case 'checkbox_hide':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . ' style="display:none;"> <span>' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . ' style="display:none;"> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
             break;
 
         case 'plugincy_color':
@@ -1500,7 +1500,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $image_url = isset($brand_image_url) && !empty($brand_image_url) ? $brand_image_url : ($dapfforwc_styleoptions[$attribute]['images'][$value] ?? 'default-image.jpg');
             $border_class = ($sub_option === 'image_no_border') ? 'no-border' : '';
             $output .= '<label class="image-option ' . $border_class . '">
-            <span class="image-title">' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</span>
+            <span class="image-title"><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span>
     <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-image" name="' . $name . '[]" value="' . $value . '"' . $checked . '>';
 
             if ($image_url !== 'default-image.jpg') {
@@ -1521,7 +1521,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'select2':
         case 'select2_classic':
         case 'select':
-            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</option>';
+            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
@@ -1616,7 +1616,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
             break;
         default:
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> ' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '</label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
     }
 
