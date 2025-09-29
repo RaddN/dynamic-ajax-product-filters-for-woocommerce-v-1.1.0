@@ -8,10 +8,11 @@ function dapfforwc_get_min_max_price($products, $products_id = []) {
     $loop = $products_id;
     $min_price = null;
     $max_price = null;
+
     foreach ($loop as $product_id) {
         foreach ($products as $product) {
             if ($product['ID'] == $product_id) {
-                $price = $product['price'];
+                $price = (float) $product['price'];
 
                 if (is_null($min_price) || $price < $min_price) {
                     $min_price = $price;
@@ -25,8 +26,17 @@ function dapfforwc_get_min_max_price($products, $products_id = []) {
         }
     }
 
+    if (!is_null($min_price)) {
+        $min_price = floor($min_price); // always take lower integer
+    }
+
+    if (!is_null($max_price)) {
+        $max_price = ceil($max_price); // always take upper integer
+    }
+
     return array('min' => $min_price, 'max' => $max_price);
 }
+
 
 function dapfforwc_getFilteredProductIds($products_id_by_cata, $products_id_by_tag, $products_id_by_brand, $common_values, $common_values_custom_meta,$products_id_by_author, $products_id_by_stock_status, $products_id_by_sale_status) {
     // Collect all non-empty filter arrays (indexed numerically)
