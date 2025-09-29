@@ -851,6 +851,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'tab'   => \Elementor\Controls_Manager::TAB_STYLE,
                     'condition' => [
                         'filter_type' => 'all',
+                        'mobile_responsive_style' => 'style_1'
                     ],
                 ]
             );

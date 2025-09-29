@@ -555,7 +555,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.28</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.4.0.29</span>
                 </div>
             </div>
 
@@ -1057,7 +1057,7 @@ function dapfforwc_admin_page_content()
                                                 <?php wp_nonce_field('dapfforwc_import_settings_nonce'); ?>
                                                 <input type="hidden" name="action" value="dapfforwc_import_settings">
                                                 <input type="file" name="dapfforwc_import_file" accept=".json" required>
-                                                <button type="submit" name="wcapf_import_button" id="wcapf_import_button" class="button button-primary"><?php echo esc_html__('Import Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                                                <button type="submit" name="wcapf_import_button" id="wcapf_import_button" class="button button-primary"><?php echo esc_html__('Import', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -1066,7 +1066,7 @@ function dapfforwc_admin_page_content()
                                         <td>
                                             <form method="post" action="admin-post.php">
                                                 <input type="hidden" name="action" value="dapfforwc_export_settings">
-                                                <button type="submit" name="wcapf_export_button" id="wcapf_export_button" class="button button-primary"><?php echo esc_html__('Export Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                                                <button type="submit" name="wcapf_export_button" id="wcapf_export_button" class="button button-primary"><?php echo esc_html__('Export', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
                                             </form>
                                         </td>
                                     </tr>
