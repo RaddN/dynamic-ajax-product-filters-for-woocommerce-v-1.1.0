@@ -1734,12 +1734,12 @@ function dapfforwc_admin_scripts($hook)
             document.querySelector(`.setting-item.single-selection`).style.display = "block";
 
            }else if(selectedType==="dropdown") {
-            document.querySelector(`.setting-item.single-selection`).style.display = "none";
+            radio.closest(".style-options").querySelector(`.setting-item.single-selection`).style.display = "none";
             document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
                 advanceoptions.style.display = "none";
             })
            } else {
-            document.querySelector(`.setting-item.single-selection`).style.display = "block";
+            radio.closest(".style-options").querySelector(`.setting-item.single-selection`).style.display = "block";
             document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
                 advanceoptions.style.display = "none";
             })

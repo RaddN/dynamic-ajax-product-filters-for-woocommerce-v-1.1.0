@@ -285,7 +285,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             // $output .= json_encode($filter_options_manage);
             $index = 0;
             if ($filter_options_manage) {
-                $output .= '<style>@media(min-width:767px){form#product-filter { display: flex ; flex-direction: column; }form#product-filter>div {order: 999;}}';
+                $output .= '<style>@media(min-width:767px){form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}}';
                 foreach ($filter_options_manage as $options) {
                     if ($options["id"] == "product-category" && !isset($dapfforwc_options["show_categories"])) {
                         continue;
@@ -2200,7 +2200,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $output = '';
 
             if (!empty($settings['form_elements'])) {
-                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter>div {order: 999;}'; // Start the style tag
+                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}'; // Start the style tag
                 foreach ($settings['form_elements'] as $index => $element) {
                     $element_type = $element['element_type'];
                     $is_visible = $element['element_visible'] === 'yes' ? "block" : "none";
