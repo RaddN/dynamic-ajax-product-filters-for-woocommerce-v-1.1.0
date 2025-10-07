@@ -282,16 +282,16 @@ class dapfforwc_Custom_Class_Injector
                 jQuery(document).ready(function($) {
                     // Target multiple possible pagination selectors
                     var paginationSelectors = [
-                        ".woocommerce-pagination",
-                        ".woocommerce nav.navigation",
-                        ".woocommerce .navigation",
-                        ".pagination",
-                        ".page-numbers",
-                        ".nav-links",
-                        ".woocommerce .paginate_links",
+                        ".woocommerce-pagination:not(header .woocommerce-pagination)",
+                        ".woocommerce nav.navigation:not(header nav)",
+                        ".woocommerce .navigation:not(header .navigation)",
+                        ".pagination:not(header .pagination)",
+                        ".page-numbers:not(header .page-numbers)",
+                        ".nav-links:not(header .nav-links)",
+                        ".woocommerce .paginate_links:not(header .paginate_links)",
                         ".products + .navigation",
                         ".woocommerce-result-count + .navigation",
-                        ".wc-block-pagination"
+                        ".wc-block-pagination:not(header .wc-block-pagination)"
                     ];
                     
                     $.each(paginationSelectors, function(index, selector) {
@@ -299,7 +299,7 @@ class dapfforwc_Custom_Class_Injector
                     });
                     
                     // Also target parent containers that might contain pagination
-                    $(".woocommerce .navigation").parent().addClass("' . esc_attr($this->custom_classes['pagination']) . '-container");
+                    $(".woocommerce .navigation:not(header .navigation)").parent().addClass("' . esc_attr($this->custom_classes['pagination']) . '-container");
                 });
             </script>';
         }
@@ -313,7 +313,7 @@ class dapfforwc_Custom_Class_Injector
                     jQuery(document).ready(function($) {
                         // Wait for AJAX updates and late-loading pagination
                         setTimeout(function() {
-                            $(".woocommerce-pagination, .woocommerce nav.navigation, .pagination").addClass("' . esc_attr($this->custom_classes['pagination']) . '");
+                            $(".woocommerce-pagination:not(header .woocommerce-pagination), .woocommerce nav.navigation:not(header nav), .pagination:not(header .pagination)").addClass("' . esc_attr($this->custom_classes['pagination']) . '");
                         }, 100);
                     });
                 </script>';
