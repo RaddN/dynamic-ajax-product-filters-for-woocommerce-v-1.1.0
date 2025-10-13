@@ -213,9 +213,17 @@ function dapfforwc_product_filter_shortcode($atts)
 
             // Use the combined full slug as the key in default_filters
             $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
-            $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
+            if (!empty($arrayCata)) {
+                $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $arrayCata;
+            }
+
+            if (!empty($tagValue)) {
+                $dapfforwc_options['default_filters'][$dapfforwc_slug]["tag[]"] = $tagValue;
+            }
+
+            if (!empty($attrvalue)) {
+                $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
+            }
             if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
                 $is_all_cata = true;
@@ -235,6 +243,8 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
+    
+
     if ($atts['category'] !== '' || ($atts['attribute'] !== '' && $atts['terms'] !== '') || $atts['tag'] !== '') {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = !empty($atts['category']) ? array_map('trim', explode(',', $atts['category'])) : [];
@@ -248,6 +258,8 @@ function dapfforwc_product_filter_shortcode($atts)
             $make_default_selected = true;
         }
     }
+
+    
 
     if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"]) && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $all_cata_slugs = array_column($all_cata, 'slug');
@@ -276,7 +288,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $make_default_selected = true;
         }
     }
-    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""]  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"])  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
@@ -340,16 +352,16 @@ function dapfforwc_product_filter_shortcode($atts)
     $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
 
     $default_filter = (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"]))) ?
-     array_merge(
-        $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
-        $parsed_filters,
-        isset($_GET['filters']) && $_GET['filters'] !== "1" ? explode(',', sanitize_text_field(wp_unslash($_GET['filters'] ?? ''))) : [],
-        $request_parts,
-        $filteroptionsfromurl
-    ) :  array_merge_recursive(
-        $filteroptionsfromurl,
-        $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? []
-    );
+        array_merge(
+            $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
+            $parsed_filters,
+            isset($_GET['filters']) && $_GET['filters'] !== "1" ? explode(',', sanitize_text_field(wp_unslash($_GET['filters'] ?? ''))) : [],
+            $request_parts,
+            $filteroptionsfromurl
+        ) :  array_merge_recursive(
+            $filteroptionsfromurl,
+            $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? []
+        );
 
     $ratings = isset($default_filter["rating[]"])
         ? array_map('intval', (array)$default_filter["rating[]"])
