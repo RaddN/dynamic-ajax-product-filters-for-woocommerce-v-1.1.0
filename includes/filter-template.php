@@ -243,7 +243,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    
+
 
     if ($atts['category'] !== '' || ($atts['attribute'] !== '' && $atts['terms'] !== '') || $atts['tag'] !== '') {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
@@ -259,7 +259,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    
+
 
     if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"]) && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $all_cata_slugs = array_column($all_cata, 'slug');
@@ -1131,11 +1131,12 @@ function dapfforwc_product_filter_shortcode($atts)
             @media (max-width: 781px) {
                 .mobile-filter {
                     position: fixed;
-                    z-index: 999;
+                    z-index: 2147483647;
                     background: #ffffff;
-                    width: 88%;
+                    width: 86vw;
+                    max-width: 420px;
                     padding-bottom: 200px;
-                    height: 100%;
+                    height: 100dvh;
                     overflow: scroll;
                     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
                     border-radius: 30px;
@@ -1167,10 +1168,11 @@ function dapfforwc_product_filter_shortcode($atts)
             @media (max-width: 781px) {
                 .mobile-filter {
                     position: fixed;
-                    z-index: 999;
+                    z-index: 2147483647;
                     background: #ffffff;
-                    width: 80%;
-                    height: 100%;
+                    width: 86vw;
+                    max-width: 420px;
+                    height: 100dvh;
                     overflow: scroll;
                     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
                     bottom: 0;
