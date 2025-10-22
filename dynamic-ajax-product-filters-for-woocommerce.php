@@ -2185,7 +2185,7 @@ class dapfforwc_cart_analytics_main
         }
 
         // Handle deactivation feedback AJAX
-        add_action('wp_ajax_send_deactivation_feedback', array($this, 'handle_deactivation_feedback'));
+        add_action('wp_ajax_dapfforwc_send_deactivation_feedback', array($this, 'handle_deactivation_feedback'));
     }
 
     public function init()
