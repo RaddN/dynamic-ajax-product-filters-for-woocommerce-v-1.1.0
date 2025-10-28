@@ -241,6 +241,9 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
             if ($parent_categories) {
                 $formOutPut .= dapfforwc_render_category_hierarchy($parent_categories, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, $child_category);
+            }else if(empty($parent_categories) && !empty($child_category)) {
+                // If no parent categories, render child categories as top-level
+                $formOutPut .= dapfforwc_render_category_hierarchy($child_category, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, []);
             }
         } elseif ($hierarchical === 'enable_separate') {
 

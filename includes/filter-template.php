@@ -1462,8 +1462,6 @@ function dapfforwc_product_filter_shortcode($atts)
   }
 })();
 ');
-
-
     }
 
     // End output buffering and return content
