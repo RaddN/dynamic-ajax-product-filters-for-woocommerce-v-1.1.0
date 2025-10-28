@@ -1379,65 +1379,91 @@ function dapfforwc_product_filter_shortcode($atts)
     <div id="roverlay" style="display: none;"></div>
 
 <?php if ($atts['mobile_responsive'] === 'style_1') {
-        wp_add_inline_script('urlfilter-ajax', "
-         function initializeMobileFilters() {
-  if (window.innerWidth <= 768) {
-    const titles = document.querySelectorAll('.filter-group .title');
-    const items  = document.querySelectorAll('.filter-group .items');
+        wp_add_inline_script('urlfilter-ajax', '
+(() => {
+  const MOBILE_BP = 768;
+  const WRAPPER = ".plugincy_filter_wrapper";
+  const TITLE_SEL = ".filter-group .title";
+  const ITEMS_SEL = ".filter-group .items";
 
-    function hideAll() {
-      items.forEach(item => {
-        item.classList.add('dapfforwc-hidden-important');
-        item.style.removeProperty('display');
-      });
-      titles.forEach(title => {
-        const svg = title.querySelector('svg');
-        if (svg) svg.classList.remove('rotated');
-      });
+  // guard so we only wire up once
+  if (window.__mobileFiltersWired) return;
+  window.__mobileFiltersWired = true;
+
+  const isMobile = () => window.innerWidth <= MOBILE_BP;
+
+  function hideAll(root = document) {
+    root.querySelectorAll(ITEMS_SEL).forEach(item => {
+      item.classList.add("dapfforwc-hidden-important");
+      item.style.removeProperty("display");
+    });
+    root.querySelectorAll(`${TITLE_SEL} svg`).forEach(svg => svg.classList.remove("rotated"));
+  }
+
+  function showItems(itemsEl) {
+    itemsEl.classList.remove("dapfforwc-hidden-important");
+    let display = "block";
+    const c = itemsEl.classList;
+    if (c.contains("image") || c.contains("image_no_border") || c.contains("button_check")) {
+      display = "grid";
+    } else if (c.contains("plugincy_color") || c.contains("color_no_border") || c.contains("color_circle")) {
+      display = "flex";
     }
+    itemsEl.style.setProperty("display", display, "important");
+  }
 
-    // Start hidden
-    hideAll();
+  // initial mobile state
+  if (isMobile()) hideAll();
 
-    titles.forEach(title => {
-      title.addEventListener('click', function (e) {
-        e.stopPropagation();
-
-        // Toggle current
-        const currentItems = this.nextElementSibling;
-        if (!currentItems.classList.contains('dapfforwc-hidden-important')) {
-            currentItems.style.removeProperty('display');
-        } else {
-            hideAll(); // Hide all first                                
-            if (currentItems.classList.contains('image') || currentItems.classList.contains('image_no_border') || currentItems.classList.contains('button_check')) {
-                currentItems.style.setProperty('display', 'grid', 'important');
-            } else if (currentItems.classList.contains('plugincy_color') || currentItems.classList.contains('color_no_border') || currentItems.classList.contains('color_circle')) {
-                currentItems.style.setProperty('display', 'flex', 'important');
-            } else {
-                currentItems.style.setProperty('display', 'block', 'important');
-            }
-        }
+  // Reapply state when crossing the breakpoint
+  const mm = window.matchMedia(`(max-width: ${MOBILE_BP}px)`);
+  mm.addEventListener("change", e => {
+    if (e.matches) {
+      hideAll();               // just entered mobile
+    } else {
+      // leaving mobile: clear inline styles + classes
+      document.querySelectorAll(ITEMS_SEL).forEach(item => {
+        item.classList.remove("dapfforwc-hidden-important");
+        item.style.removeProperty("display");
       });
-    });
+      document.querySelectorAll(`${TITLE_SEL} svg`).forEach(svg => svg.classList.remove("rotated"));
+    }
+  });
 
-    // Click outside to hide all
-    document.addEventListener('click', function (e) {
-      if (!e.target.closest('.plugincy_filter_wrapper')) {
-        hideAll();
+  // Single delegated click handler for all current/future titles
+  document.addEventListener("click", e => {
+    if (!isMobile()) return;
+
+    const title = e.target.closest(TITLE_SEL);
+    if (title && title.closest(WRAPPER)) {
+      e.stopPropagation();
+
+      const currentItems = title.nextElementSibling;
+      const container = title.closest(WRAPPER);
+
+      // collapse everything inside this wrapper first
+      hideAll(container);
+
+      // then expand the clicked one (if it was closed)
+      if (currentItems && currentItems.classList.contains("dapfforwc-hidden-important")) {
+        showItems(currentItems);
+        const svg = title.querySelector("svg");
+        if (svg) svg.classList.add("rotated");
       }
-    });
-  }}
+    } else if (!e.target.closest(WRAPPER)) {
+      // click outside -> hide all (mobile only)
+      hideAll();
+    }
+  });
 
-    // Call function on DOM content loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeMobileFilters();
-    });
+  // Reapply hidden state after AJAX updates (no re-binding needed)
+  if (window.jQuery) {
+    jQuery(document).ajaxComplete(() => { if (isMobile()) hideAll(); });
+  }
+})();
+');
 
-    // Call function after AJAX requests complete
-    jQuery(document).ajaxComplete(function() {
-        initializeMobileFilters();
-    });
-");
+
     }
 
     // End output buffering and return content
