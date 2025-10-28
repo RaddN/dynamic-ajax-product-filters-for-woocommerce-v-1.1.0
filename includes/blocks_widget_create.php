@@ -76,6 +76,9 @@ add_action('init', 'dapfforwc_register_dynamic_ajax_filter_block');
 function dapfforwc_generate_css($styles, $device = 'desktop', $hover = false, $active = false, $sliderProgress = false, $sliderthumb = false, $slidertooltip = false)
 {
     $css = '';
+    if (isset($styles['display'])) {
+        $css .= "display: {$styles['display']};";
+    }
     if (isset($styles) && is_array($styles)) {
         foreach ($styles as $key => $value) {
             if (!is_array($value) || empty($value)) {
@@ -214,7 +217,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
     $reset_button_style = sanitize_key(isset($attributes['resetButtonStyle']) ? $attributes['resetButtonStyle'] : []);
     $input_style = sanitize_key(isset($attributes['inputStyle']) ? $attributes['inputStyle'] : []);
     $slider_style = sanitize_key(isset($attributes['sliderStyle']) ? $attributes['sliderStyle'] : []);
-    $filter_word_mobile = sanitize_key(isset($attributes['filterWordMobile']) ? $attributes['filterWordMobile'] : '');
+    $filter_word_mobile = isset($attributes['filterWordMobile']) ? $attributes['filterWordMobile'] : '';
     $custom_css = sanitize_key(isset($attributes['customCSS']) ? $attributes['customCSS'] : '');
     $raw_class_name = isset($attributes['className']) ? (string) $attributes['className'] : '';
     $class_parts = preg_split('/\s+/', $raw_class_name, -1, PREG_SPLIT_NO_EMPTY);
@@ -312,12 +315,6 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                         continue;
                     }
                     if ($options["id"] == "rpn_sale" && !isset($dapfforwc_options["show_onsale"])) {
-                        continue;
-                    }
-                    if ($options["id"] !== "product-category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && $options["id"] !== "show_brand" && $options["id"] !== "show_author" && $options["id"] !== "show_status" && $options["id"] !== "show_onsale" && !isset($dapfforwc_options["show_attributes"])) {
-                        continue;
-                    }
-                    if ($options["id"] !== "product-category" && $options["id"] !== "tag" && $options["id"] !== "price-range" && $options["id"] !== "rating" && $options["id"] !== "search_text" && $options["id"] !== "show_brand" && $options["id"] !== "show_author" && $options["id"] !== "show_status" && $options["id"] !== "show_onsale" && !isset($dapfforwc_options["show_custom_fields"])) {
                         continue;
                     }
 

@@ -226,22 +226,47 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         if ($hierarchical === 'enable' || $hierarchical === 'enable_hide_child') {
             $parent_categories = [];
             $child_category = [];
+            $parent_categories = [];
+            $child_category = [];
             if (isset($updated_filters["categories"]) && is_array($updated_filters["categories"])) {
+                // Build a lookup of term IDs present in the provided categories
+                $present_ids = [];
+                foreach ($updated_filters["categories"] as $cat) {
+                    if (is_object($cat)) {
+                        $id = isset($cat->term_id) ? (int) $cat->term_id : null;
+                    } elseif (is_array($cat)) {
+                        $id = isset($cat['term_id']) ? (int) $cat['term_id'] : null;
+                    } else {
+                        $id = null;
+                    }
+                    if ($id !== null) {
+                        $present_ids[$id] = true;
+                    }
+                }
+
+                // Separate into parents and children.
+                // If a category has a parent id but that parent is NOT present in the list,
+                // treat the category as a parent (top-level) as requested.
                 foreach ($updated_filters["categories"] as $category) {
-                    // Check if the category is an instance of WP_Term or stdClass
-                    if (is_object($category) && ($category instanceof WP_Term || $category instanceof stdClass)) {
-                        if ($category->parent == "0") { // Ensure comparison matches data type
-                            $parent_categories[] = $category;
-                        } else {
-                            $child_category[] = $category;
-                        }
+                    if (!is_object($category) && !is_array($category)) {
+                        continue;
+                    }
+
+                    $parent_id = is_object($category) ? (int) ($category->parent ?? 0) : (int) ($category['parent'] ?? 0);
+
+                    // If parent is 0 OR parent id is not present among provided categories,
+                    // treat this item as a parent.
+                    if ($parent_id === 0 || !isset($present_ids[$parent_id])) {
+                        $parent_categories[] = $category;
+                    } else {
+                        $child_category[] = $category;
                     }
                 }
             }
 
             if ($parent_categories) {
                 $formOutPut .= dapfforwc_render_category_hierarchy($parent_categories, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, $child_category);
-            }else if(empty($parent_categories) && !empty($child_category)) {
+            } else if (empty($parent_categories) && !empty($child_category)) {
                 // If no parent categories, render child categories as top-level
                 $formOutPut .= dapfforwc_render_category_hierarchy($child_category, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, []);
             }
@@ -250,15 +275,40 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             // Render parent categories in a unified section
             $parent_categories = [];
             $child_category = [];
+            $parent_categories = [];
+            $child_category = [];
             if (isset($updated_filters["categories"]) && is_array($updated_filters["categories"])) {
+                // Build a lookup of term IDs present in the provided categories
+                $present_ids = [];
+                foreach ($updated_filters["categories"] as $cat) {
+                    if (is_object($cat)) {
+                        $id = isset($cat->term_id) ? (int) $cat->term_id : null;
+                    } elseif (is_array($cat)) {
+                        $id = isset($cat['term_id']) ? (int) $cat['term_id'] : null;
+                    } else {
+                        $id = null;
+                    }
+                    if ($id !== null) {
+                        $present_ids[$id] = true;
+                    }
+                }
+
+                // Separate into parents and children.
+                // If a category has a parent id but that parent is NOT present in the list,
+                // treat the category as a parent (top-level) as requested.
                 foreach ($updated_filters["categories"] as $category) {
-                    // Check if the category is an instance of WP_Term or stdClass
-                    if (is_object($category) && ($category instanceof WP_Term || $category instanceof stdClass)) {
-                        if ($category->parent == "0") { // Ensure comparison matches data type
-                            $parent_categories[] = $category;
-                        } else {
-                            $child_category[] = $category;
-                        }
+                    if (!is_object($category) && !is_array($category)) {
+                        continue;
+                    }
+
+                    $parent_id = is_object($category) ? (int) ($category->parent ?? 0) : (int) ($category['parent'] ?? 0);
+
+                    // If parent is 0 OR parent id is not present among provided categories,
+                    // treat this item as a parent.
+                    if ($parent_id === 0 || !isset($present_ids[$parent_id])) {
+                        $parent_categories[] = $category;
+                    } else {
+                        $child_category[] = $category;
                     }
                 }
             }
