@@ -4,6 +4,158 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('dapfforwc_is_product_attribute')) {
+    function dapfforwc_is_product_attribute() {
+        global $wp_query;
+        if (!is_tax()) return false;
+        $taxonomy = get_queried_object()->taxonomy;
+        return strpos($taxonomy, 'pa_') === 0;
+    }
+}
+
+
+/**
+ * Check if current page is a product brand archive page
+ * Supports multiple brand taxonomy implementations:
+ * - WooCommerce "product_brand" taxonomy
+ * - Perfect Brands for WooCommerce
+ * - JetEngine custom taxonomies
+ * - Custom brand taxonomies
+ *
+ * @return bool True if on a brand archive page, false otherwise
+ * @since 1.0.0
+ */
+if (!function_exists('dapfforwc_is_product_brand')) {
+    function dapfforwc_is_product_brand()
+    {
+        global $wp_query;
+
+        // Check if we're on a taxonomy archive page
+        if (!is_tax()) {
+            return false;
+        }
+
+        // Get the current queried object
+        $queried_object = get_queried_object();
+
+        if (!$queried_object || !isset($queried_object->taxonomy)) {
+            return false;
+        }
+
+        $taxonomy = $queried_object->taxonomy;
+
+        // List of known brand taxonomies
+        $brand_taxonomies = [
+            'product_brand',           // Standard WooCommerce brand taxonomy
+            'pwb-brand',               // Perfect Brands for WooCommerce
+            'jetengine-brand',         // JetEngine brand
+            'product_suppliers',       // Alternative brand/supplier taxonomy
+            'product_distributor',     // Distributor taxonomy
+            'wc_brand',               // Another common brand taxonomy
+        ];
+
+        // Check if current taxonomy is in the brand taxonomy list
+        if (in_array($taxonomy, $brand_taxonomies, true)) {
+            return true;
+        }
+
+        // Check for custom taxonomies with "brand" in the name
+        if (strpos($taxonomy, 'brand') !== false && 0 === strpos($taxonomy, 'product_')) {
+            return true;
+        }
+
+        // Check if the taxonomy is associated with products
+        $tax_object = get_taxonomy($taxonomy);
+        if ($tax_object && in_array('product', $tax_object->object_type, true)) {
+            // Additional check: if taxonomy name contains brand, it might be a brand taxonomy
+            if (
+                strpos(strtolower($taxonomy), 'brand') !== false ||
+                strpos(strtolower($tax_object->label), 'brand') !== false
+            ) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+}
+
+
+/**
+ * Get brand info from current archive page
+ * Returns brand details if on brand archive, null otherwise
+ *
+ * @return array|null Array with term_id, name, slug, taxonomy or null
+ * @since 1.0.0
+ */
+if (!function_exists('dapfforwc_get_current_brand')) {
+    function dapfforwc_get_current_brand()
+    {
+        if (!dapfforwc_is_product_brand()) {
+            return null;
+        }
+
+        $brand = get_queried_object();
+
+        if (!$brand) {
+            return null;
+        }
+
+        return [
+            'term_id' => $brand->term_id,
+            'name' => $brand->name,
+            'slug' => $brand->slug,
+            'taxonomy' => $brand->taxonomy,
+            'description' => $brand->description ?? '',
+            'count' => $brand->count ?? 0,
+        ];
+    }
+}
+
+
+/**
+ * Get all registered brand taxonomies for the product post type
+ * Useful for filtering operations that need to know all brand-related taxonomies
+ *
+ * @return array Array of brand taxonomy names
+ * @since 1.0.0
+ */
+if (!function_exists('dapfforwc_get_brand_taxonomies')) {
+    function dapfforwc_get_brand_taxonomies()
+    {
+        $brand_taxonomies = [];
+
+        // Get all taxonomies associated with products
+        $product_taxonomies = get_object_taxonomies('product', 'objects');
+
+        if (empty($product_taxonomies)) {
+            return $brand_taxonomies;
+        }
+
+        foreach ($product_taxonomies as $tax) {
+            $tax_name = strtolower($tax->name);
+            $tax_label = strtolower($tax->label);
+
+            // Check if taxonomy name or label contains "brand"
+            if (strpos($tax_name, 'brand') !== false || strpos($tax_label, 'brand') !== false) {
+                $brand_taxonomies[] = $tax->name;
+            }
+        }
+
+        // Also check predefined brand taxonomies
+        $known_brands = ['product_brand', 'pwb-brand', 'wc_brand', 'product_suppliers'];
+        foreach ($known_brands as $brand_tax) {
+            if (taxonomy_exists($brand_tax) && in_array($brand_tax, get_object_taxonomies('product'), true)) {
+                if (!in_array($brand_tax, $brand_taxonomies, true)) {
+                    $brand_taxonomies[] = $brand_tax;
+                }
+            }
+        }
+
+        return array_unique($brand_taxonomies);
+    }
+}
+
 
 function dapfforwc_product_filter_shortcode($atts)
 {
@@ -288,6 +440,39 @@ function dapfforwc_product_filter_shortcode($atts)
             $make_default_selected = true;
         }
     }
+
+    // if attribute archive page
+    if (dapfforwc_is_product_attribute()) {
+        $current_attribute = get_queried_object();
+        $attribute_slug = $current_attribute->slug;
+        $taxonomy = $current_attribute->taxonomy;
+        $attribute_name = str_replace('pa_', '', $taxonomy);
+        $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+        $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"][$attribute_name] = [$attribute_slug];
+        if (empty($filteroptionsfromurl)) {
+            $make_default_selected = true;
+        }
+    }
+
+    // if brand archive page
+
+    if (dapfforwc_is_product_brand()) {
+        $current_brand = dapfforwc_get_current_brand();
+
+        if ($current_brand) {
+            $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
+
+            // Use the correct brand taxonomy key based on detected taxonomy
+            $brand_filter_key = "rplurand[]"; // This is used in the plugin for brands
+
+            $dapfforwc_options['default_filters'][$dapfforwc_slug][$brand_filter_key] = [$current_brand['slug']];
+
+            if (empty($filteroptionsfromurl)) {
+                $make_default_selected = true;
+            }
+        }
+    }
+
     if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"])  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
