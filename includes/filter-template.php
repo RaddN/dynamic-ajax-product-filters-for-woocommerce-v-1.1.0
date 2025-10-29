@@ -1083,6 +1083,10 @@ function dapfforwc_product_filter_shortcode($atts)
                 display: block !important;
             }
 
+            span.show-sub-cata{
+                display: none !important;
+            }
+
             .filter-group {
                 min-width: max-content;
                 height: min-content;
