@@ -5,7 +5,8 @@ if (!defined('ABSPATH')) {
 }
 
 if (!function_exists('dapfforwc_is_product_attribute')) {
-    function dapfforwc_is_product_attribute() {
+    function dapfforwc_is_product_attribute()
+    {
         global $wp_query;
         if (!is_tax()) return false;
         $taxonomy = get_queried_object()->taxonomy;
@@ -897,44 +898,10 @@ function dapfforwc_product_filter_shortcode($atts)
 
     $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
 
-    // Cache file path
-    $cache_file = __DIR__ . '/min_max_prices_cache.json';
-    $referer = sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI']));
+    $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
 
-    // Use $referer to generate a unique cache key
-    $cache_key = md5($referer);
-    $min_max_prices_cache = [];
-
-    // Load existing cache if available
-    if (file_exists($cache_file)) {
-        $min_max_prices_cache = json_decode(file_get_contents($cache_file), true);
-        if (!is_array($min_max_prices_cache)) {
-            $min_max_prices_cache = [];
-        }
-    }
-
-    if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
-        $cache_key_url = isset($_GET["_wp_http_referer"]) ? sanitize_text_field(wp_unslash($_GET["_wp_http_referer"])) : '';
-        $cache_key = md5($cache_key_url);
-        if (isset($min_max_prices_cache[$cache_key])) {
-            $min_max_prices = $min_max_prices_cache[$cache_key];
-        } else {
-            $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
-            $min_max_prices_cache[$cache_key] = $min_max_prices;
-            file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
-        }
-    } else {
-        if (isset($min_max_prices_cache[$cache_key])) {
-            $min_max_prices = $min_max_prices_cache[$cache_key];
-        } else {
-            $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
-            $min_max_prices_cache[$cache_key] = $min_max_prices;
-            file_put_contents($cache_file, json_encode($min_max_prices_cache, JSON_UNESCAPED_UNICODE));
-        }
-    }
-
-    $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval(isset($dapfforwc_styleoptions["price"]["min_price"]) ? $dapfforwc_styleoptions["price"]["min_price"] : 0));
-    $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval(isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 100000000000));
+    $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval($dapfforwc_styleoptions["price"]["min_price"] ?? 0));
+    $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
 
     ob_start(); // Start output buffering
     if ($atts['layout'] === 'top_view') {
@@ -1268,7 +1235,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 display: block !important;
             }
 
-            span.show-sub-cata{
+            span.show-sub-cata {
                 display: none !important;
             }
 
