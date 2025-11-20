@@ -7,6 +7,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 {
 
     private static $instance = null;
+    private $nonce_valid = null;
 
     public static function get_instance()
     {
@@ -308,6 +309,92 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
     }
 
     /**
+     * Determine if the current request carries a verified nonce.
+     */
+    private function is_nonce_valid(): bool
+    {
+        if ($this->nonce_valid !== null) {
+            return $this->nonce_valid;
+        }
+
+        if (!isset($_GET['gm-product-filter-nonce'])) {
+            return $this->nonce_valid = false;
+        }
+
+        $nonce = sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce']));
+        return $this->nonce_valid = (bool) wp_verify_nonce($nonce, 'gm-product-filter-action');
+    }
+
+    /**
+     * Determine if the current request is a safe, read-only GET.
+     */
+    private function request_is_read_only(): bool
+    {
+        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        return $method === 'GET';
+    }
+
+    /**
+     * Check if the request contains any filter-related query vars.
+     */
+    private function has_filter_query_vars(): bool
+    {
+        $simple_keys = array(
+            'product-category',
+            'tags',
+            'mn_price',
+            'mx_price',
+            'rating',
+            'plugincy_search',
+            'rcata',
+            'rtag',
+            'operator_second',
+            'tax_relation',
+            'meta_relation',
+            'rplurand',
+            'rplutock_status',
+            'rpluthor',
+            'rpn_sale',
+            'min_length',
+            'max_length',
+            'min_width',
+            'max_width',
+            'min_height',
+            'max_height',
+            'min_weight',
+            'max_weight',
+            'sku',
+            'product_id',
+            'discount',
+            'new_arrivals',
+            'date_filter',
+            'date_from',
+            'date_to',
+            'per_page',
+            'orderby',
+            'order'
+        );
+
+        foreach ($simple_keys as $key) {
+            if (isset($_GET[$key]) && $_GET[$key] !== '') {
+                return true;
+            }
+        }
+
+        foreach ($_GET as $key => $value) {
+            if (($value === '' || $value === null)) {
+                continue;
+            }
+
+            if (strpos($key, 'rplugpa_') === 0 || strpos($key, 'rplugcusf_') === 0) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * Apply filters to query object
      */
     private function apply_filters_to_query($query)
@@ -318,12 +405,19 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             return;
         }
 
-        if (!isset($_GET['gm-product-filter-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
-            return;
-        }
-
         $tax_query = array();
         $meta_query = array();
+        $tax_operator = isset($params['operator_second']) ? $params['operator_second'] : 'IN';
+
+        if (isset($params['per_page']) && $params['per_page'] > 0) {
+            $query->set('posts_per_page', $params['per_page']);
+        }
+        if (!empty($params['orderby'] ?? '')) {
+            $query->set('orderby', $params['orderby']);
+        }
+        if (!empty($params['order'] ?? '')) {
+            $query->set('order', $params['order']);
+        }
 
         // Apply category filter
         if (isset($params["product-category"]) && !empty($params["product-category"])) {
@@ -331,7 +425,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_cat',
                 'field'    => 'slug',
                 'terms'    => $params["product-category"],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -341,7 +435,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_tag',
                 'field'    => 'slug',
                 'terms'    => $params['tags'],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -353,7 +447,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                         'taxonomy' => 'pa_' . $attribute_name,
                         'field'    => 'slug',
                         'terms'    => $attribute_values,
-                        'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                        'operator' => $tax_operator,
                     );
                 }
             }
@@ -405,7 +499,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_brand',
                 'field'    => 'slug',
                 'terms'    => $params['rplurand'],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -559,7 +653,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
 
             if (count($tax_query) > 1) {
-                $tax_query['relation'] = isset($_GET['tax_relation']) ? sanitize_text_field(wp_unslash($_GET['tax_relation'])) : 'AND';
+                $tax_query['relation'] = $params['tax_relation'] ?? 'AND';
             }
 
             $query->set('tax_query', $tax_query);
@@ -574,7 +668,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
 
             if (count($meta_query) > 1) {
-                $meta_query['relation'] = isset($_GET['meta_relation']) ? sanitize_text_field(wp_unslash($_GET['meta_relation'])) : 'AND';
+                $meta_query['relation'] = $params['meta_relation'] ?? 'AND';
             }
 
             $query->set('meta_query', $meta_query);
@@ -592,12 +686,19 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             return $args;
         }
 
-        if (!isset($_GET['gm-product-filter-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
-            return;
-        }
-
         $tax_query = isset($args['tax_query']) ? $args['tax_query'] : array();
         $meta_query = isset($args['meta_query']) ? $args['meta_query'] : array();
+        $tax_operator = isset($params['operator_second']) ? $params['operator_second'] : 'IN';
+
+        if (isset($params['per_page']) && $params['per_page'] > 0) {
+            $args['posts_per_page'] = $params['per_page'];
+        }
+        if (!empty($params['orderby'] ?? '')) {
+            $args['orderby'] = $params['orderby'];
+        }
+        if (!empty($params['order'] ?? '')) {
+            $args['order'] = $params['order'];
+        }
 
         // Apply category filter
         if (isset($params["product-category"]) && !empty($params["product-category"])) {
@@ -605,7 +706,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_cat',
                 'field'    => 'slug',
                 'terms'    => $params["product-category"],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -615,7 +716,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_tag',
                 'field'    => 'slug',
                 'terms'    => $params['tags'],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -627,7 +728,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                         'taxonomy' => 'pa_' . $attribute_name,
                         'field'    => 'slug',
                         'terms'    => $attribute_values,
-                        'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                        'operator' => $tax_operator,
                     );
                 }
             }
@@ -688,7 +789,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_brand',
                 'field'    => 'slug',
                 'terms'    => $params['rplurand'],
-                'operator' => isset($_GET['operator_second']) && !empty($_GET['operator_second']) ? sanitize_text_field(wp_unslash($_GET['operator_second'])) : 'IN',
+                'operator' => $tax_operator,
             );
         }
 
@@ -840,14 +941,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Apply queries
         if (!empty($tax_query)) {
             if (count($tax_query) > 1) {
-                $tax_query['relation'] = isset($_GET['tax_relation']) ? sanitize_text_field(wp_unslash($_GET['tax_relation'])) : 'AND';
+                $tax_query['relation'] = $params['tax_relation'] ?? 'AND';
             }
             $args['tax_query'] = $tax_query;
         }
 
         if (!empty($meta_query)) {
             if (count($meta_query) > 1) {
-                $meta_query['relation'] = isset($_GET['meta_relation']) ? sanitize_text_field(wp_unslash($_GET['meta_relation'])) : 'AND';
+                $meta_query['relation'] = $params['meta_relation'] ?? 'AND';
             }
             $args['meta_query'] = $meta_query;
         }
@@ -969,11 +1070,18 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
      */
     public function get_filter_params()
     {
-        if (!isset($_GET['gm-product-filter-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
-            return array();
+        $nonce_valid = $this->is_nonce_valid();
+        if (!$nonce_valid) {
+            if (!$this->request_is_read_only()) {
+                return array();
+            }
+            if (!$this->has_filter_query_vars()) {
+                return array();
+            }
         }
 
         $params = array();
+        $tax_operator = 'IN';
 
         // Category filter
         if (isset($_GET['product-category']) && !empty($_GET['product-category'])) {
@@ -1009,6 +1117,62 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
         if (isset($_GET['mx_price']) && !empty($_GET['mx_price'])) {
             $params['mx_price'] = floatval($_GET['mx_price']);
+        }
+
+        // Pagination / ordering
+        if (isset($_GET['per_page']) && $_GET['per_page'] !== '') {
+            $per_page = absint($_GET['per_page']);
+            if ($per_page > 0) {
+                $params['per_page'] = max(1, min($per_page, 120));
+            }
+        }
+
+        if (isset($_GET['orderby']) && $_GET['orderby'] !== '') {
+            $orderby_key = sanitize_key(str_replace('-', '_', $_GET['orderby']));
+            $allowed_orderby = array(
+                'date'        => 'date',
+                'price'       => 'price',
+                'price_desc'  => 'price-desc',
+                'popularity'  => 'popularity',
+                'rating'      => 'rating',
+                'title'       => 'title',
+                'menu_order'  => 'menu_order',
+                'rand'        => 'rand',
+            );
+            if (isset($allowed_orderby[$orderby_key])) {
+                $params['orderby'] = $allowed_orderby[$orderby_key];
+            }
+        }
+
+        if (isset($_GET['order']) && $_GET['order'] !== '') {
+            $order = strtoupper(sanitize_text_field(wp_unslash($_GET['order'])));
+            if (in_array($order, array('ASC', 'DESC'), true)) {
+                $params['order'] = $order;
+            }
+        }
+
+        if (isset($_GET['operator_second']) && $_GET['operator_second'] !== '') {
+            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['operator_second'])));
+            if (in_array($operator, array('IN', 'NOT IN', 'AND'), true)) {
+                $params['operator_second'] = $operator;
+                $tax_operator = $operator;
+            }
+        } else {
+            $params['operator_second'] = $tax_operator;
+        }
+
+        if (isset($_GET['tax_relation'])) {
+            $relation = strtoupper(sanitize_text_field(wp_unslash($_GET['tax_relation'])));
+            if (in_array($relation, array('AND', 'OR'), true)) {
+                $params['tax_relation'] = $relation;
+            }
+        }
+
+        if (isset($_GET['meta_relation'])) {
+            $relation = strtoupper(sanitize_text_field(wp_unslash($_GET['meta_relation'])));
+            if (in_array($relation, array('AND', 'OR'), true)) {
+                $params['meta_relation'] = $relation;
+            }
         }
 
         // Rating filter
@@ -1213,6 +1377,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             'operator_second',
             'tax_relation',
             'meta_relation',
+            'per_page',
+            'orderby',
+            'order',
             'rplurand',
             'rplutock_status',
             'rpluthor', // This will now handle usernames
@@ -1295,19 +1462,22 @@ add_action('wp', function () {
     }
 
     $filter_instance = DAPFFORWC_WC_Query_Filter_Enhanced::get_instance();
-    $params = $filter_instance->get_filter_params();
-
-    if (empty($params)) {
+    if (empty($filter_instance->get_filter_params())) {
         return;
     }
 
-    // Force hook into get_posts
-    add_filter('get_posts', function ($posts, $parsed_args) use ($filter_instance, $params) {
+    // Force hook into get_posts without infinite recursion
+    $get_posts_handler = null;
+    $get_posts_handler = function ($posts, $parsed_args) use (&$get_posts_handler, $filter_instance) {
         if (isset($parsed_args['post_type']) && $parsed_args['post_type'] === 'product') {
+            remove_filter('get_posts', $get_posts_handler, 10);
             $query = new WP_Query($parsed_args);
             $filter_instance->apply_filters_to_query($query);
+            add_filter('get_posts', $get_posts_handler, 10, 2);
             return $query->get_posts();
         }
         return $posts;
-    }, 10, 2);
+    };
+
+    add_filter('get_posts', $get_posts_handler, 10, 2);
 });

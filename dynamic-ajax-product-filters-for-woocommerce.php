@@ -3032,10 +3032,25 @@ register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
 
 if (!function_exists('gm_pf_is_fragment_request')) {
     function gm_pf_is_fragment_request(): bool {
-        // Cheap, safe guard
-        if (empty($_GET['gm-product-filter-nonce'])) return false;
+        static $cached_result = null;
+        if ($cached_result !== null) {
+            return $cached_result;
+        }
+
+        if (empty($_GET['gm-product-filter-nonce'])) {
+            return $cached_result = false;
+        }
+
         $nonce = sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce']));
-        return (bool) wp_verify_nonce($nonce, 'gm-product-filter-action');
+        if (!wp_verify_nonce($nonce, 'gm-product-filter-action')) {
+            return $cached_result = false;
+        }
+
+        $is_ajax_header = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
+            strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_X_REQUESTED_WITH']))) === 'xmlhttprequest';
+        $has_fragment_flag = isset($_GET['gm_pf_fragment']) && (string) $_GET['gm_pf_fragment'] === '1';
+
+        return $cached_result = ($is_ajax_header || $has_fragment_flag || wp_doing_ajax());
     }
 }
 

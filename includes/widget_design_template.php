@@ -88,6 +88,45 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         }
     }
 
+    // Extract authors counts
+    $dapfforwc_product_count['authors'] = [];
+    if (isset($updated_filters['authors']) && is_array($updated_filters['authors'])) {
+        foreach ($updated_filters['authors'] as $author) {
+            $slug = is_object($author) ? sanitize_title($author->slug ?? '') : sanitize_title($author['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+            $count = is_object($author) ? intval($author->count ?? 0) : intval($author['count'] ?? 0);
+            $dapfforwc_product_count['authors'][$slug] = $count;
+        }
+    }
+
+    // Extract stock status counts
+    $dapfforwc_product_count['status'] = [];
+    if (isset($updated_filters['stock_status']) && is_array($updated_filters['stock_status'])) {
+        foreach ($updated_filters['stock_status'] as $stock_status) {
+            $slug = is_object($stock_status) ? sanitize_title($stock_status->slug ?? '') : sanitize_title($stock_status['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+            $count = is_object($stock_status) ? intval($stock_status->count ?? 0) : intval($stock_status['count'] ?? 0);
+            $dapfforwc_product_count['status'][$slug] = $count;
+        }
+    }
+
+    // Extract sale status counts
+    $dapfforwc_product_count['sale_status'] = [];
+    if (isset($updated_filters['sale_status']) && is_array($updated_filters['sale_status'])) {
+        foreach ($updated_filters['sale_status'] as $sale_status) {
+            $slug = is_object($sale_status) ? sanitize_title($sale_status->slug ?? '') : sanitize_title($sale_status['slug'] ?? '');
+            if ($slug === '') {
+                continue;
+            }
+            $count = is_object($sale_status) ? intval($sale_status->count ?? 0) : intval($sale_status['count'] ?? 0);
+            $dapfforwc_product_count['sale_status'][$slug] = $count;
+        }
+    }
+
     $formOutPut = "";
 
 ?>

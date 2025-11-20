@@ -1428,10 +1428,14 @@ function dapfforwc_product_filter_shortcode($atts)
             <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
                 &#8594;
             </button>
+            <?php
+            $product_show_settings_attr = '';
+            if (isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug])) {
+                $product_show_settings_attr = wp_json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]);
+            }
+            ?>
             <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
-                data-product_show_settings='<?php
-                                            echo isset($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) ? json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]) : "";
-                                            ?>'
+                data-product_show_settings='<?php echo esc_attr($product_show_settings_attr); ?>'
                 <?php if (!empty($atts['product_selector'])) {
                     echo 'data-product_selector="' . esc_attr($atts["product_selector"]) . '"';
                 } ?>
