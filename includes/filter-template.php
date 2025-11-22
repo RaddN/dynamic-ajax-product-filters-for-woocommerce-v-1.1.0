@@ -2140,12 +2140,10 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 {
     global $wpdb;
 
-    $cache_file = __DIR__ . '/woocommerce_attributes_cache.json';
-    $cache_time = 43200; // 12 hours
-
-    // Check and return cache if valid
-    if (file_exists($cache_file) && (filemtime($cache_file) > (time() - $cache_time))) {
-        return json_decode(file_get_contents($cache_file), true);
+    $cache_key = 'dapfforwc_attributes_cache_v1';
+    $cached = get_transient($cache_key);
+    if ($cached !== false && is_array($cached)) {
+        return $cached;
     }
 
     $data = [
@@ -2442,7 +2440,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
     }
 
     // Save to cache
-    file_put_contents($cache_file, json_encode($data, JSON_UNESCAPED_UNICODE));
+    set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
 
     return $data;
 }
@@ -2450,12 +2448,10 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 function dapfforwc_get_woocommerce_product_details()
 {
     global $wpdb;
-    $cache_file = __DIR__ . '/woocommerce_product_details.json';
-    $cache_time = 43200; // 12 hours
-
-    // Check and return cache if valid
-    if (file_exists($cache_file) && (filemtime($cache_file) > (time() - $cache_time))) {
-        return json_decode(file_get_contents($cache_file), true);
+    $cache_key = 'dapfforwc_product_details_cache_v1';
+    $cached = get_transient($cache_key);
+    if ($cached !== false && is_array($cached)) {
+        return $cached;
     }
 
     // Query for all products with their meta data, categories, and required fields
@@ -2708,7 +2704,7 @@ function dapfforwc_get_woocommerce_product_details()
     $product_data = ['products' => $products];
 
     // Save to cache
-    file_put_contents($cache_file, json_encode($product_data, JSON_UNESCAPED_UNICODE));
+    set_transient($cache_key, $product_data, 12 * HOUR_IN_SECONDS);
 
     return $product_data;
 }

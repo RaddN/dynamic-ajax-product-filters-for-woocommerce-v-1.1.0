@@ -43,6 +43,7 @@ function dapfforwc_add_review_popup()
                 <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0, 0, 0, 0.5); z-index:999;"></div>
 
                 <script>
+                    const reviewNonce = '<?php echo esc_js(wp_create_nonce('dapfforwc_review_nonce')); ?>';
                     document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(function() {
                             document.getElementById('overlay').style.display = 'block';
@@ -56,7 +57,7 @@ function dapfforwc_add_review_popup()
                             const xhr = new XMLHttpRequest();
                             xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            xhr.send('action=dapfforwc_remind_me_later');
+                            xhr.send('action=dapfforwc_remind_me_later&nonce=' + reviewNonce);
                         });
 
                         document.getElementById('already-done').addEventListener('click', function() {
@@ -66,7 +67,7 @@ function dapfforwc_add_review_popup()
                             const xhr = new XMLHttpRequest();
                             xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            xhr.send('action=dapfforwc_review_already_done');
+                            xhr.send('action=dapfforwc_review_already_done&nonce=' + reviewNonce);
                         });
                     });
                 </script>
@@ -92,17 +93,27 @@ function dapfforwc_add_review_popup()
 add_action('wp_ajax_dapfforwc_remind_me_later', 'dapfforwc_remind_me_later');
 function dapfforwc_remind_me_later()
 {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('forbidden', 403);
+    }
+    check_ajax_referer('dapfforwc_review_nonce', 'nonce');
+
     // Set remind me later for 3 days
     update_option('dapfforwc_remind_me_later', time() + (3 * 24 * 60 * 60)); // 3 days
-    wp_die(); // Required to terminate properly
+    wp_send_json_success();
 }
 
 add_action('wp_ajax_dapfforwc_review_already_done', 'dapfforwc_review_already_done');
 function dapfforwc_review_already_done()
 {
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error('forbidden', 403);
+    }
+    check_ajax_referer('dapfforwc_review_nonce', 'nonce');
+
     // Set already done flag
     update_option('dapfforwc_review_already_done', true);
-    wp_die(); // Required to terminate properly
+    wp_send_json_success();
 }
 
 function dapfforwc_show_admin_notice()

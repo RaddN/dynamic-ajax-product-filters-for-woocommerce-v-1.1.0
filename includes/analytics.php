@@ -29,20 +29,23 @@ class dapfforwc_cart_anaylytics
         $this->plugin_file = $plugin_file;
 
         global $dapfforwc_advance_settings;
+        $allow_data_share = isset($dapfforwc_advance_settings["allow_data_share"]) && $dapfforwc_advance_settings["allow_data_share"] === 'on';
 
         // Hook into plugin activation/deactivation using the correct file path
-        if ($this->plugin_file && (!isset($dapfforwc_advance_settings["allow_data_share"]) || ( isset($dapfforwc_advance_settings["allow_data_share"])  && $dapfforwc_advance_settings["allow_data_share"] === 'on'))) {
+        if ($this->plugin_file && $allow_data_share) {
             register_activation_hook($this->plugin_file, array($this, 'on_plugin_activation'));
             register_deactivation_hook($this->plugin_file, array($this, 'on_plugin_deactivation'));
         }
-        if (!isset($dapfforwc_advance_settings["allow_data_share"]) || (isset($dapfforwc_advance_settings["allow_data_share"])  && $dapfforwc_advance_settings["allow_data_share"] === 'on')) {
+        if ($allow_data_share) {
             // Send tracking data periodically (weekly)
             add_action('wp_loaded', array($this, 'schedule_tracking'));
             add_action('send_plugin_analytics_' . $this->product_id, array($this, 'send_tracking_data'));
         }
 
-        // Add deactivation feedback form
-        add_action('admin_footer', array($this, 'add_deactivation_feedback_form'));
+        // Add deactivation feedback form only when data sharing is allowed
+        if ($allow_data_share) {
+            add_action('admin_footer', array($this, 'add_deactivation_feedback_form'));
+        }
     }
 
     /**
@@ -92,7 +95,8 @@ class dapfforwc_cart_anaylytics
                 'Content-Type' => 'application/json',
             ),
             'body' => wp_json_encode($data),
-            'timeout' => 30,
+            'timeout' => 5,
+            'redirection' => 0,
         ));
 
         if (is_wp_error($response)) {
@@ -122,7 +126,8 @@ class dapfforwc_cart_anaylytics
                 'Content-Type' => 'application/json',
             ),
             'body' => wp_json_encode($data),
-            'timeout' => 30,
+            'timeout' => 5,
+            'redirection' => 0,
         ));
 
         if (is_wp_error($response)) {

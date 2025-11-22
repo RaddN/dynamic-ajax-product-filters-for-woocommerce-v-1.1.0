@@ -40,9 +40,6 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Hook into WooCommerce REST API
         add_filter('woocommerce_rest_product_object_query', array($this, 'filter_rest_product_query'), 10, 2);
 
-        // Hook into WooCommerce blocks
-        add_filter('woocommerce_blocks_product_grid_query_args', array($this, 'filter_blocks_query'), 10, 2);
-
         // Hook into general WP_Query for products
         add_filter('posts_clauses', array($this, 'filter_posts_clauses'), 10, 2);
 
@@ -1379,6 +1376,18 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
     }
 
     /**
+     * Sanitize request values recursively (supports arrays).
+     */
+    private function sanitize_request_value($value)
+    {
+        if (is_array($value)) {
+            return array_map(array($this, 'sanitize_request_value'), wp_unslash($value));
+        }
+
+        return sanitize_text_field(wp_unslash($value));
+    }
+
+    /**
      * AJAX request handler
      */
     public function ajax_handler()
@@ -1427,21 +1436,21 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         foreach ($filter_params as $param) {
             if (isset($_REQUEST[$param])) {
-                $_GET[$param] = sanitize_text_field(wp_unslash($_REQUEST[$param]));
+                $_GET[$param] = $this->sanitize_request_value($_REQUEST[$param]);
             }
         }
 
         // Handle custom meta parameters
         foreach ($_REQUEST as $key => $value) {
             if (strpos($key, 'rplugcusf_') === 0) {
-                $_GET[$key] = sanitize_text_field(wp_unslash($value));
+                $_GET[$key] = $this->sanitize_request_value($value);
             }
         }
 
         // Handle attribute parameters
         foreach ($_REQUEST as $key => $value) {
             if (strpos($key, 'rplugpa_') === 0) {
-                $_GET[$key] = sanitize_text_field(wp_unslash($value));
+                $_GET[$key] = $this->sanitize_request_value($value);
             }
         }
     }
