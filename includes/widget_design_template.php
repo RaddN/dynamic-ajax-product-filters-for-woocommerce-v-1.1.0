@@ -92,7 +92,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $dapfforwc_product_count['authors'] = [];
     if (isset($updated_filters['authors']) && is_array($updated_filters['authors'])) {
         foreach ($updated_filters['authors'] as $author) {
-            $slug = is_object($author) ? sanitize_title($author->slug ?? '') : sanitize_title($author['slug'] ?? '');
+            $slug = is_object($author) ? (string) ($author->slug ?? '') : (string) ($author['slug'] ?? '');
             if ($slug === '') {
                 continue;
             }
@@ -105,7 +105,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $dapfforwc_product_count['status'] = [];
     if (isset($updated_filters['stock_status']) && is_array($updated_filters['stock_status'])) {
         foreach ($updated_filters['stock_status'] as $stock_status) {
-            $slug = is_object($stock_status) ? sanitize_title($stock_status->slug ?? '') : sanitize_title($stock_status['slug'] ?? '');
+            $slug = is_object($stock_status) ? (string) ($stock_status->slug ?? '') : (string) ($stock_status['slug'] ?? '');
             if ($slug === '') {
                 continue;
             }
@@ -118,7 +118,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $dapfforwc_product_count['sale_status'] = [];
     if (isset($updated_filters['sale_status']) && is_array($updated_filters['sale_status'])) {
         foreach ($updated_filters['sale_status'] as $sale_status) {
-            $slug = is_object($sale_status) ? sanitize_title($sale_status->slug ?? '') : sanitize_title($sale_status['slug'] ?? '');
+            $slug = is_object($sale_status) ? (string) ($sale_status->slug ?? '') : (string) ($sale_status['slug'] ?? '');
             if ($slug === '') {
                 continue;
             }

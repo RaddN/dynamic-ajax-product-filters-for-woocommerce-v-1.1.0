@@ -412,11 +412,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $query->set('posts_per_page', $params['per_page']);
         }
-        if (!empty($params['orderby'] ?? '')) {
-            $query->set('orderby', $params['orderby']);
-        }
-        if (!empty($params['order'] ?? '')) {
-            $query->set('order', $params['order']);
+        $ordering_args = $this->resolve_ordering_args($params);
+        foreach ($ordering_args as $key => $value) {
+            $query->set($key, $value);
         }
 
         // Apply category filter
@@ -693,11 +691,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $args['posts_per_page'] = $params['per_page'];
         }
-        if (!empty($params['orderby'] ?? '')) {
-            $args['orderby'] = $params['orderby'];
-        }
-        if (!empty($params['order'] ?? '')) {
-            $args['order'] = $params['order'];
+        $ordering_args = $this->resolve_ordering_args($params);
+        foreach ($ordering_args as $key => $value) {
+            $args[$key] = $value;
         }
 
         // Apply category filter
@@ -1048,6 +1044,34 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         return $date_query;
+    }
+
+    /**
+     * Map user friendly ordering values to WooCommerce query args.
+     */
+    private function resolve_ordering_args($params)
+    {
+        if (empty($params['orderby']) && empty($params['order'])) {
+            return array();
+        }
+
+        if (!function_exists('wc_get_catalog_ordering_args')) {
+            $ordering = array();
+        } else {
+            $ordering = wc_get_catalog_ordering_args(
+                $params['orderby'] ?? '',
+                $params['order'] ?? ''
+            );
+        }
+
+        $resolved = array();
+        foreach (array('orderby', 'order', 'meta_key', 'meta_value') as $key) {
+            if (isset($ordering[$key]) && $ordering[$key] !== '') {
+                $resolved[$key] = $ordering[$key];
+            }
+        }
+
+        return $resolved;
     }
 
 

@@ -3046,11 +3046,15 @@ if (!function_exists('gm_pf_is_fragment_request')) {
             return $cached_result = false;
         }
 
+        $has_fragment_flag = isset($_GET['gm_pf_fragment']) && (string) $_GET['gm_pf_fragment'] === '1';
+        if (!$has_fragment_flag) {
+            return $cached_result = false;
+        }
+
         $is_ajax_header = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) &&
             strtolower(sanitize_text_field(wp_unslash($_SERVER['HTTP_X_REQUESTED_WITH']))) === 'xmlhttprequest';
-        $has_fragment_flag = isset($_GET['gm_pf_fragment']) && (string) $_GET['gm_pf_fragment'] === '1';
 
-        return $cached_result = ($is_ajax_header || $has_fragment_flag || wp_doing_ajax());
+        return $cached_result = ($is_ajax_header || wp_doing_ajax());
     }
 }
 
