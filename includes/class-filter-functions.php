@@ -8,6 +8,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
     private static $instance = null;
     private $nonce_valid = null;
+    private $filter_params = null;
+    private $rating_style = null;
+    private $third_party_hooks_initialized = false;
 
     public static function get_instance()
     {
@@ -65,22 +68,50 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
     public function init_third_party_hooks()
     {
+        if ($this->third_party_hooks_initialized) {
+            return;
+        }
+
+        $this->third_party_hooks_initialized = true;
+
+        $third_party_enabled_default = defined('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS')
+            ? (bool) DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS
+            : false;
+
+        if (!apply_filters('dapfforwc_enable_third_party_hooks', $third_party_enabled_default)) {
+            return;
+        }
+
         // Hook into popular product grid plugins
-        add_filter('woo_product_grid_query_args', array($this, 'filter_product_grid_args'), 10, 2);
-        add_filter('wc_product_table_query_args', array($this, 'filter_product_grid_args'), 10, 2);
-        add_filter('wcpgsk_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        if (apply_filters('dapfforwc_enable_woo_product_grid_hook', true)) {
+            add_filter('woo_product_grid_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        }
+        if (apply_filters('dapfforwc_enable_wc_product_table_hook', true)) {
+            add_filter('wc_product_table_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        }
+        if (apply_filters('dapfforwc_enable_wcpgsk_hook', true)) {
+            add_filter('wcpgsk_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        }
 
         // Hook into WooCommerce Product Filter plugins
-        add_filter('woocommerce_product_filter_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        if (apply_filters('dapfforwc_enable_wc_product_filter_hook', true)) {
+            add_filter('woocommerce_product_filter_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        }
 
         // Hook into JetEngine (Crocoblock)
-        add_filter('jet-engine/listing/grid/query-args', array($this, 'filter_jet_engine_query'), 10, 2);
+        if (apply_filters('dapfforwc_enable_jet_engine_hook', true)) {
+            add_filter('jet-engine/listing/grid/query-args', array($this, 'filter_jet_engine_query'), 10, 2);
+        }
 
         // Hook into WooCommerce Product Blocks
-        add_filter('woocommerce_blocks_product_grid_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        if (apply_filters('dapfforwc_enable_wc_blocks_hook', true)) {
+            add_filter('woocommerce_blocks_product_grid_query_args', array($this, 'filter_product_grid_args'), 10, 2);
+        }
 
         // Hook into custom post type queries
-        add_action('parse_query', array($this, 'parse_custom_query'));
+        if (apply_filters('dapfforwc_enable_parse_query_hook', true)) {
+            add_action('parse_query', array($this, 'parse_custom_query'));
+        }
     }
 
     /**
@@ -305,6 +336,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $this->apply_filters_to_query($query);
     }
 
+
     /**
      * Determine if the current request carries a verified nonce.
      */
@@ -320,6 +352,15 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         $nonce = sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce']));
         return $this->nonce_valid = (bool) wp_verify_nonce($nonce, 'gm-product-filter-action');
+    }
+
+    /**
+     * Reset cached request state so we can re-evaluate parameters after mutation.
+     */
+    private function reset_request_cache(): void
+    {
+        $this->nonce_valid = null;
+        $this->filter_params = null;
     }
 
     /**
@@ -345,7 +386,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             'plugincy_search',
             'rcata',
             'rtag',
-            'operator_second',
+            'cat_operator',
+            'tag_operator',
+            'terms_operator',
+            'brand_operator',
             'tax_relation',
             'meta_relation',
             'rplurand',
@@ -369,11 +413,16 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             'date_to',
             'per_page',
             'orderby',
-            'order'
+            'order',
+            'filters',
+            'price',
+            'title',
+            'cata'
         );
+        $simple_keys = array_merge($simple_keys, $this->get_prefixed_query_keys());
 
         foreach ($simple_keys as $key) {
-            if (isset($_GET[$key]) && $_GET[$key] !== '') {
+            if ((isset($_GET[$key]) && $_GET[$key] !== '') || (isset($_GET["{$key}[]"]) && $_GET["{$key}[]"] !== '')) {
                 return true;
             }
         }
@@ -383,7 +432,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 continue;
             }
 
-            if (strpos($key, 'rplugpa_') === 0 || strpos($key, 'rplugcusf_') === 0) {
+            $normalized_key = preg_replace('/\[\]$/', '', $key);
+
+            if (strpos($normalized_key, 'rplugpa_') === 0 || strpos($normalized_key, 'rplugcusf_') === 0) {
                 return true;
             }
         }
@@ -396,15 +447,40 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
      */
     private function apply_filters_to_query($query)
     {
+        if ($query->get('dapfforwc_filters_applied')) {
+            return;
+        }
+
         $params = $this->get_filter_params();
 
         if (empty($params)) {
             return;
         }
 
+        if (!$this->is_nonce_valid() && !$this->request_is_read_only()) {
+            return;
+        }
+
+        $query->set('dapfforwc_filters_applied', true);
+
         $tax_query = array();
         $meta_query = array();
-        $tax_operator = isset($params['operator_second']) ? $params['operator_second'] : 'IN';
+        $cat_operator = isset($params['cat_operator']) ? $params['cat_operator'] : 'IN';
+        if (is_product_category()) {
+            $cat_operator = "AND";
+        }
+        $tag_operator = isset($params['tag_operator']) ? $params['tag_operator'] : 'IN';
+        if (is_product_tag()) {
+            $tag_operator = "AND";
+        }
+        $terms_operator = isset($params['terms_operator']) ? $params['terms_operator'] : 'IN';
+        if (dapfforwc_is_product_attribute()) {
+            $terms_operator = "AND";
+        }
+        $brand_operator = isset($params['brand_operator']) ? $params['brand_operator'] : 'IN';
+        if (dapfforwc_is_product_brand()) {
+            $brand_operator = "AND";
+        }
 
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $query->set('posts_per_page', $params['per_page']);
@@ -416,12 +492,40 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply category filter
         if (isset($params["product-category"]) && !empty($params["product-category"])) {
-            $tax_query[] = array(
-                'taxonomy' => 'product_cat',
-                'field'    => 'slug',
-                'terms'    => $params["product-category"],
-                'operator' => $tax_operator,
-            );
+            $categories = (array) $params["product-category"];
+
+            // WP ignores include_children when operator=AND on a single clause.
+            // Split into multiple IN clauses so child terms are honoured.
+            if ($cat_operator === 'AND' && count($categories) > 1) {
+                $category_group = array('relation' => 'AND');
+
+                foreach ($categories as $category_slug) {
+                    $category_group[] = array(
+                        'taxonomy' => 'product_cat',
+                        'field'    => 'slug',
+                        'terms'    => array($category_slug),
+                        'operator' => 'IN',
+                        'include_children' => true,
+                    );
+                }
+
+                $tax_query[] = $category_group;
+            } else {
+                $category_clause_operator = ($cat_operator === 'AND' && count($categories) === 1) ? 'IN' : $cat_operator;
+
+                $category_clause = array(
+                    'taxonomy' => 'product_cat',
+                    'field'    => 'slug',
+                    'terms'    => $categories,
+                    'operator' => $category_clause_operator,
+                );
+
+                if ($cat_operator === 'AND') {
+                    $category_clause['include_children'] = true;
+                }
+
+                $tax_query[] = $category_clause;
+            }
         }
 
         // Apply tag filter
@@ -430,7 +534,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_tag',
                 'field'    => 'slug',
                 'terms'    => $params['tags'],
-                'operator' => $tax_operator,
+                'operator' => $tag_operator,
             );
         }
 
@@ -442,7 +546,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                         'taxonomy' => 'pa_' . $attribute_name,
                         'field'    => 'slug',
                         'terms'    => $attribute_values,
-                        'operator' => $tax_operator,
+                        'operator' => $terms_operator,
                     );
                 }
             }
@@ -474,13 +578,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply rating filter
         if (isset($params['rating']) && !empty($params['rating'])) {
-            $min_rating = is_array($params['rating']) ? min(array_map('floatval', $params['rating'])) : floatval($params['rating']);
-            $meta_query[] = array(
-                'key'     => '_wc_average_rating',
-                'value'   => $min_rating,
-                'compare' => '>=',
-                'type'    => 'DECIMAL',
-            );
+            $rating_meta_query = $this->build_rating_meta_query($params['rating']);
+            if (!empty($rating_meta_query)) {
+                $meta_query[] = $rating_meta_query;
+            }
         }
 
         // Apply plugincy_search filter
@@ -488,13 +589,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $query->set('s', $params['plugincy_search']);
         }
 
+
         // Apply rplurand filter (assuming rplurand is a taxonomy)
         if (isset($params['rplurand']) && !empty($params['rplurand'])) {
             $tax_query[] = array(
                 'taxonomy' => 'product_brand',
                 'field'    => 'slug',
                 'terms'    => $params['rplurand'],
-                'operator' => $tax_operator,
+                'operator' => $brand_operator,
             );
         }
 
@@ -512,14 +614,22 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $query->set('author__in', $params['rpluthor']);
         }
 
-        // Apply on sale filter
-        if (isset($params['rpn_sale']) && $params['rpn_sale']) {
-            $sale_product_ids = wc_get_product_ids_on_sale();
-            if (!empty($sale_product_ids)) {
-                $query->set('post__in', $sale_product_ids);
-            } else {
-                $query->set('post__in', array(0)); // No products found
+        // Apply sale status filter (supports on sale and not on sale)
+        $sale_filter = $this->get_sale_filter_flags($params);
+        if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
+            $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
+
+            if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
+                // Only on sale products
+                $post_in = $this->merge_post_in_lists($query->get('post__in'), $sale_product_ids);
+                $query->set('post__in', !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0)));
+            } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
+                // Only not on sale products
+                if (!empty($sale_product_ids)) {
+                    $query->set('post__not_in', $this->merge_post_not_in_lists($query->get('post__not_in'), $sale_product_ids));
+                }
             }
+            // If both are selected, don't apply any filter (show all)
         }
 
         // Apply dimension filters
@@ -614,7 +724,8 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($params['discount']) && $params['discount'] > 0) {
             $discount_products = $this->get_products_with_discount($params['discount']);
             if (!empty($discount_products)) {
-                $query->set('post__in', $discount_products);
+                $post_in = $this->merge_post_in_lists($query->get('post__in'), $discount_products);
+                $query->set('post__in', !empty($post_in) ? $post_in : array(0));
             } else {
                 $query->set('post__in', array(0)); // No products found
             }
@@ -681,9 +792,28 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             return $args;
         }
 
+        if (!$this->is_nonce_valid() && !$this->request_is_read_only()) {
+            return $args;
+        }
+
         $tax_query = isset($args['tax_query']) ? $args['tax_query'] : array();
         $meta_query = isset($args['meta_query']) ? $args['meta_query'] : array();
-        $tax_operator = isset($params['operator_second']) ? $params['operator_second'] : 'IN';
+        $cat_operator = isset($params['cat_operator']) ? $params['cat_operator'] : 'IN';
+        if (is_product_category()) {
+            $cat_operator = "AND";
+        }
+        $tag_operator = isset($params['tag_operator']) ? $params['tag_operator'] : 'IN';
+        if (is_product_tag()) {
+            $tag_operator = "AND";
+        }
+        $terms_operator = isset($params['terms_operator']) ? $params['terms_operator'] : 'IN';
+        if (dapfforwc_is_product_attribute()) {
+            $terms_operator = "AND";
+        }
+        $brand_operator = isset($params['brand_operator']) ? $params['brand_operator'] : 'IN';
+        if (dapfforwc_is_product_brand()) {
+            $brand_operator = "AND";
+        }
 
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $args['posts_per_page'] = $params['per_page'];
@@ -695,13 +825,40 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply category filter
         if (isset($params["product-category"]) && !empty($params["product-category"])) {
-            $tax_query[] = array(
-                'taxonomy' => 'product_cat',
-                'field'    => 'slug',
-                'terms'    => $params["product-category"],
-                'operator' => $tax_operator,
-            );
+            $categories = (array) $params["product-category"];
+
+            if ($cat_operator === 'AND' && count($categories) > 1) {
+                $category_group = array('relation' => 'AND');
+
+                foreach ($categories as $category_slug) {
+                    $category_group[] = array(
+                        'taxonomy' => 'product_cat',
+                        'field'    => 'slug',
+                        'terms'    => array($category_slug),
+                        'operator' => 'IN',
+                        'include_children' => true,
+                    );
+                }
+
+                $tax_query[] = $category_group;
+            } else {
+                $category_clause_operator = ($cat_operator === 'AND' && count($categories) === 1) ? 'IN' : $cat_operator;
+
+                $category_clause = array(
+                    'taxonomy' => 'product_cat',
+                    'field'    => 'slug',
+                    'terms'    => $categories,
+                    'operator' => $category_clause_operator,
+                );
+
+                if ($cat_operator === 'AND') {
+                    $category_clause['include_children'] = true;
+                }
+
+                $tax_query[] = $category_clause;
+            }
         }
+
 
         // Apply tag filter
         if (isset($params['tags']) && !empty($params['tags'])) {
@@ -709,7 +866,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 'taxonomy' => 'product_tag',
                 'field'    => 'slug',
                 'terms'    => $params['tags'],
-                'operator' => $tax_operator,
+                'operator' => $tag_operator,
             );
         }
 
@@ -721,7 +878,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                         'taxonomy' => 'pa_' . $attribute_name,
                         'field'    => 'slug',
                         'terms'    => $attribute_values,
-                        'operator' => $tax_operator,
+                        'operator' => $terms_operator,
                     );
                 }
             }
@@ -753,22 +910,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply rating filter
         if (isset($params['rating']) && !empty($params['rating'])) {
-            $rating_filter = array('relation' => 'OR');
-
-            if (!is_array($params['rating'])) {
-                $params['rating'] = explode(',', $params['rating']);
+            $rating_meta_query = $this->build_rating_meta_query($params['rating']);
+            if (!empty($rating_meta_query)) {
+                $meta_query[] = $rating_meta_query;
             }
-
-            foreach ($params['rating'] as $rating) {
-                $rating_filter[] = array(
-                    'key'     => '_wc_average_rating',
-                    'value'   => array(intval($rating) - 0.5, intval($rating) + 0.5),
-                    'compare' => 'BETWEEN',
-                    'type'    => 'DECIMAL',
-                );
-            }
-
-            $meta_query[] = $rating_filter;
         }
 
         // Apply plugincy_search filter
@@ -776,13 +921,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $args['s'] = $params['plugincy_search'];
         }
 
+
         // Apply rplurand filter
         if (isset($params['rplurand']) && !empty($params['rplurand'])) {
             $tax_query[] = array(
                 'taxonomy' => 'product_brand',
                 'field'    => 'slug',
                 'terms'    => $params['rplurand'],
-                'operator' => $tax_operator,
+                'operator' => $brand_operator,
             );
         }
 
@@ -800,14 +946,22 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $args['author__in'] = $params['rpluthor'];
         }
 
-        // Apply on sale filter
-        if (isset($params['rpn_sale']) && $params['rpn_sale']) {
-            $sale_product_ids = wc_get_product_ids_on_sale();
-            if (!empty($sale_product_ids)) {
-                $args['post__in'] = $sale_product_ids;
-            } else {
-                $args['post__in'] = array(0);
+        // Apply sale status filter (supports on sale and not on sale)
+        $sale_filter = $this->get_sale_filter_flags($params);
+        if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
+            $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
+
+            if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
+                // Only on sale products
+                $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $sale_product_ids);
+                $args['post__in'] = !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0));
+            } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
+                // Only not on sale products
+                if (!empty($sale_product_ids)) {
+                    $args['post__not_in'] = $this->merge_post_not_in_lists($args['post__not_in'] ?? array(), $sale_product_ids);
+                }
             }
+            // If both are selected, don't apply any filter (show all)
         }
 
         // Apply dimension filters
@@ -906,11 +1060,13 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($params['discount']) && $params['discount'] > 0) {
             $discount_products = $this->get_products_with_discount($params['discount']);
             if (!empty($discount_products)) {
-                $args['post__in'] = $discount_products;
+                $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $discount_products);
+                $args['post__in'] = !empty($post_in) ? $post_in : array(0);
             } else {
                 $args['post__in'] = array(0);
             }
         }
+
 
         // Apply new arrivals filter
         if (isset($params['new_arrivals']) && $params['new_arrivals'] > 0) {
@@ -949,21 +1105,87 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return $args;
     }
 
+
     /**
      * Helper method to get products with specific discount percentage
      */
     private function get_products_with_discount($min_discount)
     {
-        $product_ids = array();
-        $product_details = dapfforwc_get_woocommerce_product_details();
+        $min_discount = floatval($min_discount);
+        if ($min_discount <= 0) {
+            return array();
+        }
 
-        foreach ($product_details['products'] as $product) {
-            if ($product['discount_percentage'] >= $min_discount) {
-                $product_ids[] = $product['ID'];
+        $ids = array();
+        foreach (wc_get_product_ids_on_sale() as $sale_id) {
+            $product = wc_get_product($sale_id);
+            if (!$product) {
+                continue;
+            }
+
+            $target_id = $product->is_type('variation') ? $product->get_parent_id() : $product->get_id();
+            if (!$target_id) {
+                continue;
+            }
+
+            $discount = $this->calculate_product_discount_percentage($product);
+            if ($discount >= $min_discount) {
+                $ids[] = $target_id;
             }
         }
 
-        return $product_ids;
+        return $this->sanitize_id_list($ids); // removes duplicates
+    }
+
+
+    /**
+     * Calculate the discount percentage for a WooCommerce product.
+     */
+    private function calculate_product_discount_percentage($product): float
+    {
+        if (!$product || !$product->is_on_sale()) {
+            return 0.0;
+        }
+
+        if ($product->is_type('variable')) {
+            $variation_prices = $product->get_variation_prices();
+
+            if (empty($variation_prices['regular_price'])) {
+                return 0.0;
+            }
+
+            $discounts = array();
+            foreach ($variation_prices['regular_price'] as $variation_id => $regular_price) {
+                $regular_price = floatval($regular_price);
+                $sale_price_raw = $variation_prices['sale_price'][$variation_id] ?? '';
+
+                if ($regular_price <= 0 || $sale_price_raw === '' || $sale_price_raw === null) {
+                    continue;
+                }
+
+                $sale_price = floatval($sale_price_raw);
+                if ($sale_price < $regular_price) {
+                    $discounts[] = (($regular_price - $sale_price) / $regular_price) * 100;
+                }
+            }
+
+            return !empty($discounts) ? max($discounts) : 0.0;
+        }
+
+        $regular_price = floatval($product->get_regular_price());
+        $sale_price_raw = $product->get_sale_price();
+
+        if ($regular_price <= 0 || $sale_price_raw === '' || $sale_price_raw === null) {
+            return 0.0;
+        }
+
+        $sale_price = floatval($sale_price_raw);
+
+        if ($sale_price >= $regular_price) {
+            return 0.0;
+        }
+
+        return (($regular_price - $sale_price) / $regular_price) * 100;
     }
 
     /**
@@ -1071,12 +1293,12 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return $resolved;
     }
 
-
     /**
      * Get additional WHERE clauses
      */
     private function get_additional_where_clauses($params)
     {
+        global $wpdb;
 
         $where_clauses = array();
 
@@ -1087,49 +1309,279 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
     }
 
     /**
+     * Get the configured rating display style so we can tailor comparison logic.
+     */
+    private function get_rating_style(): string
+    {
+        if ($this->rating_style !== null) {
+            return $this->rating_style;
+        }
+
+        $style_options = isset($GLOBALS['dapfforwc_styleoptions']) ? $GLOBALS['dapfforwc_styleoptions'] : get_option('dapfforwc_style_options');
+
+        if (is_array($style_options) && !empty($style_options['rating']['sub_option'])) {
+            $this->rating_style = $style_options['rating']['sub_option'];
+        } else {
+            $this->rating_style = 'rating';
+        }
+
+        return $this->rating_style;
+    }
+
+    /**
+     * Build the rating meta query based on the configured rating style.
+     */
+    private function build_rating_meta_query($rating_values): array
+    {
+        $ratings = is_array($rating_values) ? $rating_values : explode(',', (string)$rating_values);
+        $ratings = array_filter(array_map('floatval', $ratings), static function ($rating) {
+            return $rating > 0;
+        });
+
+        if (empty($ratings)) {
+            return array();
+        }
+
+        if ($this->get_rating_style() === 'rating-text') {
+            return array(
+                'key'     => '_wc_average_rating',
+                'value'   => min($ratings),
+                'compare' => '>=',
+                'type'    => 'DECIMAL',
+            );
+        }
+
+        $rating_clauses = array();
+        foreach ($ratings as $rating) {
+            $rating_clauses[] = array(
+                'key'     => '_wc_average_rating',
+                'value'   => $rating,
+                'compare' => '==',
+                'type'    => 'DECIMAL',
+            );
+        }
+
+        if (count($rating_clauses) === 1) {
+            return $rating_clauses[0];
+        }
+
+        return array_merge(array('relation' => 'OR'), $rating_clauses);
+    }
+
+    /**
      * Get all filter parameters from URL
      */
     public function get_filter_params()
     {
+        if ($this->filter_params !== null) {
+            return $this->filter_params;
+        }
+
         $nonce_valid = $this->is_nonce_valid();
         if (!$nonce_valid) {
             if (!$this->request_is_read_only()) {
-                return array();
+                return $this->filter_params = array();
             }
             if (!$this->has_filter_query_vars()) {
-                return array();
+                return $this->filter_params = array();
             }
         }
 
         $params = array();
-        $tax_operator = 'IN';
+        $cat_operator = 'IN';
+        $tag_operator = 'IN';
+        $terms_operator = 'IN';
+        $brand_operator = 'IN';
+        $permalink_params = $this->normalize_prefixed_query_params($_GET);
+        $attributes = $permalink_params['attributes'] ?? array();
+        $custom_meta = $permalink_params['custom_meta'] ?? array();
+        $filters_brand_values = array();
+        $filters_author_slugs = array();
+        $filters_rating_values = array();
+        $filters_stock_status = array();
+        $filters_sale_status = array();
+        $filters_date_filter = '';
 
         // Category filter
+        $category_values = array();
+        if (!empty($permalink_params['product-category'])) {
+            $category_values = array_merge($category_values, $permalink_params['product-category']);
+        }
         if (isset($_GET['product-category']) && !empty($_GET['product-category'])) {
-            $params['product-category'] = is_array($_GET['product-category'])
-                ? array_map('sanitize_text_field', wp_unslash($_GET['product-category']))
-                : explode(',', sanitize_text_field(wp_unslash($_GET['product-category'])));
+            $category_values = array_merge(
+                $category_values,
+                is_array($_GET['product-category'])
+                    ? array_map('sanitize_text_field', wp_unslash($_GET['product-category']))
+                    : explode(',', sanitize_text_field(wp_unslash($_GET['product-category'])))
+            );
         }
 
         // Tag filter
+        $tag_values = array();
+        if (!empty($permalink_params['tags'])) {
+            $tag_values = array_merge($tag_values, $permalink_params['tags']);
+        }
         if (isset($_GET['tags']) && !empty($_GET['tags'])) {
-            $params['tags'] = is_array($_GET['tags'])
-                ? array_map('sanitize_text_field', wp_unslash($_GET['tags']))
-                : explode(',', sanitize_text_field(wp_unslash($_GET['tags'])));
+            $tag_values = array_merge(
+                $tag_values,
+                is_array($_GET['tags'])
+                    ? array_map('sanitize_text_field', wp_unslash($_GET['tags']))
+                    : explode(',', sanitize_text_field(wp_unslash($_GET['tags'])))
+            );
+        }
+
+        // Simple category alias used by permalinks (?filters=1&cata=laptop)
+        if (isset($_GET['cata']) && !empty($_GET['cata'])) {
+            $cata_values = is_array($_GET['cata'])
+                ? array_map('sanitize_text_field', wp_unslash($_GET['cata']))
+                : explode(',', sanitize_text_field(wp_unslash($_GET['cata'])));
+
+            if (!empty($cata_values)) {
+                $category_values = array_merge($category_values, $cata_values);
+            }
+        }
+
+        // Permalink shorthand (?filters=white,laptop) can target multiple filter types
+        if (isset($_GET['filters']) && $_GET['filters'] !== '' && $_GET['filters'] !== '1') {
+            $filters_values = is_array($_GET['filters'])
+                ? array_map('sanitize_text_field', wp_unslash($_GET['filters']))
+                : explode(',', sanitize_text_field(wp_unslash($_GET['filters'])));
+            $filters_values = array_values(array_unique(array_filter(array_map('trim', $filters_values), static function ($value) {
+                return $value !== '';
+            })));
+
+            if (!empty($filters_values)) {
+                $filters_matched_values = array();
+                $all_data = function_exists('dapfforwc_get_woocommerce_attributes_with_terms')
+                    ? dapfforwc_get_woocommerce_attributes_with_terms()
+                    : array();
+
+                $category_slugs = !empty($all_data['categories']) ? array_column($all_data['categories'], 'slug') : array();
+                $matched_categories = array_values(array_intersect($filters_values, $category_slugs));
+                if (!empty($matched_categories)) {
+                    $category_values = array_merge($category_values, $matched_categories);
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_categories);
+                }
+
+                $tag_slugs = !empty($all_data['tags']) ? array_column($all_data['tags'], 'slug') : array();
+                $matched_tags = array_values(array_intersect($filters_values, $tag_slugs));
+                if (!empty($matched_tags)) {
+                    $tag_values = array_merge($tag_values, $matched_tags);
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_tags);
+                }
+
+                $brand_slugs = !empty($all_data['brands']) ? array_column($all_data['brands'], 'slug') : array();
+                $matched_brands = array_values(array_intersect($filters_values, $brand_slugs));
+                if (!empty($matched_brands)) {
+                    $filters_brand_values = array_values(array_unique(array_merge($filters_brand_values, $matched_brands)));
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_brands);
+                }
+
+                $author_slugs = !empty($all_data['authors']) ? array_column($all_data['authors'], 'slug') : array();
+                $matched_authors = array_values(array_intersect($filters_values, $author_slugs));
+                if (!empty($matched_authors)) {
+                    $filters_author_slugs = array_values(array_unique(array_merge($filters_author_slugs, $matched_authors)));
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_authors);
+                }
+
+                $stock_slugs = !empty($all_data['stock_status']) ? array_column($all_data['stock_status'], 'slug') : array();
+                $matched_stock = array_values(array_intersect($filters_values, $stock_slugs));
+                if (!empty($matched_stock)) {
+                    $filters_stock_status = array_values(array_unique(array_merge($filters_stock_status, $matched_stock)));
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_stock);
+                }
+
+                $sale_slugs = !empty($all_data['sale_status']) ? array_column($all_data['sale_status'], 'slug') : array();
+                $matched_sale = array_values(array_intersect($filters_values, $sale_slugs));
+                if (!empty($matched_sale)) {
+                    $filters_sale_status = array_values(array_unique(array_merge($filters_sale_status, $matched_sale)));
+                    $filters_matched_values = array_merge($filters_matched_values, $matched_sale);
+                }
+
+                $date_candidates = array_values(array_intersect($filters_values, array('today', 'this_week', 'this_month', 'this_year')));
+                if (!empty($date_candidates)) {
+                    $filters_date_filter = reset($date_candidates);
+                    $filters_matched_values = array_merge($filters_matched_values, $date_candidates);
+                }
+
+                $numeric_ratings = array_values(array_filter($filters_values, function ($value) {
+                    return is_numeric($value) && $value >= 1 && $value <= 5;
+                }));
+                if (!empty($numeric_ratings)) {
+                    $filters_rating_values = array_values(array_unique(array_merge($filters_rating_values, array_map('floatval', $numeric_ratings))));
+                    $filters_matched_values = array_merge($filters_matched_values, $numeric_ratings);
+                }
+
+                if (!empty($all_data['attributes']) && is_array($all_data['attributes'])) {
+                    foreach ($all_data['attributes'] as $attribute_name => $attribute_data) {
+                        $attribute_terms = $attribute_data['terms'] ?? array();
+                        if (empty($attribute_terms)) {
+                            continue;
+                        }
+                        $attribute_slugs = array_column($attribute_terms, 'slug');
+                        $matched_terms = array_values(array_intersect($filters_values, $attribute_slugs));
+                        if (!empty($matched_terms)) {
+                            $existing = isset($attributes[$attribute_name]) ? (array)$attributes[$attribute_name] : array();
+                            $attributes[$attribute_name] = array_values(array_unique(array_merge($existing, $matched_terms)));
+                            $filters_matched_values = array_merge($filters_matched_values, $matched_terms);
+                        }
+                    }
+                }
+
+                if (!empty($all_data['custom_fields']) && is_array($all_data['custom_fields'])) {
+                    foreach ($all_data['custom_fields'] as $meta_key => $meta_data) {
+                        $meta_terms = $meta_data['terms'] ?? array();
+                        if (empty($meta_terms)) {
+                            continue;
+                        }
+                        $meta_slugs = array_column($meta_terms, 'slug');
+                        $matched_terms = array_values(array_intersect($filters_values, $meta_slugs));
+                        if (!empty($matched_terms)) {
+                            $existing = $custom_meta[$meta_key] ?? array();
+                            $custom_meta[$meta_key] = array_values(array_unique(array_merge($existing, $matched_terms)));
+                            $filters_matched_values = array_merge($filters_matched_values, $matched_terms);
+                        }
+                    }
+                }
+            }
+        }
+        if (!empty($category_values)) {
+            $params['product-category'] = array_values(array_unique($category_values));
         }
 
         // Attribute filters
-        $attributes = array();
         foreach ($_GET as $key => $value) {
             if (strpos($key, 'rplugpa_') === 0 && !empty($value)) {
                 $attribute_name = str_replace('rplugpa_', '', $key);
-                $attributes[$attribute_name] = is_array($value)
+                $new_values = is_array($value)
                     ? array_map('sanitize_text_field', wp_unslash($value))
                     : explode(',', sanitize_text_field(wp_unslash($value)));
+                $existing = isset($attributes[$attribute_name]) ? (array)$attributes[$attribute_name] : array();
+                $attributes[$attribute_name] = array_values(array_unique(array_merge($existing, $new_values)));
             }
         }
         if (!empty($attributes)) {
             $params['attributes'] = $attributes;
+        }
+
+        // Price range shorthand from permalink (?price=100-500)
+        if (isset($_GET['price']) && $_GET['price'] !== '') {
+            $price_range = sanitize_text_field(wp_unslash($_GET['price']));
+            list($min_raw, $max_raw) = array_pad(explode('-', $price_range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $params['mn_price'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $params['mx_price'] = floatval($max_raw);
+            }
+        }
+
+        // Price range (permalink shorthand first)
+        if (isset($permalink_params['mn_price'])) {
+            $params['mn_price'] = $permalink_params['mn_price'];
+        }
+        if (isset($permalink_params['mx_price'])) {
+            $params['mx_price'] = $permalink_params['mx_price'];
         }
 
         // Price range
@@ -1139,6 +1591,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($_GET['mx_price']) && !empty($_GET['mx_price'])) {
             $params['mx_price'] = floatval($_GET['mx_price']);
         }
+
 
         // Pagination / ordering
         if (isset($_GET['per_page']) && $_GET['per_page'] !== '') {
@@ -1172,14 +1625,41 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
         }
 
-        if (isset($_GET['operator_second']) && $_GET['operator_second'] !== '') {
-            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['operator_second'])));
+        if (isset($_GET['cat_operator']) && $_GET['cat_operator'] !== '') {
+            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['cat_operator'])));
             if (in_array($operator, array('IN', 'NOT IN', 'AND'), true)) {
-                $params['operator_second'] = $operator;
-                $tax_operator = $operator;
+                $params['cat_operator'] = $operator;
+                $cat_operator = $operator;
             }
         } else {
-            $params['operator_second'] = $tax_operator;
+            $params['cat_operator'] = $cat_operator;
+        }
+        if (isset($_GET['tag_operator']) && $_GET['tag_operator'] !== '') {
+            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['tag_operator'])));
+            if (in_array($operator, array('IN', 'NOT IN', 'AND'), true)) {
+                $params['tag_operator'] = $operator;
+                $tag_operator = $operator;
+            }
+        } else {
+            $params['tag_operator'] = $tag_operator;
+        }
+        if (isset($_GET['terms_operator']) && $_GET['terms_operator'] !== '') {
+            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['terms_operator'])));
+            if (in_array($operator, array('IN', 'NOT IN', 'AND'), true)) {
+                $params['terms_operator'] = $operator;
+                $terms_operator = $operator;
+            }
+        } else {
+            $params['terms_operator'] = $terms_operator;
+        }
+        if (isset($_GET['brand_operator']) && $_GET['brand_operator'] !== '') {
+            $operator = strtoupper(sanitize_text_field(wp_unslash($_GET['brand_operator'])));
+            if (in_array($operator, array('IN', 'NOT IN', 'AND'), true)) {
+                $params['brand_operator'] = $operator;
+                $brand_operator = $operator;
+            }
+        } else {
+            $params['brand_operator'] = $terms_operator;
         }
 
         if (isset($_GET['tax_relation'])) {
@@ -1197,14 +1677,33 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Rating filter
+        if (isset($permalink_params['rating']) && !empty($permalink_params['rating'])) {
+            $params['rating'] = $permalink_params['rating'];
+        }
         if (isset($_GET['rating']) && !empty($_GET['rating'])) {
-            $params['rating'] = is_array($_GET['rating'])
+            $rating_values = is_array($_GET['rating'])
                 ? array_map('sanitize_text_field', wp_unslash($_GET['rating']))
                 : explode(',', sanitize_text_field(wp_unslash($_GET['rating'])));
+            $existing_ratings = $params['rating'] ?? array();
+            $params['rating'] = array_values(array_unique(array_merge((array)$existing_ratings, $rating_values)));
+        }
+        if (!empty($filters_rating_values)) {
+            $existing_ratings = $params['rating'] ?? array();
+            $params['rating'] = array_values(array_unique(array_merge((array)$existing_ratings, $filters_rating_values)));
+        }
+
+        // Permalink/search alias using configured prefix (default: title)
+        if (isset($permalink_params['plugincy_search']) && $permalink_params['plugincy_search'] !== '') {
+            $params['plugincy_search'] = $permalink_params['plugincy_search'];
+        }
+
+        // Legacy search aliases
+        if (!isset($params['plugincy_search']) && isset($_GET['title']) && !empty($_GET['title'])) {
+            $params['plugincy_search'] = sanitize_text_field(wp_unslash($_GET['title']));
         }
 
         // plugincy_search filter
-        if (isset($_GET['plugincy_search']) && !empty($_GET['plugincy_search'])) {
+        if (!isset($params['plugincy_search']) && isset($_GET['plugincy_search']) && !empty($_GET['plugincy_search'])) {
             $params['plugincy_search'] = sanitize_text_field(wp_unslash($_GET['plugincy_search']));
         }
 
@@ -1236,35 +1735,62 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                     }
                 }
                 if (!empty($tag_slugs)) {
-                    $params['tags'] = $tag_slugs;
+                    $tag_values = array_merge($tag_values, $tag_slugs);
                 }
             }
         }
+        if (!empty($tag_values)) {
+            $params['tags'] = array_values(array_unique($tag_values));
+        }
 
+        if (isset($permalink_params['rplurand']) && !empty($permalink_params['rplurand'])) {
+            $params['rplurand'] = $permalink_params['rplurand'];
+        }
         // rplurand filter
         if (isset($_GET['rplurand']) && !empty($_GET['rplurand'])) {
             $params['rplurand'] = is_array($_GET['rplurand'])
                 ? array_map('sanitize_text_field', wp_unslash($_GET['rplurand']))
                 : explode(',', sanitize_text_field(wp_unslash($_GET['rplurand'])));
         }
+        if (!empty($filters_brand_values)) {
+            $existing_brands = $params['rplurand'] ?? array();
+            $params['rplurand'] = array_values(array_unique(array_merge((array)$existing_brands, $filters_brand_values)));
+        }
 
         // Stock status filter
+        if (isset($permalink_params['rplutock_status']) && !empty($permalink_params['rplutock_status'])) {
+            $params['rplutock_status'] = $permalink_params['rplutock_status'];
+        }
         if (isset($_GET['rplutock_status']) && !empty($_GET['rplutock_status'])) {
             $params['rplutock_status'] = is_array($_GET['rplutock_status'])
                 ? array_map('sanitize_text_field', wp_unslash($_GET['rplutock_status']))
                 : explode(',', sanitize_text_field(wp_unslash($_GET['rplutock_status'])));
         }
+        if (!empty($filters_stock_status)) {
+            $existing_stock = $params['rplutock_status'] ?? array();
+            $params['rplutock_status'] = array_values(array_unique(array_merge((array)$existing_stock, $filters_stock_status)));
+        }
 
-        // rpluthor filter
         // rpluthor filter (using username instead of user ID)
+        $author_values = array();
+        if (!empty($filters_author_slugs)) {
+            $author_values = array_merge($author_values, $filters_author_slugs);
+        }
+        if (isset($permalink_params['rpluthor']) && !empty($permalink_params['rpluthor'])) {
+            $author_values = array_merge($author_values, $permalink_params['rpluthor']);
+        }
         if (isset($_GET['rpluthor']) && !empty($_GET['rpluthor'])) {
-            $usernames = is_array($_GET['rpluthor'])
-                ? array_map('sanitize_text_field', wp_unslash($_GET['rpluthor']))
-                : array_map('sanitize_text_field', explode(',', sanitize_text_field(wp_unslash($_GET['rpluthor']))));
-
+            $author_values = array_merge(
+                $author_values,
+                is_array($_GET['rpluthor'])
+                    ? array_map('sanitize_text_field', wp_unslash($_GET['rpluthor']))
+                    : array_map('sanitize_text_field', explode(',', sanitize_text_field(wp_unslash($_GET['rpluthor']))))
+            );
+        }
+        if (!empty($author_values)) {
             // Convert usernames to user IDs
             $user_ids = array();
-            foreach ($usernames as $username) {
+            foreach (array_unique($author_values) as $username) {
                 $user = get_user_by('login', $username);
                 if ($user) {
                     $user_ids[] = $user->ID;
@@ -1276,12 +1802,41 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
         }
 
-        // On sale filter
-        if (isset($_GET['rpn_sale']) && $_GET['rpn_sale'] === 'onsale') {
-            $params['rpn_sale'] = true;
+        // Sale status filter (on sale / not on sale)
+        $sale_values = array();
+        if (!empty($filters_sale_status)) {
+            $sale_values = array_merge($sale_values, $filters_sale_status);
+        }
+        if (isset($permalink_params['rpn_sale'])) {
+            $sale_values = array_merge($sale_values, (array)$permalink_params['rpn_sale']);
+        }
+        if (isset($_GET['rpn_sale']) && $_GET['rpn_sale'] !== '') {
+            $sale_values = array_merge(
+                $sale_values,
+                is_array($_GET['rpn_sale'])
+                    ? wp_unslash($_GET['rpn_sale'])
+                    : explode(',', sanitize_text_field(wp_unslash($_GET['rpn_sale'])))
+            );
+        }
+        if (isset($_GET['rpn_sale[]']) && $_GET['rpn_sale[]'] !== '') {
+            $sale_values = array_merge(
+                $sale_values,
+                is_array($_GET['rpn_sale[]'])
+                    ? wp_unslash($_GET['rpn_sale[]'])
+                    : explode(',', sanitize_text_field(wp_unslash($_GET['rpn_sale[]'])))
+            );
+        }
+        $sale_values = $this->normalize_sale_values($sale_values);
+        if (!empty($sale_values)) {
+            $params['rpn_sale'] = $sale_values;
         }
 
         // Dimensions filters
+        foreach (array('min_length', 'max_length', 'min_width', 'max_width', 'min_height', 'max_height', 'min_weight', 'max_weight') as $dimension_key) {
+            if (isset($permalink_params[$dimension_key])) {
+                $params[$dimension_key] = $permalink_params[$dimension_key];
+            }
+        }
         if (isset($_GET['min_length']) && !empty($_GET['min_length'])) {
             $params['min_length'] = floatval($_GET['min_length']);
         }
@@ -1308,13 +1863,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Custom meta filters
-        $custom_meta = array();
         foreach ($_GET as $key => $value) {
             if (strpos($key, 'rplugcusf_') === 0 && !empty($value)) {
                 $meta_key = str_replace('rplugcusf_', '', $key);
-                $custom_meta[$meta_key] = is_array($value)
+                $new_values = is_array($value)
                     ? array_map('sanitize_text_field', wp_unslash($value))
                     : explode(',', sanitize_text_field(wp_unslash($value)));
+                $existing = $custom_meta[$meta_key] ?? array();
+                $custom_meta[$meta_key] = array_values(array_unique(array_merge($existing, $new_values)));
             }
         }
         if (!empty($custom_meta)) {
@@ -1322,6 +1878,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // SKU filter
+        if (isset($permalink_params['sku']) && !empty($permalink_params['sku'])) {
+            $params['sku'] = $permalink_params['sku'];
+        }
         if (isset($_GET['sku']) && !empty($_GET['sku'])) {
             $params['sku'] = is_array($_GET['sku'])
                 ? array_map('sanitize_text_field', wp_unslash($_GET['sku']))
@@ -1336,6 +1895,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Discount filter
+        if (isset($permalink_params['discount']) && $permalink_params['discount'] !== '') {
+            $params['discount'] = $permalink_params['discount'];
+        }
         if (isset($_GET['discount']) && !empty($_GET['discount'])) {
             $params['discount'] = floatval($_GET['discount']);
         }
@@ -1346,6 +1908,12 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Date filters
+        if ($filters_date_filter !== '') {
+            $params['date_filter'] = $filters_date_filter;
+        }
+        if (isset($permalink_params['date_filter']) && !empty($permalink_params['date_filter'])) {
+            $params['date_filter'] = $permalink_params['date_filter'];
+        }
         if (isset($_GET['date_filter']) && !empty($_GET['date_filter'])) {
             $params['date_filter'] = sanitize_text_field(wp_unslash($_GET['date_filter']));
         }
@@ -1356,7 +1924,393 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $params['date_to'] = sanitize_text_field(wp_unslash($_GET['date_to']));
         }
 
-        return $params;
+        return $this->filter_params = $params;
+    }
+
+    /**
+     * Normalize permalinks-based query params to the standard filter keys
+     */
+    private function normalize_prefixed_query_params(array $request): array
+    {
+        $normalized = array();
+
+        $prefixes = $this->get_prefixes_config();
+
+        $prefixed_category = $this->resolve_prefix_key($prefixes, 'product-category', 'cata');
+        if (isset($request[$prefixed_category]) && $request[$prefixed_category] !== '') {
+            $normalized['product-category'] = $this->normalize_filter_values($request[$prefixed_category]);
+        }
+
+        $prefixed_tags = $this->resolve_prefix_key($prefixes, 'tag', 'tags');
+        if (isset($request[$prefixed_tags]) && $request[$prefixed_tags] !== '') {
+            $normalized['tags'] = $this->normalize_filter_values($request[$prefixed_tags]);
+        }
+
+        $prefixed_brand = $this->resolve_prefix_key($prefixes, 'brand', 'brand');
+        if (isset($request[$prefixed_brand]) && $request[$prefixed_brand] !== '') {
+            $normalized['rplurand'] = $this->normalize_filter_values($request[$prefixed_brand]);
+        }
+
+        $prefixed_author = $this->resolve_prefix_key($prefixes, 'author', 'authors');
+        if (isset($request[$prefixed_author]) && $request[$prefixed_author] !== '') {
+            $normalized['rpluthor'] = $this->normalize_filter_values($request[$prefixed_author]);
+        }
+
+        $prefixed_stock = $this->resolve_prefix_key($prefixes, 'stock_status', 'stockStatus');
+        if (isset($request[$prefixed_stock]) && $request[$prefixed_stock] !== '') {
+            $normalized['rplutock_status'] = $this->normalize_filter_values($request[$prefixed_stock]);
+        }
+
+        $prefixed_sale = $this->resolve_prefix_key($prefixes, 'sale_status', 'saleStatus');
+        if (isset($request[$prefixed_sale]) && $request[$prefixed_sale] !== '') {
+            $sale_values = $this->normalize_sale_values($request[$prefixed_sale]);
+            if (!empty($sale_values)) {
+                $normalized['rpn_sale'] = $sale_values;
+            }
+        }
+
+        $prefixed_rating = $this->resolve_prefix_key($prefixes, 'rating', 'rating');
+        if (isset($request[$prefixed_rating]) && $request[$prefixed_rating] !== '') {
+            $normalized['rating'] = array_map('floatval', $this->normalize_filter_values($request[$prefixed_rating]));
+        }
+
+        $prefixed_search = $this->resolve_prefix_key($prefixes, 'plugincy_search', 'title');
+        if (isset($request[$prefixed_search]) && $request[$prefixed_search] !== '') {
+            $normalized['plugincy_search'] = sanitize_text_field(wp_unslash($request[$prefixed_search]));
+        }
+
+        $prefixed_price = $this->resolve_prefix_key($prefixes, 'price', 'price');
+        if (isset($request[$prefixed_price]) && $request[$prefixed_price] !== '') {
+            $price_range = sanitize_text_field(wp_unslash($request[$prefixed_price]));
+            list($min_raw, $max_raw) = array_pad(explode('-', $price_range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $normalized['mn_price'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $normalized['mx_price'] = floatval($max_raw);
+            }
+        }
+
+        $prefixed_length = $this->resolve_prefix_key($prefixes, 'length', 'length');
+        if (isset($request[$prefixed_length]) && $request[$prefixed_length] !== '') {
+            $range = sanitize_text_field(wp_unslash($request[$prefixed_length]));
+            list($min_raw, $max_raw) = array_pad(explode('-', $range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $normalized['min_length'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $normalized['max_length'] = floatval($max_raw);
+            }
+        }
+
+        $prefixed_width = $this->resolve_prefix_key($prefixes, 'width', 'width');
+        if (isset($request[$prefixed_width]) && $request[$prefixed_width] !== '') {
+            $range = sanitize_text_field(wp_unslash($request[$prefixed_width]));
+            list($min_raw, $max_raw) = array_pad(explode('-', $range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $normalized['min_width'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $normalized['max_width'] = floatval($max_raw);
+            }
+        }
+
+        $prefixed_height = $this->resolve_prefix_key($prefixes, 'height', 'height');
+        if (isset($request[$prefixed_height]) && $request[$prefixed_height] !== '') {
+            $range = sanitize_text_field(wp_unslash($request[$prefixed_height]));
+            list($min_raw, $max_raw) = array_pad(explode('-', $range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $normalized['min_height'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $normalized['max_height'] = floatval($max_raw);
+            }
+        }
+
+        $prefixed_weight = $this->resolve_prefix_key($prefixes, 'weight', 'weight');
+        if (isset($request[$prefixed_weight]) && $request[$prefixed_weight] !== '') {
+            $range = sanitize_text_field(wp_unslash($request[$prefixed_weight]));
+            list($min_raw, $max_raw) = array_pad(explode('-', $range, 2), 2, '');
+            if ($min_raw !== '' && is_numeric($min_raw)) {
+                $normalized['min_weight'] = floatval($min_raw);
+            }
+            if ($max_raw !== '' && is_numeric($max_raw)) {
+                $normalized['max_weight'] = floatval($max_raw);
+            }
+        }
+
+        $prefixed_sku = $this->resolve_prefix_key($prefixes, 'sku', 'sku');
+        if (isset($request[$prefixed_sku]) && $request[$prefixed_sku] !== '') {
+            $normalized['sku'] = $this->normalize_filter_values($request[$prefixed_sku]);
+        }
+
+        $prefixed_discount = $this->resolve_prefix_key($prefixes, 'discount', 'discount');
+        if (isset($request[$prefixed_discount]) && $request[$prefixed_discount] !== '') {
+            $normalized['discount'] = floatval(wp_unslash($request[$prefixed_discount]));
+        }
+
+        $prefixed_date = $this->resolve_prefix_key($prefixes, 'date_filter', 'date');
+        if (isset($request[$prefixed_date]) && $request[$prefixed_date] !== '') {
+            $normalized['date_filter'] = sanitize_text_field(wp_unslash($request[$prefixed_date]));
+        }
+
+        if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
+            foreach ($prefixes['attribute'] as $attribute_name => $attribute_prefix) {
+                $attribute_key = $attribute_prefix !== '' ? $attribute_prefix : $attribute_name;
+                if ($attribute_key === '') {
+                    continue;
+                }
+                if (isset($request[$attribute_key]) && $request[$attribute_key] !== '') {
+                    $normalized['attributes'][$attribute_name] = $this->normalize_filter_values($request[$attribute_key]);
+                }
+            }
+        }
+
+        if (isset($prefixes['custom']) && is_array($prefixes['custom'])) {
+            foreach ($prefixes['custom'] as $custom_name => $custom_prefix) {
+                $custom_key = $custom_prefix !== '' ? $custom_prefix : $custom_name;
+                if ($custom_key === '') {
+                    continue;
+                }
+                if (isset($request[$custom_key]) && $request[$custom_key] !== '') {
+                    $normalized['custom_meta'][$custom_name] = $this->normalize_filter_values($request[$custom_key]);
+                }
+            }
+        }
+
+        return $normalized;
+    }
+
+    private function normalize_filter_values($value): array
+    {
+        $values = is_array($value)
+            ? array_map(static function ($item) {
+                return sanitize_text_field(wp_unslash($item));
+            }, $value)
+            : explode(',', sanitize_text_field(wp_unslash($value)));
+
+        $values = array_map('trim', $values);
+        $values = array_filter($values, static function ($v) {
+            return $v !== '';
+        });
+
+        return array_values(array_unique($values));
+    }
+
+    /**
+     * Normalize sale status request values to supported slugs.
+     */
+    private function normalize_sale_values($value): array
+    {
+        $values = is_array($value) ? $value : array($value);
+
+        $prepared_values = array();
+        foreach ($values as $item) {
+            if ($item === null || $item === '') {
+                continue;
+            }
+            if ($item === true) {
+                $prepared_values[] = 'onsale';
+                continue;
+            }
+            if ($item === false) {
+                continue;
+            }
+            $prepared_values[] = $item;
+        }
+
+        $values = $this->normalize_filter_values($prepared_values);
+        $normalized = array();
+
+        foreach ($values as $sale_val) {
+            $sale_val = strtolower($sale_val);
+            if (in_array($sale_val, array('onsale', 'on-sale', 'on_sale', '1', 'true', 'yes', 'sale', 'on'), true)) {
+                $normalized[] = 'onsale';
+            } elseif (in_array($sale_val, array('notonsale', 'not-on-sale', 'not_on_sale', 'not-sale', '0', 'false', 'no', 'off'), true)) {
+                $normalized[] = 'notonsale';
+            }
+        }
+
+        return array_values(array_unique($normalized));
+    }
+
+    /**
+     * Determine which sale states were requested.
+     */
+    private function get_sale_filter_flags($params): array
+    {
+        $sale_values = isset($params['rpn_sale'])
+            ? $this->normalize_sale_values($params['rpn_sale'])
+            : array();
+
+        return array(
+            'onsale' => in_array('onsale', $sale_values, true),
+            'notonsale' => in_array('notonsale', $sale_values, true),
+        );
+    }
+
+    /**
+     * Build meta query clauses to target sale/not sale states.
+     */
+    private function get_sale_meta_query(bool $on_sale): array
+    {
+        if ($on_sale) {
+            return array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_sale_price',
+                    'value' => 0,
+                    'compare' => '>',
+                    'type' => 'NUMERIC',
+                ),
+                array(
+                    'key' => '_min_variation_sale_price',
+                    'value' => 0,
+                    'compare' => '>',
+                    'type' => 'NUMERIC',
+                ),
+            );
+        }
+
+        return array(
+            'relation' => 'AND',
+            array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_sale_price',
+                    'compare' => 'NOT EXISTS',
+                ),
+                array(
+                    'key' => '_sale_price',
+                    'value' => '',
+                    'compare' => '=',
+                ),
+                array(
+                    'key' => '_sale_price',
+                    'value' => 0,
+                    'compare' => '<=',
+                    'type' => 'NUMERIC',
+                ),
+            ),
+            array(
+                'relation' => 'OR',
+                array(
+                    'key' => '_min_variation_sale_price',
+                    'compare' => 'NOT EXISTS',
+                ),
+                array(
+                    'key' => '_min_variation_sale_price',
+                    'value' => 0,
+                    'compare' => '<=',
+                    'type' => 'NUMERIC',
+                ),
+            ),
+        );
+    }
+
+    /**
+     * Ensure ID lists are clean integers.
+     */
+    private function sanitize_id_list($ids): array
+    {
+        $ids = is_array($ids) ? $ids : array($ids);
+
+        $ids = array_filter(array_map('intval', $ids), static function ($id) {
+            return $id > 0;
+        });
+
+        return array_values(array_unique($ids));
+    }
+
+    /**
+     * Merge new inclusion IDs with any existing inclusion list.
+     * If a list already exists, intersect so both constraints hold.
+     */
+    private function merge_post_in_lists($existing, $ids): array
+    {
+        $ids = $this->sanitize_id_list($ids);
+        $existing = $this->sanitize_id_list($existing);
+
+        if (empty($ids)) {
+            return array();
+        }
+
+        if (empty($existing)) {
+            return $ids;
+        }
+
+        return array_values(array_intersect($existing, $ids));
+    }
+
+    /**
+     * Combine exclusion IDs with any existing exclusions.
+     */
+    private function merge_post_not_in_lists($existing, $ids): array
+    {
+        $ids = $this->sanitize_id_list($ids);
+        $existing = $this->sanitize_id_list($existing);
+
+        return array_values(array_unique(array_merge($existing, $ids)));
+    }
+
+    private function get_prefixes_config(): array
+    {
+        global $dapfforwc_seo_permalinks_options;
+        $config = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'] ?? array();
+        return is_array($config) ? $config : array();
+    }
+
+    private function resolve_prefix_key(array $prefixes, string $key, string $default): string
+    {
+        if (isset($prefixes[$key]) && $prefixes[$key] !== '') {
+            return $prefixes[$key];
+        }
+        return $default;
+    }
+
+    private function get_prefixed_query_keys(): array
+    {
+
+        $prefixes = $this->get_prefixes_config();
+        $keys = array();
+        $add = static function ($key) use (&$keys) {
+            if ($key !== '') {
+                $keys[] = $key;
+            }
+        };
+
+        $add($this->resolve_prefix_key($prefixes, 'product-category', 'cata'));
+        $add($this->resolve_prefix_key($prefixes, 'tag', 'tags'));
+        $add($this->resolve_prefix_key($prefixes, 'brand', 'brand'));
+        $add($this->resolve_prefix_key($prefixes, 'author', 'authors'));
+        $add($this->resolve_prefix_key($prefixes, 'stock_status', 'stockStatus'));
+        $add($this->resolve_prefix_key($prefixes, 'sale_status', 'saleStatus'));
+        $add($this->resolve_prefix_key($prefixes, 'rating', 'rating'));
+        $add($this->resolve_prefix_key($prefixes, 'plugincy_search', 'title'));
+        $add($this->resolve_prefix_key($prefixes, 'price', 'price'));
+        $add($this->resolve_prefix_key($prefixes, 'length', 'length'));
+        $add($this->resolve_prefix_key($prefixes, 'width', 'width'));
+        $add($this->resolve_prefix_key($prefixes, 'height', 'height'));
+        $add($this->resolve_prefix_key($prefixes, 'weight', 'weight'));
+        $add($this->resolve_prefix_key($prefixes, 'sku', 'sku'));
+        $add($this->resolve_prefix_key($prefixes, 'discount', 'discount'));
+        $add($this->resolve_prefix_key($prefixes, 'date_filter', 'date'));
+
+        if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
+            foreach ($prefixes['attribute'] as $attr_name => $attr_prefix) {
+                $attribute_key = $attr_prefix !== '' ? $attr_prefix : $attr_name;
+                $add($attribute_key);
+            }
+        }
+
+        if (isset($prefixes['custom']) && is_array($prefixes['custom'])) {
+            foreach ($prefixes['custom'] as $custom_name => $custom_prefix) {
+                $custom_key = $custom_prefix !== '' ? $custom_prefix : $custom_name;
+                $add($custom_key);
+            }
+        }
+
+        return array_values(array_unique($keys));
     }
 
     /**
@@ -1396,7 +2350,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (!isset($_GET['gm-product-filter-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
             return;
         }
-        
+
         // Existing filter params
         $filter_params = array(
             'product-category',
@@ -1407,7 +2361,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             'plugincy_search',
             'rcata',
             'rtag',
-            'operator_second',
+            'cat_operator',
+            'tag_operator',
+            'terms_operator',
+            'brand_operator',
             'tax_relation',
             'meta_relation',
             'per_page',
@@ -1453,6 +2410,29 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 $_GET[$key] = $this->sanitize_request_value($value);
             }
         }
+
+        // Also honor configured prefix keys for attributes/custom meta when permalinks prefixes are enabled
+        $prefixes = $this->get_prefixes_config();
+
+        if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
+            foreach ($prefixes['attribute'] as $attribute_name => $attribute_prefix) {
+                $attribute_prefix = trim((string) $attribute_prefix);
+                if ($attribute_prefix !== '' && isset($_REQUEST[$attribute_prefix])) {
+                    $_GET[$attribute_prefix] = $this->sanitize_request_value($_REQUEST[$attribute_prefix]);
+                }
+            }
+        }
+
+        if (isset($prefixes['custom']) && is_array($prefixes['custom'])) {
+            foreach ($prefixes['custom'] as $custom_name => $custom_prefix) {
+                $custom_prefix = trim((string) $custom_prefix);
+                if ($custom_prefix !== '' && isset($_REQUEST[$custom_prefix])) {
+                    $_GET[$custom_prefix] = $this->sanitize_request_value($_REQUEST[$custom_prefix]);
+                }
+            }
+        }
+
+        $this->reset_request_cache();
     }
 }
 

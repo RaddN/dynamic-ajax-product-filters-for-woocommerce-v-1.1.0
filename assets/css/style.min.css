@@ -59,6 +59,10 @@ div#roverlay {
   border-radius: 30px;
   min-width: max-content;
 }
+.rfilterbuttons li label, .rfilterselected li label {
+    margin: 0 !important;
+    margin-right: 5px !important;
+}
 .rfilterbuttons li label,
 .rfilterselected li label {
   font-weight: 400;
@@ -87,7 +91,6 @@ div#roverlay {
   text-align: center;
   display: flex;
   justify-content: space-between;
-  font-family: "Open Sans", sans-serif;
   font-size: 16px;
 }
 #product-filter .title .collaps svg {
@@ -719,3 +722,14 @@ form#product-filter .discount-input-group input {
 
 #roverlay, #loader { opacity:0 !important; visibility:hidden !important; transition:opacity .15s linear; }
 #roverlay.is-visible, #loader.is-visible { opacity:1 !important; visibility:visible !important; display: block !important; }
+
+.sm-top-btn {
+    position: sticky;
+    top: 0;
+    z-index: 9999999999;
+    background: #fff;
+}
+
+.select2-container {
+    z-index: 9999999999;
+}

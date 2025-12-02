@@ -38,18 +38,9 @@ function dapfforwc_get_min_max_price($products, $products_id = []) {
 }
 
 
-function dapfforwc_getFilteredProductIds($products_id_by_cata, $products_id_by_tag, $products_id_by_brand, $common_values, $common_values_custom_meta,$products_id_by_author, $products_id_by_stock_status, $products_id_by_sale_status) {
+function dapfforwc_getFilteredProductIds($array) {
     // Collect all non-empty filter arrays (indexed numerically)
-    $filters = array_filter([
-        $products_id_by_cata,
-        $products_id_by_tag,
-        $products_id_by_brand,
-        $common_values,
-        $common_values_custom_meta,
-        $products_id_by_author,
-        $products_id_by_stock_status,
-        $products_id_by_sale_status
-    ], function($filter) {
+    $filters = array_filter($array, function($filter) {
         return !empty($filter);
     });
 

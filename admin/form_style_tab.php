@@ -58,7 +58,7 @@ if (!defined('ABSPATH')) {
         (object) ['attribute_name' => 'discount', 'attribute_label' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'date_filter', 'attribute_label' => esc_html__('Post Date', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'search', 'attribute_label' => esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')],
-        (object) ['attribute_name' => 'reset_btn', 'attribute_label' => esc_html__('Reset Button', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'reset_btn', 'attribute_label' => esc_html__('Apply & Reset Button', 'dynamic-ajax-product-filters-for-woocommerce')],
     ];
     $dapfforwc_extra_main_options = [
         (object) ['attribute_name' => "attributes", 'attribute_label' => esc_html__('Attributes', 'dynamic-ajax-product-filters-for-woocommerce')],
@@ -215,7 +215,7 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
                             <?php }
-                            if ($dapfforwc_attribute_name === 'search' || $dapfforwc_attribute_name === 'reset_btn') { ?>
+                            if ($dapfforwc_attribute_name === 'search') { ?>
                                 <div class="row btn_text" style="padding-top: 16px;">
                                     <div class="col-6">
                                         <div class="setting-item">
@@ -228,7 +228,138 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
 
-                            <?php } ?>
+                            <?php } 
+                            
+                            if ($dapfforwc_attribute_name === 'reset_btn') { ?>
+                                <!-- show reset button only one instead of multiple -->
+                                 <!-- show apply button checkbox -->
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Enable Apply Button:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $show_apply = isset($dapfforwc_form_styles['show_apply_button'][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles['show_apply_button'][$dapfforwc_attribute_name]) : 'no'; ?>
+                                                <input type="checkbox" name="dapfforwc_style_options[show_apply_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes" <?php checked($show_apply, 'yes'); ?>>
+                                                <?php esc_html_e('Show Apply Button', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="row btn_text" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Apply Button Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $btntext = isset($dapfforwc_form_styles["applybtntext"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["applybtntext"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[applybtntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($btntext); ?>" <?php echo $show_apply === 'no' ? 'disabled' : ''; ?>>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <?php $apply_behavior = isset($dapfforwc_form_styles['apply_behavior'][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles['apply_behavior'][$dapfforwc_attribute_name]) : 'only_apply'; ?>
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Apply filter on:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <select name="dapfforwc_style_options[apply_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" <?php echo $show_apply === 'no' ? 'disabled' : ''; ?>>
+                                                    <option value="only_apply" <?php selected($apply_behavior, 'only_apply'); ?>>
+                                                        <?php esc_html_e('Button click', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </option>
+                                                    <option value="apply_and_select" <?php selected($apply_behavior, 'apply_and_select'); ?>>
+                                                        <?php esc_html_e('Button click & Select Option', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </option>
+                                                </select>
+                                            </label>
+                                            <p class="description"><?php esc_html_e('Apply Button Only: filters apply only when the apply button is clicked. Apply Button & Select Option: filters apply on both selecting an option and clicking the apply button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Enable Reset Button:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $show_reset = isset($dapfforwc_form_styles['show_reset_button'][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles['show_reset_button'][$dapfforwc_attribute_name]) : 'no'; ?>
+                                                <input type="checkbox" name="dapfforwc_style_options[show_reset_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes" <?php checked($show_reset, 'yes'); ?>>
+                                                <?php esc_html_e('Show Reset Button', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                 <div class="row btn_text" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Reset Button Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $btntext = isset($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($btntext); ?>" <?php echo $show_reset === 'no' ? 'disabled' : ''; ?>>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row btn_text" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Show Apply & Reset Button On:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $show_apply_reset_on = isset($dapfforwc_form_styles["show_apply_reset_on"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["show_apply_reset_on"][$dapfforwc_attribute_name]) : 'separate'; ?>
+                                                <select name="dapfforwc_style_options[show_apply_reset_on][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" <?php echo ($show_apply === 'no' && $show_reset === 'no') ? 'disabled' : ''; ?> id="show_apply_reset_on_<?php echo esc_attr($dapfforwc_attribute_name); ?>">
+                                                    <option value="top" <?php selected($show_apply_reset_on, 'top'); ?>><?php esc_html_e('Top', 'dynamic-ajax-product-filters-for-woocommerce'); ?></option>
+                                                    <option value="bottom" <?php selected($show_apply_reset_on, 'bottom'); ?>><?php esc_html_e('Bottom', 'dynamic-ajax-product-filters-for-woocommerce'); ?></option>
+                                                    <option value="separate" <?php selected($show_apply_reset_on, 'separate'); ?>><?php esc_html_e('Separately', 'dynamic-ajax-product-filters-for-woocommerce'); ?></option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const showApplyResetOnSelect = document.getElementById('show_apply_reset_on_<?php echo esc_attr($dapfforwc_attribute_name); ?>');
+
+                                        applyCheckbox.addEventListener('change', function() {
+                                            const isApplyChecked = applyCheckbox.checked;
+                                            const isResetChecked = resetCheckbox.checked;
+                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
+                                        });
+
+                                        resetCheckbox.addEventListener('change', function() {
+                                            const isApplyChecked = applyCheckbox.checked;
+                                            const isResetChecked = resetCheckbox.checked;
+                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
+                                        });
+                                    });
+                                </script>
+
+                                <p class="description"><?php esc_html_e('Note: "Separately" option is only available when there is any select layout or single selection layout in the filter.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const applyCheckbox = document.querySelector('input[name="dapfforwc_style_options[show_apply_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+                                        const resetCheckbox = document.querySelector('input[name="dapfforwc_style_options[show_reset_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+                                        const applyButtonText = document.querySelector('input[name="dapfforwc_style_options[applybtntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+                                        const resetButtonText = document.querySelector('input[name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+                                        const applyBehaviorSelect = document.querySelector('select[name="dapfforwc_style_options[apply_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+                                        const showApplyResetOnSelect = document.querySelector('select[name="dapfforwc_style_options[show_apply_reset_on][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
+
+                                        function toggleDisabled() {
+                                            const isApplyChecked = applyCheckbox.checked;
+                                            const isResetChecked = resetCheckbox.checked;
+                                            applyButtonText.disabled = !isApplyChecked;
+                                            applyBehaviorSelect.disabled = !isApplyChecked;
+                                            resetButtonText.disabled = !isResetChecked;
+                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
+                                        }
+
+                                        applyCheckbox.addEventListener('change', toggleDisabled);
+                                        resetCheckbox.addEventListener('change', toggleDisabled);
+                                        toggleDisabled(); // Initial call to set the correct state
+                                    });
+                                </script>
+
+                            <?php }
+                            ?>
                         </div>
                     </div>
                 <?php

@@ -19,11 +19,11 @@ function dapfforwc_product_selector_callback()
 function dapfforwc_pagination_selector_callback()
 {
     global $dapfforwc_advance_settings;
-    $pagination_selector = isset($dapfforwc_advance_settings['pagination_selector']) ? esc_attr($dapfforwc_advance_settings['pagination_selector']) : '.woocommerce-pagination ul.page-numbers';
+    $pagination_selector = isset($dapfforwc_advance_settings['pagination_selector']) ? esc_attr($dapfforwc_advance_settings['pagination_selector']) : '.woocommerce-pagination';
 ?>
-    <input type="text" name="dapfforwc_advance_options[pagination_selector]" value="<?php echo esc_attr($pagination_selector); ?>" placeholder=".woocommerce-pagination ul.page-numbers">
+    <input type="text" name="dapfforwc_advance_options[pagination_selector]" value="<?php echo esc_attr($pagination_selector); ?>" placeholder=".woocommerce-pagination">
     <p class="description">
-        <?php esc_html_e('Enter the CSS selector for the pagination container. Default is .woocommerce-pagination ul.page-numbers.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+        <?php esc_html_e('Enter the CSS selector for the pagination container. Default is .woocommerce-pagination.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
     </p>
 <?php
 }

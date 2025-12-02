@@ -31,7 +31,7 @@ function dapfforwc_settings_init()
         'use_custom_template' => 0,
         'custom_template_code' => '',
         'product_selector' => '.products',
-        'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
+        'pagination_selector' => '.woocommerce-pagination',
         'filters_word_in_permalinks' => 'filters',
     ];
     update_option('dapfforwc_options', $dapfforwc_options);
@@ -157,7 +157,7 @@ function dapfforwc_settings_init()
     //   advance settings register
     $Advance_options = get_option('dapfforwc_advance_options') ?: [
         'product_selector' => 'ul.products',
-        'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
+        'pagination_selector' => '.woocommerce-pagination',
         'product_shortcode' => 'products',
         'remove_outofStock' => 0,
         'allow_data_share' => "on",

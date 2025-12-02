@@ -51,6 +51,27 @@ function dapfforwc_permalinks_prefix_render()
         'tag' => 'tags',
         'price' => 'price',
         'rating' => 'rating',
+        'brand' => 'brand',
+        'author' => 'author',
+        'stock_status' => 'stockStatus',
+        'sale_status' => 'saleStatus',
+        'length' => 'length',
+        'min_length' => 'min_length',
+        'max_length' => 'max_length',
+        'width' => 'width',
+        'min_width' => 'min_width',
+        'max_width' => 'max_width',
+        'height' => 'height',
+        'min_height' => 'min_height',
+        'max_height' => 'max_height',
+        'weight' => 'weight',
+        'min_weight' => 'min_weight',
+        'max_weight' => 'max_weight',
+        'sku' => 'sku',
+        'discount' => 'discount',
+        'discount' => 'discount',
+        'date_filter' => 'date',
+        'plugincy_search' => 'title',
         'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
             $carry[$attr->attribute_name] = $attr->attribute_name;
             return $carry;
@@ -156,6 +177,146 @@ function dapfforwc_permalinks_prefix_render()
                     value="<?php echo isset($options['rating']) ? esc_attr($options['rating']) : 'rating'; ?>"
                     placeholder="<?php esc_attr_e('Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
             </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_brand_prefix"><?php esc_html_e('Brand', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_brand_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][brand]"
+                    value="<?php echo isset($options['brand']) ? esc_attr($options['brand']) : 'brand'; ?>"
+                    placeholder="<?php esc_attr_e('Brand', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_author_prefix"><?php esc_html_e('Author', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_author_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][author]"
+                    value="<?php echo isset($options['author']) ? esc_attr($options['author']) : 'author'; ?>"
+                    placeholder="<?php esc_attr_e('Author', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_stock_status_prefix"><?php esc_html_e('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_stock_status_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][stock_status]"
+                    value="<?php echo isset($options['stock_status']) ? esc_attr($options['stock_status']) : 'stockStatus'; ?>"
+                    placeholder="<?php esc_attr_e('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_sale_status_prefix"><?php esc_html_e('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_sale_status_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][sale_status]"
+                    value="<?php echo isset($options['sale_status']) ? esc_attr($options['sale_status']) : 'saleStatus'; ?>"
+                    placeholder="<?php esc_attr_e('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_width_prefix"><?php esc_html_e('Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_width_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][width]"
+                    value="<?php echo isset($options['width']) ? esc_attr($options['width']) : 'width'; ?>"
+                    placeholder="<?php esc_attr_e('Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_min_width_prefix"><?php esc_html_e('Min Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_min_width_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][min_width]"
+                    value="<?php echo isset($options['min_width']) ? esc_attr($options['min_width']) : 'min_width'; ?>"
+                    placeholder="<?php esc_attr_e('Min Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_max_width_prefix"><?php esc_html_e('Max Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_max_width_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][max_width]"
+                    value="<?php echo isset($options['max_width']) ? esc_attr($options['max_width']) : 'max_width'; ?>"
+                    placeholder="<?php esc_attr_e('Max Width', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_length_prefix"><?php esc_html_e('Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_length_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][length]"
+                    value="<?php echo isset($options['length']) ? esc_attr($options['length']) : 'length'; ?>"
+                    placeholder="<?php esc_attr_e('Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_min_length_prefix"><?php esc_html_e('Min Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_min_length_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][min_length]"
+                    value="<?php echo isset($options['min_length']) ? esc_attr($options['min_length']) : 'min_length'; ?>"
+                    placeholder="<?php esc_attr_e('Min Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_max_length_prefix"><?php esc_html_e('Max Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_max_length_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][max_length]"
+                    value="<?php echo isset($options['max_length']) ? esc_attr($options['max_length']) : 'max_length'; ?>"
+                    placeholder="<?php esc_attr_e('Max Length', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_height_prefix"><?php esc_html_e('Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_height_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][height]"
+                    value="<?php echo isset($options['height']) ? esc_attr($options['height']) : 'height'; ?>"
+                    placeholder="<?php esc_attr_e('Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_min_height_prefix"><?php esc_html_e('Min Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_min_height_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][min_height]"
+                    value="<?php echo isset($options['min_height']) ? esc_attr($options['min_height']) : 'min_height'; ?>"
+                    placeholder="<?php esc_attr_e('Min Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_max_height_prefix"><?php esc_html_e('Max Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_max_height_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][max_height]"
+                    value="<?php echo isset($options['max_height']) ? esc_attr($options['max_height']) : 'max_height'; ?>"
+                    placeholder="<?php esc_attr_e('Max Height', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_weight_prefix"><?php esc_html_e('Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_weight_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][weight]"
+                    value="<?php echo isset($options['weight']) ? esc_attr($options['weight']) : 'weight'; ?>"
+                    placeholder="<?php esc_attr_e('Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_min_weight_prefix"><?php esc_html_e('Min Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_min_weight_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][min_weight]"
+                    value="<?php echo isset($options['min_weight']) ? esc_attr($options['min_weight']) : 'min_weight'; ?>"
+                    placeholder="<?php esc_attr_e('Min Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_max_weight_prefix"><?php esc_html_e('Max Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_max_weight_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][max_weight]"
+                    value="<?php echo isset($options['max_weight']) ? esc_attr($options['max_weight']) : 'max_weight'; ?>"
+                    placeholder="<?php esc_attr_e('Max Weight', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_sku_prefix"><?php esc_html_e('SKU', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_sku_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][sku]"
+                    value="<?php echo isset($options['sku']) ? esc_attr($options['sku']) : 'sku'; ?>"
+                    placeholder="<?php esc_attr_e('SKU', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_discount_prefix"><?php esc_html_e('Discount', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_discount_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][discount]"
+                    value="<?php echo isset($options['discount']) ? esc_attr($options['discount']) : 'discount'; ?>"
+                    placeholder="<?php esc_attr_e('Discount', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_date_filter_prefix"><?php esc_html_e('Date Filter', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_date_filter_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][date_filter]"
+                    value="<?php echo isset($options['date_filter']) ? esc_attr($options['date_filter']) : 'date'; ?>"
+                    placeholder="<?php esc_attr_e('Date Filter', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_plugincy_search_prefix"><?php esc_html_e('Search', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_plugincy_search_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][plugincy_search]"
+                    value="<?php echo isset($options['plugincy_search']) ? esc_attr($options['plugincy_search']) : 'title'; ?>"
+                    placeholder="<?php esc_attr_e('Search', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
             <?php if (!empty($attributes)) : ?>
                 <?php foreach ($attributes as $attribute) : ?>
                     <div class="dapfforwc-form-group">
@@ -178,13 +339,13 @@ function dapfforwc_permalinks_prefix_render()
             <?php endif; ?>
         </div>
         <div style=" text-align: center; ">
-            <button type="button" id="dapfforwcpro_see_more_btn" style="margin-top: 10px; padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; cursor: pointer;">
+            <button type="button" id="dapfforwc_see_more_btn" style="margin-top: 10px; padding: 8px 16px; border-radius: 4px; border: 1px solid #ccc; background: #f7f7f7; cursor: pointer;">
                 <?php esc_html_e('See More', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
             </button>
         </div>
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                var seeMoreBtn = document.getElementById('dapfforwcpro_see_more_btn');
+                var seeMoreBtn = document.getElementById('dapfforwc_see_more_btn');
                 var prefixListContainer = document.querySelector('.attribute_prefix_list > div');
                 if (seeMoreBtn && prefixListContainer) {
                     seeMoreBtn.addEventListener('click', function() {

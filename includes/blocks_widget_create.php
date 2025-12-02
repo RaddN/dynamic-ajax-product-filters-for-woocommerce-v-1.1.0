@@ -288,7 +288,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             // $output .= json_encode($filter_options_manage);
             $index = 0;
             if ($filter_options_manage) {
-                $output .= '<style>@media(min-width:767px){form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}}';
+                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}}';
                 foreach ($filter_options_manage as $options) {
                     if ($options["id"] == "product-category" && !isset($dapfforwc_options["show_categories"])) {
                         continue;
@@ -721,7 +721,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'type'            => \Elementor\Controls_Manager::RAW_HTML,
                     'raw'             => esc_html__(
-                        'If you are not using [products] shortcode to display products, you can use these options to query.',
+                        'If this is not a product archive page & you are not using [products] shortcode to display products, you can use these options to query.',
                         'dynamic-ajax-product-filters-for-woocommerce'
                     ),
                     // Optional: Elementor’s panel alert styling classes

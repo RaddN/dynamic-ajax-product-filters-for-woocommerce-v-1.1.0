@@ -18,7 +18,6 @@ class dapfforwc_Custom_Class_Injector
         'product_item' => 'plugincy-filter-product-item'
     );
 
-    private $wrapper_added = false;
     private $is_capturing_pagination = false;
 
     public function __construct()
@@ -34,8 +33,6 @@ class dapfforwc_Custom_Class_Injector
         // Products loop classes - multiple approaches for better compatibility
         add_filter('woocommerce_product_loop_start', array($this, 'add_products_wrapper_class'), 10, 2);
         add_filter('woocommerce_shortcode_products_container_classes', array($this, 'add_shortcode_container_classes'));
-        add_action('woocommerce_before_shop_loop', array($this, 'before_shop_loop_wrapper'), 5);
-        add_action('woocommerce_after_shop_loop', array($this, 'after_shop_loop_wrapper'), 25);
 
         // Product item classes
         add_filter('woocommerce_post_class', array($this, 'add_product_item_class'), 10, 2);
@@ -120,25 +117,6 @@ class dapfforwc_Custom_Class_Injector
         }
 
         return $block_content;
-    }
-
-    /**
-     * Wrapper approach for themes that don't modify the loop start
-     */
-    public function before_shop_loop_wrapper()
-    {
-        if (!$this->wrapper_added && (is_shop() || is_product_category() || is_product_tag())) {
-            echo '<div class="' . esc_attr($this->custom_classes['products'] . '-wrapper') . '">';
-            $this->wrapper_added = true;
-        }
-    }
-
-    public function after_shop_loop_wrapper()
-    {
-        if ($this->wrapper_added) {
-            echo '</div>';
-            $this->wrapper_added = false;
-        }
     }
 
     /**

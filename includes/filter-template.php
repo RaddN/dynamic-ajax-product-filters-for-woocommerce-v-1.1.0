@@ -1,5 +1,5 @@
 <?php
-
+// filter-template.php
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -227,6 +227,149 @@ function dapfforwc_product_filter_shortcode($atts)
 
     $filteroptionsfromurl = [];
 
+    // Support shorthand permalinks (?filters=white,laptop) by mapping to categories
+    if ($filters !== '1') {
+        $prefix_options = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'];
+        $reverse_prefix = [];
+
+        if (isset($prefix_options) && is_array($prefix_options)) {
+            // Flatten and reverse the prefix
+            foreach ($prefix_options as $key => $val) {
+                if ($key === 'attribute') {
+                    foreach ($val as $attr_key => $attr_val) {
+                        $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
+                    }
+                } else if ($key === 'custom') {
+                    foreach ($val as $custom_key => $custom_val) {
+                        $reverse_prefix[$custom_val] = ['type' => 'custom_meta', 'key' => $custom_key];
+                    }
+                } else {
+                    $reverse_prefix[$val] = ['type' => $key];
+                }
+            }
+        }
+        $filter_value = isset($filters) ? array_filter(array_map('sanitize_text_field', explode(',', $filters))) : [];
+        $all_cata_slug = array_column($all_cata, 'slug');
+        $cata_in_filter = array_intersect($filter_value, $all_cata_slug);
+
+        $all_tags_slug = array_column($all_tags, 'slug');
+        $tag_in_filter = array_intersect($filter_value, $all_tags_slug);
+
+        $all_brands_slug = array_column($all_brands, 'slug');
+        $brands_in_filter = array_intersect($filter_value, $all_brands_slug);
+
+        $all_authors_slug = array_column($all_authors, 'slug');
+        $author_in_filter = array_intersect($filter_value, $all_authors_slug);
+
+        $all_stock_status_slug = array_column($all_stock_status, 'slug');
+        $all_stock_status_slug_in_filter = array_intersect($filter_value, $all_stock_status_slug);
+
+        $all_sale_status_slug = array_column($all_sale_status, 'slug');
+        $all_sale_status_in_filter = array_intersect($filter_value, $all_sale_status_slug);
+
+        $all_date_filter_slug = ["today", "this_week", "this_month", "this_year"];
+        $all_date_in_filter = array_intersect($filter_value, $all_date_filter_slug);
+
+
+        // Filter numeric values between 1 and 5 and convert them to integers
+        $rating_num = array_map('intval', array_values(array_filter($filter_value, function ($value) {
+            return is_numeric($value) && $value >= 1 && $value <= 5;
+        })));
+
+        if (!empty($cata_in_filter)) {
+            $filteroptionsfromurl["product-category[]"] = isset($filteroptionsfromurl["product-category[]"])
+                ? array_values(array_unique(array_merge($filteroptionsfromurl["product-category[]"], $cata_in_filter)))
+                : $cata_in_filter;
+        }
+        if (!empty($tag_in_filter)) {
+            $filteroptionsfromurl["tag[]"] = isset($filteroptionsfromurl["tag[]"])
+                ? array_values(array_unique(array_merge($filteroptionsfromurl["tag[]"], $tag_in_filter)))
+                : $tag_in_filter;
+        }
+        if (!empty($brands_in_filter)) {
+            $filteroptionsfromurl["brand[]"] = isset($filteroptionsfromurl["brand[]"])
+                ? array_values(array_unique(array_merge($filteroptionsfromurl["brand[]"], $brands_in_filter)))
+                : $brands_in_filter;
+        }
+        // check if mn_price=10&mx_price=100 is set and sanitize it
+        if (isset($_GET['mn_price']) && isset($_GET['mx_price'])) {
+            $filteroptionsfromurl["min_price"] = sanitize_text_field(wp_unslash($_GET['mn_price']));
+            $filteroptionsfromurl["max_price"] = sanitize_text_field(wp_unslash($_GET['mx_price']));
+            $filteroptionsfromurl["price[]"] = sanitize_text_field(wp_unslash($_GET['mn_price'])) . '-' . sanitize_text_field(wp_unslash($_GET['mx_price']));
+        }
+
+        if (!empty($rating_num)) {
+            $filteroptionsfromurl["rating[]"] = $rating_num;
+        }
+
+        if (!empty($_GET[$prefix_options["plugincy_search"] ?? 'title'])) {
+            $filteroptionsfromurl["plugincy_search[]"] = sanitize_text_field(wp_unslash($_GET[$prefix_options["plugincy_search"] ?? 'title']));
+        }
+
+        if (!empty($author_in_filter)) {
+            $filteroptionsfromurl["author[]"] = isset($filteroptionsfromurl["author[]"])
+                ? array_values(array_unique(array_merge($filteroptionsfromurl["author[]"], $author_in_filter)))
+                : $author_in_filter;
+        }
+        if (!empty($all_stock_status_slug_in_filter)) {
+            $filteroptionsfromurl["stock_status[]"] = $all_stock_status_slug_in_filter;
+        }
+
+        $dimensions = ['length', 'width', 'height', 'weight'];
+        foreach ($dimensions as $dim) {
+
+            $dim = isset($prefix_options[$dim]) ? $prefix_options[$dim] : $dim;
+
+            if (!empty($_GET[$dim])) {
+                // sanitize incoming value
+                $raw = sanitize_text_field(wp_unslash($_GET[$dim]));
+                $min = null;
+                $max = null;
+
+                if (strpos($raw, '-') !== false) {
+                    list($min_raw, $max_raw) = explode('-', $raw, 2);
+                } elseif (strpos($raw, ',') !== false) {
+                    list($min_raw, $max_raw) = explode(',', $raw, 2);
+                } else {
+                    $min_raw = $raw;
+                    $max_raw = null;
+                }
+
+                $min_raw = trim($min_raw);
+                $max_raw = $max_raw !== null ? trim($max_raw) : null;
+
+                if ($min_raw !== '' && is_numeric($min_raw)) {
+                    $min = floatval($min_raw);
+                }
+
+                if ($max_raw !== null && $max_raw !== '' && is_numeric($max_raw)) {
+                    $max = floatval($max_raw);
+                }
+
+                if ($min !== null) {
+                    $filteroptionsfromurl['min_' . $reverse_prefix[$dim]['type']] = $min;
+                }
+                if ($max !== null) {
+                    $filteroptionsfromurl['max_' . $reverse_prefix[$dim]['type']] = $max;
+                }
+            }
+        }
+
+        if (!empty($all_sale_status_in_filter)) {
+            $filteroptionsfromurl["sale_status[]"] = $all_sale_status_in_filter;
+        }
+
+        if (!empty($_GET[$prefix_options["sku"] ?? 'sku'])) {
+            $filteroptionsfromurl["sku"] = sanitize_text_field(wp_unslash($_GET[$prefix_options["sku"] ?? 'sku']));
+        }
+        if (!empty($_GET[$prefix_options["discount"] ?? 'discount'])) {
+            $filteroptionsfromurl["discount"] = sanitize_text_field(wp_unslash($_GET[$prefix_options["discount"] ?? 'discount']));
+        }
+        if (!empty($all_date_in_filter)) {
+            $filteroptionsfromurl["date_filter"] = $all_date_in_filter[0];
+        }
+    }
+
     if (isset($_GET['gm-product-filter-nonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['gm-product-filter-nonce'])), 'gm-product-filter-action')) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         if (isset($_GET['product-category'])) {
@@ -238,19 +381,19 @@ function dapfforwc_product_filter_shortcode($atts)
         }
         // check if 'brands' is set and sanitize it
         if (isset($_GET['rplurand'])) {
-            $filteroptionsfromurl["rplurand[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplurand']))));
+            $filteroptionsfromurl["brand[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplurand']))));
         }
         // check if 'authors' is set and sanitize it
         if (isset($_GET['rpluthor'])) {
-            $filteroptionsfromurl["rpluthor[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpluthor']))));
+            $filteroptionsfromurl["author[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpluthor']))));
         }
         // check if 'stock status' is set and sanitize it
         if (isset($_GET['rplutock_status'])) {
-            $filteroptionsfromurl["rplutock_status[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplutock_status']))));
+            $filteroptionsfromurl["stock_status[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rplutock_status']))));
         }
         // check if 'sale status' is set and sanitize it
         if (isset($_GET['rpn_sale'])) {
-            $filteroptionsfromurl["rpn_sale[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpn_sale']))));
+            $filteroptionsfromurl["sale_status[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rpn_sale']))));
         }
         // check if 'rplugpa_color', 'rplugpa_size', etc. are set and sanitize them
         // Dynamically get all attribute taxonomies from $all_attributes
@@ -285,6 +428,42 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
         }
+
+
+        // Support prefixed attribute/custom meta keys when permalinks prefixes are enabled
+        if (
+            isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) &&
+            $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" &&
+            isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']) &&
+            is_array($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'])
+        ) {
+            $prefix_options = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'];
+
+            if (isset($prefix_options['attribute']) && is_array($prefix_options['attribute'])) {
+                foreach ($prefix_options['attribute'] as $attr_key => $attr_prefix) {
+                    $attr_prefix = trim((string)$attr_prefix);
+                    if ($attr_prefix === '' || !isset($_GET[$attr_prefix])) {
+                        continue;
+                    }
+                    $existing = $filteroptionsfromurl["attribute"][$attr_key] ?? [];
+                    $incoming = is_array($_GET[$attr_prefix]) ? array_map('sanitize_text_field', wp_unslash($_GET[$attr_prefix])) : array_map('sanitize_text_field', explode(',', sanitize_text_field(wp_unslash($_GET[$attr_prefix]))));
+                    $filteroptionsfromurl["attribute"][$attr_key] = array_values(array_unique(array_merge($existing, $incoming)));
+                }
+            }
+
+            if (isset($prefix_options['custom']) && is_array($prefix_options['custom'])) {
+                foreach ($prefix_options['custom'] as $custom_key => $custom_prefix) {
+                    $custom_prefix = trim((string)$custom_prefix);
+                    if ($custom_prefix === '' || !isset($_GET[$custom_prefix])) {
+                        continue;
+                    }
+                    $existing = $filteroptionsfromurl["custom_meta"][$custom_key] ?? [];
+                    $incoming = is_array($_GET[$custom_prefix]) ? array_map('sanitize_text_field', wp_unslash($_GET[$custom_prefix])) : array_map('sanitize_text_field', explode(',', sanitize_text_field(wp_unslash($_GET[$custom_prefix]))));
+                    $filteroptionsfromurl["custom_meta"][$custom_key] = array_values(array_unique(array_merge($existing, $incoming)));
+                }
+            }
+        }
+
         // check if rating is set and sanitize it
         if (isset($_GET['rating'])) {
             $filteroptionsfromurl["rating[]"] = array_map('sanitize_text_field', explode(",", sanitize_text_field(wp_unslash($_GET['rating']))));
@@ -294,6 +473,11 @@ function dapfforwc_product_filter_shortcode($atts)
         if (isset($_GET['mn_price']) && isset($_GET['mx_price'])) {
             $filteroptionsfromurl["min_price"] = sanitize_text_field(wp_unslash($_GET['mn_price']));
             $filteroptionsfromurl["max_price"] = sanitize_text_field(wp_unslash($_GET['mx_price']));
+            $filteroptionsfromurl["price[]"] = sanitize_text_field(wp_unslash($_GET['mn_price'])) . '-' . sanitize_text_field(wp_unslash($_GET['mx_price']));
+        }
+        if (isset($_GET['default_min']) && isset($_GET['default_max'])) {
+            $filteroptionsfromurl["default_min"] = sanitize_text_field(wp_unslash($_GET['default_min']));
+            $filteroptionsfromurl["default_max"] = sanitize_text_field(wp_unslash($_GET['default_max']));
         }
 
         // check if plugincy_search is set and sanitize it
@@ -391,7 +575,10 @@ function dapfforwc_product_filter_shortcode($atts)
                 'per_page'        => isset($attributes['limit']) ? $attributes['limit'] : $attributes['per_page'] ?? null,
                 'orderby'         => isset($attributes['orderby']) ? $attributes['orderby'] : '',
                 'order'           => isset($attributes['order']) ? $attributes['order'] : '',
-                'operator_second' => isset($attributes['terms_operator']) ? $attributes['terms_operator'] : $attributes['tag_operator'] ?? $attributes['cat_operator'] ?? 'IN'
+                'terms_operator' => $attributes['terms_operator'] ?? 'IN',
+                'tag_operator' => $attributes['tag_operator'] ?? 'IN',
+                'cat_operator' => $attributes['cat_operator'] ?? 'IN',
+                'brand_operator' => $attributes['brand_operator'] ?? 'IN',
             ];
         }
     }
@@ -423,6 +610,7 @@ function dapfforwc_product_filter_shortcode($atts)
     }
 
     if (is_product_category()) {
+        $dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] = "AND";
         $current_category = get_queried_object();
         $category_slug = $current_category->slug;
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
@@ -460,11 +648,14 @@ function dapfforwc_product_filter_shortcode($atts)
     if (dapfforwc_is_product_brand()) {
         $current_brand = dapfforwc_get_current_brand();
 
+        $dapfforwc_options["product_show_settings"][$dapfforwc_slug]["brand_operator"] = "AND";
+
+
         if ($current_brand) {
             $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
 
             // Use the correct brand taxonomy key based on detected taxonomy
-            $brand_filter_key = "rplurand[]"; // This is used in the plugin for brands
+            $brand_filter_key = "brand[]"; // This is used in the plugin for brands
 
             $dapfforwc_options['default_filters'][$dapfforwc_slug][$brand_filter_key] = [$current_brand['slug']];
 
@@ -507,7 +698,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     }
                 } else if ($key === 'custom') {
                     foreach ($val as $custom_key => $custom_val) {
-                        $reverse_prefix[$custom_val] = ['type' => 'attribute', 'key' => $custom_key]; //maybe a error here
+                        $reverse_prefix[$custom_val] = ['type' => 'custom_meta', 'key' => $custom_key]; //maybe a error here
                     }
                 } else {
                     $reverse_prefix[$val] = ['type' => $key];
@@ -527,15 +718,57 @@ function dapfforwc_product_filter_shortcode($atts)
 
                 if ($info['type'] === 'attribute') {
                     $parsed_filters['attribute'][$info['key']] = $values;
+                } else if ($info['type'] === 'custom_meta') {
+                    $parsed_filters['custom_meta'][$info['key']] = $values;
                 } else {
                     $parsed_filters[$info['type'] . "[]"] = $values;
+                }
+            }
+        }
+        // if $query_vars["length"] .... which value can be length=0-10000&width=0-10000&height=0-10000&weight=0-10000 collect them & store in min_length, max_length, min_width, max_width,min_height, max_height, min_weight, max_weight
+        // Collect dimension ranges (length, width, height, weight) from query vars and store min/max values
+        $dimensions = ['length', 'width', 'height', 'weight'];
+        foreach ($dimensions as $dim) {
+
+            $dim = isset($prefix[$dim]) ? $prefix[$dim] : $dim;
+
+            if (!empty($query_vars[$dim])) {
+                // sanitize incoming value
+                $raw = sanitize_text_field(wp_unslash($query_vars[$dim]));
+                $min = null;
+                $max = null;
+
+                if (strpos($raw, '-') !== false) {
+                    list($min_raw, $max_raw) = explode('-', $raw, 2);
+                } elseif (strpos($raw, ',') !== false) {
+                    list($min_raw, $max_raw) = explode(',', $raw, 2);
+                } else {
+                    $min_raw = $raw;
+                    $max_raw = null;
+                }
+
+                $min_raw = trim($min_raw);
+                $max_raw = $max_raw !== null ? trim($max_raw) : null;
+
+                if ($min_raw !== '' && is_numeric($min_raw)) {
+                    $min = floatval($min_raw);
+                }
+
+                if ($max_raw !== null && $max_raw !== '' && is_numeric($max_raw)) {
+                    $max = floatval($max_raw);
+                }
+
+                if ($min !== null) {
+                    $parsed_filters['min_' . $reverse_prefix[$dim]['type']] = $min;
+                }
+                if ($max !== null) {
+                    $parsed_filters['max_' . $reverse_prefix[$dim]['type']] = $max;
                 }
             }
         }
     }
 
     update_option('dapfforwc_options', $dapfforwc_options);
-    $second_operator = strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["operator_second"] ?? "IN");
 
     $default_filter = (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"]))) ?
         array_merge(
@@ -546,12 +779,13 @@ function dapfforwc_product_filter_shortcode($atts)
             $filteroptionsfromurl
         ) :  array_merge_recursive(
             $filteroptionsfromurl,
+            $parsed_filters,
             $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? []
         );
 
     $ratings = isset($default_filter["rating[]"])
         ? array_map('intval', (array)$default_filter["rating[]"])
-        : array_map('intval', array_values(array_filter($default_filter, 'is_numeric')));
+        : 0;
 
 
     if (!empty($atts['use_custom_template_design']) && $atts['use_custom_template_design'] === "yes") {
@@ -581,11 +815,194 @@ function dapfforwc_product_filter_shortcode($atts)
         $min_rating = min($ratings);
         $products_id_by_rating = array_column(
             array_filter($product_details, function ($product) use ($min_rating) {
-                return floatval($product['rating']) >= floatval($min_rating);
+                global $dapfforwc_styleoptions;
+                if ($dapfforwc_styleoptions['rating']['sub_option'] === "rating-text") {
+                    return floatval($product['rating']) >= floatval($min_rating);
+                } else {
+                    return floatval($product['rating']) == floatval($min_rating);
+                }
             }),
             'ID'
         );
     }
+
+
+    // Filter products by search term
+    $products_id_by_search = [];
+    $search_filters = [];
+
+    if (!empty($default_filter["plugincy_search"])) {
+        $search_filters[] = $default_filter["plugincy_search"];
+    } elseif (!empty($default_filter["plugincy_search[]"])) {
+        $search_filters = (array)$default_filter["plugincy_search[]"];
+    }
+
+    if (!empty($search_filters)) {
+        $search_string = trim(implode(' ', array_filter(array_map('sanitize_text_field', $search_filters))));
+
+        if ($search_string !== '') {
+            $search_query = new WP_Query([
+                'post_type'      => 'product',
+                'post_status'    => 'publish',
+                's'              => $search_string,
+                'fields'         => 'ids',
+                'posts_per_page' => -1,
+                'no_found_rows'  => true,
+            ]);
+
+            if (!empty($search_query->posts)) {
+                $products_id_by_search = array_map('intval', $search_query->posts);
+            }
+
+            wp_reset_postdata();
+        }
+    }
+
+    // Filter products by price range
+    $products_id_by_price = [];
+    if (!empty($default_filter["price[]"])) {
+        $price_ranges = (array)$default_filter["price[]"];
+        foreach ($price_ranges as $range) {
+            if (strpos($range, '-') !== false) {
+                list($min, $max) = explode('-', $range, 2);
+                $min = floatval($min);
+                $max = floatval($max);
+
+                foreach ($product_details as $product) {
+                    $product_price = floatval($product['price'] ?: $product['regular_price'] ?: 0);
+                    if ($product_price >= $min && $product_price <= $max) {
+                        if (!in_array($product['ID'], $products_id_by_price)) {
+                            $products_id_by_price[] = $product['ID'];
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    $products_id_by_dimensions = [];
+    $dimension_filters = [];
+    foreach (['length', 'width', 'height', 'weight'] as $dimension) {
+        $min_key = 'min_' . $dimension;
+        $max_key = 'max_' . $dimension;
+
+        $min = isset($default_filter[$min_key]) && $default_filter[$min_key] !== '' ? floatval($default_filter[$min_key]) : null;
+        $max = isset($default_filter[$max_key]) && $default_filter[$max_key] !== '' ? floatval($default_filter[$max_key]) : null;
+
+        if ($min !== null || $max !== null) {
+            $dimension_filters[$dimension] = ['min' => $min, 'max' => $max];
+        }
+    }
+
+    if (!empty($dimension_filters)) {
+        foreach ($product_details as $product) {
+            $matches = true;
+
+            foreach ($dimension_filters as $dimension => $range) {
+                $value = isset($product[$dimension]) && $product[$dimension] !== '' ? floatval($product[$dimension]) : null;
+
+                if ($value === null || ($range['min'] !== null && $value < $range['min']) || ($range['max'] !== null && $value > $range['max'])) {
+                    $matches = false;
+                    break;
+                }
+            }
+
+            if ($matches) {
+                $products_id_by_dimensions[] = $product['ID'];
+            }
+        }
+    }
+
+    $products_id_by_sku = [];
+    $raw_sku_filter = $default_filter['sku'] ?? ($default_filter['sku[]'] ?? null);
+
+    if (!empty($raw_sku_filter)) {
+        $sku_filters = is_array($raw_sku_filter) ? $raw_sku_filter : explode(',', $raw_sku_filter);
+        $sku_filters = array_filter(array_map(static function ($sku) {
+            return strtolower(trim($sku));
+        }, $sku_filters));
+
+        if (!empty($sku_filters)) {
+            $sku_map = array_fill_keys($sku_filters, true);
+            foreach ($product_details as $product) {
+                $product_sku = strtolower($product['product_sku']);
+                if ($product_sku !== '' && isset($sku_map[$product_sku])) {
+                    $products_id_by_sku[$product['ID']] = true;
+                }
+            }
+
+            $products_id_by_sku = array_keys($products_id_by_sku);
+        }
+    }
+
+    $products_id_by_discount = [];
+    $raw_discount_filter = $default_filter['discount'] ?? ($default_filter['discount[]'][0] ?? null);
+
+    if ($raw_discount_filter !== null && $raw_discount_filter !== '') {
+        $min_discount = floatval($raw_discount_filter);
+
+        if ($min_discount > 0) {
+            foreach ($product_details as $product) {
+                if (!empty($product['discount_percentage']) && floatval($product['discount_percentage']) >= $min_discount) {
+                    $products_id_by_discount[] = $product['ID'];
+                }
+            }
+        }
+    }
+
+    $products_id_by_date_filter = [];
+    $date_filter_value = $default_filter['date_filter'] ?? ($default_filter['date_filter[]'][0] ?? null);
+
+    if (!empty($date_filter_value)) {
+        $start = null;
+        $end = null;
+
+        switch ($date_filter_value) {
+            case 'today':
+                $start = strtotime('today');
+                $end = strtotime('tomorrow') - 1;
+                break;
+            case 'this_week':
+                $start = strtotime('monday this week');
+                $end = strtotime('sunday this week 23:59:59');
+                break;
+            case 'this_month':
+                $start = strtotime('first day of this month');
+                $end = strtotime('first day of next month') - 1;
+                break;
+            case 'this_year':
+                $current_year = (int) gmdate('Y');
+                $start = strtotime('first day of january ' . $current_year);
+                $end = strtotime('first day of january ' . ($current_year + 1)) - 1;
+                break;
+            case 'custom':
+                $date_from = $default_filter['date_from'] ?? null;
+                $date_to = $default_filter['date_to'] ?? null;
+
+                if (!empty($date_from)) {
+                    $start = strtotime($date_from);
+                }
+
+                if (!empty($date_to)) {
+                    $end = strtotime($date_to . ' 23:59:59');
+                }
+                break;
+        }
+
+        if ($start !== null || $end !== null) {
+            foreach ($product_details as $product) {
+                $published = strtotime($product['publish_date'] ?? '');
+                if ($published === false) {
+                    continue;
+                }
+
+                if (($start === null || $published >= $start) && ($end === null || $published <= $end)) {
+                    $products_id_by_date_filter[] = $product['ID'];
+                }
+            }
+        }
+    }
+
 
     // Create Lookup Arrays
     $cata_lookup = array_combine(
@@ -622,10 +1039,14 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_data_objects["max_height"] = isset($default_filter["max_height"]) ? $default_filter["max_height"] : "";
     $all_data_objects["min_weight"] = isset($default_filter["min_weight"]) ? $default_filter["min_weight"] : "";
     $all_data_objects["max_weight"] = isset($default_filter["max_weight"]) ? $default_filter["max_weight"] : "";
-    $all_data_objects["sku"] = isset($default_filter["sku"]) ? $default_filter["sku"] : "";
-    $all_data_objects["discount"] = isset($default_filter["discount"]) ? $default_filter["discount"] : "";
-    $all_data_objects["date_filter"] = isset($default_filter["date_filter"]) ? $default_filter["date_filter"] : "";
-    $all_data_objects["rating[]"] = isset($default_filter["rating[]"]) ? $default_filter["rating[]"] : [];
+    $all_data_objects["length"] = $default_filter["length[]"][0] ?? "";
+    $all_data_objects["width"] = $default_filter["width[]"][0] ?? "";
+    $all_data_objects["height"] = $default_filter["height[]"][0] ?? "";
+    $all_data_objects["weight"] = $default_filter["weight[]"][0] ?? "";
+    $all_data_objects["sku"] = $default_filter["sku"] ?? $default_filter["sku[]"][0] ?? "";
+    $all_data_objects["discount"] = $default_filter["discount"] ?? ($default_filter["discount[]"][0] ?? "");
+    $all_data_objects["date_filter"] = $default_filter["date_filter"] ?? ($default_filter["date_filter[]"][0] ?? "");
+    $all_data_objects["rating[]"] = $default_filter["rating[]"] ?? [];
 
     // Match Filters
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
@@ -642,7 +1063,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip($category_slugs));
     }
     $all_data_objects["product-category[]"] = array_keys($matched_cata_with_ids);
-    if ($second_operator === 'AND') {
+    if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] ?? "IN") === 'AND') {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
@@ -650,10 +1071,10 @@ function dapfforwc_product_filter_shortcode($atts)
 
     // filter by brands
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
-        $matched_brand_with_ids = array_intersect_key($brands_lookup, array_flip(array_filter(isset($default_filter["rplurand[]"]) ? $default_filter["rplurand[]"] : [])));
+        $matched_brand_with_ids = array_intersect_key($brands_lookup, array_flip(array_filter(isset($default_filter["brand[]"]) ? $default_filter["brand[]"] : [])));
     } else {
         // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
-        $brand_slugs = array_filter(isset($default_filter["rplurand[]"]) ? $default_filter["rplurand[]"] : []);
+        $brand_slugs = array_filter(isset($default_filter["brand[]"]) ? $default_filter["brand[]"] : []);
         // Collect numeric keys as possible category slugs
         foreach ($default_filter as $key => $val) {
             if (is_numeric($key) && is_string($val) && !in_array($val, $brand_slugs, true)) {
@@ -663,17 +1084,17 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_brand_with_ids = array_intersect_key($brands_lookup, array_flip($brand_slugs));
     }
     $all_data_objects["rplurand[]"] = array_keys($matched_brand_with_ids);
-    if ($second_operator === 'AND') {
+    if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["brand_operator"] ?? "IN") === 'AND') {
         $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_intersect(...array_values($matched_brand_with_ids)));
     } else {
         $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_brand_with_ids))));
     }
     // filter by authors
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
-        $matched_author_with_ids = array_intersect_key($authors_lookup, array_flip(array_filter(isset($default_filter["rpluthor[]"]) ? $default_filter["rpluthor[]"] : [])));
+        $matched_author_with_ids = array_intersect_key($authors_lookup, array_flip(array_filter(isset($default_filter["author[]"]) ? $default_filter["author[]"] : [])));
     } else {
         // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
-        $author_slugs = array_filter(isset($default_filter["rpluthor[]"]) ? $default_filter["rpluthor[]"] : []);
+        $author_slugs = array_filter(isset($default_filter["author[]"]) ? $default_filter["author[]"] : []);
         // Collect numeric keys as possible category slugs
         foreach ($default_filter as $key => $val) {
             if (is_numeric($key) && is_string($val) && !in_array($val, $author_slugs, true)) {
@@ -683,17 +1104,13 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_author_with_ids = array_intersect_key($authors_lookup, array_flip($author_slugs));
     }
     $all_data_objects["rpluthor[]"] = array_keys($matched_author_with_ids);
-    if ($second_operator === 'AND') {
-        $products_id_by_author = empty($matched_author_with_ids) ? [] : array_values(array_intersect(...array_values($matched_author_with_ids)));
-    } else {
-        $products_id_by_author = empty($matched_author_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_author_with_ids))));
-    }
+    $products_id_by_author = empty($matched_author_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_author_with_ids))));
     // filter by stock status
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
-        $matched_stock_status_with_ids = array_intersect_key($stock_status_lookup, array_flip(array_filter(isset($default_filter["rplutock_status[]"]) ? $default_filter["rplutock_status[]"] : [])));
+        $matched_stock_status_with_ids = array_intersect_key($stock_status_lookup, array_flip(array_filter(isset($default_filter["stock_status[]"]) ? $default_filter["stock_status[]"] : [])));
     } else {
         // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
-        $stock_status_slugs = array_filter(isset($default_filter["rplutock_status[]"]) ? $default_filter["rplutock_status[]"] : []);
+        $stock_status_slugs = array_filter(isset($default_filter["stock_status[]"]) ? $default_filter["stock_status[]"] : []);
         // Collect numeric keys as possible category slugs
         foreach ($default_filter as $key => $val) {
             if (is_numeric($key) && is_string($val) && !in_array($val, $stock_status_slugs, true)) {
@@ -703,17 +1120,13 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_stock_status_with_ids = array_intersect_key($stock_status_lookup, array_flip($stock_status_slugs));
     }
     $all_data_objects["rplutock_status[]"] = array_keys($matched_stock_status_with_ids);
-    if ($second_operator === 'AND') {
-        $products_id_by_stock_status = empty($matched_stock_status_with_ids) ? [] : array_values(array_intersect(...array_values($matched_stock_status_with_ids)));
-    } else {
-        $products_id_by_stock_status = empty($matched_stock_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_stock_status_with_ids))));
-    }
+    $products_id_by_stock_status = empty($matched_stock_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_stock_status_with_ids))));
     // filter by sale status
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
-        $matched_sale_status_with_ids = array_intersect_key($sale_status_lookup, array_flip(array_filter(isset($default_filter["rpn_sale[]"]) ? $default_filter["rpn_sale[]"] : [])));
+        $matched_sale_status_with_ids = array_intersect_key($sale_status_lookup, array_flip(array_filter(isset($default_filter["sale_status[]"]) ? $default_filter["sale_status[]"] : [])));
     } else {
         // Merge both possible category sources: 'brands[]' and numeric keys (0,1,2,...)
-        $sale_status_slugs = array_filter(isset($default_filter["rpn_sale[]"]) ? $default_filter["rpn_sale[]"] : []);
+        $sale_status_slugs = array_filter(isset($default_filter["sale_status[]"]) ? $default_filter["sale_status[]"] : []);
         // Collect numeric keys as possible category slugs
         foreach ($default_filter as $key => $val) {
             if (is_numeric($key) && is_string($val) && !in_array($val, $sale_status_slugs, true)) {
@@ -723,11 +1136,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_sale_status_with_ids = array_intersect_key($sale_status_lookup, array_flip($sale_status_slugs));
     }
     $all_data_objects["rpn_sale[]"] = array_keys($matched_sale_status_with_ids);
-    if ($second_operator === 'AND') {
-        $products_id_by_sale_status = empty($matched_sale_status_with_ids) ? [] : array_values(array_intersect(...array_values($matched_sale_status_with_ids)));
-    } else {
-        $products_id_by_sale_status = empty($matched_sale_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_sale_status_with_ids))));
-    }
+    $products_id_by_sale_status = empty($matched_sale_status_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_sale_status_with_ids))));
     // filter by tags
 
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
@@ -745,7 +1154,7 @@ function dapfforwc_product_filter_shortcode($atts)
     }
     $all_data_objects["tag[]"] = array_keys($matched_tag_with_ids);
 
-    if ($second_operator === 'AND') {
+    if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["tag_operator"] ?? "IN") === 'AND') {
         $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_intersect(...array_values($matched_tag_with_ids)));
     } else {
         $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_tag_with_ids))));
@@ -804,7 +1213,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    if ($second_operator === 'AND') {
+    if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["terms_operator"] ?? "IN") === 'AND') {
         foreach ($match_attributes_with_ids as $taxonomy => $products) {
             $products_id_by_attributes[] = array_values(array_intersect(...$products));
         }
@@ -868,37 +1277,77 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    if ($second_operator === 'AND') {
-        foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
-            $products_id_by_custom_meta[] = array_values(array_intersect(...$products));
-        }
-    } else {
-        foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
-            $products_id_by_custom_meta[] = array_values(array_unique(array_merge(...$products)));
-        }
+    foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
+        $products_id_by_custom_meta[] = array_values(array_unique(array_merge(...$products)));
     }
 
     $common_values_custom_meta = empty($products_id_by_custom_meta) ? [] : array_intersect(...$products_id_by_custom_meta);
 
+
+    // echo json_encode(
+    //     [
+    //         "products_id_by_cata" => $products_id_by_cata,
+    //         "products_id_by_tag" => $products_id_by_tag,
+    //         "products_id_by_brand" => $products_id_by_brand,
+    //         "attribute" =>  $common_values,
+    //         "custom_meta" => $common_values_custom_meta,
+    //         "products_id_by_author" => $products_id_by_author,
+    //         "products_id_by_stock_status" => $products_id_by_stock_status,
+    //         "products_id_by_sale_status" => $products_id_by_sale_status,
+    //         "products_id_by_search" => $products_id_by_search,
+    //         "products_id_by_price" => $products_id_by_price,
+    //         "products_id_by_dimensions" => $products_id_by_dimensions,
+    //         "products_id_by_rating" => $products_id_by_rating,
+    //         "products_id_by_sku" => $products_id_by_sku,
+    //         "products_id_by_discount" => $products_id_by_discount,
+    //         "products_id_by_date_filter" => $products_id_by_date_filter,
+    //     ]
+    // );
+
     $products_ids = dapfforwc_getFilteredProductIds(
-        $products_id_by_cata,
-        $products_id_by_tag,
-        $products_id_by_brand,
-        $common_values,
-        $common_values_custom_meta,
-        $products_id_by_author,
-        $products_id_by_stock_status,
-        $products_id_by_sale_status
+        [
+            $products_id_by_cata,
+            $products_id_by_tag,
+            $products_id_by_brand,
+            $common_values,
+            $common_values_custom_meta,
+            $products_id_by_author,
+            $products_id_by_stock_status,
+            $products_id_by_sale_status,
+            $products_id_by_search,
+            $products_id_by_price,
+            $products_id_by_dimensions,
+            $products_id_by_rating,
+            $products_id_by_sku,
+            $products_id_by_discount,
+            $products_id_by_date_filter
+        ]
     );
-    if (!empty($products_id_by_rating) && !empty($products_ids)) {
-        $products_ids = array_values(array_intersect($products_ids, $products_id_by_rating));
-    } elseif (!empty($products_id_by_rating) && empty($products_ids)) {
-        $products_ids = $products_id_by_rating;
+
+    if (!empty($products_ids)) {
+        // Store in a global for immediate use
+        $GLOBALS['dapfforwc_filtered_product_ids'] = $products_ids;
+
+        // Also store a hash of current filters to validate freshness
+        $filter_hash = md5(wp_json_encode($filteroptionsfromurl));
+        $GLOBALS['dapfforwc_filter_hash'] = $filter_hash;
+
+        // Optionally store in transient for AJAX requests (short-lived, 5 minutes)
+        set_transient('dapfforwc_filtered_ids_' . $filter_hash, $products_ids, 300);
     }
 
     $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
 
+    $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data) ?? [];
+
     $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+
+    if (isset($filteroptionsfromurl["default_min"]) && isset($filteroptionsfromurl["default_max"]) && $filteroptionsfromurl["default_min"] <= $min_max_prices["min"] && $filteroptionsfromurl["default_max"] >= $min_max_prices["max"]) {
+        $min_max_prices = [
+            "min" => $filteroptionsfromurl["default_min"],
+            "max" => $filteroptionsfromurl["default_max"],
+        ];
+    }
 
     $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval($dapfforwc_styleoptions["price"]["min_price"] ?? 0));
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
@@ -1133,7 +1582,8 @@ function dapfforwc_product_filter_shortcode($atts)
         #product-filter .plugrogress-percentage:after,
         #product-filter .plugrogress-percentage:before,
         #product-filter .plugincy_slider .plugrogress,
-        #product-filter .plugincy-search-submit {
+        #product-filter .plugincy-search-submit,
+        #product-filter .dapfforwc-apply-filters-btn {
             background: <?php echo esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#432fb8'); ?> !important;
         }
 
@@ -1179,7 +1629,8 @@ function dapfforwc_product_filter_shortcode($atts)
             border-top: 1px solid <?php echo esc_html(isset($template_options["border_color"]) ? $template_options["border_color"] : '#eee'); ?>;
         }
 
-        #product-filter span.reset-value {
+        #product-filter span.reset-value,
+        #product-filter .dapfforwc-reset-filters-btn {
             background: <?php echo esc_html(isset($template_options["secondary_color"]) ? $template_options["secondary_color"] : '#ff4d4d'); ?>;
         }
 
@@ -1303,6 +1754,15 @@ function dapfforwc_product_filter_shortcode($atts)
                     left: 50%;
                 }
 
+
+                .mobile-filter-overlay {
+                    position: fixed;
+                    z-index: 2147483646;
+                    background: rgba(0, 0, 0, 0.55);
+                    inset: 0;
+                    display: none;
+                }
+
                 .rfilterselected ul {
                     flex-wrap: nowrap;
                     overflow: scroll;
@@ -1341,6 +1801,15 @@ function dapfforwc_product_filter_shortcode($atts)
                     transform: translateX(0%);
                 }
 
+
+                .mobile-filter-overlay {
+                    position: fixed;
+                    z-index: 2147483646;
+                    background: rgba(0, 0, 0, 0.55);
+                    inset: 0;
+                    display: none;
+                }
+
                 .rfilterselected ul {
                     flex-wrap: nowrap;
                     overflow: scroll;
@@ -1350,75 +1819,292 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php }
 
     if ($atts['mobile_responsive'] === 'style_3' ||  $atts['mobile_responsive'] === 'style_4') { ?>
-        <button id="filter-button" style="position: fixed;z-index: 9999999999;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
+        <button id="filter-button" style="position: fixed;z-index: 2147483645;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
             <svg style=" width: 20px; fill: #fff; " xmlns="https://www.w3.org/2000/svg" viewBox="0 0 512 512" role="graphics-symbol" aria-hidden="false" aria-label="">
                 <path d="M3.853 54.87C10.47 40.9 24.54 32 40 32H472C487.5 32 501.5 40.9 508.1 54.87C514.8 68.84 512.7 85.37 502.1 97.33L320 320.9V448C320 460.1 313.2 471.2 302.3 476.6C291.5 482 278.5 480.9 268.8 473.6L204.8 425.6C196.7 419.6 192 410.1 192 400V320.9L9.042 97.33C-.745 85.37-2.765 68.84 3.854 54.87L3.853 54.87z"></path>
             </svg>
         </button>
+        <div class="mobile-filter-overlay" aria-hidden="true"></div>
         <div class="mobile-filter">
             <div class="sm-top-btn" id="mobileonly" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding: 20px;margin-bottom: 10px;">
-                <button id="filter-cancel-button" style="background: none !important;padding:0;color: #000;"> Cancel </button>
+                <button id="filter-cancel-button" aria-label="Close filters" style="background: none !important;padding:0;color: #000;display: inline-flex;align-items: center;justify-content: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none" />
+                    </svg>
+                </button>
                 <p style="margin: 0;" id="rcountproduct">Showing(All)</p>
             </div>
         <?php
         echo '<div class="rfilterselected" id="mobileonly"><div><ul></ul></div></div>';
     }
     if ($atts['mobile_responsive'] === 'style_3') {
-        wp_add_inline_script('urlfilter-ajax', "
+        wp_add_inline_script('urlfilter-ajax', '
          jQuery(document).ready(function($) {
+                    const $mobileFilter = $(".mobile-filter");
+                    const $mobileOverlay = $(".mobile-filter-overlay");
+                    const $filterButton = $("#filter-button");
+                    const $loader = $("div#loader");
+                    const originalPositions = {
+                        mobileFilter: $mobileFilter.length ? { parent: $mobileFilter.parent(), next: $mobileFilter.next() } : null,
+                        mobileOverlay: $mobileOverlay.length ? { parent: $mobileOverlay.parent(), next: $mobileOverlay.next() } : null,
+                        filterButton: $filterButton.length ? { parent: $filterButton.parent(), next: $filterButton.next() } : null,
+                        loader: $loader.length ? { parent: $loader.parent(), next: $loader.next() } : null
+                    };
+
+                    const moveElementToBody = function ($el) {
+                        if ($el.length && !$el.parent().is("body")) {
+                            $el.appendTo("body");
+                        }
+                    };
+
+                    const restoreElement = function ($el, position) {
+                        if (!$el.length || !position || !position.parent || !position.parent.length) {
+                            return;
+                        }
+
+                        if (position.next && position.next.length && position.next.parent().is(position.parent)) {
+                            $el.insertBefore(position.next);
+                        } else {
+                            position.parent.append($el);
+                        }
+                    };
+
+                    const moveElementsToBody = function () {
+                        moveElementToBody($mobileFilter);
+                        moveElementToBody($mobileOverlay);
+                        moveElementToBody($filterButton);
+                        moveElementToBody($loader);
+
+                        closeFilter(true);
+                    };
+
+                    const restoreElements = function () {
+                        restoreElement($mobileFilter, originalPositions.mobileFilter);
+                        restoreElement($mobileOverlay, originalPositions.mobileOverlay);
+                        restoreElement($filterButton, originalPositions.filterButton);
+                        restoreElement($loader, originalPositions.loader);
+                    };
+
+                    const openFilter = function () {
+                        $mobileFilter.slideDown();
+                        $mobileOverlay.fadeIn();
+                    };
+
+                    const closeFilter = function (immediate) {
+                        if (immediate) {
+                            $mobileFilter.stop(true, true).hide();
+                            $mobileOverlay.stop(true, true).hide();
+                            return;
+                        }
+
+                        $mobileFilter.slideUp();
+                        $mobileOverlay.fadeOut();
+                    };
+
+                    const showDesktop = function () {
+                        $mobileFilter.stop(true, true).show();
+                        $mobileOverlay.stop(true, true).hide();
+                    };
+
                     let isMobile = false;
-                    if (window.innerWidth <= 768) {
-                        isMobile = true;
-                    }
 
-                    if (isMobile) {
-                        $('#filter-cancel-button').on('click', function(event) {
-                            event.preventDefault();
-                            $('.mobile-filter').slideUp();
-                        });
+                    const updateIsMobile = function () {
+                        const nowMobile = window.innerWidth <= 768;
 
-                        $('#filter-button').on('click', function(event) {
-                            event.preventDefault();
-                            $('.mobile-filter').slideDown();
-                        });
+                        if (nowMobile) {
+                            moveElementsToBody();
+                        } else {
+                            restoreElements();
+                            showDesktop();
+                        }
 
-                        $(document).on('click', function(event) {
-                            if (!$(event.target).closest('.mobile-filter, #filter-button').length) {
-                                $('.mobile-filter').slideUp();
-                            }
-                        });
-                    }
+                        isMobile = nowMobile;
+                    };
+
+                    $("#filter-cancel-button").on("click", function(event) {
+                        event.preventDefault();
+
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        closeFilter();
+                    });
+
+                    $("#filter-button").on("click", function(event) {
+                        event.preventDefault();
+
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        if ($mobileFilter.is(":visible")) {
+                            closeFilter();
+                        } else {
+                            openFilter();
+                        }
+                    });
+
+                    $mobileOverlay.on("click", function() {
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        closeFilter();
+                    });
+
+                    $(document).on("click", function(event) {
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        if (!$(event.target).closest(".mobile-filter, #filter-button").length) {
+                            closeFilter();
+                        }
+                    });
+
+                    updateIsMobile();
+
+                    $(window).on("resize", function() {
+                        updateIsMobile();
+                    });
                 });
-         ");
+         ');
     }
 
     if ($atts['mobile_responsive'] === 'style_4') {
-        wp_add_inline_script('urlfilter-ajax', "
-         jQuery(document).ready(function($) {
+        wp_add_inline_script('urlfilter-ajax', '
+        jQuery(document).ready(function($) {
+                    const $mobileFilter = $(".mobile-filter");
+                    const $mobileOverlay = $(".mobile-filter-overlay");
+                    const $filterButton = $("#filter-button");
+                    const $loader = $("div#loader");
+                    const originalPositions = {
+                        mobileFilter: $mobileFilter.length ? { parent: $mobileFilter.parent(), next: $mobileFilter.next() } : null,
+                        mobileOverlay: $mobileOverlay.length ? { parent: $mobileOverlay.parent(), next: $mobileOverlay.next() } : null,
+                        filterButton: $filterButton.length ? { parent: $filterButton.parent(), next: $filterButton.next() } : null,
+                        loader: $loader.length ? { parent: $loader.parent(), next: $loader.next() } : null
+                    };
+
+                    const moveElementToBody = function ($el) {
+                        if ($el.length && !$el.parent().is("body")) {
+                            $el.appendTo("body");
+                        }
+                    };
+
+                    const restoreElement = function ($el, position) {
+                        if (!$el.length || !position || !position.parent || !position.parent.length) {
+                            return;
+                        }
+
+                        if (position.next && position.next.length && position.next.parent().is(position.parent)) {
+                            $el.insertBefore(position.next);
+                        } else {
+                            position.parent.append($el);
+                        }
+                    };
+
+                    const moveElementsToBody = function () {
+                        moveElementToBody($mobileFilter);
+                        moveElementToBody($mobileOverlay);
+                        moveElementToBody($filterButton);
+                        moveElementToBody($loader);
+
+                        closeFilter(true);
+                    };
+
+                    const restoreElements = function () {
+                        restoreElement($mobileFilter, originalPositions.mobileFilter);
+                        restoreElement($mobileOverlay, originalPositions.mobileOverlay);
+                        restoreElement($filterButton, originalPositions.filterButton);
+                        restoreElement($loader, originalPositions.loader);
+                    };
+
+                    const openFilter = function () {
+                        $mobileFilter.addClass("open");
+                        $mobileOverlay.fadeIn();
+                    };
+
+                    const closeFilter = function (immediate) {
+                        $mobileFilter.removeClass("open");
+
+                        if (immediate) {
+                            $mobileOverlay.stop(true, true).hide();
+                            return;
+                        }
+
+                        $mobileOverlay.fadeOut();
+                    };
+
+                    const showDesktop = function () {
+                        $mobileFilter.removeClass("open").stop(true, true).show();
+                        $mobileOverlay.stop(true, true).hide();
+                    };
+
                     let isMobile = false;
-                    if (window.innerWidth <= 768) {
-                        isMobile = true;
-                    }
 
-                    if (isMobile) {
-                        $('#filter-button').on('click', function(event) {
-                            event.preventDefault();
-                            $('.mobile-filter').toggleClass('open');
-                        });
+                    const updateIsMobile = function () {
+                        const nowMobile = window.innerWidth <= 768;
 
-                        $('#filter-cancel-button').on('click', function(event) {
-                            event.preventDefault();
-                            $('.mobile-filter').removeClass('open');
-                        });
+                        if (nowMobile) {
+                            moveElementsToBody();
+                        } else {
+                            restoreElements();
+                            showDesktop();
+                        }
 
-                        $(document).on('click', function(event) {
-                            if (!$(event.target).closest('.mobile-filter, #filter-button').length) {
-                                $('.mobile-filter').removeClass('open');
-                            }
-                        });
-                    }
+                        isMobile = nowMobile;
+                    };
+
+                    $("#filter-button").on("click", function(event) {
+                        event.preventDefault();
+
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        if ($mobileFilter.hasClass("open")) {
+                            closeFilter();
+                        } else {
+                            openFilter();
+                        }
+                    });
+
+                    $("#filter-cancel-button").on("click", function(event) {
+                        event.preventDefault();
+
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        closeFilter();
+                    });
+
+                    $mobileOverlay.on("click", function() {
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        closeFilter();
+                    });
+
+                    $(document).on("click", function(event) {
+                        if (!isMobile) {
+                            return;
+                        }
+
+                        if (!$(event.target).closest(".mobile-filter, #filter-button").length) {
+                            closeFilter();
+                        }
+                    });
+
+                    updateIsMobile();
+
+                    $(window).on("resize", function() {
+                        updateIsMobile();
+                    });
                 });
-         ");
+        ');
     } ?>
         <div class="plugincy_filter_wrapper" style="position: relative;">
             <!-- Navigation Buttons -->
@@ -1506,7 +2192,8 @@ function dapfforwc_product_filter_shortcode($atts)
                 $default_data_objects = [
                     "min_price" => $min_price,
                     "max_price" => $max_price,
-                    ...$filteroptionsfromurl
+                    ...$filteroptionsfromurl,
+                    ...$parsed_filters
                 ];
                 echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' && !is_shop()) ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $dapfforwc_allowed_tags);
                 echo '</form></div>';
@@ -1656,27 +2343,27 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
     switch ($sub_option) {
         case 'checkbox':
-            $output .= '<label><input  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
+            $output .= '<label><input  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
         case 'button_check':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'radio_check':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio-check" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio-check" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'radio':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-radio" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
 
         case 'square':
         case 'square_check':
-            $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
+            $output .= '<label class="square-option"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-square" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
             break;
 
         case 'checkbox_hide':
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . ' style="display:none;"> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . ' style="display:none;"> <span><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span></label>';
             break;
 
         case 'plugincy_color':
@@ -1689,8 +2376,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $color = isset($dapfforwc_styleoptions[$attribute]) && isset($dapfforwc_styleoptions[$attribute]['colors']) && isset($dapfforwc_styleoptions[$attribute]['colors'][$value]) ? $dapfforwc_styleoptions[$attribute]['colors'][$value] : '#000'; // Default color
             $border = ($sub_option === 'color_no_border') ? 'none' : '1px solid #000';
             $value_show = ($sub_option === 'color_value') ? 'block' : 'none';
-            $output .= '<label style="position: relative;"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-color" name="' . $name . '[]" value="' . $value . '"' . $checked . '>
-                <span class="color-box" style="background-color: ' . $color . '; border: ' . $border . '; width: 30px; height: 30px;"></span><span class="value" style="display:' . $value_show . ';">' . $value . ($count != 0 ? ' (' . $count . ')' : '') . '<span></label>';
+            $output .= '<label style="position: relative;"><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-color" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '>
+                <span class="color-box" style="background-color: ' . $color . '; border: ' . $border . '; width: 30px; height: 30px;"></span><span class="value" style="display:' . $value_show . ';">' . $title . ($count != 0 ? ' (' . $count . ')' : '') . '<span></label>';
             break;
 
         case 'image':
@@ -1700,7 +2387,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $border_class = ($sub_option === 'image_no_border') ? 'no-border' : '';
             $output .= '<label class="image-option ' . $border_class . '">
             <span class="image-title"><span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></span>
-    <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-image" name="' . $name . '[]" value="' . $value . '"' . $checked . '>';
+    <input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-image" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '>';
 
             if ($image_url !== 'default-image.jpg') {
                 $attachment_id = attachment_url_to_postid($image_url);
@@ -1720,7 +2407,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         case 'select2':
         case 'select2_classic':
         case 'select':
-            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
+            $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
             break;
         case 'input-price-range':
             $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
@@ -1815,7 +2502,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
             break;
         default:
-            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
+            $output .= '<label><input ' . ($disable_unselected && !$checked ? "disabled" : "") . ' type="' . ($singlevalueSelect === "yes" ? 'radio' : 'checkbox') . '" class="filter-checkbox" name="' . $name . '[]"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></label>';
             break;
     }
 

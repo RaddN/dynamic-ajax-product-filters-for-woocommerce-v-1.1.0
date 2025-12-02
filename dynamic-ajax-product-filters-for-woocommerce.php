@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.4.6
+ * Version:     1.4.6.5
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,12 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.4.6');
+define('DAPFFORWC_VERSION', '1.4.6.5');
+
+// Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
+if (!defined('GM_PF_PLACEHOLDER')) {
+    define('GM_PF_PLACEHOLDER', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
+}
 
 // Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
 if (!defined('GM_PF_PLACEHOLDER')) {
@@ -66,7 +71,7 @@ $dapfforwc_options = get_option('dapfforwc_options') ?: [
     'use_custom_template' => 0,
     'custom_template_code' => '',
     'product_selector' => '.products',
-    'pagination_selector' => '.woocommerce-pagination ul.page-numbers',
+    'pagination_selector' => '.woocommerce-pagination',
     'filters_word_in_permalinks' => 'filters',
 ];
 $dapfforwc_advance_settings = get_option('dapfforwc_advance_options') ?: [];
@@ -353,6 +358,7 @@ $dapfforwc_allowed_tags = array(
         'src' => array(),
         'width' => array(),
         'height' => array(),
+        'title' => array(),
     ),
     'textarea' => array(
         'name' => array(),
@@ -1490,7 +1496,7 @@ function dapfforwc_check_woocommerce()
         }
         require_once plugin_dir_path(__FILE__) . 'includes/filter-template.php';
         require_once plugin_dir_path(__FILE__) . 'admin/license-page.php';
-        require_once plugin_dir_path(__FILE__) . 'includes/class-inject.php';
+        // require_once plugin_dir_path(__FILE__) . 'includes/class-inject.php';
         require_once plugin_dir_path(__FILE__) . 'admin/elementor-category.php';
 
 
@@ -1525,7 +1531,7 @@ function dapfforwc_enqueue_scripts()
     $script_path = 'assets/js/filter.min.js';
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.6', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.4.6.5', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
@@ -1536,9 +1542,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.6');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.6');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.6', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.4.6.5');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.6.5');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.6.5', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
@@ -1554,8 +1560,13 @@ function dapfforwc_enqueue_scripts()
     foreach ($max_height as $key => $value) {
         // Sanitize the key to create a valid CSS class name
         if (is_numeric($value) && $value > 0) {
+            if($key === "product-category"){
+                $key = "category";
+            }elseif($key === "plugincy_rating"){
+                $key = "rating";
+            }
             $cssClass = strtolower($key); // Replace dashes with underscores
-            $css .= "#{$cssClass} .items{\n";
+            $css .= ".{$cssClass} .items{\n";
             $css .= "    max-height: {$value}px;\n"; // Set max-height based on value
             $css .= "    overflow-y: auto;\n";
             $css .= "    scrollbar-width: thin;\n";
@@ -1578,11 +1589,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.6');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.4.6.5');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.6', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.4.6.5', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1875,7 +1886,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.6');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.4.6.5');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2177,7 +2188,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.4.6",
+            "1.4.6.5",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -3085,40 +3096,6 @@ if (!defined('GM_PF_PLACEHOLDER')) {
     define('GM_PF_PLACEHOLDER', '');
 }
 
-/**
- * Rewrite an <img ...> tag to lazy placeholder.
- */
-if (!function_exists('gm_pf_rewrite_img_html')) {
-    function gm_pf_rewrite_img_html(string $html): string {
-        if (!gm_pf_is_fragment_request() || strpos($html, '<img') === false) return $html;
-
-        // Remove eager hints that can trigger loads
-        $html = preg_replace('/\s(srcset|sizes|loading|decoding|fetchpriority)="[^"]*"/i', '', $html);
-
-        // Replace src with placeholder, move real URL to data-src, ensure class exists
-        $html = preg_replace_callback(
-            '/<img\b([^>]*?)\ssrc="([^"]+)"([^>]*)>/i',
-            static function ($m) {
-                $pre  = $m[1];
-                $src  = $m[2];
-                $post = $m[3];
-
-                if (preg_match('/\bclass="([^"]*)"/i', $pre . $post, $cm)) {
-                    $cls = trim($cm[1] . ' gm-pf-lazy');
-                    $pre = preg_replace('/\bclass="[^"]*"/i', ' class="' . esc_attr($cls) . '" ', $pre);
-                } else {
-                    $pre .= ' class="gm-pf-lazy" ';
-                }
-
-                return '<img' . $pre . ' src="' . GM_PF_PLACEHOLDER . '" data-src="' . esc_url($src) . '"' . $post . '>';
-            },
-            $html
-        );
-
-        return $html;
-    }
-}
-
 /** ------------------------------------------------------------------------
  * HEAD/SCRIPT/CSS suppression (works even if theme hard-codes tags)
  * --------------------------------------------------------------------- */
@@ -3214,37 +3191,6 @@ add_action('shutdown', function () {
     if (!gm_pf_is_fragment_request()) return;
     if (ob_get_level()) { @ob_end_flush(); }
 }, PHP_INT_MAX);
-
-/** ------------------------------------------------------------------------
- * Image rewriting (attachments, thumbnails, avatars, content)
- * --------------------------------------------------------------------- */
-add_filter('wp_get_attachment_image_attributes', function ($attr) {
-    if (!gm_pf_is_fragment_request()) return $attr;
-
-    if (!empty($attr['src'])) {
-        $attr['data-src'] = $attr['src'];
-        $attr['src']      = GM_PF_PLACEHOLDER;
-    }
-
-    // Avoid any eager loads
-    unset($attr['srcset'], $attr['sizes'], $attr['loading'], $attr['decoding'], $attr['fetchpriority']);
-
-    $attr['class'] = trim(($attr['class'] ?? '') . ' gm-pf-lazy');
-
-    return $attr;
-}, 10, 1);
-
-add_filter('post_thumbnail_html', function ($html) {
-    return gm_pf_rewrite_img_html($html);
-}, 10, 1);
-
-add_filter('get_avatar', function ($html) {
-    return gm_pf_rewrite_img_html($html);
-}, 10, 1);
-
-add_filter('the_content', function ($content) {
-    return gm_pf_rewrite_img_html($content);
-}, 9);
 
 /** ------------------------------------------------------------------------
  * WooCommerce & Query trimming
