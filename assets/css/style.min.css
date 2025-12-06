@@ -733,3 +733,7 @@ form#product-filter .discount-input-group input {
 .select2-container {
     z-index: 9999999999;
 }
+.dapfforwc-apply-reset-container {
+    display: flex;
+    gap: 10px;
+}
