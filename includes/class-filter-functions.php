@@ -618,18 +618,25 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $sale_filter = $this->get_sale_filter_flags($params);
         if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
             $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
+            $sale_meta_query = array();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
                 // Only on sale products
                 $post_in = $this->merge_post_in_lists($query->get('post__in'), $sale_product_ids);
                 $query->set('post__in', !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0)));
+                $sale_meta_query = $this->get_sale_meta_query(true);
             } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
                 // Only not on sale products
                 if (!empty($sale_product_ids)) {
                     $query->set('post__not_in', $this->merge_post_not_in_lists($query->get('post__not_in'), $sale_product_ids));
                 }
+                $sale_meta_query = $this->get_sale_meta_query(false);
             }
             // If both are selected, don't apply any filter (show all)
+
+            if (!empty($sale_meta_query)) {
+                $meta_query[] = $sale_meta_query;
+            }
         }
 
         // Apply dimension filters
@@ -726,6 +733,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($query->get('post__in'), $discount_products);
                 $query->set('post__in', !empty($post_in) ? $post_in : array(0));
+                $meta_query[] = $this->get_sale_meta_query(true);
             } else {
                 $query->set('post__in', array(0)); // No products found
             }
@@ -950,18 +958,25 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $sale_filter = $this->get_sale_filter_flags($params);
         if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
             $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
+            $sale_meta_query = array();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
                 // Only on sale products
                 $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $sale_product_ids);
                 $args['post__in'] = !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0));
+                $sale_meta_query = $this->get_sale_meta_query(true);
             } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
                 // Only not on sale products
                 if (!empty($sale_product_ids)) {
                     $args['post__not_in'] = $this->merge_post_not_in_lists($args['post__not_in'] ?? array(), $sale_product_ids);
                 }
+                $sale_meta_query = $this->get_sale_meta_query(false);
             }
             // If both are selected, don't apply any filter (show all)
+
+            if (!empty($sale_meta_query)) {
+                $meta_query[] = $sale_meta_query;
+            }
         }
 
         // Apply dimension filters
@@ -1062,6 +1077,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $discount_products);
                 $args['post__in'] = !empty($post_in) ? $post_in : array(0);
+                $meta_query[] = $this->get_sale_meta_query(true);
             } else {
                 $args['post__in'] = array(0);
             }
@@ -1301,6 +1317,43 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         global $wpdb;
 
         $where_clauses = array();
+
+        // Discount filter: enforce minimum percentage off via SQL so third-party queries can't drop it.
+        if (isset($params['discount']) && floatval($params['discount']) > 0) {
+            $threshold = floatval($params['discount']);
+            $postmeta = $wpdb->postmeta;
+            $posts_table = $wpdb->posts;
+
+            $discount_clause = $wpdb->prepare(
+                '(' .
+                    'EXISTS (' .
+                    "SELECT 1 FROM {$postmeta} rp " .
+                    "JOIN {$postmeta} sp ON sp.post_id = rp.post_id AND sp.meta_key = '_sale_price' " .
+                    "WHERE rp.post_id = {$posts_table}.ID " .
+                    "AND rp.meta_key = '_regular_price' " .
+                    "AND rp.meta_value <> '' AND sp.meta_value <> '' " .
+                    'AND CAST(sp.meta_value AS DECIMAL(10,2)) < CAST(rp.meta_value AS DECIMAL(10,2)) ' .
+                    'AND ((CAST(rp.meta_value AS DECIMAL(10,2)) - CAST(sp.meta_value AS DECIMAL(10,2))) / NULLIF(CAST(rp.meta_value AS DECIMAL(10,2)), 0) * 100) >= %f' .
+                    ')' .
+                    ' OR ' .
+                    'EXISTS (' .
+                    "SELECT 1 FROM {$postmeta} rp " .
+                    "JOIN {$postmeta} sp ON sp.post_id = rp.post_id AND sp.meta_key = '_min_variation_sale_price' " .
+                    "WHERE rp.post_id = {$posts_table}.ID " .
+                    "AND rp.meta_key = '_min_variation_regular_price' " .
+                    "AND rp.meta_value <> '' AND sp.meta_value <> '' " .
+                    'AND CAST(sp.meta_value AS DECIMAL(10,2)) < CAST(rp.meta_value AS DECIMAL(10,2)) ' .
+                    'AND ((CAST(rp.meta_value AS DECIMAL(10,2)) - CAST(sp.meta_value AS DECIMAL(10,2))) / NULLIF(CAST(rp.meta_value AS DECIMAL(10,2)), 0) * 100) >= %f' .
+                    ')' .
+                    ')',
+                $threshold,
+                $threshold
+            );
+
+            if (!empty($discount_clause)) {
+                $where_clauses[] = $discount_clause;
+            }
+        }
 
         // Add any additional WHERE conditions here if needed
         // For example, for complex price filtering or custom fields
