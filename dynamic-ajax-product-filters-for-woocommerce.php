@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.5.0
+ * Version:     1.5.2.5
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.5.0');
+define('DAPFFORWC_VERSION', '1.5.2.5');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -92,6 +92,24 @@ $dapfforwc_front_page_id = get_option('page_on_front') ?: null;
 $dapfforwc_front_page = isset($dapfforwc_front_page_id) ? get_post($dapfforwc_front_page_id) : null;
 // Get the slug of the front page
 $dapfforwc_front_page_slug = isset($dapfforwc_front_page) ? $dapfforwc_front_page->post_name : "";
+
+if (!function_exists('dapfforwc_get_mobile_breakpoint')) {
+    /**
+     * Returns the configured mobile breakpoint or the default fallback.
+     *
+     * @return int
+     */
+    function dapfforwc_get_mobile_breakpoint()
+    {
+        global $dapfforwc_advance_settings;
+
+        $breakpoint = isset($dapfforwc_advance_settings['mobile_breakpoint'])
+            ? absint($dapfforwc_advance_settings['mobile_breakpoint'])
+            : 0;
+
+        return $breakpoint > 0 ? $breakpoint : 768;
+    }
+}
 
 $dapfforwc_allowed_tags = array(
     'a' => array(
@@ -1531,11 +1549,23 @@ function dapfforwc_enqueue_scripts()
 
     $script_handle = 'urlfilter-ajax';
     $script_path = 'assets/js/filter.min.js';
+    $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
+    $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.0', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.2.5', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
-    wp_localize_script($script_handle, 'dapfforwc_data', compact('dapfforwc_options', 'dapfforwc_seo_permalinks_options', 'dapfforwc_slug', 'dapfforwc_styleoptions', 'dapfforwc_advance_settings', 'dapfforwc_front_page_slug'));
+    $dapfforwc_localized_data = array(
+        'dapfforwc_options' => $dapfforwc_options,
+        'dapfforwc_seo_permalinks_options' => $dapfforwc_seo_permalinks_options,
+        'dapfforwc_slug' => $dapfforwc_slug,
+        'dapfforwc_styleoptions' => $dapfforwc_styleoptions,
+        'dapfforwc_advance_settings' => $dapfforwc_advance_settings,
+        'dapfforwc_front_page_slug' => $dapfforwc_front_page_slug,
+        'mobile_breakpoint' => $mobile_breakpoint,
+    );
+    wp_localize_script($script_handle, 'dapfforwc_data', $dapfforwc_localized_data);
+
     wp_localize_script($script_handle, 'dapfforwc_ajax', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'shopPageUrl' => esc_url(get_permalink(get_option('woocommerce_shop_page_id'))),
@@ -1544,27 +1574,35 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.0');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.0');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.0', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.2.5');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.2.5');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.2.5', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
-    if (isset($dapfforwc_advance_settings["sidebar_top"]) && $dapfforwc_advance_settings["sidebar_top"] === "on") {
-        $css .= "@media (max-width: 768px) {
+    if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
+        $css .= "@media (max-width: {$mobile_breakpoint}px) {
                     div#content>div {
                         flex-direction: column !important;
                     }
         }";
     }
+    // Override default mobile padding for filter container with dynamic breakpoint
+    $css .= "@media (max-width: {$mobile_breakpoint}px) {
+        .mobile-filter .rfilterselected,
+        .mobile-filter #product-filter {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+    }";
     // Generate CSS for max-height
 
     $max_height = (is_array($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["max_height"])) ? $dapfforwc_styleoptions["max_height"] : [];
     foreach ($max_height as $key => $value) {
         // Sanitize the key to create a valid CSS class name
         if (is_numeric($value) && $value > 0) {
-            if($key === "product-category"){
+            if ($key === "product-category") {
                 $key = "category";
-            }elseif($key === "plugincy_rating"){
+            } elseif ($key === "plugincy_rating") {
                 $key = "rating";
             }
             $cssClass = strtolower($key); // Replace dashes with underscores
@@ -1591,11 +1629,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.0');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.2.5');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.0', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.2.5', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1888,7 +1926,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.0');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.2.5');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2190,7 +2228,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.5.0",
+            "1.5.2.5",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2247,10 +2285,12 @@ new dapfforwc_cart_analytics_main();
 
 function dapfforwc_sidebar_to_top_inline_scripts()
 {
+    $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
+    $desktop_breakpoint = $mobile_breakpoint + 1;
     ?>
     <style>
         /* Mobile-only Sidebar to Top CSS */
-        @media (max-width: 767px) {
+        @media (max-width: <?php echo esc_attr($mobile_breakpoint); ?>px) {
             .sidebar-moved-to-top {
                 order: -1 !important;
                 -webkit-box-ordinal-group: 0 !important;
@@ -2272,7 +2312,7 @@ function dapfforwc_sidebar_to_top_inline_scripts()
         }
 
         /* Desktop - reset to normal positioning */
-        @media (min-width: 768px) {
+        @media (min-width: <?php echo esc_attr($desktop_breakpoint); ?>px) {
             .sidebar-moved-to-top {
                 order: initial !important;
                 -webkit-box-ordinal-group: initial !important;
@@ -2291,6 +2331,7 @@ function dapfforwc_sidebar_to_top_inline_scripts()
     <script>
         jQuery(document).ready(function($) {
 
+            var mobileBreakpoint = <?php echo (int) $mobile_breakpoint; ?>;
             var $filterForm = $('form#product-filter');
             // Ensure jQuery is properly loaded
             if (typeof $ === 'undefined' || !$) {
@@ -2445,8 +2486,8 @@ function dapfforwc_sidebar_to_top_inline_scripts()
                 // Function to move sidebar to top (mobile only)
                 function moveSidebarToTop() {
                     try {
-                        // Check if we're on mobile (767px or less)
-                        if ($(window).width() <= 767) {
+                        // Check if we're on mobile (<= breakpoint)
+                        if ($(window).width() <= mobileBreakpoint) {
                             // Check if form#product-filter is already at the top of .products
                             if (isFilterFormAlreadyAtTop()) {
                                 return; // Don't move if already positioned correctly
@@ -3063,7 +3104,8 @@ register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
  */
 
 if (!function_exists('gm_pf_is_fragment_request')) {
-    function gm_pf_is_fragment_request(): bool {
+    function gm_pf_is_fragment_request(): bool
+    {
         static $cached_result = null;
         if ($cached_result !== null) {
             return $cached_result;
@@ -3191,7 +3233,9 @@ add_action('template_redirect', function () {
 
 add_action('shutdown', function () {
     if (!gm_pf_is_fragment_request()) return;
-    if (ob_get_level()) { @ob_end_flush(); }
+    if (ob_get_level()) {
+        @ob_end_flush();
+    }
 }, PHP_INT_MAX);
 
 /** ------------------------------------------------------------------------

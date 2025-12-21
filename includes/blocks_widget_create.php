@@ -205,6 +205,8 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
     $perPage = isset($attributes['perPage']) ? intval(sanitize_key($attributes['perPage'])) : 12;
     $filter_options_manage = isset($attributes['filterOptions']) ? $attributes['filterOptions'] : [];
     $mobile_style = isset($attributes['mobileStyle']) ? sanitize_key($attributes['mobileStyle']) : "style_1";
+    $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
+    $mobile_breakpoint_css = intval($mobile_breakpoint);
     $output = '';
 
     // Extract styles
@@ -288,7 +290,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             // $output .= json_encode($filter_options_manage);
             $index = 0;
             if ($filter_options_manage) {
-                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}}';
+                $output .= '<style id="filter-widget-ordering">form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}';
                 foreach ($filter_options_manage as $options) {
                     if ($options["id"] == "product-category" && !isset($dapfforwc_options["show_categories"])) {
                         continue;
@@ -319,7 +321,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                     }
 
                     $is_visible = $options["visible"] ? "flex" : "none";
-                    $output .= '#' . $options["id"] . '{
+                    $output .= '.' . $options["id"] . '{
                     order: ' . $index . '!important;
                     display:' . $is_visible . '!important;
                     flex-direction: column;                
@@ -374,7 +376,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             }
             $output .= '
             
- @media screen and (max-width: 576px) {';
+ @media screen and (max-width: ' . $mobile_breakpoint_css . 'px) {';
             if ($form_sm_style_css) {
                 $output .= 'form#product-filter {' . $form_sm_style_css . '}';
             }
@@ -405,7 +407,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             $output .= '}';
             $output .= '
             
-@media screen and (min-width: 576px) and (max-width: 768px) {';
+@media screen and (min-width: 576px) and (max-width: ' . $mobile_breakpoint_css . 'px) {';
             if ($form_md_style_css) {
                 $output .= 'form#product-filter {' . $form_md_style_css . '}';
             }
@@ -721,7 +723,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'type'            => \Elementor\Controls_Manager::RAW_HTML,
                     'raw'             => esc_html__(
-                        'If this is not a product archive page & you are not using [products] shortcode to display products, you can use these options to query.',
+                        'Our plugin will automatically detect your query. If the automatic detection is incorrect and displays irrelevant filter options, please configure the database accordingly.',
                         'dynamic-ajax-product-filters-for-woocommerce'
                     ),
                     // Optional: Elementor’s panel alert styling classes
@@ -2236,7 +2238,14 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
         }
     }
 
-    // Register the custom widget
-    \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new Dapfforwc_Dynamic_Ajax_Filter_Widget());
+    add_action('elementor/widgets/register', function ($widgets_manager) {
+
+        if (! defined('ELEMENTOR_VERSION') || ! class_exists('WooCommerce')) {
+            return;
+        }
+
+        // Widget class must be loaded before this (preferably outside)
+        $widgets_manager->register(new \Dapfforwc_Dynamic_Ajax_Filter_Widget());
+    });
 }
 add_action('elementor/init', 'dapfforwc_register_dynamic_ajax_filter_widget_elementor', 100);

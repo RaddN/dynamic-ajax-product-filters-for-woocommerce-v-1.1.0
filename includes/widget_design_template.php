@@ -696,10 +696,10 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     // Unified Dimension Filter
     $dimensions = [
-        'length' => ['label' => 'Length', 'unit' => 'cm'],
-        'width' => ['label' => 'Width', 'unit' => 'cm'],
-        'height' => ['label' => 'Height', 'unit' => 'cm'],
-        'weight' => ['label' => 'Weight', 'unit' => 'kg']
+        'length' => ['label' => $dapfforwc_styleoptions['dimensions_text']['length'] ?? 'Length  (cm):', 'unit' => 'cm'],
+        'width' => ['label' => $dapfforwc_styleoptions['dimensions_text']['width'] ?? 'Width (cm):', 'unit' => 'cm'],
+        'height' => ['label' => $dapfforwc_styleoptions['dimensions_text']['height'] ?? 'Height (cm):', 'unit' => 'cm'],
+        'weight' => ['label' => $dapfforwc_styleoptions['dimensions_text']['weight'] ?? 'Weight (kg):', 'unit' => 'kg']
     ];
 
     // Check if any dimension is enabled
@@ -734,7 +734,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $max_value = $default_filter["max_{$dimension}"] ?? '';
 
                 $formOutPut .= '<div class="dimension-row">';
-                $formOutPut .= '<div class="dimension-label">' . esc_html($config['label']) . ' (' . esc_html($config['unit']) . '):</div>';
+                $formOutPut .= '<div class="dimension-label">' . esc_html($config['label']) . '</div>';
                 $formOutPut .= '<div class="dimension-values">';
                 $formOutPut .= '<span class="min-value">' . esc_html($min_value) . '</span>';
                 $formOutPut .= ' - ';
@@ -758,7 +758,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $max_value = $default_filter["max_{$dimension}"] ?? '';
 
                 $formOutPut .= '<div class="dimension-row">';
-                $formOutPut .= '<div class="dimension-label" style=" margin-bottom: 5px; ">' . esc_html($config['label']) . ' (' . esc_html($config['unit']) . '):</div>';
+                $formOutPut .= '<div class="dimension-label" style=" margin-bottom: 5px; ">' . esc_html($config['label']) . '</div>';
                 $formOutPut .= '<div class="dimension-inputs" style=" display: flex; gap: 10px; margin-bottom: 10px; ">';
                 $formOutPut .= '<div class="dimension-input-group">';
                 $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="min_' . esc_attr($dimension) . '" value="' . esc_attr($min_value) . '" placeholder="Min" step="0.1" min="0" />';
@@ -782,6 +782,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $sub_option = isset($dapfforwc_styleoptions["sku"]["sub_option"]) ? $dapfforwc_styleoptions["sku"]["sub_option"] : "input";
     $minimizable = isset($dapfforwc_styleoptions["sku"]["minimize"]["type"]) ? $dapfforwc_styleoptions["sku"]["minimize"]["type"] : "arrow";
     $show_sku = isset($dapfforwc_options["show_sku"]) ? $dapfforwc_options["show_sku"] : false;
+    $sku_placeholder = isset($dapfforwc_styleoptions["placeholder"]["sku"]) ? $dapfforwc_styleoptions["placeholder"]["sku"] : esc_html__('Enter SKU...', 'dynamic-ajax-product-filters-for-woocommerce');
 
     if (!empty($show_sku)) {
         $formOutPut .= '<div id="sku" class="filter-group sku" style="display: block;">';
@@ -798,7 +799,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         // Get current SKU value from default filter
         $sku_value = isset($default_filter["sku"]) ? $default_filter["sku"] : (isset($default_filter["sku[]"][0]) ? $default_filter["sku[]"][0] : "");
 
-        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="text" name="sku" class="sku-field" placeholder="Enter SKU..." value="' . esc_attr($sku_value) . '" />';
+        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="text" name="sku" class="sku-field" placeholder="' . $sku_placeholder . '" value="' . esc_attr($sku_value) . '" />';
 
         $formOutPut .= '</div>';
         $formOutPut .= '</div>';
@@ -809,6 +810,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $sub_option = isset($dapfforwc_styleoptions["discount"]["sub_option"]) ? $dapfforwc_styleoptions["discount"]["sub_option"] : "input";
     $minimizable = isset($dapfforwc_styleoptions["discount"]["minimize"]["type"]) ? $dapfforwc_styleoptions["discount"]["minimize"]["type"] : "arrow";
     $show_discount = isset($dapfforwc_options["show_discount"]) ? $dapfforwc_options["show_discount"] : false;
+    $discount_placeholder = isset($dapfforwc_styleoptions["placeholder"]["discount"]) ? $dapfforwc_styleoptions["placeholder"]["discount"] : esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce');
 
     if (!empty($show_discount)) {
         $formOutPut .= '<div id="discount" class="filter-group discount" style="display: block;">';
@@ -826,7 +828,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $discount_value = isset($default_filter["discount"]) ? $default_filter["discount"] : '';
 
         $formOutPut .= '<div class="discount-input-group">';
-        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="' . esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce') . '" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
+        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="discount" class="discount-field" placeholder="' . $discount_placeholder . '" value="' . esc_attr($discount_value) . '" min="0" max="100" step="1" />';
         $formOutPut .= '</div>';
 
         $formOutPut .= '</div>';
@@ -858,11 +860,11 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         // Date filter options
         $date_options = [
-            '' => 'All Time',
-            'today' => 'Today',
-            'this_week' => 'This Week',
-            'this_month' => 'This Month',
-            'this_year' => 'This Year',
+            '' => $dapfforwcpro_styleoptions['date_filter_texts']['all_time_text'] ?? 'All Time',
+            'today' => $dapfforwcpro_styleoptions['date_filter_texts']['today_text'] ?? 'Today',
+            'this_week' => $dapfforwcpro_styleoptions['date_filter_texts']['this_week_text'] ?? 'This Week',
+            'this_month' => $dapfforwcpro_styleoptions['date_filter_texts']['this_month_text'] ?? 'This Month',
+            'this_year' => $dapfforwcpro_styleoptions['date_filter_texts']['this_year_text'] ?? 'This Year',
             // 'custom' => 'Custom Range'
         ];
 

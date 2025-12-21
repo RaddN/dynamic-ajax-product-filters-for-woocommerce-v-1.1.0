@@ -162,9 +162,12 @@ function dapfforwc_settings_init()
         'remove_outofStock' => 0,
         'allow_data_share' => "on",
         'sidebar_on_top' => "on",
+        'mobile_breakpoint' => 768,
         'default_value_selected' => 0,
         'exclude_attributes' => "",
         'exclude_custom_fields' => "",
+        'no_products_text' => 'No products were found matching your selection.',
+        'select2_placeholder' => 'Select Options',
     ];
     update_option('dapfforwc_advance_options', $Advance_options);
     register_setting(
@@ -207,9 +210,19 @@ function dapfforwc_settings_init()
         'dapfforwc_advance_settings_section'
     );
 
+    // Add the "Text Manage" field
+    add_settings_field(
+        'text_manage',
+        esc_html__('Text Manage', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'dapfforwcpro_text_manage_render',
+        'dapfforwcpro-advance-settings',
+        'dapfforwcpro_advance_settings_section'
+    );
+
     add_settings_field('remove_outofStock', esc_html__('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('allow_data_share', esc_html__('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('sidebar_on_top', esc_html__('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('mobile_breakpoint', esc_html__('Mobile Breakpoint', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_mobile_breakpoint_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('default_value_selected', esc_html__('Make Default Options Selected', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_default_value_selected_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('exclude_attributes', esc_html__('Exclude Attribute', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_exclude_attributes_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('exclude_custom_fields', esc_html__('Exclude Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_exclude_custom_fields_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
@@ -435,6 +448,11 @@ function dapfforwc_sanitize_options($input)
 
                 case 'number_field':
                     $sanitized[$key] = intval($value);
+                    break;
+
+                case 'mobile_breakpoint':
+                    $bp = absint($value);
+                    $sanitized[$key] = $bp > 0 ? $bp : 768;
                     break;
 
                 default:

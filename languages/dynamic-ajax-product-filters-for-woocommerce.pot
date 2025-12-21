@@ -697,7 +697,7 @@ msgstr ""
 
 #: includes/blocks_widget_create.php:658
 msgid ""
-"If this is not a product archive page & you are not using [products] shortcode to display products, you can use "
+"Our plugin will automatically detect your query. If the automatic detection is incorrect and displays irrelevant filter options, please configure the database accordingly."
 "these options to query options."
 msgstr ""
 

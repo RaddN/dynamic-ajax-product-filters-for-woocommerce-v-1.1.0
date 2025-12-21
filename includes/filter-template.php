@@ -177,6 +177,9 @@ function dapfforwc_product_filter_shortcode($atts)
         'per_page' => '',
     ), $atts);
 
+    $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
+    $desktop_breakpoint = $mobile_breakpoint + 1;
+
     $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
     $use_filters_word = isset($dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"]) ? $dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"] : "";
 
@@ -197,6 +200,10 @@ function dapfforwc_product_filter_shortcode($atts)
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         $shortcode = isset($dapfforwc_advance_settings["product_shortcode"]) ? $dapfforwc_advance_settings["product_shortcode"] : 'products'; // Shortcode to search for
         $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
+        // If no shortcodes found, try page builders
+        if (empty($attributes_list) && isset($post->ID)) {
+            $attributes_list = dapfforwc_get_pagebuilder_product_attributes($post->ID);
+        }
     }
     $is_all_cata = false;
     $make_default_selected = false;
@@ -1357,7 +1364,7 @@ function dapfforwc_product_filter_shortcode($atts)
         // Add your custom styles for the top_view layout here
 ?>
         <style>
-            @media (min-width: 781px) {
+            @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 /* Product Filter Styles */
                 #product-filter {
@@ -1488,7 +1495,7 @@ function dapfforwc_product_filter_shortcode($atts)
         </style>
     <?php wp_add_inline_script('urlfilter-ajax', "
             document.addEventListener('DOMContentLoaded', function () {
-  if (window.innerWidth > 768) {
+  if (window.innerWidth > " . intval($mobile_breakpoint) . ") {
     const productFilter = document.getElementById('product-filter');
     const nextButton = document.querySelector('.plugincy-next-button');
     const prevButton = document.querySelector('.plugincy-prev-button');
@@ -1646,7 +1653,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
         <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
         /* responsive filter */
-        @media (max-width: 781px) {
+        @media (max-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
             .rfilterbuttons,
             #product-filter .items {
@@ -1671,7 +1678,7 @@ function dapfforwc_product_filter_shortcode($atts)
             form#product-filter {
                 display: flex;
                 flex-direction: row !important;
-                overflow: scroll;
+                overflow: auto;
                 gap: 10px;
                 height: 66px;
                 margin-left: 64px;
@@ -1727,7 +1734,7 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php if ($atts['mobile_responsive'] === 'style_3') { ?>
 
         <style>
-            @media (min-width: 781px) {
+            @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 #mobileonly,
                 #filter-button {
@@ -1735,7 +1742,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
 
-            @media (max-width: 781px) {
+            @media (max-width: <?php echo intval($desktop_breakpoint); ?>px) {
                 .mobile-filter {
                     position: fixed;
                     z-index: 2147483647;
@@ -1744,7 +1751,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     max-width: 420px;
                     padding-bottom: 200px;
                     height: 100dvh;
-                    overflow: scroll;
+                    overflow: auto;
                     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
                     border-radius: 30px;
                     margin: 5px !important;
@@ -1752,6 +1759,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     top: 20%;
                     transform: translateX(-50%);
                     left: 50%;
+                    scrollbar-width: thin;
                 }
 
 
@@ -1765,7 +1773,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
                 .rfilterselected ul {
                     flex-wrap: nowrap;
-                    overflow: scroll;
+                    overflow: auto;
+                    margin: 0 0 10px !important;
                 }
             }
         </style>
@@ -1773,7 +1782,7 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php if ($atts['mobile_responsive'] === 'style_4') { ?>
 
         <style>
-            @media (min-width: 781px) {
+            @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 #mobileonly,
                 #filter-button {
@@ -1781,7 +1790,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
             }
 
-            @media (max-width: 781px) {
+            @media (max-width: <?php echo intval($desktop_breakpoint); ?>px) {
                 .mobile-filter {
                     position: fixed;
                     z-index: 2147483647;
@@ -1789,12 +1798,13 @@ function dapfforwc_product_filter_shortcode($atts)
                     width: 86vw;
                     max-width: 420px;
                     height: 100dvh;
-                    overflow: scroll;
+                    overflow: auto;
                     box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
                     bottom: 0;
                     right: 0;
                     transition: transform 0.3s ease-in-out;
                     transform: translateX(150%);
+                    scrollbar-width: thin;
                 }
 
                 .mobile-filter.open {
@@ -1812,7 +1822,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
                 .rfilterselected ul {
                     flex-wrap: nowrap;
-                    overflow: scroll;
+                    overflow: auto;
+                    margin: 0 0 10px !important;
                 }
             }
         </style>
@@ -1840,6 +1851,7 @@ function dapfforwc_product_filter_shortcode($atts)
     if ($atts['mobile_responsive'] === 'style_3') {
         wp_add_inline_script('urlfilter-ajax', '
          jQuery(document).ready(function($) {
+                    const MOBILE_BP = ' . intval($mobile_breakpoint) . ';
                     const $mobileFilter = $(".mobile-filter");
                     const $mobileOverlay = $(".mobile-filter-overlay");
                     const $filterButton = $("#filter-button");
@@ -1909,7 +1921,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     let isMobile = false;
 
                     const updateIsMobile = function () {
-                        const nowMobile = window.innerWidth <= 768;
+                        const nowMobile = window.innerWidth <= MOBILE_BP;
 
                         if (nowMobile) {
                             moveElementsToBody();
@@ -1975,6 +1987,7 @@ function dapfforwc_product_filter_shortcode($atts)
     if ($atts['mobile_responsive'] === 'style_4') {
         wp_add_inline_script('urlfilter-ajax', '
         jQuery(document).ready(function($) {
+                    const MOBILE_BP = ' . intval($mobile_breakpoint) . ';
                     const $mobileFilter = $(".mobile-filter");
                     const $mobileOverlay = $(".mobile-filter-overlay");
                     const $filterButton = $("#filter-button");
@@ -2044,7 +2057,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     let isMobile = false;
 
                     const updateIsMobile = function () {
-                        const nowMobile = window.innerWidth <= 768;
+                        const nowMobile = window.innerWidth <= MOBILE_BP;
 
                         if (nowMobile) {
                             moveElementsToBody();
@@ -2120,7 +2133,7 @@ function dapfforwc_product_filter_shortcode($atts)
                 $product_show_settings_attr = wp_json_encode($dapfforwc_options['product_show_settings'][$dapfforwc_slug]);
             }
             ?>
-            <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>'
+            <form id="product-filter" class="plugincy_layout_<?php echo esc_attr($atts['layout']); ?>" method="POST" data-layout='<?php echo esc_attr($atts['layout']); ?>' data-mobile-style='<?php echo esc_attr($atts['mobile_responsive']); ?>' data-mobile-breakpoint='<?php echo esc_attr($mobile_breakpoint); ?>'
                 data-product_show_settings='<?php echo esc_attr($product_show_settings_attr); ?>'
                 <?php if (!empty($atts['product_selector'])) {
                     echo 'data-product_selector="' . esc_attr($atts["product_selector"]) . '"';
@@ -2228,7 +2241,7 @@ function dapfforwc_product_filter_shortcode($atts)
 <?php if ($atts['mobile_responsive'] === 'style_1') {
         wp_add_inline_script('urlfilter-ajax', '
 (() => {
-  const MOBILE_BP = 768;
+  const MOBILE_BP = ' . intval($mobile_breakpoint) . ';
   const WRAPPER = ".plugincy_filter_wrapper";
   const TITLE_SEL = ".filter-group .title";
   const ITEMS_SEL = ".filter-group .items";
@@ -2410,21 +2423,30 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
             break;
         case 'input-price-range':
-            $output .= '<div class="range-input"><label for="min-price">Min Price:</label>
-        <input  type="number" id="min-price" name="mn_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="Min" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
+            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
+            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
+            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
+            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
+            $output .= '<div class="range-input"><label for="min-price">' . $min_label . '</label>
+        <input type="number" id="min-price" name="mn_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="' . $min_placeholder . '" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
-        <label for="max-price">Max Price:</label>
-        <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="Max" value="' . $max_price + 1 . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
+        <label for="max-price">' . $max_label . '</label>
+        <input type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="' . $max_placeholder . '" value="' . $max_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
+            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
+            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
+            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
+            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
+
             $output .= '<div class="price-input">
         <div class="field">
-          <span>Min</span>
+          <span>'.$min_label.'</span>
           <input  type="number" id="min-price" name="mn_price" class="input-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-          <span>Max</span>
+          <span>'.$max_label.'</span>
           <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
@@ -2596,7 +2618,7 @@ function dapfforwc_product_filter_shortcode_single($atts)
 
     // Check if the name is provided
     if (empty($atts['name'])) {
-        return '<p style="background:red;background: red;text-align: center;color: #fff;">Please provide an attribute slug.</p>';
+        return '<p style="background:red;background: red;text-align: center;color: #fff;">'.esc_html__('Please provide an attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce-pro').'</p>';
     }
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
@@ -3035,15 +3057,17 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 
     $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
 
+    global $dapfforwcpro_styleoptions;
+
     // Initialize stock status and sale status arrays
     $data['stock_status'] = [
-        0 => ['name' => 'In Stock', 'slug' => 'instock', 'products' => []],
-        1 => ['name' => 'Out of Stock', 'slug' => 'outofstock', 'products' => []]
+        0 => ['name' => ($dapfforwcpro_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => []],
+        1 => ['name' => ($dapfforwcpro_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => []]
     ];
 
     $data['sale_status'] = [
-        0 => ['name' => 'On Sale', 'slug' => 'onsale', 'products' => []],
-        1 => ['name' => 'Not on Sale', 'slug' => 'notonsale', 'products' => []]
+        0 => ['name' => ($dapfforwcpro_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => []],
+        1 => ['name' => ($dapfforwcpro_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => []]
     ];
 
     if (!empty($stock_sale_results)) {
@@ -3574,4 +3598,694 @@ function dapfforwc_get_shortcode_attributes_from_page($content, $shortcode)
     }
 
     return $attributes_list;
+}
+
+
+
+
+/**
+ * Extract product display attributes from various page builders
+ * Supports: Elementor, WPBakery, Gutenberg, Divi, Beaver Builder, Oxygen
+ */
+
+if (!function_exists('dapfforwc_get_pagebuilder_product_attributes')) {
+    /**
+     * Main function to extract product attributes from all page builders
+     * 
+     * @param int $post_id Post ID to extract attributes from
+     * @return array Array of product display settings
+     */
+    function dapfforwc_get_pagebuilder_product_attributes($post_id)
+    {
+        if (empty($post_id)) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // Check each page builder
+        $attributes = array_merge($attributes, dapfforwc_get_elementor_product_attributes($post_id));
+        $attributes = array_merge($attributes, dapfforwc_get_wpbakery_product_attributes($post_id));
+        $attributes = array_merge($attributes, dapfforwc_get_gutenberg_product_attributes($post_id));
+        $attributes = array_merge($attributes, dapfforwc_get_divi_product_attributes($post_id));
+        $attributes = array_merge($attributes, dapfforwc_get_beaverbuilder_product_attributes($post_id));
+        $attributes = array_merge($attributes, dapfforwc_get_oxygen_product_attributes($post_id));
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_elementor_product_attributes')) {
+    /**
+     * Extract product attributes from Elementor
+     */
+    function dapfforwc_get_elementor_product_attributes($post_id)
+    {
+        if (!class_exists('\Elementor\Plugin')) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // Get Elementor data
+        $elementor_data = get_post_meta($post_id, '_elementor_data', true);
+
+        if (empty($elementor_data)) {
+            return [];
+        }
+
+        $data = json_decode($elementor_data, true);
+        if (!is_array($data)) {
+            return [];
+        }
+
+        // Recursively search for product widgets
+        $attributes = dapfforwc_parse_elementor_elements($data);
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_parse_elementor_elements')) {
+    /**
+     * Recursively parse Elementor elements - Works with ANY widget that has product query
+     */
+    function dapfforwc_parse_elementor_elements($elements)
+    {
+        $attributes = [];
+
+        foreach ($elements as $element) {
+            $settings = $element['settings'] ?? [];
+
+            // Check if this element has ANY product-related query settings
+            $has_product_query = false;
+
+            // Detection methods for product queries:
+            // 1. Check for post_type = 'product'
+            if (!empty($settings['post_type']) && $settings['post_type'] === 'product') {
+                $has_product_query = true;
+            }
+            // 2. Check for query_post_type = 'product' (Loop Grid/Carousel)
+            if (!empty($settings['query_post_type']) && $settings['query_post_type'] === 'product') {
+                $has_product_query = true;
+            }
+            // 3. Check for post_query_post_type = 'product' (Loop Grid new format)
+            if (!empty($settings['post_query_post_type']) && $settings['post_query_post_type'] === 'product') {
+                $has_product_query = true;
+            }
+            // 4. Check for WooCommerce-specific settings
+            if (
+                !empty($settings['query_include_term_ids']) || !empty($settings['query_include_tags']) ||
+                !empty($settings['query_include_attributes']) || isset($settings['query_include_product_cat']) ||
+                !empty($settings['post_query_include_term_ids']) || !empty($settings['post_query_include_tags'])
+            ) {
+                $has_product_query = true;
+            }
+            // 5. Check widget type contains 'product' or 'woocommerce'
+            $widget_type = $element['widgetType'] ?? '';
+            if (
+                stripos($widget_type, 'product') !== false || stripos($widget_type, 'woocommerce') !== false ||
+                stripos($widget_type, 'wc-') !== false
+            ) {
+                $has_product_query = true;
+            }
+
+            // If this element has product query, extract its settings
+            if ($has_product_query) {
+                $attr = [];
+
+                // Posts per page - check multiple possible keys
+                $posts_per_page = $settings['posts_per_page'] ??
+                    $settings['query_posts_per_page'] ??
+                    $settings['post_query_posts_per_page'] ??
+                    $settings['limit'] ??
+                    $settings['per_page'] ??
+                    null;
+
+                if (!empty($posts_per_page)) {
+                    $attr['limit'] = $attr['per_page'] = intval($posts_per_page);
+                }
+
+                // Rows and columns
+                if (!empty($settings['rows'])) {
+                    $attr['rows'] = intval($settings['rows']);
+                }
+                if (!empty($settings['columns'])) {
+                    $attr['columns'] = intval($settings['columns']);
+                }
+
+                // Order settings - check multiple keys
+                $orderby = $settings['orderby'] ??
+                    $settings['query_orderby'] ??
+                    $settings['post_query_orderby'] ??
+                    null;
+                if (!empty($orderby)) {
+                    $attr['orderby'] = sanitize_text_field($orderby);
+                }
+
+                $order = $settings['order'] ??
+                    $settings['query_order'] ??
+                    $settings['post_query_order'] ??
+                    null;
+                if (!empty($order)) {
+                    $attr['order'] = sanitize_text_field($order);
+                }
+
+                // Category filters - check multiple possible keys
+                $category_ids = $settings['query_include_term_ids'] ??
+                    $settings['post_query_include_term_ids'] ??
+                    $settings['query_include_product_cat'] ??
+                    $settings['include_categories'] ??
+                    $settings['category'] ??
+                    null;
+
+                if (!empty($category_ids)) {
+                    $categories = is_array($category_ids) ? $category_ids : explode(',', $category_ids);
+                    $category_slugs = [];
+
+                    foreach ($categories as $cat_id) {
+                        // Handle both term IDs and slugs
+                        if (is_numeric($cat_id)) {
+                            $term = get_term($cat_id, 'product_cat');
+                            if ($term && !is_wp_error($term)) {
+                                $category_slugs[] = $term->slug;
+                            }
+                        } else {
+                            $category_slugs[] = sanitize_title($cat_id);
+                        }
+                    }
+
+                    if (!empty($category_slugs)) {
+                        $attr['category'] = implode(',', $category_slugs);
+                    }
+                }
+
+                // Tag filters - check multiple possible keys
+                $tag_ids = $settings['query_include_tags'] ??
+                    $settings['post_query_include_tags'] ??
+                    $settings['query_include_product_tag'] ??
+                    $settings['include_tags'] ??
+                    $settings['tags'] ??
+                    null;
+
+                if (!empty($tag_ids)) {
+                    $tags = is_array($tag_ids) ? $tag_ids : explode(',', $tag_ids);
+                    $tag_slugs = [];
+
+                    foreach ($tags as $tag_id) {
+                        // Handle both term IDs and slugs
+                        if (is_numeric($tag_id)) {
+                            $term = get_term($tag_id, 'product_tag');
+                            if ($term && !is_wp_error($term)) {
+                                $tag_slugs[] = $term->slug;
+                            }
+                        } else {
+                            $tag_slugs[] = sanitize_title($tag_id);
+                        }
+                    }
+
+                    if (!empty($tag_slugs)) {
+                        $attr['tag'] = implode(',', $tag_slugs);
+                    }
+                }
+
+                // Attribute filters - check multiple possible keys
+                $attributes_data = $settings['query_include_attributes'] ??
+                    $settings['post_query_include_attributes'] ??
+                    $settings['include_attributes'] ??
+                    $settings['attributes'] ??
+                    null;
+
+                if (!empty($attributes_data) && is_array($attributes_data)) {
+                    foreach ($attributes_data as $attr_data) {
+                        if (!empty($attr_data['taxonomy']) && !empty($attr_data['terms'])) {
+                            $taxonomy = str_replace('pa_', '', $attr_data['taxonomy']);
+                            $terms = is_array($attr_data['terms']) ? $attr_data['terms'] : explode(',', $attr_data['terms']);
+
+                            $term_slugs = [];
+                            foreach ($terms as $term_id) {
+                                // Handle both term IDs and slugs
+                                if (is_numeric($term_id)) {
+                                    $term = get_term($term_id, 'pa_' . $taxonomy);
+                                    if ($term && !is_wp_error($term)) {
+                                        $term_slugs[] = $term->slug;
+                                    }
+                                } else {
+                                    $term_slugs[] = sanitize_title($term_id);
+                                }
+                            }
+
+                            if (!empty($term_slugs)) {
+                                $attr['attribute'] = $taxonomy;
+                                $attr['terms'] = implode(',', $term_slugs);
+                            }
+                        }
+                    }
+                }
+
+                // Exclude categories/tags if needed
+                $exclude_categories = $settings['query_exclude_term_ids'] ??
+                    $settings['exclude_categories'] ??
+                    null;
+                if (!empty($exclude_categories)) {
+                    $attr['exclude_category'] = is_array($exclude_categories) ?
+                        implode(',', $exclude_categories) : $exclude_categories;
+                }
+
+                // Operator settings
+                if (!empty($settings['cat_operator'])) {
+                    $attr['cat_operator'] = sanitize_text_field($settings['cat_operator']);
+                }
+                if (!empty($settings['tag_operator'])) {
+                    $attr['tag_operator'] = sanitize_text_field($settings['tag_operator']);
+                }
+                if (!empty($settings['terms_operator'])) {
+                    $attr['terms_operator'] = sanitize_text_field($settings['terms_operator']);
+                }
+
+                if (!empty($attr)) {
+                    $attributes[] = $attr;
+                }
+            }
+
+            // Recursively check child elements
+            if (!empty($element['elements'])) {
+                $child_attributes = dapfforwc_parse_elementor_elements($element['elements']);
+                $attributes = array_merge($attributes, $child_attributes);
+            }
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_wpbakery_product_attributes')) {
+    /**
+     * Extract product attributes from WPBakery (Visual Composer)
+     */
+    function dapfforwc_get_wpbakery_product_attributes($post_id)
+    {
+        $content = get_post_field('post_content', $post_id);
+
+        if (empty($content)) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // WPBakery shortcodes for products
+        $shortcodes = [
+            'products',
+            'product_category',
+            'recent_products',
+            'featured_products',
+            'sale_products',
+            'best_selling_products',
+            'top_rated_products',
+            'product_attribute'
+        ];
+
+        foreach ($shortcodes as $shortcode) {
+            preg_match_all('/\[' . preg_quote($shortcode, '/') . '([^\]]*)\]/', $content, $matches);
+
+            foreach ($matches[1] as $shortcode_attrs) {
+                $attrs = shortcode_parse_atts(trim($shortcode_attrs));
+
+                if (!empty($attrs)) {
+                    // Normalize attribute names
+                    $normalized = [];
+
+                    if (isset($attrs['per_page']) || isset($attrs['limit'])) {
+                        $normalized['per_page'] = $normalized['limit'] = intval($attrs['per_page'] ?? $attrs['limit']);
+                    }
+                    if (isset($attrs['columns'])) {
+                        $normalized['columns'] = intval($attrs['columns']);
+                    }
+                    if (isset($attrs['orderby'])) {
+                        $normalized['orderby'] = sanitize_text_field($attrs['orderby']);
+                    }
+                    if (isset($attrs['order'])) {
+                        $normalized['order'] = sanitize_text_field($attrs['order']);
+                    }
+                    if (isset($attrs['category'])) {
+                        $normalized['category'] = sanitize_text_field($attrs['category']);
+                    }
+                    if (isset($attrs['tag'])) {
+                        $normalized['tag'] = sanitize_text_field($attrs['tag']);
+                    }
+                    if (isset($attrs['attribute'])) {
+                        $normalized['attribute'] = sanitize_text_field($attrs['attribute']);
+                    }
+                    if (isset($attrs['terms'])) {
+                        $normalized['terms'] = sanitize_text_field($attrs['terms']);
+                    }
+                    if (isset($attrs['ids'])) {
+                        $normalized['ids'] = sanitize_text_field($attrs['ids']);
+                    }
+
+                    if (!empty($normalized)) {
+                        $attributes[] = $normalized;
+                    }
+                }
+            }
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_gutenberg_product_attributes')) {
+    /**
+     * Extract product attributes from Gutenberg blocks
+     */
+    function dapfforwc_get_gutenberg_product_attributes($post_id)
+    {
+        $content = get_post_field('post_content', $post_id);
+
+        if (empty($content) || !has_blocks($content)) {
+            return [];
+        }
+
+        $attributes = [];
+        $blocks = parse_blocks($content);
+
+        foreach ($blocks as $block) {
+            $attributes = array_merge($attributes, dapfforwc_parse_gutenberg_block($block));
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_parse_gutenberg_block')) {
+    /**
+     * Recursively parse Gutenberg blocks
+     */
+    function dapfforwc_parse_gutenberg_block($block)
+    {
+        $attributes = [];
+
+        // WooCommerce block names
+        $product_blocks = [
+            'woocommerce/products',
+            'woocommerce/product-category',
+            'woocommerce/product-tag',
+            'woocommerce/handpicked-products',
+            'woocommerce/products-by-attribute',
+            'woocommerce/product-best-sellers',
+            'woocommerce/product-new',
+            'woocommerce/product-on-sale',
+            'woocommerce/product-top-rated'
+        ];
+
+        if (in_array($block['blockName'], $product_blocks)) {
+            $attrs = $block['attrs'] ?? [];
+            $normalized = [];
+
+            if (!empty($attrs['columns'])) {
+                $normalized['columns'] = intval($attrs['columns']);
+            }
+            if (!empty($attrs['rows'])) {
+                $normalized['rows'] = intval($attrs['rows']);
+            }
+            if (!empty($attrs['limit'])) {
+                $normalized['limit'] = $normalized['per_page'] = intval($attrs['limit']);
+            }
+            if (!empty($attrs['orderby'])) {
+                $normalized['orderby'] = sanitize_text_field($attrs['orderby']);
+            }
+            if (!empty($attrs['order'])) {
+                $normalized['order'] = sanitize_text_field($attrs['order']);
+            }
+
+            // Category filters
+            if (!empty($attrs['categories'])) {
+                $category_ids = is_array($attrs['categories']) ? $attrs['categories'] : [$attrs['categories']];
+                $category_slugs = [];
+
+                foreach ($category_ids as $cat_id) {
+                    $term = get_term($cat_id, 'product_cat');
+                    if ($term && !is_wp_error($term)) {
+                        $category_slugs[] = $term->slug;
+                    }
+                }
+
+                if (!empty($category_slugs)) {
+                    $normalized['category'] = implode(',', $category_slugs);
+                }
+            }
+
+            // Tag filters
+            if (!empty($attrs['tags'])) {
+                $tag_ids = is_array($attrs['tags']) ? $attrs['tags'] : [$attrs['tags']];
+                $tag_slugs = [];
+
+                foreach ($tag_ids as $tag_id) {
+                    $term = get_term($tag_id, 'product_tag');
+                    if ($term && !is_wp_error($term)) {
+                        $tag_slugs[] = $term->slug;
+                    }
+                }
+
+                if (!empty($tag_slugs)) {
+                    $normalized['tag'] = implode(',', $tag_slugs);
+                }
+            }
+
+            // Attribute filters
+            if (!empty($attrs['attributes'])) {
+                $attr_data = $attrs['attributes'];
+                if (is_array($attr_data) && !empty($attr_data[0])) {
+                    $first_attr = $attr_data[0];
+                    if (!empty($first_attr['id']) && !empty($first_attr['terms'])) {
+                        $taxonomy = 'pa_' . $first_attr['id'];
+                        $term_ids = is_array($first_attr['terms']) ? $first_attr['terms'] : [$first_attr['terms']];
+
+                        $term_slugs = [];
+                        foreach ($term_ids as $term_id) {
+                            $term = get_term($term_id, $taxonomy);
+                            if ($term && !is_wp_error($term)) {
+                                $term_slugs[] = $term->slug;
+                            }
+                        }
+
+                        if (!empty($term_slugs)) {
+                            $normalized['attribute'] = $first_attr['id'];
+                            $normalized['terms'] = implode(',', $term_slugs);
+                        }
+                    }
+                }
+            }
+
+            if (!empty($normalized)) {
+                $attributes[] = $normalized;
+            }
+        }
+
+        // Recursively check inner blocks
+        if (!empty($block['innerBlocks'])) {
+            foreach ($block['innerBlocks'] as $inner_block) {
+                $inner_attributes = dapfforwc_parse_gutenberg_block($inner_block);
+                $attributes = array_merge($attributes, $inner_attributes);
+            }
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_divi_product_attributes')) {
+    /**
+     * Extract product attributes from Divi Builder
+     */
+    function dapfforwc_get_divi_product_attributes($post_id)
+    {
+        $content = get_post_field('post_content', $post_id);
+
+        if (empty($content)) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // Divi uses shortcodes similar to WPBakery
+        $divi_shortcodes = [
+            'et_pb_shop',
+            'et_pb_wc_breadcrumb',
+            'et_pb_wc_cart_notice',
+            'et_pb_wc_description',
+            'et_pb_wc_images',
+            'et_pb_wc_price',
+            'et_pb_wc_rating',
+            'et_pb_wc_add_to_cart',
+            'et_pb_wc_meta',
+            'et_pb_wc_tabs',
+            'et_pb_wc_upsells',
+            'et_pb_wc_related_products'
+        ];
+
+        foreach ($divi_shortcodes as $shortcode) {
+            preg_match_all('/\[' . preg_quote($shortcode, '/') . '([^\]]*)\]/', $content, $matches);
+
+            foreach ($matches[1] as $shortcode_attrs) {
+                $attrs = shortcode_parse_atts(trim($shortcode_attrs));
+
+                if (!empty($attrs['posts_number'])) {
+                    $normalized = [
+                        'per_page' => intval($attrs['posts_number']),
+                        'limit' => intval($attrs['posts_number'])
+                    ];
+
+                    if (!empty($attrs['orderby'])) {
+                        $normalized['orderby'] = sanitize_text_field($attrs['orderby']);
+                    }
+
+                    $attributes[] = $normalized;
+                }
+            }
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_beaverbuilder_product_attributes')) {
+    /**
+     * Extract product attributes from Beaver Builder
+     */
+    function dapfforwc_get_beaverbuilder_product_attributes($post_id)
+    {
+        if (!class_exists('FLBuilderModel')) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // Get Beaver Builder data
+        $data = get_post_meta($post_id, '_fl_builder_data', true);
+
+        if (empty($data) || !is_array($data)) {
+            return [];
+        }
+
+        foreach ($data as $node) {
+            if (!is_object($node) || empty($node->type) || $node->type !== 'module') {
+                continue;
+            }
+
+            // Check for WooCommerce modules
+            $wc_modules = [
+                'woocommerce',
+                'pp-woo-products',
+                'pp-woo-categories'
+            ];
+
+            if (in_array($node->settings->type ?? '', $wc_modules)) {
+                $settings = $node->settings;
+                $normalized = [];
+
+                if (!empty($settings->posts_per_page)) {
+                    $normalized['per_page'] = $normalized['limit'] = intval($settings->posts_per_page);
+                }
+                if (!empty($settings->columns)) {
+                    $normalized['columns'] = intval($settings->columns);
+                }
+                if (!empty($settings->order_by)) {
+                    $normalized['orderby'] = sanitize_text_field($settings->order_by);
+                }
+                if (!empty($settings->order)) {
+                    $normalized['order'] = sanitize_text_field($settings->order);
+                }
+                if (!empty($settings->category)) {
+                    $normalized['category'] = sanitize_text_field($settings->category);
+                }
+
+                if (!empty($normalized)) {
+                    $attributes[] = $normalized;
+                }
+            }
+        }
+
+        return $attributes;
+    }
+}
+
+if (!function_exists('dapfforwc_get_oxygen_product_attributes')) {
+    /**
+     * Extract product attributes from Oxygen Builder
+     */
+    function dapfforwc_get_oxygen_product_attributes($post_id)
+    {
+        $shortcodes = get_post_meta($post_id, 'ct_builder_shortcodes', true);
+
+        if (empty($shortcodes)) {
+            return [];
+        }
+
+        $attributes = [];
+
+        // Oxygen stores data as JSON
+        $data = json_decode($shortcodes, true);
+
+        if (!is_array($data)) {
+            return [];
+        }
+
+        $attributes = dapfforwc_parse_oxygen_tree($data);
+
+        return $attributes;
+    }
+}
+
+
+if (!function_exists('dapfforwc_parse_oxygen_tree')) {
+    /**
+     * Recursively parse Oxygen builder tree
+     */
+    function dapfforwc_parse_oxygen_tree($tree)
+    {
+        $attributes = [];
+
+        foreach ($tree as $node) {
+            if (!is_array($node)) {
+                continue;
+            }
+
+            $name = $node['name'] ?? '';
+
+            // Check for WooCommerce elements
+            if (strpos($name, 'woocommerce') !== false || strpos($name, 'oxy_product') !== false) {
+                $options = $node['options'] ?? [];
+                $normalized = [];
+
+                if (!empty($options['posts_per_page'])) {
+                    $normalized['per_page'] = $normalized['limit'] = intval($options['posts_per_page']);
+                }
+                if (!empty($options['columns'])) {
+                    $normalized['columns'] = intval($options['columns']);
+                }
+                if (!empty($options['orderby'])) {
+                    $normalized['orderby'] = sanitize_text_field($options['orderby']);
+                }
+                if (!empty($options['order'])) {
+                    $normalized['order'] = sanitize_text_field($options['order']);
+                }
+                if (!empty($options['category'])) {
+                    $normalized['category'] = sanitize_text_field($options['category']);
+                }
+
+                if (!empty($normalized)) {
+                    $attributes[] = $normalized;
+                }
+            }
+
+            // Recursively check children
+            if (!empty($node['children'])) {
+                $child_attributes = dapfforwc_parse_oxygen_tree($node['children']);
+                $attributes = array_merge($attributes, $child_attributes);
+            }
+        }
+
+        return $attributes;
+    }
 }

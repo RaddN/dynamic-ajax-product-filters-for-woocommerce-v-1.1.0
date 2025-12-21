@@ -40,6 +40,24 @@ function dapfforwc_product_shortcode_callback()
 <?php
 }
 
+function dapfforwc_text_manage_render()
+{
+    global $dapfforwc_advance_settings;
+    $no_products_text = isset($dapfforwc_advance_settings['no_products_text']) && $dapfforwc_advance_settings['no_products_text'] !== '' ? $dapfforwc_advance_settings['no_products_text'] : 'No products were found matching your selection.';
+    $select2_placeholder = isset($dapfforwc_advance_settings['select2_placeholder']) && $dapfforwc_advance_settings['select2_placeholder'] !== '' ? $dapfforwc_advance_settings['select2_placeholder'] : 'Select Options';
+    ?>
+    <div style="max-width: 500px;">
+        <label for="dapfforwcpro-no-products-text" style="font-weight: 600; display:block; margin-bottom:4px;"><?php esc_html_e('No products message', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+        <input type="text" id="dapfforwcpro-no-products-text" name="dapfforwc_advance_options[no_products_text]" value="<?php echo esc_attr($no_products_text); ?>" class="regular-text" placeholder="No products were found matching your selection.">
+        <p class="description"><?php esc_html_e('Shown when a filter results in zero products.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+
+        <label for="dapfforwcpro-select2-placeholder" style="font-weight: 600; display:block; margin:14px 0 4px;"><?php esc_html_e('Select2 dropdown placeholder', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+        <input type="text" id="dapfforwcpro-select2-placeholder" name="dapfforwc_advance_options[select2_placeholder]" value="<?php echo esc_attr($select2_placeholder); ?>" class="regular-text" placeholder="Select Options">
+        <p class="description"><?php esc_html_e('Default placeholder text for Select2 dropdowns.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+    </div>
+    <?php
+}
+
 function dapfforwc_remove_outofStock_render()
 {
     dapfforwc_render_advance_checkbox('remove_outofStock', esc_html__('Enable this option to remove out-of-stock products from the filter results.', 'dynamic-ajax-product-filters-for-woocommerce'));
@@ -51,6 +69,17 @@ function dapfforwc_allow_data_share_render()
 function dapfforwc_side_bar_top_render()
 {
     dapfforwc_render_advance_checkbox('sidebar_on_top', esc_html__('For mobile move the sidebar to top position.', 'dynamic-ajax-product-filters-for-woocommerce'));
+}
+function dapfforwc_mobile_breakpoint_render()
+{
+    global $dapfforwc_advance_settings;
+    $mobile_breakpoint = isset($dapfforwc_advance_settings['mobile_breakpoint']) ? absint($dapfforwc_advance_settings['mobile_breakpoint']) : 768;
+    ?>
+    <input type="number" name="dapfforwc_advance_options[mobile_breakpoint]" value="<?php echo esc_attr($mobile_breakpoint); ?>" min="320" step="1" placeholder="768">
+    <p class="description">
+        <?php esc_html_e('Set the maximum viewport width (in pixels) where mobile-specific filter behavior should apply.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+    </p>
+    <?php
 }
 function dapfforwc_default_value_selected_render()
 {

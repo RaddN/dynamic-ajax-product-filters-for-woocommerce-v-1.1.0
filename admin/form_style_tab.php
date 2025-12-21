@@ -202,7 +202,7 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
                             <?php }
-                            if ($dapfforwc_attribute_name === 'search') { ?>
+                            if ($dapfforwc_attribute_name === 'search' || $dapfforwc_attribute_name === 'sku' || $dapfforwc_attribute_name === 'discount') { ?>
                                 <div class="row" style="padding-top: 16px;">
                                     <div class="col-6">
                                         <div class="setting-item">
@@ -358,6 +358,159 @@ if (!defined('ABSPATH')) {
                                     });
                                 </script>
 
+                            <?php }
+
+                            if ($dapfforwc_attribute_name === 'date_filter') { ?>
+                                <!-- date_filter text manage -->
+                                <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('All Time:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $all_time_text = isset($dapfforwc_form_styles["date_filter_texts"]["all_time_text"]) ? esc_attr($dapfforwc_form_styles["date_filter_texts"]["all_time_text"]) : 'All Time'; ?>
+                                                <input type="text" name="dapfforwc_style_options[date_filter_texts][all_time_text]" value="<?php echo esc_attr($all_time_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Today -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Today:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $today_text = isset($dapfforwc_form_styles["date_filter_texts"]["today_text"]) ? esc_attr($dapfforwc_form_styles["date_filter_texts"]["today_text"]) : 'Today'; ?>
+                                                <input type="text" name="dapfforwc_style_options[date_filter_texts][today_text]" value="<?php echo esc_attr($today_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- This Week -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('This Week:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $this_week_text = isset($dapfforwc_form_styles["date_filter_texts"]["this_week_text"]) ? esc_attr($dapfforwc_form_styles["date_filter_texts"]["this_week_text"]) : 'This Week'; ?>
+                                                <input type="text" name="dapfforwc_style_options[date_filter_texts][this_week_text]" value="<?php echo esc_attr($this_week_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- This Month -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('This Month:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $this_month_text = isset($dapfforwc_form_styles["date_filter_texts"]["this_month_text"]) ? esc_attr($dapfforwc_form_styles["date_filter_texts"]["this_month_text"]) : 'This Month'; ?>
+                                                <input type="text" name="dapfforwc_style_options[date_filter_texts][this_month_text]" value="<?php echo esc_attr($this_month_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- This Year -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('This Year:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $this_year_text = isset($dapfforwc_form_styles["date_filter_texts"]["this_year_text"]) ? esc_attr($dapfforwc_form_styles["date_filter_texts"]["this_year_text"]) : 'This Year'; ?>
+                                                <input type="text" name="dapfforwc_style_options[date_filter_texts][this_year_text]" value="<?php echo esc_attr($this_year_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php }
+
+                            if ($dapfforwc_attribute_name === 'dimensions') { ?>
+                                <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                    <!-- Length (cm): -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Length (cm):', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_text = isset($dapfforwc_form_styles["dimensions_text"]["length"]) ? esc_attr($dapfforwc_form_styles["dimensions_text"]["length"]) : 'Length (cm):'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_text][length]" value="<?php echo esc_attr($dimensions_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Width (cm): -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Width (cm):', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_text = isset($dapfforwc_form_styles["dimensions_text"]["width"]) ? esc_attr($dapfforwc_form_styles["dimensions_text"]["width"]) : 'Width (cm):'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_text][width]" value="<?php echo esc_attr($dimensions_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Height (cm): -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Height (cm):', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_text = isset($dapfforwc_form_styles["dimensions_text"]["height"]) ? esc_attr($dapfforwc_form_styles["dimensions_text"]["height"]) : 'Height (cm):'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_text][height]" value="<?php echo esc_attr($dimensions_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <!-- Weight (kg): -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Weight (kg):', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_text = isset($dapfforwc_form_styles["dimensions_text"]["weight"]) ? esc_attr($dapfforwc_form_styles["dimensions_text"]["weight"]) : 'Weight (kg):'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_text][weight]" value="<?php echo esc_attr($dimensions_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <?php } 
+
+                            if( $dapfforwc_attribute_name === 'sale_status' ) { ?>
+                                <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["onsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["onsale"]) : 'On Sale'; ?>
+                                                <input type="text" name="dapfforwc_style_options[sale_status_text][onsale]" value="<?php echo esc_attr($on_sale_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- not on sale -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Not On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $not_on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["notonsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["notonsale"]) : 'Not On Sale'; ?>
+                                                <input type="text" name="dapfforwc_style_options[sale_status_text][notonsale]" value="<?php echo esc_attr($not_on_sale_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php }
+
+                            // stock status
+                            if( $dapfforwc_attribute_name === 'status' ) { ?>
+                                <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('In Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $in_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["instock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["instock"]) : 'In Stock'; ?>
+                                                <input type="text" name="dapfforwc_style_options[stock_status_text][instock]" value="<?php echo esc_attr($in_stock_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                
+                                    <!-- out of stock -->
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Out of Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $out_of_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["outofstock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["outofstock"]) : 'Out of Stock'; ?>
+                                                <input type="text" name="dapfforwc_style_options[stock_status_text][outofstock]" value="<?php echo esc_attr($out_of_stock_text); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
                             <?php }
                             ?>
                         </div>
@@ -669,7 +822,53 @@ if (!defined('ABSPATH')) {
                                             <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
                                         </label>
                                     </div>
-                                    <?php if ($dapfforwc_attribute_name === 'search') { ?>
+                                    <?php 
+                                    
+                                    
+                                    if ($dapfforwc_attribute_name === 'price') { ?>
+                                        <div class="row" style="padding-top: 16px; gap:20px;">
+                                            <div class="col-6">
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Min input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["min"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["min"]) : 'Min Price:'; ?>
+                                                        <input type="text" name="dapfforwc_style_options[input_label][price][min]" placeholder="Min Price:" value="<?php echo esc_attr($input_label); ?>">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Min input Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $input_placeholder = isset($dapfforwc_form_styles["input_placeholder"]["price"]["min"]) ? esc_attr($dapfforwc_form_styles["input_placeholder"]["price"]["min"]) : 'Min'; ?>
+                                                        <input type="text" name="dapfforwc_style_options[input_placeholder][price][min]" placeholder="Min" value="<?php echo esc_attr($input_placeholder); ?>">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row" style="padding-top: 16px; gap:20px;">
+                                            <div class="col-6">
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Max input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["max"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["max"]) : 'Max Price:'; ?>
+                                                        <input type="text" name="dapfforwc_style_options[input_label][price][max]" placeholder="Max Price:" value="<?php echo esc_attr($input_label); ?>">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Max input Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $input_placeholder = isset($dapfforwc_form_styles["input_placeholder"]["price"]["max"]) ? esc_attr($dapfforwc_form_styles["input_placeholder"]["price"]["max"]) : 'Max'; ?>
+                                                        <input type="text" name="dapfforwc_style_options[input_placeholder][price][max]" placeholder="Max" value="<?php echo esc_attr($input_placeholder); ?>">
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php }
+                                    
+                                    if ($dapfforwc_attribute_name === 'search') { ?>
                                         <div class="row" style="padding-top: 16px;">
                                             <div class="col-6">
                                                 <div class="setting-item">
