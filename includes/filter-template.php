@@ -2329,25 +2329,6 @@ function dapfforwc_product_filter_shortcode($atts)
 }
 add_shortcode('plugincy_filters', 'dapfforwc_product_filter_shortcode');
 
-// General sorting function
-function dapfforwc_customSort($a, $b)
-{
-    // Try to convert to timestamp for date comparison
-    $dateA = strtotime($a);
-    $dateB = strtotime($b);
-
-    if ($dateA && $dateB) {
-        return $dateA <=> $dateB; // Both are dates
-    }
-
-    // Check if both are numeric
-    if (is_numeric($a) && is_numeric($b)) {
-        return $a <=> $b; // Both are numbers
-    }
-
-    // Fallback to string comparison
-    return strcmp($a, $b);
-}
 function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, $name, $attribute, $singlevalueSelect, $count, $min_price = 0, $max_price = null, $min_max_prices = [], $disable_unselected = false)
 {
     $default_max_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['max'] ?? $max_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 10000);
@@ -2441,12 +2422,12 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 
             $output .= '<div class="price-input">
         <div class="field">
-          <span>'.$min_label.'</span>
+          <span>' . $min_label . '</span>
           <input  type="number" id="min-price" name="mn_price" class="input-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         </div>
         <div class="separator">-</div>
         <div class="field">
-          <span>'.$max_label.'</span>
+          <span>' . $max_label . '</span>
           <input  type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" class="input-max" value="' . $max_price . '">
         </div>
       </div>
@@ -2618,7 +2599,7 @@ function dapfforwc_product_filter_shortcode_single($atts)
 
     // Check if the name is provided
     if (empty($atts['name'])) {
-        return '<p style="background:red;background: red;text-align: center;color: #fff;">'.esc_html__('Please provide an attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce-pro').'</p>';
+        return '<p style="background:red;background: red;text-align: center;color: #fff;">' . esc_html__('Please provide an attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</p>';
     }
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
@@ -2874,10 +2855,11 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
         LEFT JOIN {$wpdb->prefix}term_relationships AS tr ON tt.term_taxonomy_id = tr.term_taxonomy_id
         LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
         INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
+        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
         WHERE (tt.taxonomy IN (%s, %s, %s) OR a.attribute_name IS NOT NULL)
         AND p.post_type = 'product' 
         AND p.post_status = 'publish'
-        ORDER BY t.term_id
+        ORDER BY CAST(tm.meta_value AS UNSIGNED), t.name
     ", 'product_cat', 'product_tag', 'product_brand');
 
     $results = $wpdb->get_results($query, ARRAY_A);
@@ -3057,17 +3039,17 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 
     $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
 
-    global $dapfforwcpro_styleoptions;
+    global $dapfforwc_styleoptions;
 
     // Initialize stock status and sale status arrays
     $data['stock_status'] = [
-        0 => ['name' => ($dapfforwcpro_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => []],
-        1 => ['name' => ($dapfforwcpro_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => []]
+        0 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => []]
     ];
 
     $data['sale_status'] = [
-        0 => ['name' => ($dapfforwcpro_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => []],
-        1 => ['name' => ($dapfforwcpro_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => []]
+        0 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => []]
     ];
 
     if (!empty($stock_sale_results)) {

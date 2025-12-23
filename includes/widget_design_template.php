@@ -245,6 +245,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $hierarchical = '';
             }
         }
+
+        $category_order_by = $dapfforwc_styleoptions["product-category"]["order_by"] ?? "default";
+        $category_order = $dapfforwc_styleoptions["product-category"]["order_direction"] ?? "asc";
+
+        if ($category_order_by !== "default" || $category_order_by !== "menu_order") {
+            $updated_filters["categories"] = dapfforwc_sort_terms($updated_filters["categories"], $category_order_by, $category_order);
+        }
+
         $selected_categories = !empty($default_filter) && isset($default_filter["product-category[]"]) ? $default_filter["product-category[]"] : [];
 
         // Fetch categories
@@ -459,13 +467,15 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $show_count = isset($dapfforwc_styleoptions[$attribute_name]["show_product_count"]) ? $dapfforwc_styleoptions[$attribute_name]["show_product_count"] : "";
             $singlevalueattrSelect = isset($dapfforwc_styleoptions[$attribute_name]["single_selection"]) ? $dapfforwc_styleoptions[$attribute_name]["single_selection"] : "";
 
+            $attr_order_by = $dapfforwc_styleoptions[$attribute_name]["order_by"] ?? "default";
+            $attr_order = $dapfforwc_styleoptions[$attribute_name]["order_direction"] ?? "asc";
+
+            // Sort terms
+            if ($attr_order_by !== "default" || $attr_order_by !== "menu_order") {
+                $terms = dapfforwc_sort_terms($terms, $attr_order_by, $attr_order);
+            }
+
             if ($terms) {
-                usort($terms, function ($a, $b) {
-                    return dapfforwc_customSort(
-                        is_object($a) ? $a->name : $a['name'],
-                        is_object($b) ? $b->name : $b['name']
-                    );
-                });
                 $formOutPut .= '<div id="' . esc_attr($attribute_name) . '" class="filter-group ' . esc_attr($attribute_name) . '" style="display: ' . (isset($dapfforwc_options['show_attributes']) && !empty($dapfforwc_options['show_attributes']) ? 'block' : 'none !important') . ';">
                             <div class="title plugincy_collapsable_' . esc_attr($minimizable) . '"><span>' . ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"][$attribute_name]) && $dapfforwc_styleoptions["widget_title"][$attribute_name] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"][$attribute_name]) : esc_html($attribute_name)) . ' ' . ($singlevalueattrSelect === "yes" && $show_apply_reset_on === "separate" ? ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>' : '') . '</span>' .
                     ($minimizable === "arrow" || $minimizable === "minimize_initial" ? '<div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512" role="graphics-symbol" aria-hidden="false" aria-label=""><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div>' : '') .
@@ -526,6 +536,15 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $formOutPut .= '<select name="tags[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
+
+        $tags_order_by = $dapfforwc_styleoptions["tag"]["order_by"] ?? "default";
+        $tags_order = $dapfforwc_styleoptions["tag"]["order_direction"] ?? "asc";
+
+        // Sort tags if order_by is not default
+        if ($tags_order_by !== "default" || $tags_order_by !== "menu_order") {
+            $tags = dapfforwc_sort_terms($tags, $tags_order_by, $tags_order);
+        }
+
         if ($tags) {
             foreach ($tags as $tag) {
                 $value = is_object($tag) ? esc_attr($tag->slug) : esc_attr($tag['slug']);
@@ -544,6 +563,12 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // tags ends
     // display brands
     $brands = isset($updated_filters['brands']) && is_array($updated_filters['brands']) ? $updated_filters["brands"] : [];
+    $brands_order_by = $dapfforwc_styleoptions["brands"]["order_by"] ?? "default";
+    $brands_order = $dapfforwc_styleoptions["brands"]["order_direction"] ?? "asc";
+    // Sort brands if order_by is not default
+    if ($brands_order_by !== "default" || $brands_order_by !== "menu_order") {
+        $brands = dapfforwc_sort_terms($brands, $brands_order_by, $brands_order);
+    }
     if (!empty($brands)) {
         $selected_brands = !empty($default_filter) && isset($default_filter["rplurand[]"]) ? $default_filter["rplurand[]"] : (isset($default_filter["brand[]"]) ? $default_filter["brand[]"] : []);
         $sub_option = isset($dapfforwc_styleoptions["brands"]["sub_option"]) ? $dapfforwc_styleoptions["brands"]["sub_option"] : ""; // Fetch the sub_option value
@@ -860,11 +885,11 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         // Date filter options
         $date_options = [
-            '' => $dapfforwcpro_styleoptions['date_filter_texts']['all_time_text'] ?? 'All Time',
-            'today' => $dapfforwcpro_styleoptions['date_filter_texts']['today_text'] ?? 'Today',
-            'this_week' => $dapfforwcpro_styleoptions['date_filter_texts']['this_week_text'] ?? 'This Week',
-            'this_month' => $dapfforwcpro_styleoptions['date_filter_texts']['this_month_text'] ?? 'This Month',
-            'this_year' => $dapfforwcpro_styleoptions['date_filter_texts']['this_year_text'] ?? 'This Year',
+            '' => $dapfforwc_styleoptions['date_filter_texts']['all_time_text'] ?? 'All Time',
+            'today' => $dapfforwc_styleoptions['date_filter_texts']['today_text'] ?? 'Today',
+            'this_week' => $dapfforwc_styleoptions['date_filter_texts']['this_week_text'] ?? 'This Week',
+            'this_month' => $dapfforwc_styleoptions['date_filter_texts']['this_month_text'] ?? 'This Month',
+            'this_year' => $dapfforwc_styleoptions['date_filter_texts']['this_year_text'] ?? 'This Year',
             // 'custom' => 'Custom Range'
         ];
 
@@ -916,4 +941,91 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     return $formOutPut;
 } //function ends
+
+
+/**
+ * Reusable function to sort terms by various criteria
+ * 
+ * @param array $terms Array of term objects or arrays to sort
+ * @param string $order_by Sort criteria: 'alpha', 'numeric', 'month_year', 'count', 'slug', 'default'
+ * @param string $order Sort direction: 'asc' or 'desc'
+ * @return array Sorted terms array
+ */
+function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
+{
+    // Return original array if default or empty
+    if ($order_by === 'default' || empty($terms)) {
+        return $terms;
+    }
+
+    usort($terms, function ($a, $b) use ($order_by, $order) {
+        // Handle both object and array formats
+        $nameA = is_object($a) ? ($a->name ?? '') : ($a['name'] ?? '');
+        $nameB = is_object($b) ? ($b->name ?? '') : ($b['name'] ?? '');
+        $slugA = is_object($a) ? ($a->slug ?? '') : ($a['slug'] ?? '');
+        $slugB = is_object($b) ? ($b->slug ?? '') : ($b['slug'] ?? '');
+        $countA = is_object($a) ? ($a->count ?? 0) : ($a['count'] ?? 0);
+        $countB = is_object($b) ? ($b->count ?? 0) : ($b['count'] ?? 0);
+
+
+
+        $valueA = null;
+        $valueB = null;
+
+        switch ($order_by) {
+            case 'alpha':
+                // Alphabetical sorting by name
+                $valueA = strtolower($nameA);
+                $valueB = strtolower($nameB);
+                break;
+
+            case 'numeric':
+                // Extract numeric values from names
+                preg_match('/\d+/', $nameA, $matchesA);
+                preg_match('/\d+/', $nameB, $matchesB);
+                $valueA = !empty($matchesA) ? (int)$matchesA[0] : 0;
+                $valueB = !empty($matchesB) ? (int)$matchesB[0] : 0;
+                break;
+
+            case 'month_year':
+                // Parse dates from names
+                $valueA = strtotime($nameA);
+                $valueB = strtotime($nameB);
+                // If strtotime fails, fallback to alphabetical
+                if ($valueA === false) $valueA = 0;
+                if ($valueB === false) $valueB = 0;
+                break;
+
+            case 'count':
+                // Sort by product count
+                $valueA = (int)$countA;
+                $valueB = (int)$countB;
+                break;
+
+            case 'slug':
+                // Sort by slug
+                $valueA = strtolower($slugA);
+                $valueB = strtolower($slugB);
+                break;
+
+            default:
+                return 0;
+        }
+
+        // Handle equal values
+        if ($valueA == $valueB) {
+            return 0;
+        }
+
+        // Apply sort direction
+        if ($order === 'asc') {
+            return ($valueA < $valueB) ? -1 : 1;
+        } else {
+            return ($valueA > $valueB) ? -1 : 1;
+        }
+    });
+
+    return $terms;
+}
 ?>
+

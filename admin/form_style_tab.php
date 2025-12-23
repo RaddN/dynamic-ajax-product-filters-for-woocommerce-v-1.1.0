@@ -894,7 +894,64 @@ if (!defined('ABSPATH')) {
                                             </div>
                                         </div>
 
-                                    <?php } ?>
+                                    <?php } 
+                                    
+                                    // Determine if ordering options should be shown for this attribute
+                                    $show_ordering = !in_array($dapfforwc_attribute_name, ['price', 'rating', 'search', 'status', 'sale_status', 'dimensions', 'sku', 'discount', 'date_filter', 'reset_btn', 'authors']);
+
+                                    if ($show_ordering) :
+                                        $order_by = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_by']) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_by']) : 'default';
+                                        $order_direction = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_direction']) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_direction']) : 'asc';
+
+                                        // Check if menu order is available (only for category, tag, brand, and attributes)
+                                        $show_menu_order = in_array($dapfforwc_attribute_name, ['product-category', 'tag', 'brands']) ||
+                                            (isset($all_attributes[$dapfforwc_attribute_name]));
+                                    ?>
+                                        <!-- Order By Setting -->
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Order Values/Terms By:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <label>
+                                                <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_by]">
+                                                    <option value="default" <?php selected($order_by, 'default'); ?>>
+                                                        <?php esc_html_e('Default', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                    <option value="alpha" <?php selected($order_by, 'alpha'); ?>>
+                                                        <?php esc_html_e('Alphabetical', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                    <option value="numeric" <?php selected($order_by, 'numeric'); ?>>
+                                                        <?php esc_html_e('Numeric', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                    <option value="month_year" <?php selected($order_by, 'month_year'); ?>>
+                                                        <?php esc_html_e('Month & Year', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                    <?php if ($show_menu_order) : ?>
+                                                        <option value="menu_order" <?php selected($order_by, 'menu_order'); ?>>
+                                                            <?php esc_html_e('Menu Order', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                        </option>
+                                                    <?php endif; ?>
+                                                    <option value="count" <?php selected($order_by, 'count'); ?>>
+                                                        <?php esc_html_e('Product Count', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                </select>
+                                            </label>
+                                        </div>
+
+                                        <!-- Order Direction Setting -->
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Order Direction:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <label>
+                                                <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_direction]">
+                                                    <option value="asc" <?php selected($order_direction, 'asc'); ?>>
+                                                        <?php esc_html_e('Ascending', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                    <option value="desc" <?php selected($order_direction, 'desc'); ?>>
+                                                        <?php esc_html_e('Descending', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    </option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                    <?php endif; ?>
+
                                 </div>
                             </div>
                         </div>

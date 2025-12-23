@@ -88,7 +88,7 @@ div#roverlay {
   background: 0 0;
 }
 #product-filter .filter-group .title {
-  text-align: center;
+  text-align: left;
   display: flex;
   justify-content: space-between;
   font-size: 16px;
