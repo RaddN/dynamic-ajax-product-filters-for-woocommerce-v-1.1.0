@@ -782,7 +782,7 @@ if (!defined('ABSPATH')) {
 
                                         <!-- Single Selection Option -->
                                         <?php if ($dapfforwc_attribute_name !== "rating" && $dapfforwc_attribute_name !== "price" && $dapfforwc_attribute_name !== "search") { ?>
-                                            <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'select2' ? 'none' : 'block'; ?> ;">
+                                            <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'block'; ?> ;">
                                                 <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                 <label>
                                                     <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"

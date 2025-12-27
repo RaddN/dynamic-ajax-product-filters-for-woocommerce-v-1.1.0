@@ -268,7 +268,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             }
             $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-            if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+            if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                 $formOutPut .= '<option class="filter-checkbox" > Any </option>';
             }
@@ -374,7 +374,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
             $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-            if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+            if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                 $formOutPut .= '<option class="filter-checkbox" > Any </option>';
             }
@@ -383,14 +383,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $value = is_object($parent_category) ? esc_attr($parent_category->slug) : esc_attr($parent_category['slug']);
                 $title = is_object($parent_category) ? esc_html($parent_category->name) : esc_html($parent_category['name']);
                 $count = $show_count === 'yes' ? (is_object($parent_category) ? esc_attr($parent_category->count) : esc_attr(isset($parent_category['count']) ? $parent_category['count'] : 0)) : 0;
-                $checked = in_array($value, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === 'on'   && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic")
+                $formOutPut .= $use_anchor === 'on'   && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic")
                     ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count, 0, null, [], $disable_unselected) . '</a>'
                     : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count, 0, null, [], $disable_unselected);
             }
 
-            if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+            if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '</select></div></div>';
             } else {
                 $formOutPut .= '</div></div>';
@@ -411,14 +411,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
                     $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-                    if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+                    if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                         $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                         $formOutPut .= '<option class="filter-checkbox" > Any </option>';
                     }
 
                     $formOutPut .= dapfforwc_render_category_hierarchy($child_categories, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, $child_categories);
 
-                    if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+                    if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                         $formOutPut .= '</select></div></div>';
                     } else {
                         $formOutPut .= '</div></div>';
@@ -432,16 +432,16 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $title = is_object($category) ? esc_html($category->name) : esc_html($category['name']);
                 $count = $show_count === 'yes' ? $dapfforwc_product_count['categories'][$value] : 0;
 
-                $checked = in_array($value, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === 'on'   && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic")
+                $formOutPut .= $use_anchor === 'on'   && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic")
                     ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count, 0, null, [], $disable_unselected) . '</a>'
                     : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count, 0, null, [], $disable_unselected);
             }
         }
 
         if ($hierarchical !== 'enable_separate' && !empty($updated_filters["categories"])) {
-            if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+            if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                 $formOutPut .= '</select></div></div>';
             } else {
                 $formOutPut .= '</div></div>';
@@ -489,7 +489,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
                 $formOutPut .= '<div class="items ' . esc_attr($sub_optionattr) . '">';
 
-                if ($sub_optionattr === "select" || $sub_optionattr === "select2" || $sub_optionattr === "select2_classic") {
+                if ($sub_optionattr === "select" || $sub_optionattr === "pluginy_select2" || $sub_optionattr === "select2_classic") {
                     $formOutPut .= '<select name="attribute[' . esc_attr($attribute_name) . '][]" class="' . esc_attr($sub_optionattr) . ' filter-select" ' . ($singlevalueattrSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
                     $formOutPut .= '<option class="filter-checkbox" > Any </option>';
                 }
@@ -499,7 +499,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
                     $name = is_object($term) ? esc_html($term->name) : esc_html($term['name']);
                     $slug = is_object($term) ? esc_attr($term->slug) : esc_attr($term['slug']);
-                    $checked = in_array($slug, $selected_terms) ? ($sub_optionattr === 'select' || str_contains($sub_optionattr, 'select2') ? ' selected' : ' checked') : '';
+                    $checked = in_array($slug, $selected_terms) ? ($sub_optionattr === 'select' || str_contains($sub_optionattr, 'pluginy_select2') ? ' selected' : ' checked') : '';
                     $count = $show_count === "yes" ? (is_object($term) ? esc_attr($term->count ?? 0) : esc_attr(isset($term['count']) ? $term['count'] : 0)) : 0; // Use term count directly
                     $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? esc_attr($slug) : "filters/" . esc_attr($slug)) : '?filters=' . esc_attr($slug);
                     $formOutPut .= $use_anchor === "on" && $sub_optionattr !== "select" && $sub_optionattr !== "pluginy_select2" && $sub_optionattr !== "select2_classic" ?
@@ -507,7 +507,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                         dapfforwc_render_filter_option($sub_optionattr, esc_html($name), esc_attr($slug), $checked, $dapfforwc_styleoptions, "attribute[$attribute_name]", $attribute_name, $singlevalueattrSelect, $count, 0, null, [],   $disable_unselected);
                 }
 
-                if ($sub_optionattr === "select" || $sub_optionattr === "select2" || $sub_optionattr === "select2_classic") {
+                if ($sub_optionattr === "select" || $sub_optionattr === "pluginy_select2" || $sub_optionattr === "select2_classic") {
                     $formOutPut .= '</select>';
                 }
                 $formOutPut .= '</div></div>';
@@ -532,7 +532,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="tags[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
@@ -549,13 +549,13 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($tags as $tag) {
                 $value = is_object($tag) ? esc_attr($tag->slug) : esc_attr($tag['slug']);
                 $title = is_object($tag) ? esc_html($tag->name) : esc_html($tag['name']);
-                $checked = in_array($value, $selected_tags) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_tags) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["tags"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "tags", $attribute = "tags", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '</select>';
         }
         $formOutPut .= '</div></div>';
@@ -584,7 +584,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="rplurand[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
@@ -592,15 +592,15 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($brands as $brand) {
                 $value = is_object($brand) ? esc_attr($brand->slug) : esc_attr($brand['slug']);
                 $title = is_object($brand) ? esc_html($brand->name) : esc_html($brand['name']);
-                $checked = in_array($value, $selected_brands) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_brands) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
 
                 $count = $show_count === "yes" ? $dapfforwc_product_count["brands"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplurand", $attribute = "brands", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplurand", $attribute = "brands", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplurand", $attribute = "brands", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplurand", $attribute = "brands", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '</select>';
         }
         $formOutPut .= '</div></div>';
@@ -623,7 +623,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="rpluthor[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
@@ -631,13 +631,13 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($authors as $author) {
                 $value = is_object($author) ? esc_attr($author->slug) : esc_attr($author['slug']);
                 $title = is_object($author) ? esc_html($author->name) : esc_html($author['name']);
-                $checked = in_array($value, $selected_authors) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_authors) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["authors"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '</select>';
         }
         $formOutPut .= '</div></div>';
@@ -660,7 +660,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="rpluthor[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
@@ -669,13 +669,13 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($status as $stat) {
                 $value = is_object($stat) ? esc_attr($stat->slug) : esc_attr($stat['slug']);
                 $title = is_object($stat) ? esc_html($stat->name) : esc_html($stat['name']);
-                $checked = in_array($value, $selected_status) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["status"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '</select>';
         }
         $formOutPut .= '</div></div>';
@@ -698,7 +698,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
 
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="rpluthor[]" class="' . esc_attr($sub_option) . ' filter-select" ' . ($singlevalueSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
             $formOutPut .= '<option class="filter-checkbox" > Any </option>';
         }
@@ -706,13 +706,13 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($sale_status as $stat) {
                 $value = is_object($stat) ? esc_attr($stat->slug) : esc_attr($stat['slug']);
                 $title = is_object($stat) ? esc_html($stat->name) : esc_html($stat['name']);
-                $checked = in_array($value, $selected_sale_status) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+                $checked = in_array($value, $selected_sale_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["sale_status"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
-        if ($sub_option === "select" || $sub_option === "select2" || $sub_option === "select2_classic") {
+        if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '</select>';
         }
         $formOutPut .= '</div></div>';

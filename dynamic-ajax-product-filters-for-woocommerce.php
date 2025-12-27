@@ -4,7 +4,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.5.2.5
+ * Version:     1.5.2.10
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +23,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.5.2.5');
+define('DAPFFORWC_VERSION', '1.5.2.10');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -1481,7 +1481,7 @@ $dapfforwc_sub_options = [
     ],
     'dropdown' => [
         'select' => 'Select',
-        'select2' => 'Select 2',
+        'pluginy_select2' => 'Select 2',
         // 'select2_classic' => 'Select 2 Classic',
     ],
     'price' => [
@@ -1553,7 +1553,7 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.2.5', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.2.10', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     $dapfforwc_localized_data = array(
         'dapfforwc_options' => $dapfforwc_options,
@@ -1574,9 +1574,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.2.5');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.2.5');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.2.5', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.2.10');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.2.10');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.2.10', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -1629,11 +1629,11 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.2.5');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.2.10');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.2.5', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.2.10', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
@@ -1835,7 +1835,7 @@ function dapfforwc_admin_scripts($hook)
             const singleSelectionCheckbox = this.closest(".style-options").querySelector(".setting-item.single-selection input");
             const singleSelectiondiv = this.closest(".style-options").querySelector(".setting-item.single-selection"); 
             if(singleSelectionCheckbox){
-                if (this.value === "select" || selectedType==="select2") {
+                if (this.value === "select" || selectedType==="pluginy_select2") {
                     singleSelectionCheckbox.checked = true;
                     singleSelectiondiv.style.display = "none"; // Show the checkbox
                     
@@ -1853,7 +1853,7 @@ function dapfforwc_admin_scripts($hook)
             document.querySelector(`#options-search .optional_settings .btn_text`).style.display = "block";
         }
 
-        if(selectedType==="select" || selectedType==="select2"){
+        if(selectedType==="select" || selectedType==="pluginy_select2"){
                document.querySelector(`.single-selection`).style.display = "none";
             }
     });
@@ -1926,7 +1926,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.2.5');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.2.10');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2228,7 +2228,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.5.2.5",
+            "1.5.2.10",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );

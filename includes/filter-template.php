@@ -2398,7 +2398,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $output .= '</label>';
             break;
 
-        case 'select2':
+        case 'pluginy_select2':
         case 'select2_classic':
         case 'select':
             $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
@@ -2560,28 +2560,34 @@ function dapfforwc_render_category_hierarchy(
             $title = '';
         }
         $count = $show_count === 'yes' ? (is_object($category) ? $category->count : $category["count"]) : 0;
-        $checked = in_array($category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'select2') ? ' selected' : ' checked') : '';
+        $checked = in_array($category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
         $anchorlink = $use_filters_word === 'on' ? "filters/$value" : "?filters=$value";
 
         // Fetch child categories
         $child_categories = dapfforwc_get_child_categories($child_category, $category->term_id);
 
         // Render current category
-        $categoryHierarchyOutput .= $use_anchor === 'on' && $sub_option !== 'select' && !str_contains($sub_option, 'select2')
+        $categoryHierarchyOutput .= $use_anchor === 'on' && $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2')
             ? '<div style="display:flex;align-items: center;"><a href="' . esc_attr($anchorlink) . '">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
             . '</a>'
             . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
             . '</div>'
-            : ($sub_option !== 'select' && !str_contains($sub_option, 'select2') ? '<div style="display:flex;align-items: center;text-decoration: none;">'
+            : ($sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '<div style="display:flex;align-items: center;text-decoration: none;">'
                 . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
                 . '</div>' : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : ''));
 
         // Render child categories
         if (!empty($child_categories)) {
-            $categoryHierarchyOutput .= $sub_option !== 'select' && !str_contains($sub_option, 'select2') ? '<div class="child-categories" style="display:' . ($hierarchical === 'enable_hide_child' ? 'none;' : 'block;') . '">' : '';
+            $categoryHierarchyOutput .= $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '<div class="child-categories" style="display:' . ($hierarchical === 'enable_hide_child' ? 'none;' : 'block;') . '">' : '';
+            if ($sub_option === 'select' || $sub_option === 'pluginy_select2' || $sub_option === 'select2_classic') {
+                $categoryHierarchyOutput .= '<optgroup label="' . esc_attr($title) . '">';
+            }
             $categoryHierarchyOutput .= dapfforwc_render_category_hierarchy($child_categories, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, $child_category);
-            $categoryHierarchyOutput .= $sub_option !== 'select' && !str_contains($sub_option, 'select2') ? '</div>' : '';
+            if ($sub_option === 'select' || $sub_option === 'pluginy_select2' || $sub_option === 'select2_classic') {
+                $categoryHierarchyOutput .= '</optgroup>';
+            }
+            $categoryHierarchyOutput .= $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '</div>' : '';
         }
     }
     return $categoryHierarchyOutput;
