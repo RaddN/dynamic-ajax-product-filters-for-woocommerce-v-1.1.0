@@ -634,7 +634,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $checked = in_array($value, $selected_authors) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["authors"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "rpluthor", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "authors", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpluthor", $attribute = "authors", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
         if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
@@ -672,7 +672,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $checked = in_array($value, $selected_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["status"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "rplutock_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "status", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rplutock_status", $attribute = "status", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
         if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
@@ -681,7 +681,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $formOutPut .= '</div></div>';
     }
     // Stock Status ends
-    // display Stock Status
+    // display Sale Status
     $sale_status = isset($updated_filters['sale_status']) && is_array($updated_filters['sale_status']) ? $updated_filters["sale_status"] : [];
     if (!empty($sale_status)) {
         $selected_sale_status = !empty($default_filter) && isset($default_filter["rpn_sale[]"]) ? $default_filter["rpn_sale[]"] : (isset($default_filter["sale_status[]"]) ? $default_filter["sale_status[]"] : []);
@@ -709,7 +709,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $checked = in_array($value, $selected_sale_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
                 $count = $show_count === "yes" ? $dapfforwc_product_count["sale_status"][$value] : 0;
                 $anchorlink = $use_filters_word === 'on' ? ($is_filters_in_url ? "$value" : "filters/$value") : '?filters=' . $value;
-                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "rpn_sale", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
+                $formOutPut .= $use_anchor === "on"  && ($sub_option !== "select" && $sub_option !== "pluginy_select2" && $sub_option !== "select2_classic") ? '<a href="' . esc_attr($anchorlink) . '">' . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "sale_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected) . '</a>' :  dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "rpn_sale", $attribute = "sale_status", $singlevalueSelect, $count, 0, null, [], $disable_unselected);
             }
         }
         if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
@@ -717,7 +717,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         }
         $formOutPut .= '</div></div>';
     }
-    // Stock Status ends
+    // Sale Status ends
 
     // Unified Dimension Filter
     $dimensions = [
