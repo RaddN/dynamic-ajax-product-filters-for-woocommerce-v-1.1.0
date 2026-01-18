@@ -106,6 +106,5 @@ class DAPFFORWC_Elementor_Category_Alternative
         }
     }
 }
-
 // Use the alternative if the main one doesn't work
 new DAPFFORWC_Elementor_Category_Alternative();

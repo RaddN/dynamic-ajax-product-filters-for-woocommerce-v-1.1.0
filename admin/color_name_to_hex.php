@@ -152,4 +152,3 @@ function dapfforwc_color_name_to_hex($color_name) {
 
     return $colors[$color_name] ?? null; // Return the hex value or null if not found
 }
-

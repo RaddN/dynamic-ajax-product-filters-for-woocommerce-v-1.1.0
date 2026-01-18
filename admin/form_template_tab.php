@@ -1235,4 +1235,3 @@ function hex2rgb($hex)
 
     return "$r, $g, $b";
 }
-?>

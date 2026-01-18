@@ -1312,5 +1312,3 @@ function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
 
     return $terms;
 }
-?>
-

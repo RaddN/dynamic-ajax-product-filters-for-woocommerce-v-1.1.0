@@ -690,10 +690,8 @@ if (!class_exists('dapfforwc_Pagination_Normalizer')) {
         }
     }
 }
-
 /**
  * Instantiate with your desired class. It’s safe to keep your existing product injection class as-is.
  * You can also pass a different class if needed: new dapfforwc_Pagination_Normalizer('my-custom-class');
  */
 new dapfforwc_Pagination_Normalizer('plugincy-filter-pagination');
-

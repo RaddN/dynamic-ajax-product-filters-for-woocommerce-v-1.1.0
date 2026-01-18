@@ -2931,5 +2931,3 @@ function dapfforwc_render_admin_faq()
     </script>
 <?php
 }
-
-?>
