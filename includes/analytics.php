@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Plugin Analytics Integration Class
  * 

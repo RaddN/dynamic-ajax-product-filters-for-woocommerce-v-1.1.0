@@ -1,5 +1,4 @@
 <?php
-
 // admin-page.php
 
 if (!defined('ABSPATH')) {
@@ -543,7 +542,7 @@ function dapfforwc_admin_page_content()
 {
     global $dapfforwc_options, $dapfforwc_allowed_tags;
     ?>
-    <div class="wrap wcapf_admin plugincyajaxfilters_admin_settings">
+    <div class="wrap dapfforwc_admin plugincyajaxfilters_admin_settings">
         <!-- welcome box here -->
         <div class="plugincy-filter-welcome-container">
             <div class="welcome-header">
@@ -942,7 +941,7 @@ function dapfforwc_admin_page_content()
         }
 
         ?>
-        <div class="wcapf_admin_page row" style="justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <div class="dapfforwc_admin_page row" style="justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div class="col-md-7">
                 <h2 class="nav-tab-wrapper">
                     <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_manage' ? 'nav-tab-active' : (!isset($_GET['tab']) ? 'nav-tab-active' : ''); ?>"><span class="dashicons dashicons-forms"></span><span class="nav-title"><?php echo esc_html__('Form Manage', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
@@ -1057,7 +1056,7 @@ function dapfforwc_admin_page_content()
                                                 <?php wp_nonce_field('dapfforwc_import_settings_nonce'); ?>
                                                 <input type="hidden" name="action" value="dapfforwc_import_settings">
                                                 <input type="file" name="dapfforwc_import_file" accept=".json" required>
-                                                <button type="submit" name="wcapf_import_button" id="wcapf_import_button" class="button button-primary"><?php echo esc_html__('Import', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                                                <button type="submit" name="dapfforwc_import_button" id="dapfforwc_import_button" class="button button-primary"><?php echo esc_html__('Import', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -1066,7 +1065,7 @@ function dapfforwc_admin_page_content()
                                         <td>
                                             <form method="post" action="admin-post.php">
                                                 <input type="hidden" name="action" value="dapfforwc_export_settings">
-                                                <button type="submit" name="wcapf_export_button" id="wcapf_export_button" class="button button-primary"><?php echo esc_html__('Export', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                                                <button type="submit" name="dapfforwc_export_button" id="dapfforwc_export_button" class="button button-primary"><?php echo esc_html__('Export', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
                                             </form>
                                         </td>
                                     </tr>
@@ -1129,15 +1128,12 @@ function dapfforwc_admin_page_content()
                         <h3 style="margin: 0;">Shortcodes for Displaying Filters</h3>
                     </div>
                     <div class="plugincy-dapfforwc-card-body">
-                        <p><?php echo esc_html__('Use these shortcodes to display filters on your site.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters]</code>
-                        <p><?php echo esc_html__('Display as topview', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters layout="top_view"]</code>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
+                        <code class="plugincy-code-box">[plugincy_filters layout="top_view/sidebar"]</code>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters_selected]</code>
+                        <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
                         <p class="plugincy-code-description"><?php echo esc_html__('Displays selected filters.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+                        <code class="plugincy-code-box" style="margin-bottom: 10px;">[plugincy_filters_selected]</code>
                         <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/" target="_blank" class="plugincy-learn-more-link"><?php echo esc_html__('Learn more about using shortcodes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
                         <div class="plugincy-shortcode-note" style="margin-top:15px; padding:10px; border:1px solid #e2e2e2; border-radius:6px; background:#f9f9f9; display:flex; align-items:center; gap:8px;">
                             <span class="dashicons dashicons-filter" style="color:#ff6b35; font-size:18px;"></span>
@@ -1200,1232 +1196,1270 @@ function dapfforwc_admin_page_content()
             </div>
         </div>
         <!-- Tutorial section -->
+        <?php
+        // Tutorial Section with Professional UI and Relevant Content
+        ?>
+        <div class="dapfforwc-tutorial-section">
             <?php
-            // Tutorial Section with Professional UI and Relevant Content
+
+            $tutorial_videos = [
+                [
+                    'title' => __('Full tutorial', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to install the plugin and configure basic settings. This tutorial covers the initial setup process and activation.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/QndYhhLWaaM',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Full overview', 'Initial Setup', 'Basic Configuration', 'Filter display'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/getting-started/installation-procedure/',
+                ],
+                [
+                    'title' => __('Add product filter in any pages with elementor', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to add product filters to any page using Elementor.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/844dLfvZzZA',
+                    'difficulty' => 'beginner',
+                    'shortcode' => '[plugincy_filters layout="sidebar"]',
+                    'topics' => ['Elementor Integration', 'Filter Widget', 'Page Customization'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-elementor-with-dynamic-ajax-product-filter-for-woocommerce/',
+                ],
+                [
+                    'title' => __('Add Dynamic AJAX Product Filters to WooCommerce Sidebar (Widget & Elementor Method)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('This step-by-step guide shows how to quickly enable product filtering without page reloads, improving user experience, navigation, and conversions for your WooCommerce store.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/FFKTlFS9X7g',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Filter display', 'with widget', 'with Elementor'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-widgets-with-dynamic-ajax-product-filter-for-woocommerce/'
+                ],
+                [
+                    'title' => __('Display Dynamic Ajax Product Filter on other page builder (using shortcode method)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('In this tutorial, you’ll learn how to display Dynamic AJAX Product Filters in Divi using the shortcode method for WooCommerce.
+If you’re using the Divi theme or Divi Builder, this video will show you how to easily insert product filters anywhere on your site without coding. Using shortcodes ensures full compatibility and flexible placement within Divi layouts.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/Ft2E7FS8rO4',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Filter display', 'with Divi', 'with Shortcode'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/'
+                ],
+                [
+                    'title' => __('Mobile Responsive Configuration for Dynamic AJAX Product Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to configure mobile-responsive filters using Dynamic AJAX Product Filters for WooCommerce to ensure a smooth shopping experience on all devices.
+This tutorial focuses on optimizing filters for mobile users without compromising performance or design.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/vEp2Tg0TocM',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Mobile Responsive', 'with widget', 'with Elementor', 'With Shortcode'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/responsive-design-guidelines-for-dynamic-ajax-product-filters/'
+                ],
+                [
+                    'title' => __('Display chips or active widget on Widget, Elementor, Gutenburg & with Shortcode', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('In this tutorial, you’ll learn how to display active filter chips (selected filters) using Dynamic AJAX Product Filters for WooCommerce across multiple builders and methods.
+We’ll show you how to display the active filters widget.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/nf8ajO9elvY',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Display active widget', 'with Widgets', 'with Elementor', 'with Shortcode'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-chips-widget-for-currently-selected-values/'
+                ],
+                [
+                    'title' => __(' How to reorder/rearrange filter widget with elementor & gutenburg.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to reorder and rearrange filter widgets using Elementor and Gutenberg.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/VU5GAgyU0xY',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['Elementor', 'Gutenberg', 'Widget Management', 'Drag-and-Drop'],
+                ],
+                [
+                    'title' => __('How to Remove a Filter with global settings, Exclude Attribute & Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to remove a filter widget from the global settings, exclude attributes, and manage custom fields.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/KxgrBJm91Cs',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['Widget Removal', 'Global Settings', 'Attribute Exclusion', 'Custom Fields'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/form-manage/form-management-for-dynamic-ajax-product-filters/'
+                ],
+                [
+                    'title' => __('Best Seo configuration with dynamic ajax product filter', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to configure SEO settings for the Dynamic Ajax Product Filter plugin.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/hmBXO2wC378',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['SEO Configuration', 'Meta Tags', 'URL Structure', 'Robots.txt'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/seo/seo-and-filter-url-configuration-for-dynamic-ajax-product-filter/'
+                ],
+
+                // [
+                //     'number' => 9,
+                //     'title' => __('Location Information Display & Maps', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_8',
+                //     'duration' => '7:45',
+                //     'difficulty' => 'advanced',
+                //     'shortcode' => '[mulopimfwc_location_info layout="tabs" search="yes"]',
+                //     'parameters' => [
+                //         [
+                //             'key' => 'id',
+                //             'desc' => __('Specific location ID(s)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'id="123" or id="123,456,789"'
+                //         ],
+                //         [
+                //             'key' => 'slug',
+                //             'desc' => __('Location slug(s)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'slug="downtown,uptown"'
+                //         ],
+                //         [
+                //             'key' => 'layout',
+                //             'desc' => __('Display layout style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'auto | tabs | compact | grid'
+                //         ],
+                //         [
+                //             'key' => 'search',
+                //             'desc' => __('Enable location search', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ],
+                //         [
+                //             'key' => 'compact',
+                //             'desc' => __('Compact view for single location', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ],
+                //         [
+                //             'key' => 'limit',
+                //             'desc' => __('Limit number of locations', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'limit="5"'
+                //         ],
+                //         [
+                //             'key' => 'orderby',
+                //             'desc' => __('Sort locations by', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'name | id | count'
+                //         ],
+                //         [
+                //             'key' => 'order',
+                //             'desc' => __('Sort order', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'ASC | DESC'
+                //         ]
+                //     ],
+                // ],
+                // [
+                //     'number' => 10,
+                //     'title' => __('Location-Based Product Recommendations', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'description' => __('Display popular products for each location using customer insights and analytics. Learn to track customer preferences, show location-specific recommendations, and boost sales with personalized product suggestions.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_10',
+                //     'duration' => '6:30',
+                //     'difficulty' => 'intermediate',
+                //     'shortcode' => '[mulopimfwc_location_recommendations limit="8" columns="4" title="Popular at {location}"]',
+                //     'parameters' => [
+                //         [
+                //             'key' => 'limit',
+                //             'desc' => __('Number of products to display', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'limit="8"'
+                //         ],
+                //         [
+                //             'key' => 'columns',
+                //             'desc' => __('Grid columns layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'columns="4"'
+                //         ],
+                //         [
+                //             'key' => 'title',
+                //             'desc' => __('Section title (use {location} placeholder)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'title="Popular at {location}"'
+                //         ],
+                //         [
+                //             'key' => 'show_title',
+                //             'desc' => __('Display section title', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ],
+                //         [
+                //             'key' => 'show_badge',
+                //             'desc' => __('Show popularity badge', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ],
+                //         [
+                //             'key' => 'orderby',
+                //             'desc' => __('Sort products by', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'popularity'
+                //         ]
+                //     ],
+                // ],
+                // [
+                //     'number' => 11,
+                //     'title' => __('Location Selector for specific Product', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'description' => __('Customize the location selector display on product pages and throughout your store. Learn to use shortcodes, and enhance customer experience with multiple layout options.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_6',
+                //     'duration' => '6:50',
+                //     'difficulty' => 'intermediate',
+                //     'shortcode' => '[mulopimfwc_location_selector product_id="123" layout="buttons" label="Select Location:"]',
+                //     'topics' => ['Location Selector', 'Shortcodes', 'Customization'],
+                //     'parameters' => [
+                //         [
+                //             'key' => 'product_id',
+                //             'desc' => __('Specific product ID (auto-detects if not provided)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'product_id="123"'
+                //         ],
+                //         [
+                //             'key' => 'layout',
+                //             'desc' => __('Selector layout style', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'list | buttons | select'
+                //         ],
+                //         [
+                //             'key' => 'label',
+                //             'desc' => __('Custom label text', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'label="Choose Store:"'
+                //         ]
+                //     ],
+                //     'additional_shortcode' => '[mulopimfwc_store_location_selector enable_user_locations="on"]'
+                // ],
+                // [
+                //     'number' => 12,
+                //     'title' => __('AJAX Product Filter by Location & Stock', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'description' => __('Learn how to use the AJAX-powered product filter to allow customers to filter products by location and stock status without page reload. Includes caching, pagination support, and shortcode usage.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_12',
+                //     'duration' => '7:30',
+                //     'difficulty' => 'intermediate',
+                //     'shortcode' => '[mulopimfwc_product_filter]',
+                //     'topics' => ['Product Filter', 'AJAX Filtering', 'Location Filtering', 'Stock Filtering', 'Shortcodes'],
+                //     'parameters' => [
+                //         [
+                //             'key' => 'location',
+                //             'desc' => __('Show location filter dropdown', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ],
+                //         [
+                //             'key' => 'stock',
+                //             'desc' => __('Show stock status filter dropdown', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'value' => 'yes | no'
+                //         ]
+                //     ]
+                // ],
+                // [
+                //     'number' => 13,
+                //     'title' => __('Social Notifications: Microsoft Teams Webhook', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'description' => __('Configure social alerts (orders, stock, digests) using a Microsoft Teams incoming webhook. Covers creating the webhook in Teams and pasting it into this plugin.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_TEAMS',
+                //     'duration' => '4:10',
+                //     'difficulty' => 'intermediate',
+                //     'topics' => ['Teams', 'Webhooks', 'Notifications', 'Slack/Discord/Teams'],
+                // ],
+                // [
+                //     'number' => 14,
+                //     'title' => __('API & Webhook Integration: Bulk Inventory Sync', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'description' => __('Complete guide to integrating your WMS, POS, or ERP systems with the plugin using REST API endpoints and webhooks. Learn how to sync inventory in bulk via CSV or API, set up real-time webhook updates, generate API keys, configure authentication, and automate inventory management across multiple locations. This tutorial covers bulk operations, single product updates, CSV import/export, webhook configuration, and best practices for external system integration.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_API_WEBHOOK',
+                //     'duration' => '12:45',
+                //     'difficulty' => 'advanced',
+                //     'topics' => ['REST API', 'Webhooks', 'WMS Integration', 'POS Integration', 'Bulk Sync', 'CSV Import', 'Inventory Automation', 'API Authentication'],
+                //     'example_requests' => [
+                //         'get_api_keys' => [
+                //             'title' => __('How to Get API Key & Webhook Secret', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'GET',
+                //             'url' => 'WordPress Admin → Multi Location Products → API & Webhooks',
+                //             'headers' => null,
+                //             'body' => [
+                //                 'step_1' => 'Navigate to WordPress Admin Dashboard',
+                //                 'step_2' => 'Go to: Multi Location Products → API & Webhooks',
+                //                 'step_3' => 'Scroll to "API Authentication" section',
+                //                 'step_4' => 'Click "Generate API Key" button (if no key exists)',
+                //                 'step_5' => 'Copy the generated API key immediately',
+                //                 'step_6' => 'Click "Generate Webhook Secret" button (if no secret exists)',
+                //                 'step_7' => 'Copy the generated webhook secret immediately',
+                //                 'step_8' => 'Store both keys securely (they are shown only once)',
+                //                 'important_note' => 'If you lose your keys, you must generate new ones. Old keys will no longer work.',
+                //             ],
+                //             'response' => [
+                //                 'api_key_location' => 'Displayed in "API Key" field after generation',
+                //                 'webhook_secret_location' => 'Displayed in "Webhook Secret" field after generation',
+                //                 'security_warning' => 'Keys are displayed only once for security. Copy them immediately.',
+                //                 'usage_api_key' => 'Use in X-API-Key header for REST API requests',
+                //                 'usage_webhook_secret' => 'Use in X-Webhook-Secret header for webhook requests',
+                //             ]
+                //         ],
+                //         'bulk_sync' => [
+                //             'title' => __('Bulk Sync Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'POST',
+                //             'url' => '/mulopimfwc/v1/inventory/bulk-sync',
+                //             'headers' => [
+                //                 'Content-Type: application/json',
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //             'body' => [
+                //                 'items' => [
+                //                     [
+                //                         'sku' => 'PROD-001',
+                //                         'location_slug' => 'main-store',
+                //                         'stock' => 100,
+                //                         'regular_price' => '29.99',
+                //                         'sale_price' => '24.99'
+                //                     ],
+                //                     [
+                //                         'product_id' => 123,
+                //                         'location_id' => 5,
+                //                         'stock' => 50,
+                //                         'regular_price' => '19.99'
+                //                     ]
+                //                 ]
+                //             ],
+                //             'response' => [
+                //                 'success' => true,
+                //                 'message' => 'Processed 2 items. 2 succeeded, 0 failed.',
+                //                 'results' => [
+                //                     'success' => 2,
+                //                     'failed' => 0,
+                //                     'errors' => []
+                //                 ]
+                //             ]
+                //         ],
+                //         'single_update' => [
+                //             'title' => __('Single Product Update Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'POST',
+                //             'url' => '/mulopimfwc/v1/inventory/update',
+                //             'headers' => [
+                //                 'Content-Type: application/json',
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //             'body' => [
+                //                 'product_id' => 456,
+                //                 'location_id' => 3,
+                //                 'stock' => 25,
+                //                 'regular_price' => '39.99',
+                //                 'sale_price' => '34.99',
+                //                 'backorders' => 'no',
+                //                 'disabled' => false
+                //             ],
+                //             'response' => [
+                //                 'success' => true,
+                //                 'message' => 'Inventory updated successfully.',
+                //                 'data' => [
+                //                     'product_id' => 456,
+                //                     'location_id' => 3,
+                //                     'sku' => 'PROD-456'
+                //                 ]
+                //             ]
+                //         ],
+                //         'export_csv' => [
+                //             'title' => __('Export Inventory CSV Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'GET',
+                //             'url' => '/mulopimfwc/v1/inventory/export?format=csv&location_id=5',
+                //             'headers' => [
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //             'body' => null,
+                //             'response' => [
+                //                 'note' => 'Returns CSV file download with headers: product_id, sku, product_name, location_id, location_slug, location_name, stock, regular_price, sale_price, backorders, disabled'
+                //             ]
+                //         ],
+                //         'export_json' => [
+                //             'title' => __('Export Inventory JSON Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'GET',
+                //             'url' => '/mulopimfwc/v1/inventory/export?format=json',
+                //             'headers' => [
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //             'body' => null,
+                //             'response' => [
+                //                 'success' => true,
+                //                 'count' => 150,
+                //                 'data' => [
+                //                     [
+                //                         'product_id' => 123,
+                //                         'sku' => 'PROD-001',
+                //                         'product_name' => 'Sample Product',
+                //                         'location_id' => 5,
+                //                         'location_slug' => 'main-store',
+                //                         'location_name' => 'Main Store',
+                //                         'stock' => 100,
+                //                         'regular_price' => '29.99',
+                //                         'sale_price' => '24.99',
+                //                         'backorders' => 'no',
+                //                         'disabled' => false
+                //                     ]
+                //                 ]
+                //             ]
+                //         ],
+                //         'webhook' => [
+                //             'title' => __('Webhook Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'POST',
+                //             'url' => '/mulopimfwc/v1/webhook/inventory-update',
+                //             'headers' => [
+                //                 'Content-Type: application/json',
+                //                 'X-Webhook-Secret: your-webhook-secret-here'
+                //             ],
+                //             'body' => [
+                //                 'sku' => 'PROD-001',
+                //                 'location_slug' => 'main-store',
+                //                 'stock' => 75
+                //             ],
+                //             'response' => [
+                //                 'success' => true,
+                //                 'message' => 'Inventory updated via webhook.',
+                //                 'data' => [
+                //                     'product_id' => 123,
+                //                     'location_id' => 5,
+                //                     'sku' => 'PROD-001'
+                //                 ]
+                //             ]
+                //         ],
+                //         'get_locations' => [
+                //             'title' => __('Get Locations Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'GET',
+                //             'url' => '/mulopimfwc/v1/locations',
+                //             'headers' => [
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //             'body' => null,
+                //             'response' => [
+                //                 'success' => true,
+                //                 'count' => 3,
+                //                 'data' => [
+                //                     [
+                //                         'id' => 5,
+                //                         'slug' => 'main-store',
+                //                         'name' => 'Main Store',
+                //                         'description' => 'Our primary retail location'
+                //                     ],
+                //                     [
+                //                         'id' => 6,
+                //                         'slug' => 'warehouse',
+                //                         'name' => 'Warehouse',
+                //                         'description' => 'Distribution center'
+                //                     ]
+                //                 ]
+                //             ]
+                //         ],
+                //         'products' => [
+                //             'title' => __('Get Products Example', 'dynamic-ajax-product-filters-for-woocommerce'),
+                //             'method' => 'GET',
+                //             'url' => '/mulopimfwc/v1/products',
+                //             'headers' => [
+                //                 'X-API-Key: your-api-key-here'
+                //             ],
+                //         ],
+                //     ],
+                // ],
+            ];
+
             ?>
-            <div class="dapfforwc-tutorial-section">
-                <?php
-
-                $tutorial_videos = [
-                    [
-                        'title' => __('Full tutorial', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'description' => __('Learn how to install the plugin and configure basic settings. This tutorial covers the initial setup process and activation.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'url' => 'https://www.youtube.com/embed/QndYhhLWaaM',
-                        'difficulty' => 'beginner',
-                        'topics' => ['Full overview', 'Initial Setup', 'Basic Configuration', 'Filter display'],
-                        'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/getting-started/installation-procedure/',
-                    ],
-                    [
-                        'title' => __('Add product filter in any pages with elementor', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'description' => __('Learn how to add product filters to any page using Elementor.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'url' => 'https://www.youtube.com/embed/844dLfvZzZA',
-                        'difficulty' => 'beginner',
-                        'shortcode' => '[plugincy_filters layout="sidebar"]',
-                        'topics' => ['Elementor Integration', 'Filter Widget', 'Page Customization'],
-                        'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-elementor-with-dynamic-ajax-product-filter-for-woocommerce/',
-                    ],
-                    [
-                        'title' => __(' How to reorder/rearrange filter widget with elementor & gutenburg.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'description' => __('Learn how to reorder and rearrange filter widgets using Elementor and Gutenberg.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'url' => 'https://www.youtube.com/embed/VU5GAgyU0xY',
-                        'difficulty' => 'beginner',
-                        'topics' => ['Elementor', 'Gutenberg', 'Widget Management', 'Drag-and-Drop'],
-                    ],
-                    [
-                        'title' => __('How to remove a filter widget (cover form manage from global setting, exclude attribute, custom fields)', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'description' => __('Learn how to remove a filter widget from the global settings, exclude attributes, and manage custom fields.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'url' => 'https://www.youtube.com/embed/KxgrBJm91Cs',
-                        'difficulty' => 'intermediate',
-                        'topics' => ['Widget Removal', 'Global Settings', 'Attribute Exclusion', 'Custom Fields'],
-                    ],
-                    [
-                        'title' => __('Best Seo configuration with dynamic ajax product filter', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'description' => __('Learn how to configure SEO settings for the Dynamic Ajax Product Filter plugin.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                        'url' => 'https://www.youtube.com/embed/hmBXO2wC378',
-                        'difficulty' => 'intermediate',
-                        'topics' => ['SEO Configuration', 'Meta Tags', 'URL Structure', 'Robots.txt'],
-                    ],
-                    // [
-                    //     'number' => 9,
-                    //     'title' => __('Location Information Display & Maps', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_8',
-                    //     'duration' => '7:45',
-                    //     'difficulty' => 'advanced',
-                    //     'shortcode' => '[mulopimfwc_location_info layout="tabs" search="yes"]',
-                    //     'parameters' => [
-                    //         [
-                    //             'key' => 'id',
-                    //             'desc' => __('Specific location ID(s)', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'id="123" or id="123,456,789"'
-                    //         ],
-                    //         [
-                    //             'key' => 'slug',
-                    //             'desc' => __('Location slug(s)', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'slug="downtown,uptown"'
-                    //         ],
-                    //         [
-                    //             'key' => 'layout',
-                    //             'desc' => __('Display layout style', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'auto | tabs | compact | grid'
-                    //         ],
-                    //         [
-                    //             'key' => 'search',
-                    //             'desc' => __('Enable location search', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ],
-                    //         [
-                    //             'key' => 'compact',
-                    //             'desc' => __('Compact view for single location', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ],
-                    //         [
-                    //             'key' => 'limit',
-                    //             'desc' => __('Limit number of locations', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'limit="5"'
-                    //         ],
-                    //         [
-                    //             'key' => 'orderby',
-                    //             'desc' => __('Sort locations by', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'name | id | count'
-                    //         ],
-                    //         [
-                    //             'key' => 'order',
-                    //             'desc' => __('Sort order', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'ASC | DESC'
-                    //         ]
-                    //     ],
-                    // ],
-                    // [
-                    //     'number' => 10,
-                    //     'title' => __('Location-Based Product Recommendations', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'description' => __('Display popular products for each location using customer insights and analytics. Learn to track customer preferences, show location-specific recommendations, and boost sales with personalized product suggestions.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_10',
-                    //     'duration' => '6:30',
-                    //     'difficulty' => 'intermediate',
-                    //     'shortcode' => '[mulopimfwc_location_recommendations limit="8" columns="4" title="Popular at {location}"]',
-                    //     'parameters' => [
-                    //         [
-                    //             'key' => 'limit',
-                    //             'desc' => __('Number of products to display', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'limit="8"'
-                    //         ],
-                    //         [
-                    //             'key' => 'columns',
-                    //             'desc' => __('Grid columns layout', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'columns="4"'
-                    //         ],
-                    //         [
-                    //             'key' => 'title',
-                    //             'desc' => __('Section title (use {location} placeholder)', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'title="Popular at {location}"'
-                    //         ],
-                    //         [
-                    //             'key' => 'show_title',
-                    //             'desc' => __('Display section title', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ],
-                    //         [
-                    //             'key' => 'show_badge',
-                    //             'desc' => __('Show popularity badge', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ],
-                    //         [
-                    //             'key' => 'orderby',
-                    //             'desc' => __('Sort products by', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'popularity'
-                    //         ]
-                    //     ],
-                    // ],
-                    // [
-                    //     'number' => 11,
-                    //     'title' => __('Location Selector for specific Product', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'description' => __('Customize the location selector display on product pages and throughout your store. Learn to use shortcodes, and enhance customer experience with multiple layout options.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_6',
-                    //     'duration' => '6:50',
-                    //     'difficulty' => 'intermediate',
-                    //     'shortcode' => '[mulopimfwc_location_selector product_id="123" layout="buttons" label="Select Location:"]',
-                    //     'topics' => ['Location Selector', 'Shortcodes', 'Customization'],
-                    //     'parameters' => [
-                    //         [
-                    //             'key' => 'product_id',
-                    //             'desc' => __('Specific product ID (auto-detects if not provided)', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'product_id="123"'
-                    //         ],
-                    //         [
-                    //             'key' => 'layout',
-                    //             'desc' => __('Selector layout style', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'list | buttons | select'
-                    //         ],
-                    //         [
-                    //             'key' => 'label',
-                    //             'desc' => __('Custom label text', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'label="Choose Store:"'
-                    //         ]
-                    //     ],
-                    //     'additional_shortcode' => '[mulopimfwc_store_location_selector enable_user_locations="on"]'
-                    // ],
-                    // [
-                    //     'number' => 12,
-                    //     'title' => __('AJAX Product Filter by Location & Stock', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'description' => __('Learn how to use the AJAX-powered product filter to allow customers to filter products by location and stock status without page reload. Includes caching, pagination support, and shortcode usage.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_12',
-                    //     'duration' => '7:30',
-                    //     'difficulty' => 'intermediate',
-                    //     'shortcode' => '[mulopimfwc_product_filter]',
-                    //     'topics' => ['Product Filter', 'AJAX Filtering', 'Location Filtering', 'Stock Filtering', 'Shortcodes'],
-                    //     'parameters' => [
-                    //         [
-                    //             'key' => 'location',
-                    //             'desc' => __('Show location filter dropdown', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ],
-                    //         [
-                    //             'key' => 'stock',
-                    //             'desc' => __('Show stock status filter dropdown', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'value' => 'yes | no'
-                    //         ]
-                    //     ]
-                    // ],
-                    // [
-                    //     'number' => 13,
-                    //     'title' => __('Social Notifications: Microsoft Teams Webhook', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'description' => __('Configure social alerts (orders, stock, digests) using a Microsoft Teams incoming webhook. Covers creating the webhook in Teams and pasting it into this plugin.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_TEAMS',
-                    //     'duration' => '4:10',
-                    //     'difficulty' => 'intermediate',
-                    //     'topics' => ['Teams', 'Webhooks', 'Notifications', 'Slack/Discord/Teams'],
-                    // ],
-                    // [
-                    //     'number' => 14,
-                    //     'title' => __('API & Webhook Integration: Bulk Inventory Sync', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'description' => __('Complete guide to integrating your WMS, POS, or ERP systems with the plugin using REST API endpoints and webhooks. Learn how to sync inventory in bulk via CSV or API, set up real-time webhook updates, generate API keys, configure authentication, and automate inventory management across multiple locations. This tutorial covers bulk operations, single product updates, CSV import/export, webhook configuration, and best practices for external system integration.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //     'url' => 'https://www.youtube.com/embed/VIDEO_ID_API_WEBHOOK',
-                    //     'duration' => '12:45',
-                    //     'difficulty' => 'advanced',
-                    //     'topics' => ['REST API', 'Webhooks', 'WMS Integration', 'POS Integration', 'Bulk Sync', 'CSV Import', 'Inventory Automation', 'API Authentication'],
-                    //     'example_requests' => [
-                    //         'get_api_keys' => [
-                    //             'title' => __('How to Get API Key & Webhook Secret', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'GET',
-                    //             'url' => 'WordPress Admin → Multi Location Products → API & Webhooks',
-                    //             'headers' => null,
-                    //             'body' => [
-                    //                 'step_1' => 'Navigate to WordPress Admin Dashboard',
-                    //                 'step_2' => 'Go to: Multi Location Products → API & Webhooks',
-                    //                 'step_3' => 'Scroll to "API Authentication" section',
-                    //                 'step_4' => 'Click "Generate API Key" button (if no key exists)',
-                    //                 'step_5' => 'Copy the generated API key immediately',
-                    //                 'step_6' => 'Click "Generate Webhook Secret" button (if no secret exists)',
-                    //                 'step_7' => 'Copy the generated webhook secret immediately',
-                    //                 'step_8' => 'Store both keys securely (they are shown only once)',
-                    //                 'important_note' => 'If you lose your keys, you must generate new ones. Old keys will no longer work.',
-                    //             ],
-                    //             'response' => [
-                    //                 'api_key_location' => 'Displayed in "API Key" field after generation',
-                    //                 'webhook_secret_location' => 'Displayed in "Webhook Secret" field after generation',
-                    //                 'security_warning' => 'Keys are displayed only once for security. Copy them immediately.',
-                    //                 'usage_api_key' => 'Use in X-API-Key header for REST API requests',
-                    //                 'usage_webhook_secret' => 'Use in X-Webhook-Secret header for webhook requests',
-                    //             ]
-                    //         ],
-                    //         'bulk_sync' => [
-                    //             'title' => __('Bulk Sync Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'POST',
-                    //             'url' => '/mulopimfwc/v1/inventory/bulk-sync',
-                    //             'headers' => [
-                    //                 'Content-Type: application/json',
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //             'body' => [
-                    //                 'items' => [
-                    //                     [
-                    //                         'sku' => 'PROD-001',
-                    //                         'location_slug' => 'main-store',
-                    //                         'stock' => 100,
-                    //                         'regular_price' => '29.99',
-                    //                         'sale_price' => '24.99'
-                    //                     ],
-                    //                     [
-                    //                         'product_id' => 123,
-                    //                         'location_id' => 5,
-                    //                         'stock' => 50,
-                    //                         'regular_price' => '19.99'
-                    //                     ]
-                    //                 ]
-                    //             ],
-                    //             'response' => [
-                    //                 'success' => true,
-                    //                 'message' => 'Processed 2 items. 2 succeeded, 0 failed.',
-                    //                 'results' => [
-                    //                     'success' => 2,
-                    //                     'failed' => 0,
-                    //                     'errors' => []
-                    //                 ]
-                    //             ]
-                    //         ],
-                    //         'single_update' => [
-                    //             'title' => __('Single Product Update Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'POST',
-                    //             'url' => '/mulopimfwc/v1/inventory/update',
-                    //             'headers' => [
-                    //                 'Content-Type: application/json',
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //             'body' => [
-                    //                 'product_id' => 456,
-                    //                 'location_id' => 3,
-                    //                 'stock' => 25,
-                    //                 'regular_price' => '39.99',
-                    //                 'sale_price' => '34.99',
-                    //                 'backorders' => 'no',
-                    //                 'disabled' => false
-                    //             ],
-                    //             'response' => [
-                    //                 'success' => true,
-                    //                 'message' => 'Inventory updated successfully.',
-                    //                 'data' => [
-                    //                     'product_id' => 456,
-                    //                     'location_id' => 3,
-                    //                     'sku' => 'PROD-456'
-                    //                 ]
-                    //             ]
-                    //         ],
-                    //         'export_csv' => [
-                    //             'title' => __('Export Inventory CSV Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'GET',
-                    //             'url' => '/mulopimfwc/v1/inventory/export?format=csv&location_id=5',
-                    //             'headers' => [
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //             'body' => null,
-                    //             'response' => [
-                    //                 'note' => 'Returns CSV file download with headers: product_id, sku, product_name, location_id, location_slug, location_name, stock, regular_price, sale_price, backorders, disabled'
-                    //             ]
-                    //         ],
-                    //         'export_json' => [
-                    //             'title' => __('Export Inventory JSON Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'GET',
-                    //             'url' => '/mulopimfwc/v1/inventory/export?format=json',
-                    //             'headers' => [
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //             'body' => null,
-                    //             'response' => [
-                    //                 'success' => true,
-                    //                 'count' => 150,
-                    //                 'data' => [
-                    //                     [
-                    //                         'product_id' => 123,
-                    //                         'sku' => 'PROD-001',
-                    //                         'product_name' => 'Sample Product',
-                    //                         'location_id' => 5,
-                    //                         'location_slug' => 'main-store',
-                    //                         'location_name' => 'Main Store',
-                    //                         'stock' => 100,
-                    //                         'regular_price' => '29.99',
-                    //                         'sale_price' => '24.99',
-                    //                         'backorders' => 'no',
-                    //                         'disabled' => false
-                    //                     ]
-                    //                 ]
-                    //             ]
-                    //         ],
-                    //         'webhook' => [
-                    //             'title' => __('Webhook Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'POST',
-                    //             'url' => '/mulopimfwc/v1/webhook/inventory-update',
-                    //             'headers' => [
-                    //                 'Content-Type: application/json',
-                    //                 'X-Webhook-Secret: your-webhook-secret-here'
-                    //             ],
-                    //             'body' => [
-                    //                 'sku' => 'PROD-001',
-                    //                 'location_slug' => 'main-store',
-                    //                 'stock' => 75
-                    //             ],
-                    //             'response' => [
-                    //                 'success' => true,
-                    //                 'message' => 'Inventory updated via webhook.',
-                    //                 'data' => [
-                    //                     'product_id' => 123,
-                    //                     'location_id' => 5,
-                    //                     'sku' => 'PROD-001'
-                    //                 ]
-                    //             ]
-                    //         ],
-                    //         'get_locations' => [
-                    //             'title' => __('Get Locations Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'GET',
-                    //             'url' => '/mulopimfwc/v1/locations',
-                    //             'headers' => [
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //             'body' => null,
-                    //             'response' => [
-                    //                 'success' => true,
-                    //                 'count' => 3,
-                    //                 'data' => [
-                    //                     [
-                    //                         'id' => 5,
-                    //                         'slug' => 'main-store',
-                    //                         'name' => 'Main Store',
-                    //                         'description' => 'Our primary retail location'
-                    //                     ],
-                    //                     [
-                    //                         'id' => 6,
-                    //                         'slug' => 'warehouse',
-                    //                         'name' => 'Warehouse',
-                    //                         'description' => 'Distribution center'
-                    //                     ]
-                    //                 ]
-                    //             ]
-                    //         ],
-                    //         'products' => [
-                    //             'title' => __('Get Products Example', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    //             'method' => 'GET',
-                    //             'url' => '/mulopimfwc/v1/products',
-                    //             'headers' => [
-                    //                 'X-API-Key: your-api-key-here'
-                    //             ],
-                    //         ],
-                    //     ],
-                    // ],
-                ];
-
-                ?>
-                <!-- Header -->
-                <div class="dapfforwc-tutorial-header">
-                    <div class="dapfforwc-tutorial-header-content">
-                        <svg class="dapfforwc-tutorial-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
-                        </svg>
-                        <div>
-                            <h2 class="dapfforwc-tutorial-title">
-                                <?php echo esc_html__('Video Tutorials & Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </h2>
-                            <p class="dapfforwc-tutorial-subtitle">
-                                <?php echo esc_html__('Step-by-step guides to master location-based inventory management', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </p>
-                        </div>
-                    </div>
-                    <div class="dapfforwc-tutorial-stats">
-                        <div class="dapfforwc-stat-item">
-                            <span class="dapfforwc-stat-number"><?php echo esc_html(isset($tutorial_videos) && is_array($tutorial_videos) ? count($tutorial_videos) : 0); ?></span>
-                            <span class="dapfforwc-stat-label"><?php echo esc_html__('Tutorials', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                        </div>
+            <!-- Header -->
+            <div class="dapfforwc-tutorial-header">
+                <div class="dapfforwc-tutorial-header-content">
+                    <svg class="dapfforwc-tutorial-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                    </svg>
+                    <div>
+                        <h2 class="dapfforwc-tutorial-title">
+                            <?php echo esc_html__('Video Tutorials & Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                        </h2>
+                        <p class="dapfforwc-tutorial-subtitle">
+                            <?php echo esc_html__('Step-by-step guides to master location-based inventory management', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                        </p>
                     </div>
                 </div>
-
-                <!-- Tutorials Grid -->
-                <div class="dapfforwc-tutorials-container" id="dapfforwc-tutorials-container">
-                    <?php
-
-                    foreach ($tutorial_videos as $tutorial) {
-                        $difficulty_class = isset($tutorial['difficulty']) ? 'dapfforwc-difficulty-' . $tutorial['difficulty'] : 'dapfforwc-difficulty-beginner';
-                    ?>
-                        <div class="dapfforwc-tutorial-card">
-                            <!-- Video Container -->
-                            <div class="dapfforwc-tutorial-video-wrapper">
-                                <iframe
-                                    class="dapfforwc-tutorial-iframe"
-                                    src="<?php echo esc_url($tutorial['url']); ?>"
-                                    title="<?php echo esc_attr($tutorial['title']); ?>"
-                                    frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                    allowfullscreen
-                                    loading="lazy">
-                                </iframe>
-                                <div class="dapfforwc-tutorial-difficulty <?php echo esc_attr($difficulty_class); ?>">
-                                    <?php echo esc_html(ucfirst($tutorial['difficulty'])); ?>
-                                </div>
-                            </div>
-
-                            <!-- Content Container -->
-                            <div class="dapfforwc-tutorial-content">
-                                <!-- Title -->
-                                <h3 class="dapfforwc-tutorial-card-title"><?php echo esc_html($tutorial['title'] ?? ''); ?></h3>
-
-                                <!-- Description -->
-                                <p class="dapfforwc-tutorial-description"><?php echo esc_html($tutorial['description'] ?? ''); ?></p>
-
-                                <?php if (isset($tutorial['doc_url']) && !empty($tutorial['doc_url'])) { ?>
-                                    <div class="dapfforwc-tutorial-doc-link">
-                                        <a href="<?php echo esc_url($tutorial['doc_url']); ?>" target="_blank" rel="noopener noreferrer">
-                                            <?php echo esc_html__('Read Full Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </a>
-                                    </div>
-                                <?php } ?>
-
-                                <!-- Topics Covered -->
-                                <?php if (isset($tutorial['topics']) && !empty($tutorial['topics'])): ?>
-                                    <div class="dapfforwc-tutorial-topics-section">
-                                        <div class="dapfforwc-tutorial-section-label">
-                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor" />
-                                            </svg>
-                                            <?php echo esc_html__('Topics Covered', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </div>
-                                        <div class="dapfforwc-topics-tags">
-                                            <?php foreach ($tutorial['topics'] as $topic): ?>
-                                                <span class="dapfforwc-topic-tag"><?php echo esc_html($topic ?? ''); ?></span>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <!-- Shortcode Section -->
-                                <?php if (isset($tutorial['shortcode']) && !empty($tutorial['shortcode'])): ?>
-                                    <div class="dapfforwc-tutorial-shortcode-section">
-                                        <div class="dapfforwc-tutorial-section-label">
-                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                                <path d="M9.4 16.6L4.8 12l4.6-4.6M14.6 16.6l4.6-4.6-4.6-4.6" fill="none" stroke="currentColor" stroke-width="2" />
-                                            </svg>
-                                            <?php echo esc_html__('Related Shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </div>
-                                        <div class="dapfforwc-shortcode-block">
-                                            <code><?php echo esc_html($tutorial['shortcode']); ?></code>
-                                            <button class="dapfforwc-copy-btn" onclick="copyShortcode(this, '<?php echo esc_attr($tutorial['shortcode']); ?>')" title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </div>
-                                <?php endif; ?>
-
-                                <!-- Parameters Section -->
-                                <?php if (isset($tutorial['parameters']) && !empty($tutorial['parameters'])) { ?>
-                                    <div class="dapfforwc-tutorial-params-section">
-                                        <div class="dapfforwc-tutorial-section-label">
-                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54h3.02l4.25-5.7h-3.02l2.75-3.54h-3.02l-4.25 5.7h3.02z" />
-                                            </svg>
-                                            <?php echo esc_html__('Parameters', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </div>
-                                        <div class="dapfforwc-params-list">
-                                            <?php foreach ($tutorial['parameters'] as $param) { ?>
-                                                <div class="dapfforwc-param-item">
-                                                    <div class="dapfforwc-param-key"><?php echo esc_html($param['key']); ?></div>
-                                                    <div class="dapfforwc-param-desc"><?php echo esc_html($param['desc']); ?></div>
-                                                    <div class="dapfforwc-param-value"><?php echo esc_html($param['value']); ?></div>
-                                                </div>
-                                            <?php } ?>
-                                        </div>
-                                    </div>
-                                <?php } ?>
-
-                                <!-- Usage Examples Section -->
-                                <?php if (isset($tutorial['example_requests']) && !empty($tutorial['example_requests'])) { ?>
-                                    <div class="dapfforwc-tutorial-examples-section">
-                                        <div class="dapfforwc-tutorial-section-label">
-                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                                <path d="M9.4 16.6L4.8 12l4.6-4.6M14.6 16.6l4.6-4.6-4.6-4.6" fill="none" stroke="currentColor" stroke-width="2" />
-                                            </svg>
-                                            <?php echo esc_html__('Usage Examples', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </div>
-                                        <?php foreach ($tutorial['example_requests'] as $example_key => $example) { ?>
-                                            <div class="dapfforwc-example-item">
-                                                <div class="dapfforwc-example-header" onclick="toggleExample(this)">
-                                                    <div class="dapfforwc-example-title">
-                                                        <strong><?php echo esc_html($example['title'] ?? ''); ?></strong>
-                                                        <span class="dapfforwc-example-method"><?php echo esc_html($example['method'] ?? 'POST'); ?></span>
-                                                    </div>
-                                                    <div class="dapfforwc-example-toggle">
-                                                        <svg class="dapfforwc-example-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                                            <polyline points="6 9 12 15 18 9"></polyline>
-                                                        </svg>
-                                                    </div>
-                                                </div>
-                                                <div class="dapfforwc-example-content">
-                                                    <div class="dapfforwc-example-url">
-                                                        <span class="dapfforwc-example-label"><?php echo esc_html__('Endpoint:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                                                        <code><?php echo esc_html($example['url'] ?? ''); ?></code>
-                                                    </div>
-                                                    <?php if (isset($example['headers']) && !empty($example['headers'])) { ?>
-                                                        <div class="dapfforwc-example-headers">
-                                                            <span class="dapfforwc-example-label"><?php echo esc_html__('Headers:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                                                            <pre><code><?php echo esc_html(implode("\n", $example['headers'])); ?></code></pre>
-                                                        </div>
-                                                    <?php } ?>
-                                                    <?php if (isset($example['body']) && !empty($example['body']) && $example['body'] !== null) { ?>
-                                                        <div class="dapfforwc-example-body">
-                                                            <span class="dapfforwc-example-label"><?php echo esc_html__('Steps / Request Body:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                                                            <?php 
-                                                            if (is_array($example['body']) && isset($example['body']['step_1'])) { 
-                                                                echo '<div class="dapfforwc-example-steps">';
-                                                                foreach ($example['body'] as $key => $value) {
-                                                                    if (strpos($key, 'step_') === 0 || strpos($key, 'important_') === 0) {
-                                                                        echo '<div class="dapfforwc-example-step-item">';
-                                                                        echo '<strong>' . esc_html(ucfirst(str_replace('_', ' ', $key))) . ':</strong>';
-                                                                        echo '<span>' . esc_html($value) . '</span>';
-                                                                        echo '</div>';
-                                                                    }
-                                                                }
-                                                                echo '</div>';
-                                                            } else {
-                                                                echo '<pre><code>' . esc_html(json_encode($example['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</code></pre>';
-                                                            }
-                                                            ?>
-                                                        </div>
-                                                    <?php } ?>
-                                                    <?php if (isset($example['response']) && !empty($example['response'])) { ?>
-                                                        <div class="dapfforwc-example-response">
-                                                            <span class="dapfforwc-example-label"><?php echo esc_html__('Response:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                                                            <pre><code><?php echo esc_html(json_encode($example['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></code></pre>
-                                                        </div>
-                                                    <?php } ?>
-                                                </div>
-                                            </div>
-                                        <?php } ?>
-                                    </div>
-                                <?php } ?>
-                            </div>
-                        </div>
-                    <?php } ?>
+                <div class="dapfforwc-tutorial-stats">
+                    <div class="dapfforwc-stat-item">
+                        <span class="dapfforwc-stat-number"><?php echo esc_html(isset($tutorial_videos) && is_array($tutorial_videos) ? count($tutorial_videos) : 0); ?></span>
+                        <span class="dapfforwc-stat-label"><?php echo esc_html__('Tutorials', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                    </div>
                 </div>
             </div>
 
-            <!-- Enhanced Styles -->
-            <style>
-                /* Tutorial Section */
-                .dapfforwc-tutorial-section {
-                    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-                    padding: 40px 20px;
-                    border-radius: 12px;
-                    margin-top: 40px;
-                }
-
-                /* Header */
-                .dapfforwc-tutorial-header {
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: flex-start;
-                    margin-bottom: 32px;
-                    gap: 20px;
-                    flex-wrap: wrap;
-                }
-
-                .dapfforwc-tutorial-header-content {
-                    display: flex;
-                    align-items: center;
-                    gap: 16px;
-                    flex: 1;
-                    min-width: 300px;
-                }
-
-                .dapfforwc-tutorial-icon {
-                    width: 48px;
-                    height: 48px;
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    padding: 8px;
-                    fill: white;
-                    border-radius: 8px;
-                    color: white;
-                    flex-shrink: 0;
-                }
-
-                .dapfforwc-tutorial-title {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #0f172a;
-                    margin: 0;
-                    line-height: 1.2;
-                }
-
-                .dapfforwc-tutorial-subtitle {
-                    font-size: 14px;
-                    color: #64748b;
-                    margin: 4px 0 0 0;
-                }
-
-                /* Stats */
-                .dapfforwc-tutorial-stats {
-                    display: flex;
-                    gap: 24px;
-                }
-
-                .dapfforwc-stat-item {
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    gap: 4px;
-                    padding: 12px 20px;
-                    background: white;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                }
-
-                .dapfforwc-stat-number {
-                    font-size: 24px;
-                    font-weight: 700;
-                    color: #667eea;
-                    line-height: 1;
-                }
-
-                .dapfforwc-stat-label {
-                    font-size: 12px;
-                    color: #64748b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                /* Container */
-                .dapfforwc-tutorials-container {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                    gap: 24px;
-                    margin-bottom: 32px;
-                }
-
-                /* Card */
-                .dapfforwc-tutorial-card {
-                    background: white;
-                    border-radius: 10px;
-                    overflow: hidden;
-                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
-                    border: 1px solid #e2e8f0;
-                    transition: all 0.3s ease;
-                    display: flex;
-                    flex-direction: column;
-                    height: 100%;
-                }
-
-                .dapfforwc-tutorial-card:hover {
-                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-                    border-color: #cbd5e1;
-                    transform: translateY(-4px);
-                }
-
-                /* Video Wrapper */
-                .dapfforwc-tutorial-video-wrapper {
-                    position: relative;
-                    width: 100%;
-                    padding-bottom: 56.25%;
-                    background: #1a1a1a;
-                    overflow: hidden;
-                }
-
-                .dapfforwc-tutorial-iframe {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    border: none;
-                }
-
-                .dapfforwc-tutorial-badge {
-                    position: absolute;
-                    top: 12px;
-                    left: 12px;
-                    background: #2563eb;
-                    color: white;
-                    width: 36px;
-                    height: 36px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-weight: 700;
-                    font-size: 14px;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-                }
-
-                .dapfforwc-tutorial-duration {
-                    position: absolute;
-                    bottom: 12px;
-                    right: 12px;
-                    background: rgba(0, 0, 0, 0.8);
-                    color: white;
-                    padding: 4px 8px;
-                    border-radius: 4px;
-                    font-size: 12px;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                    gap: 4px;
-                }
-
-                .dapfforwc-tutorial-difficulty {
-                    position: absolute;
-                    top: 12px;
-                    right: 12px;
-                    padding: 4px 12px;
-                    border-radius: 12px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                }
-
-                .dapfforwc-difficulty-beginner {
-                    background: rgba(16, 185, 129, 0.9);
-                    color: white;
-                }
-
-                .dapfforwc-difficulty-intermediate {
-                    background: rgba(59, 130, 246, 0.9);
-                    color: white;
-                }
-
-                .dapfforwc-difficulty-advanced {
-                    background: rgba(245, 158, 11, 0.9);
-                    color: white;
-                }
-
-                /* Content */
-                .dapfforwc-tutorial-content {
-                    padding: 20px;
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 12px;
-                }
-
-                .dapfforwc-tutorial-card-title {
-                    font-size: 16px;
-                    font-weight: 600;
-                    color: #0f172a;
-                    margin: 0;
-                    line-height: 1.4;
-                }
-
-                .dapfforwc-tutorial-description {
-                    font-size: 13px;
-                    color: #64748b;
-                    line-height: 1.6;
-                    margin: 0;
-                }
-
-                /* Section Label */
-                .dapfforwc-tutorial-section-label {
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    color: #64748b;
-                    text-transform: uppercase;
-                    letter-spacing: 0.5px;
-                    margin-bottom: 8px;
-                }
-
-                .dapfforwc-tutorial-section-label svg {
-                    fill: #64748b;
-                    width: 16px;
-                    height: 16px;
-                }
-
-                /* Topics */
-                .dapfforwc-tutorial-topics-section {
-                    margin-top: auto;
-                }
-
-                .dapfforwc-topics-tags {
-                    display: flex;
-                    flex-wrap: wrap;
-                    gap: 6px;
-                }
-
-                .dapfforwc-topic-tag {
-                    display: inline-block;
-                    background: #f1f5f9;
-                    color: #475569;
-                    padding: 4px 10px;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 500;
-                    border: 1px solid #e2e8f0;
-                }
-
-                /* Shortcode */
-                .dapfforwc-tutorial-shortcode-section {
-                    margin-top: auto;
-                }
-
-                .dapfforwc-shortcode-block {
-                    background: #f1f5f9;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    padding: 10px 12px;
-                    font-family: 'Monaco', 'Courier New', monospace;
-                    font-size: 11px;
-                    color: #0f172a;
-                    position: relative;
-                    word-break: break-all;
-                    line-height: 1.4;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 8px;
-                }
-
-                .dapfforwc-copy-btn {
-                    background: #2563eb;
-                    color: white;
-                    border: none;
-                    border-radius: 4px;
-                    width: 24px;
-                    height: 24px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    transition: all 0.2s;
-                    flex-shrink: 0;
-                }
-
-                .dapfforwc-copy-btn:hover {
-                    background: #1d4ed8;
-                }
-
-                /* Parameters */
-                .dapfforwc-tutorial-params-section {
-                    margin-top: auto;
-                }
-
-                .dapfforwc-params-list {
-                    display: grid;
-                    grid-template-columns: 1fr 1fr;
-                    gap: 8px;
-                }
-
-                .dapfforwc-param-item {
-                    background: #f8fafc;
-                    border-left: 3px solid #2563eb;
-                    padding: 8px 10px;
-                    border-radius: 4px;
-                }
-
-                .dapfforwc-param-key {
-                    font-weight: 600;
-                    color: #0f172a;
-                    font-family: 'Monaco', 'Courier New', monospace;
-                    font-size: 11px;
-                }
-
-                .dapfforwc-param-desc {
-                    font-size: 12px;
-                    color: #64748b;
-                    margin-top: 2px;
-                }
-
-                .dapfforwc-param-value {
-                    font-size: 11px;
-                    color: #475569;
-                    font-family: 'Monaco', 'Courier New', monospace;
-                    margin-top: 2px;
-                    background: white;
-                    padding: 2px 4px;
-                    border-radius: 3px;
-                    display: inline-block;
-                }
-
-                /* CTA Section */
-                .dapfforwc-tutorial-cta {
-                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                    border-radius: 10px;
-                    padding: 32px;
-                    color: white;
-                }
-
-                .dapfforwc-tutorial-cta-content {
-                    display: flex;
-                    align-items: center;
-                    gap: 20px;
-                    margin-bottom: 24px;
-                }
-
-                .dapfforwc-cta-icon {
-                    width: 64px;
-                    height: 64px;
-                    background: rgba(255, 255, 255, 0.2);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    flex-shrink: 0;
-                }
-
-                .dapfforwc-cta-icon svg {
-                    fill: white;
-                }
-
-                .dapfforwc-tutorial-cta-content h3 {
-                    font-size: 22px;
-                    font-weight: 700;
-                    margin: 0 0 8px 0;
-                }
-
-                .dapfforwc-tutorial-cta-content p {
-                    font-size: 14px;
-                    opacity: 0.95;
-                    margin: 0;
-                }
-
-                .dapfforwc-tutorial-cta-buttons {
-                    display: flex;
-                    gap: 12px;
-                    flex-wrap: wrap;
-                    margin-bottom: 24px;
-                }
-
-                .dapfforwc-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 12px 24px;
-                    border-radius: 6px;
-                    font-weight: 600;
-                    font-size: 14px;
-                    text-decoration: none;
-                    border: none;
-                    cursor: pointer;
-                    transition: all 0.3s ease;
-                }
-
-                .dapfforwc-btn-primary {
-                    background: white;
-                    color: #667eea;
-                }
-
-                .dapfforwc-btn-primary:hover {
-                    background: #f8fafc;
-                    transform: translateY(-1px);
-                }
-
-                .dapfforwc-btn-secondary {
-                    background: rgba(255, 255, 255, 0.2);
-                    color: white;
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                }
-
-                .dapfforwc-btn-secondary:hover {
-                    background: rgba(255, 255, 255, 0.3);
-                    border-color: rgba(255, 255, 255, 0.5);
-                    transform: translateY(-1px);
-                }
-
-                .dapfforwc-btn-accent {
-                    background: #f59e0b;
-                    color: white;
-                }
-
-                .dapfforwc-btn-accent:hover {
-                    background: #d97706;
-                    transform: translateY(-1px);
-                }
-
-                /* Support Features */
-                .dapfforwc-support-features {
-                    display: flex;
-                    gap: 24px;
-                    flex-wrap: wrap;
-                }
-
-                .dapfforwc-support-item {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    font-size: 14px;
-                }
-
-                .dapfforwc-support-item svg {
-                    flex-shrink: 0;
-                }
-
-                /* Usage Examples Section */
-                .dapfforwc-tutorial-examples-section {
-                    margin-top: 20px;
-                    border-top: 1px solid #e2e8f0;
-                    padding-top: 20px;
-                }
-
-                .dapfforwc-example-item {
-                    margin-bottom: 16px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    overflow: hidden;
-                    background: #fff;
-                    transition: all 0.3s ease;
-                }
-
-                .dapfforwc-example-item:hover {
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-                }
-
-                .dapfforwc-example-header {
-                    padding: 14px 16px;
-                    cursor: pointer;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    background: #f8fafc;
-                    transition: background 0.2s ease;
-                }
-
-                .dapfforwc-example-header:hover {
-                    background: #f1f5f9;
-                }
-
-                .dapfforwc-example-header.active {
-                    background: #e0f2fe;
-                }
-
-                .dapfforwc-example-title {
-                    display: flex;
-                    align-items: center;
-                    gap: 12px;
-                    flex: 1;
-                }
-
-                .dapfforwc-example-method {
-                    padding: 4px 8px;
-                    background: #3b82f6;
-                    color: #fff;
-                    border-radius: 4px;
-                    font-size: 11px;
-                    font-weight: 600;
-                    text-transform: uppercase;
-                }
-
-                .dapfforwc-example-toggle {
-                    display: flex;
-                    align-items: center;
-                    gap: 8px;
-                    color: #64748b;
-                    font-size: 13px;
-                }
-
-                .dapfforwc-example-preview {
-                    font-family: monospace;
-                    color: #64748b;
-                }
-
-                .dapfforwc-example-arrow {
-                    width: 16px;
-                    height: 16px;
-                    transition: transform 0.3s ease;
-                }
-
-                .dapfforwc-example-header.active .dapfforwc-example-arrow {
-                    transform: rotate(180deg);
-                }
-
-                .dapfforwc-example-content {
-                    max-height: 0;
-                    overflow: hidden;
-                    transition: max-height 0.3s ease;
-                    background: #fff;
-                }
-
-                .dapfforwc-example-header.active + .dapfforwc-example-content {
-                    max-height: 2000px;
-                }
-
-                .dapfforwc-example-content > div {
-                    padding: 16px;
-                    border-top: 1px solid #e2e8f0;
-                }
-
-                .dapfforwc-example-content > div:first-child {
-                    border-top: none;
-                }
-
-                .dapfforwc-example-label {
-                    display: block;
-                    font-weight: 600;
-                    color: #334155;
-                    margin-bottom: 8px;
-                    font-size: 13px;
-                }
-
-                .dapfforwc-example-url code {
-                    display: block;
-                    padding: 10px;
-                    background: #f1f5f9;
-                    border-radius: 6px;
-                    color: #1e293b;
-                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                    font-size: 13px;
-                    word-break: break-all;
-                }
-
-                .dapfforwc-example-headers pre,
-                .dapfforwc-example-body pre,
-                .dapfforwc-example-response pre {
-                    margin: 0;
-                    padding: 12px;
-                    background: #1e293b;
-                    border-radius: 6px;
-                    overflow-x: auto;
-                }
-
-                .dapfforwc-example-headers code,
-                .dapfforwc-example-body code,
-                .dapfforwc-example-response code {
-                    color: #e2e8f0;
-                    font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-                    font-size: 12px;
-                    line-height: 1.6;
-                }
-
-                .dapfforwc-example-steps {
-                    padding: 12px;
-                    background: #f8fafc;
-                    border-radius: 6px;
-                    border-left: 3px solid #3b82f6;
-                }
-
-                .dapfforwc-example-step-item {
-                    padding: 8px 0;
-                    border-bottom: 1px solid #e2e8f0;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 4px;
-                }
-
-                .dapfforwc-example-step-item:last-child {
-                    border-bottom: none;
-                }
-
-                .dapfforwc-example-step-item strong {
-                    color: #1e293b;
-                    font-size: 13px;
-                }
-
-                .dapfforwc-example-step-item span {
-                    color: #64748b;
-                    font-size: 13px;
-                    padding-left: 12px;
-                }
-            </style>
-
-            <script>
-                function toggleExample(header) {
-                    const item = header.closest('.dapfforwc-example-item');
-                    const content = item.querySelector('.dapfforwc-example-content');
-                    const isActive = header.classList.contains('active');
-                    
-                    // Close all other examples in the same section
-                    const section = item.closest('.dapfforwc-tutorial-examples-section');
-                    if (section) {
-                        const allItems = section.querySelectorAll('.dapfforwc-example-item');
-                        allItems.forEach(otherItem => {
-                            if (otherItem !== item) {
-                                otherItem.querySelector('.dapfforwc-example-header').classList.remove('active');
-                            }
-                        });
-                    }
-                    
-                    // Toggle current example
-                    if (isActive) {
-                        header.classList.remove('active');
-                    } else {
-                        header.classList.add('active');
-                    }
-                }
-            </script>
+            <!-- Tutorials Grid -->
+            <div class="dapfforwc-tutorials-container" id="dapfforwc-tutorials-container">
+                <?php
+
+                foreach ($tutorial_videos as $tutorial) {
+                    $difficulty_class = isset($tutorial['difficulty']) ? 'dapfforwc-difficulty-' . $tutorial['difficulty'] : 'dapfforwc-difficulty-beginner';
+                ?>
+                    <div class="dapfforwc-tutorial-card">
+                        <!-- Video Container -->
+                        <div class="dapfforwc-tutorial-video-wrapper">
+                            <iframe
+                                class="dapfforwc-tutorial-iframe"
+                                src="<?php echo esc_url($tutorial['url']); ?>"
+                                title="<?php echo esc_attr($tutorial['title']); ?>"
+                                frameborder="0"
+                                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                allowfullscreen
+                                loading="lazy">
+                            </iframe>
+                            <div class="dapfforwc-tutorial-difficulty <?php echo esc_attr($difficulty_class); ?>">
+                                <?php echo esc_html(ucfirst($tutorial['difficulty'])); ?>
+                            </div>
+                        </div>
+
+                        <!-- Content Container -->
+                        <div class="dapfforwc-tutorial-content">
+                            <!-- Title -->
+                            <h3 class="dapfforwc-tutorial-card-title"><?php echo esc_html($tutorial['title'] ?? ''); ?></h3>
+
+                            <!-- Description -->
+                            <p class="dapfforwc-tutorial-description"><?php echo esc_html($tutorial['description'] ?? ''); ?></p>
+
+                            <?php if (isset($tutorial['doc_url']) && !empty($tutorial['doc_url'])) { ?>
+                                <div class="dapfforwc-tutorial-doc-link">
+                                    <a href="<?php echo esc_url($tutorial['doc_url']); ?>" target="_blank" rel="noopener noreferrer">
+                                        <?php echo esc_html__('Read Full Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                    </a>
+                                </div>
+                            <?php } ?>
+
+                            <!-- Topics Covered -->
+                            <?php if (isset($tutorial['topics']) && !empty($tutorial['topics'])): ?>
+                                <div class="dapfforwc-tutorial-topics-section">
+                                    <div class="dapfforwc-tutorial-section-label">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" fill="currentColor" />
+                                        </svg>
+                                        <?php echo esc_html__('Topics Covered', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                    </div>
+                                    <div class="dapfforwc-topics-tags">
+                                        <?php foreach ($tutorial['topics'] as $topic): ?>
+                                            <span class="dapfforwc-topic-tag"><?php echo esc_html($topic ?? ''); ?></span>
+                                        <?php endforeach; ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Shortcode Section -->
+                            <?php if (isset($tutorial['shortcode']) && !empty($tutorial['shortcode'])): ?>
+                                <div class="dapfforwc-tutorial-shortcode-section">
+                                    <div class="dapfforwc-tutorial-section-label">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                            <path d="M9.4 16.6L4.8 12l4.6-4.6M14.6 16.6l4.6-4.6-4.6-4.6" fill="none" stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        <?php echo esc_html__('Related Shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                    </div>
+                                    <div class="dapfforwc-shortcode-block">
+                                        <code><?php echo esc_html($tutorial['shortcode']); ?></code>
+                                        <button class="dapfforwc-copy-btn" onclick="copyShortcode(this, '<?php echo esc_attr($tutorial['shortcode']); ?>')" title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                                <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+
+                            <!-- Parameters Section -->
+                            <?php if (isset($tutorial['parameters']) && !empty($tutorial['parameters'])) { ?>
+                                <div class="dapfforwc-tutorial-params-section">
+                                    <div class="dapfforwc-tutorial-section-label">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54h3.02l4.25-5.7h-3.02l2.75-3.54h-3.02l-4.25 5.7h3.02z" />
+                                        </svg>
+                                        <?php echo esc_html__('Parameters', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                    </div>
+                                    <div class="dapfforwc-params-list">
+                                        <?php foreach ($tutorial['parameters'] as $param) { ?>
+                                            <div class="dapfforwc-param-item">
+                                                <div class="dapfforwc-param-key"><?php echo esc_html($param['key']); ?></div>
+                                                <div class="dapfforwc-param-desc"><?php echo esc_html($param['desc']); ?></div>
+                                                <div class="dapfforwc-param-value"><?php echo esc_html($param['value']); ?></div>
+                                            </div>
+                                        <?php } ?>
+                                    </div>
+                                </div>
+                            <?php } ?>
+
+                            <!-- Usage Examples Section -->
+                            <?php if (isset($tutorial['example_requests']) && !empty($tutorial['example_requests'])) { ?>
+                                <div class="dapfforwc-tutorial-examples-section">
+                                    <div class="dapfforwc-tutorial-section-label">
+                                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                            <path d="M9.4 16.6L4.8 12l4.6-4.6M14.6 16.6l4.6-4.6-4.6-4.6" fill="none" stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        <?php echo esc_html__('Usage Examples', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                    </div>
+                                    <?php foreach ($tutorial['example_requests'] as $example_key => $example) { ?>
+                                        <div class="dapfforwc-example-item">
+                                            <div class="dapfforwc-example-header" onclick="toggleExample(this)">
+                                                <div class="dapfforwc-example-title">
+                                                    <strong><?php echo esc_html($example['title'] ?? ''); ?></strong>
+                                                    <span class="dapfforwc-example-method"><?php echo esc_html($example['method'] ?? 'POST'); ?></span>
+                                                </div>
+                                                <div class="dapfforwc-example-toggle">
+                                                    <svg class="dapfforwc-example-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                                    </svg>
+                                                </div>
+                                            </div>
+                                            <div class="dapfforwc-example-content">
+                                                <div class="dapfforwc-example-url">
+                                                    <span class="dapfforwc-example-label"><?php echo esc_html__('Endpoint:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                    <code><?php echo esc_html($example['url'] ?? ''); ?></code>
+                                                </div>
+                                                <?php if (isset($example['headers']) && !empty($example['headers'])) { ?>
+                                                    <div class="dapfforwc-example-headers">
+                                                        <span class="dapfforwc-example-label"><?php echo esc_html__('Headers:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                        <pre><code><?php echo esc_html(implode("\n", $example['headers'])); ?></code></pre>
+                                                    </div>
+                                                <?php } ?>
+                                                <?php if (isset($example['body']) && !empty($example['body']) && $example['body'] !== null) { ?>
+                                                    <div class="dapfforwc-example-body">
+                                                        <span class="dapfforwc-example-label"><?php echo esc_html__('Steps / Request Body:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                        <?php
+                                                        if (is_array($example['body']) && isset($example['body']['step_1'])) {
+                                                            echo '<div class="dapfforwc-example-steps">';
+                                                            foreach ($example['body'] as $key => $value) {
+                                                                if (strpos($key, 'step_') === 0 || strpos($key, 'important_') === 0) {
+                                                                    echo '<div class="dapfforwc-example-step-item">';
+                                                                    echo '<strong>' . esc_html(ucfirst(str_replace('_', ' ', $key))) . ':</strong>';
+                                                                    echo '<span>' . esc_html($value) . '</span>';
+                                                                    echo '</div>';
+                                                                }
+                                                            }
+                                                            echo '</div>';
+                                                        } else {
+                                                            echo '<pre><code>' . esc_html(json_encode($example['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</code></pre>';
+                                                        }
+                                                        ?>
+                                                    </div>
+                                                <?php } ?>
+                                                <?php if (isset($example['response']) && !empty($example['response'])) { ?>
+                                                    <div class="dapfforwc-example-response">
+                                                        <span class="dapfforwc-example-label"><?php echo esc_html__('Response:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                        <pre><code><?php echo esc_html(json_encode($example['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></code></pre>
+                                                    </div>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
+                                </div>
+                            <?php } ?>
+                        </div>
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+
+        <!-- Enhanced Styles -->
+        <style>
+            /* Tutorial Section */
+            .dapfforwc-tutorial-section {
+                background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+                padding: 40px 20px;
+                border-radius: 12px;
+                margin-top: 40px;
+            }
+
+            /* Header */
+            .dapfforwc-tutorial-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                margin-bottom: 32px;
+                gap: 20px;
+                flex-wrap: wrap;
+            }
+
+            .dapfforwc-tutorial-header-content {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                flex: 1;
+                min-width: 300px;
+            }
+
+            .dapfforwc-tutorial-icon {
+                width: 48px;
+                height: 48px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 8px;
+                fill: white;
+                border-radius: 8px;
+                color: white;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-tutorial-title {
+                font-size: 24px;
+                font-weight: 700;
+                color: #0f172a;
+                margin: 0;
+                line-height: 1.2;
+            }
+
+            .dapfforwc-tutorial-subtitle {
+                font-size: 14px;
+                color: #64748b;
+                margin: 4px 0 0 0;
+            }
+
+            /* Stats */
+            .dapfforwc-tutorial-stats {
+                display: flex;
+                gap: 24px;
+            }
+
+            .dapfforwc-stat-item {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                padding: 12px 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+
+            .dapfforwc-stat-number {
+                font-size: 24px;
+                font-weight: 700;
+                color: #667eea;
+                line-height: 1;
+            }
+
+            .dapfforwc-stat-label {
+                font-size: 12px;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            /* Container */
+            .dapfforwc-tutorials-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+                gap: 24px;
+                margin-bottom: 32px;
+            }
+
+            /* Card */
+            .dapfforwc-tutorial-card {
+                background: white;
+                border-radius: 10px;
+                overflow: hidden;
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+                border: 1px solid #e2e8f0;
+                transition: all 0.3s ease;
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+            }
+
+            .dapfforwc-tutorial-card:hover {
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+                border-color: #cbd5e1;
+                transform: translateY(-4px);
+            }
+
+            /* Video Wrapper */
+            .dapfforwc-tutorial-video-wrapper {
+                position: relative;
+                width: 100%;
+                padding-bottom: 56.25%;
+                background: #1a1a1a;
+                overflow: hidden;
+            }
+
+            .dapfforwc-tutorial-iframe {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+
+            .dapfforwc-tutorial-badge {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                background: #2563eb;
+                color: white;
+                width: 36px;
+                height: 36px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: 700;
+                font-size: 14px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            }
+
+            .dapfforwc-tutorial-duration {
+                position: absolute;
+                bottom: 12px;
+                right: 12px;
+                background: rgba(0, 0, 0, 0.8);
+                color: white;
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+
+            .dapfforwc-tutorial-difficulty {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                padding: 4px 12px;
+                border-radius: 12px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .dapfforwc-difficulty-beginner {
+                background: rgba(16, 185, 129, 0.9);
+                color: white;
+            }
+
+            .dapfforwc-difficulty-intermediate {
+                background: rgba(59, 130, 246, 0.9);
+                color: white;
+            }
+
+            .dapfforwc-difficulty-advanced {
+                background: rgba(245, 158, 11, 0.9);
+                color: white;
+            }
+
+            /* Content */
+            .dapfforwc-tutorial-content {
+                padding: 20px;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .dapfforwc-tutorial-card-title {
+                font-size: 16px;
+                font-weight: 600;
+                color: #0f172a;
+                margin: 0;
+                line-height: 1.4;
+            }
+
+            .dapfforwc-tutorial-description {
+                font-size: 13px;
+                color: #64748b;
+                line-height: 1.6;
+                margin: 0;
+            }
+
+            /* Section Label */
+            .dapfforwc-tutorial-section-label {
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                font-size: 11px;
+                font-weight: 600;
+                color: #64748b;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 8px;
+            }
+
+            .dapfforwc-tutorial-section-label svg {
+                fill: #64748b;
+                width: 16px;
+                height: 16px;
+            }
+
+            /* Topics */
+            .dapfforwc-tutorial-topics-section {
+                margin-top: auto;
+            }
+
+            .dapfforwc-topics-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+
+            .dapfforwc-topic-tag {
+                display: inline-block;
+                background: #f1f5f9;
+                color: #475569;
+                padding: 4px 10px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 500;
+                border: 1px solid #e2e8f0;
+            }
+
+            /* Shortcode */
+            .dapfforwc-tutorial-shortcode-section {
+                margin-top: auto;
+            }
+
+            .dapfforwc-shortcode-block {
+                background: #f1f5f9;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                padding: 10px 12px;
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+                color: #0f172a;
+                position: relative;
+                word-break: break-all;
+                line-height: 1.4;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+            }
+
+            .dapfforwc-copy-btn {
+                background: #2563eb;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                width: 24px;
+                height: 24px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.2s;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-copy-btn:hover {
+                background: #1d4ed8;
+            }
+
+            /* Parameters */
+            .dapfforwc-tutorial-params-section {
+                margin-top: auto;
+            }
+
+            .dapfforwc-params-list {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .dapfforwc-param-item {
+                background: #f8fafc;
+                border-left: 3px solid #2563eb;
+                padding: 8px 10px;
+                border-radius: 4px;
+            }
+
+            .dapfforwc-param-key {
+                font-weight: 600;
+                color: #0f172a;
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+            }
+
+            .dapfforwc-param-desc {
+                font-size: 12px;
+                color: #64748b;
+                margin-top: 2px;
+            }
+
+            .dapfforwc-param-value {
+                font-size: 11px;
+                color: #475569;
+                font-family: 'Monaco', 'Courier New', monospace;
+                margin-top: 2px;
+                background: white;
+                padding: 2px 4px;
+                border-radius: 3px;
+                display: inline-block;
+            }
+
+            /* CTA Section */
+            .dapfforwc-tutorial-cta {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 10px;
+                padding: 32px;
+                color: white;
+            }
+
+            .dapfforwc-tutorial-cta-content {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+
+            .dapfforwc-cta-icon {
+                width: 64px;
+                height: 64px;
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-cta-icon svg {
+                fill: white;
+            }
+
+            .dapfforwc-tutorial-cta-content h3 {
+                font-size: 22px;
+                font-weight: 700;
+                margin: 0 0 8px 0;
+            }
+
+            .dapfforwc-tutorial-cta-content p {
+                font-size: 14px;
+                opacity: 0.95;
+                margin: 0;
+            }
+
+            .dapfforwc-tutorial-cta-buttons {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 24px;
+            }
+
+            .dapfforwc-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-weight: 600;
+                font-size: 14px;
+                text-decoration: none;
+                border: none;
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .dapfforwc-btn-primary {
+                background: white;
+                color: #667eea;
+            }
+
+            .dapfforwc-btn-primary:hover {
+                background: #f8fafc;
+                transform: translateY(-1px);
+            }
+
+            .dapfforwc-btn-secondary {
+                background: rgba(255, 255, 255, 0.2);
+                color: white;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+
+            .dapfforwc-btn-secondary:hover {
+                background: rgba(255, 255, 255, 0.3);
+                border-color: rgba(255, 255, 255, 0.5);
+                transform: translateY(-1px);
+            }
+
+            .dapfforwc-btn-accent {
+                background: #f59e0b;
+                color: white;
+            }
+
+            .dapfforwc-btn-accent:hover {
+                background: #d97706;
+                transform: translateY(-1px);
+            }
+
+            /* Support Features */
+            .dapfforwc-support-features {
+                display: flex;
+                gap: 24px;
+                flex-wrap: wrap;
+            }
+
+            .dapfforwc-support-item {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+            }
+
+            .dapfforwc-support-item svg {
+                flex-shrink: 0;
+            }
+
+            /* Usage Examples Section */
+            .dapfforwc-tutorial-examples-section {
+                margin-top: 20px;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 20px;
+            }
+
+            .dapfforwc-example-item {
+                margin-bottom: 16px;
+                border: 1px solid #e2e8f0;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #fff;
+                transition: all 0.3s ease;
+            }
+
+            .dapfforwc-example-item:hover {
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .dapfforwc-example-header {
+                padding: 14px 16px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: #f8fafc;
+                transition: background 0.2s ease;
+            }
+
+            .dapfforwc-example-header:hover {
+                background: #f1f5f9;
+            }
+
+            .dapfforwc-example-header.active {
+                background: #e0f2fe;
+            }
+
+            .dapfforwc-example-title {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                flex: 1;
+            }
+
+            .dapfforwc-example-method {
+                padding: 4px 8px;
+                background: #3b82f6;
+                color: #fff;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+
+            .dapfforwc-example-toggle {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #64748b;
+                font-size: 13px;
+            }
+
+            .dapfforwc-example-preview {
+                font-family: monospace;
+                color: #64748b;
+            }
+
+            .dapfforwc-example-arrow {
+                width: 16px;
+                height: 16px;
+                transition: transform 0.3s ease;
+            }
+
+            .dapfforwc-example-header.active .dapfforwc-example-arrow {
+                transform: rotate(180deg);
+            }
+
+            .dapfforwc-example-content {
+                max-height: 0;
+                overflow: hidden;
+                transition: max-height 0.3s ease;
+                background: #fff;
+            }
+
+            .dapfforwc-example-header.active+.dapfforwc-example-content {
+                max-height: 2000px;
+            }
+
+            .dapfforwc-example-content>div {
+                padding: 16px;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .dapfforwc-example-content>div:first-child {
+                border-top: none;
+            }
+
+            .dapfforwc-example-label {
+                display: block;
+                font-weight: 600;
+                color: #334155;
+                margin-bottom: 8px;
+                font-size: 13px;
+            }
+
+            .dapfforwc-example-url code {
+                display: block;
+                padding: 10px;
+                background: #f1f5f9;
+                border-radius: 6px;
+                color: #1e293b;
+                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                font-size: 13px;
+                word-break: break-all;
+            }
+
+            .dapfforwc-example-headers pre,
+            .dapfforwc-example-body pre,
+            .dapfforwc-example-response pre {
+                margin: 0;
+                padding: 12px;
+                background: #1e293b;
+                border-radius: 6px;
+                overflow-x: auto;
+            }
+
+            .dapfforwc-example-headers code,
+            .dapfforwc-example-body code,
+            .dapfforwc-example-response code {
+                color: #e2e8f0;
+                font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+                font-size: 12px;
+                line-height: 1.6;
+            }
+
+            .dapfforwc-example-steps {
+                padding: 12px;
+                background: #f8fafc;
+                border-radius: 6px;
+                border-left: 3px solid #3b82f6;
+            }
+
+            .dapfforwc-example-step-item {
+                padding: 8px 0;
+                border-bottom: 1px solid #e2e8f0;
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .dapfforwc-example-step-item:last-child {
+                border-bottom: none;
+            }
+
+            .dapfforwc-example-step-item strong {
+                color: #1e293b;
+                font-size: 13px;
+            }
+
+            .dapfforwc-example-step-item span {
+                color: #64748b;
+                font-size: 13px;
+                padding-left: 12px;
+            }
+        </style>
+
+        <script>
+            function toggleExample(header) {
+                const item = header.closest('.dapfforwc-example-item');
+                const content = item.querySelector('.dapfforwc-example-content');
+                const isActive = header.classList.contains('active');
+
+                // Close all other examples in the same section
+                const section = item.closest('.dapfforwc-tutorial-examples-section');
+                if (section) {
+                    const allItems = section.querySelectorAll('.dapfforwc-example-item');
+                    allItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.querySelector('.dapfforwc-example-header').classList.remove('active');
+                        }
+                    });
+                }
+
+                // Toggle current example
+                if (isActive) {
+                    header.classList.remove('active');
+                } else {
+                    header.classList.add('active');
+                }
+            }
+        </script>
     </div>
     <?php
 }
@@ -2436,8 +2470,95 @@ require_once(plugin_dir_path(__FILE__) . 'form-manage.php');
 // color converter include
 require_once(plugin_dir_path(__FILE__) . 'color_name_to_hex.php');
 // before save image & color
-function dapfforwc_save_style_options($input)
+function dapfforwc_save_style_options($input, $old_value = null, $option = '')
 {
+    $has_posted_options = isset($_POST['dapfforwc_style_options']);
+
+    if (isset($_POST['dapfforwc_style_options_json'])) {
+        $raw_json = wp_unslash($_POST['dapfforwc_style_options_json']);
+        if (is_string($raw_json) && $raw_json !== '') {
+            $decoded = json_decode($raw_json, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                $input = dapfforwc_sanitize_options($decoded);
+            } elseif (!$has_posted_options && is_array($old_value)) {
+                $input = $old_value;
+            }
+        } elseif (!$has_posted_options && is_array($old_value)) {
+            $input = $old_value;
+        }
+    }
+
+    if (!is_array($input)) {
+        return $input;
+    }
+
+    $target_attribute = '';
+    if (isset($_POST['dapfforwc_style_options_target'])) {
+        $target_attribute = sanitize_text_field(wp_unslash($_POST['dapfforwc_style_options_target']));
+    }
+
+    if ($target_attribute !== '') {
+        // Merge a single-attribute save into the existing option set.
+        $existing_options = is_array($old_value) ? $old_value : [];
+        $merged_options = is_array($existing_options) ? $existing_options : [];
+        $per_attribute_groups = [
+            'show_in_active_filters',
+            'widget_title',
+            'placeholder',
+            'btntext',
+            'show_apply_button',
+            'applybtntext',
+            'apply_behavior',
+            'show_reset_button',
+            'show_apply_reset_on',
+            'max_height',
+            'css_class',
+            'operator',
+            'terms',
+            'include_exclude',
+            'enable_terms_search',
+            'terms_search_texts',
+            'terms_search_position',
+            'layout',
+            'num_columns',
+            'enable_tooltip',
+            'tooltip_text',
+            'enable_auto_suggestion',
+            'search_behavior',
+            'enable_full_match',
+            'additional_text',
+            'additional_text_5',
+            'input_label',
+        ];
+
+        if (array_key_exists($target_attribute, $input)) {
+            $merged_options[$target_attribute] = $input[$target_attribute];
+        } else {
+            unset($merged_options[$target_attribute]);
+        }
+
+        foreach ($per_attribute_groups as $group) {
+            if (!isset($merged_options[$group]) || !is_array($merged_options[$group])) {
+                $merged_options[$group] = [];
+            }
+
+            if (isset($input[$group]) && is_array($input[$group]) && array_key_exists($target_attribute, $input[$group])) {
+                $merged_options[$group][$target_attribute] = $input[$group][$target_attribute];
+            } else {
+                unset($merged_options[$group][$target_attribute]);
+            }
+        }
+
+        foreach ($input as $key => $value) {
+            if ($key === $target_attribute || in_array($key, $per_attribute_groups, true)) {
+                continue;
+            }
+            $merged_options[$key] = $value;
+        }
+
+        $input = $merged_options;
+    }
+
     foreach ($input as $attribute => $data) {
         // Handle color data
         if (isset($data['colors'])) {
@@ -2455,7 +2576,8 @@ function dapfforwc_save_style_options($input)
     }
     return $input;
 }
-add_filter('pre_update_option_dapfforwc_style_options', 'dapfforwc_save_style_options');
+add_filter('pre_update_option_dapfforwc_style_options', 'dapfforwc_save_style_options', 10, 3);
+
 
 
 // include advance settings

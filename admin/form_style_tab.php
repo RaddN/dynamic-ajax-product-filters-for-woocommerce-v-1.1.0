@@ -76,6 +76,88 @@ if (!defined('ABSPATH')) {
 
     // Get the first attribute for default display
     $dapfforwc_first_attribute = !empty($dapfforwc_all_options) ? $dapfforwc_all_options[0]->attribute_name : '';
+        $dapfforwc_option_names = array_map(function ($option) {
+        return $option->attribute_name;
+    }, $dapfforwc_all_options);
+    $dapfforwc_selected_attribute = $dapfforwc_first_attribute;
+    if (isset($_GET['style_attr'])) {
+        $requested_attribute = sanitize_text_field(wp_unslash($_GET['style_attr']));
+        if (in_array($requested_attribute, $dapfforwc_option_names, true)) {
+            $dapfforwc_selected_attribute = $requested_attribute;
+        }
+    }
+
+    $dapfforwc_labels = [];
+    foreach ($dapfforwc_all_options as $option) {
+        $dapfforwc_labels[$option->attribute_name] = $option->attribute_label;
+    }
+
+    $dapfforwc_simple_attributes = ['dimensions', 'sku', 'discount', 'date_filter', 'reset_btn'];
+    $dapfforwc_menu_order_attributes = array_unique(array_merge(
+        ['product-category', 'tag', 'brands'],
+        array_map(function ($option) {
+            return $option->attribute_name;
+        }, $dapfforwc_attributes)
+    ));
+
+    $dapfforwc_normalize_terms = function ($terms, $include_brand_image = false) {
+        $normalized = [];
+        if (!is_array($terms)) {
+            return $normalized;
+        }
+        foreach ($terms as $term) {
+            $slug = '';
+            $name = '';
+            if (is_array($term)) {
+                $slug = $term['slug'] ?? '';
+                $name = $term['name'] ?? '';
+            } elseif (is_object($term)) {
+                $slug = $term->slug ?? '';
+                $name = $term->name ?? '';
+            }
+
+            if ($slug === '' && $name === '') {
+                continue;
+            }
+
+            $slug = sanitize_text_field($slug);
+            $name = sanitize_text_field($name);
+            $default_color = $slug !== '' ? dapfforwc_color_name_to_hex($slug) : '#000000';
+
+            $item = [
+                'slug' => $slug,
+                'name' => $name,
+                'default_color' => $default_color ?: '#000000',
+            ];
+
+            if ($include_brand_image && $slug !== '') {
+                $item['default_image'] = dapfforwc_get_wc_brand_image_by_slug($slug) ?: '';
+            }
+
+            $normalized[] = $item;
+        }
+
+        return $normalized;
+    };
+
+    $dapfforwc_terms_map = [];
+    $dapfforwc_terms_map['product-category'] = $dapfforwc_normalize_terms(array_values($all_cata));
+    $dapfforwc_terms_map['tag'] = $dapfforwc_normalize_terms(array_values($all_tags));
+    $dapfforwc_terms_map['brands'] = $dapfforwc_normalize_terms(array_values($all_brands), true);
+    $dapfforwc_terms_map['authors'] = $dapfforwc_normalize_terms(array_values($all_authors));
+    $dapfforwc_terms_map['status'] = $dapfforwc_normalize_terms(array_values($all_stock_status));
+    $dapfforwc_terms_map['sale_status'] = $dapfforwc_normalize_terms(array_values($all_sale_status));
+
+    foreach ($all_attributes as $attribute_name => $attribute_data) {
+        $dapfforwc_terms_map[$attribute_name] = $dapfforwc_normalize_terms(array_values($attribute_data['terms'] ?? []));
+    }
+
+    foreach ($custom_fields as $field_name => $field_data) {
+        $dapfforwc_terms_map[$field_name] = $dapfforwc_normalize_terms(array_values($field_data['terms'] ?? []));
+    }
+
+    $dapfforwc_image_base = plugins_url('../assets/images/', __FILE__);
+    $dapfforwc_upload_placeholder = plugin_dir_url(__FILE__) . '../assets/images/upload.png';
     ?>
 
     <?php if (!empty($dapfforwc_all_options)) : ?>
@@ -115,6 +197,7 @@ if (!defined('ABSPATH')) {
             </select>
         </div>
 
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 const mainTaxonomyDropdown = document.getElementById('main-texonomy-dropdown');
@@ -122,6 +205,41 @@ if (!defined('ABSPATH')) {
                 const childCustomDropdown = document.getElementById('child-custom-dropdown');
                 const attributeDropdown = document.getElementById('attribute-dropdown');
                 const style_container = document.getElementById('style-options-container');
+                const targetInput = document.getElementById('dapfforwc_style_options_target');
+                const selectedAttribute = style_container ? style_container.dataset.selectedAttribute : '';
+                let isInitializing = true;
+
+                const getStoredAttribute = function() {
+                    try {
+                        const stored = localStorage.getItem('dapfforwc_selected_attribute');
+                        if (!stored) {
+                            return '';
+                        }
+                        const parsed = JSON.parse(stored);
+                        if (parsed && typeof parsed.attribute === 'string') {
+                            return parsed.attribute;
+                        }
+                    } catch (e) {}
+                    return '';
+                };
+
+                const isValidAttribute = function(value) {
+                    if (!value || !attributeDropdown || !attributeDropdown.options) {
+                        return false;
+                    }
+                    return Array.from(attributeDropdown.options).some(function(option) {
+                        return option.value === value;
+                    });
+                };
+
+                const setStoredAttribute = function(value) {
+                    if (!value) {
+                        return;
+                    }
+                    localStorage.setItem('dapfforwc_selected_attribute', JSON.stringify({
+                        attribute: value
+                    }));
+                };
 
                 mainTaxonomyDropdown.addEventListener('change', function() {
                     const selectedValue = this.value;
@@ -136,7 +254,7 @@ if (!defined('ABSPATH')) {
                         if (!selectedattr) {
                             style_container.style.display = 'none';
                         } else {
-                            updateAttributeDropdown(selectedattr);
+                            updateAttributeDropdown(selectedattr, !isInitializing);
                         }
                     } else if (selectedValue === 'custom_fields') {
                         childCustomDropdown.style.display = 'block';
@@ -144,54 +262,96 @@ if (!defined('ABSPATH')) {
                         if (!selectedcus) {
                             style_container.style.display = 'none';
                         } else {
-                            updateAttributeDropdown(selectedcus);
+                            updateAttributeDropdown(selectedcus, !isInitializing);
                         }
                     } else {
                         // Trigger changes in attribute-dropdown
-                        updateAttributeDropdown(selectedValue);
+                        updateAttributeDropdown(selectedValue, !isInitializing);
                     }
                 });
 
                 childAttrDropdown.addEventListener('change', function() {
                     style_container.style.display = 'block';
-                    updateAttributeDropdown(this.value);
+                    updateAttributeDropdown(this.value, !isInitializing);
                 });
 
                 childCustomDropdown.addEventListener('change', function() {
                     style_container.style.display = 'block';
-                    updateAttributeDropdown(this.value);
+                    updateAttributeDropdown(this.value, !isInitializing);
                 });
 
-                function updateAttributeDropdown(selectedValue) {
+                function updateAttributeDropdown(selectedValue, shouldSwitch) {
                     // Set the attribute-dropdown to the selected value
                     attributeDropdown.value = selectedValue;
-
-                    // Trigger a change event on the attribute-dropdown
-                    const event = new Event('change', {
-                        bubbles: true
-                    });
-                    attributeDropdown.dispatchEvent(event);
+                    if (targetInput) {
+                        targetInput.value = selectedValue;
+                    }
+                    setStoredAttribute(selectedValue);
+                    if (shouldSwitch && typeof window.dapfforwcSwitchAttribute === 'function') {
+                        window.dapfforwcSwitchAttribute(selectedValue);
+                    }
                 }
+
+                const storedAttribute = getStoredAttribute();
+                const initialAttribute = isValidAttribute(storedAttribute) ? storedAttribute : selectedAttribute;
+                if (initialAttribute) {
+                    if (!isValidAttribute(storedAttribute)) {
+                        setStoredAttribute(initialAttribute);
+                    }
+                    attributeDropdown.value = initialAttribute;
+                    if (targetInput) {
+                        targetInput.value = initialAttribute;
+                    }
+                    mainTaxonomyDropdown.value = initialAttribute;
+                    childAttrDropdown.value = initialAttribute;
+                    childCustomDropdown.value = initialAttribute;
+
+                    if (childAttrDropdown.value) {
+                        mainTaxonomyDropdown.value = 'attributes';
+                        childAttrDropdown.style.display = 'block';
+                        childCustomDropdown.style.display = 'none';
+                    } else if (childCustomDropdown.value) {
+                        mainTaxonomyDropdown.value = 'custom_fields';
+                        childCustomDropdown.style.display = 'block';
+                        childAttrDropdown.style.display = 'none';
+                    }
+
+                    if (style_container) {
+                        style_container.dataset.selectedAttribute = initialAttribute;
+                    }
+                    if (storedAttribute && storedAttribute !== selectedAttribute && typeof window.dapfforwcSwitchAttribute === 'function') {
+                        window.dapfforwcSwitchAttribute(initialAttribute);
+                    }
+                }
+
+                setTimeout(function() {
+                    isInitializing = false;
+                }, 0);
             });
         </script>
 
         <!-- Style Options Container -->
-        <div id="style-options-container">
+        <div id="style-options-container" data-dynamic="true" data-selected-attribute="<?php echo esc_attr($dapfforwc_selected_attribute); ?>">
             <?php foreach ($dapfforwc_all_options as $option) :
                 $dapfforwc_attribute_name = $option->attribute_name;
-                if (
-                    $dapfforwc_attribute_name === 'dimensions' ||
-                    $dapfforwc_attribute_name === 'sku' ||
-                    $dapfforwc_attribute_name === 'discount' ||
-                    $dapfforwc_attribute_name === 'date_filter' ||
-                    $dapfforwc_attribute_name === 'reset_btn'
-                ) { ?>
-                    <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
+                if ($dapfforwc_attribute_name !== $dapfforwc_selected_attribute) {
+                    continue;
+                }
+                $dapfforwc_is_simple = in_array(
+                    $dapfforwc_attribute_name,
+                    ['dimensions', 'sku', 'discount', 'date_filter', 'reset_btn'],
+                    true
+                );
+                ?>
+                <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" data-current-attribute="<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: block;">
+                    <h3 class="section-title"><span class="style-attribute-label"><?php echo esc_html($option->attribute_label); ?></span> <?php echo esc_html__('Filter Style', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                    <div class="style-options-block style-options-simple" data-style-block="simple" style="display: <?php echo $dapfforwc_is_simple ? 'block' : 'none'; ?>;">
                         <div class="optional_settings">
                             <h4><?php esc_html_e('Optional Settings:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
-                            <?php if ($dapfforwc_attribute_name !== 'reset_btn') { ?>
+
+                            <div data-attr-exclude="reset_btn">
                                 <!-- Enable Minimization Option -->
-                                <div class="setting-item">
+                                <div class="setting-item" style="padding-top: 20px;">
                                     <p><strong><?php esc_html_e('Enable Minimization Option:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                     <label>
                                         <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="disabled"
@@ -214,6 +374,34 @@ if (!defined('ABSPATH')) {
                                         <?php esc_html_e('Initially Minimized', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                     </label>
                                 </div>
+                                <!-- Show in Active/Chips Filter widget -->
+                                <div class="setting-item" style="padding-top: 20px;">
+                                    <p><strong><?php esc_html_e('Show in Active/Chips Filter Widget:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                    <label>
+                                        <select name="dapfforwc_style_options[show_in_active_filters][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                            <option value="yes" <?php selected($dapfforwc_form_styles["show_in_active_filters"][$dapfforwc_attribute_name] ?? 'yes', 'yes'); ?>>
+                                                <?php esc_html_e('Yes', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </option>
+                                            <option value="no" <?php selected($dapfforwc_form_styles["show_in_active_filters"][$dapfforwc_attribute_name] ?? 'yes', 'no'); ?>>
+                                                <?php esc_html_e('No', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
+                                <!-- Show/Hide Widget Title -->
+                                <div class="setting-item">
+                                    <p><strong><?php esc_html_e('Show/Hide Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                    <label>
+                                        <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][show_widget_title]">
+                                            <option value="yes" <?php selected($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_widget_title'] ?? 'yes', 'yes'); ?>>
+                                                <?php esc_html_e('Show', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </option>
+                                            <option value="no" <?php selected($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_widget_title'] ?? 'yes', 'no'); ?>>
+                                                <?php esc_html_e('Hide', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </option>
+                                        </select>
+                                    </label>
+                                </div>
                                 <div class="row" style="padding-top: 16px;">
                                     <div class="col-6">
                                         <div class="setting-item">
@@ -225,8 +413,9 @@ if (!defined('ABSPATH')) {
                                         </div>
                                     </div>
                                 </div>
-                            <?php }
-                            if ($dapfforwc_attribute_name === 'search' || $dapfforwc_attribute_name === 'sku' || $dapfforwc_attribute_name === 'discount') { ?>
+
+                            </div>
+                            <div data-attr-only="search sku discount">
                                 <div class="row" style="padding-top: 16px;">
                                     <div class="col-6">
                                         <div class="setting-item">
@@ -238,8 +427,8 @@ if (!defined('ABSPATH')) {
                                         </div>
                                     </div>
                                 </div>
-                            <?php }
-                            if ($dapfforwc_attribute_name === 'search') { ?>
+                            </div>
+                            <div data-attr-only="search">
                                 <div class="row btn_text" style="padding-top: 16px;">
                                     <div class="col-6">
                                         <div class="setting-item">
@@ -251,10 +440,8 @@ if (!defined('ABSPATH')) {
                                         </div>
                                     </div>
                                 </div>
-
-                            <?php }
-
-                            if ($dapfforwc_attribute_name === 'reset_btn') { ?>
+                            </div>
+                            <div data-attr-only="reset_btn">
                                 <!-- show reset button only one instead of multiple -->
                                 <!-- show apply button checkbox -->
                                 <div class="row" style="padding-top: 16px;">
@@ -338,53 +525,9 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
 
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        const showApplyResetOnSelect = document.getElementById('show_apply_reset_on_<?php echo esc_attr($dapfforwc_attribute_name); ?>');
-
-                                        applyCheckbox.addEventListener('change', function() {
-                                            const isApplyChecked = applyCheckbox.checked;
-                                            const isResetChecked = resetCheckbox.checked;
-                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
-                                        });
-
-                                        resetCheckbox.addEventListener('change', function() {
-                                            const isApplyChecked = applyCheckbox.checked;
-                                            const isResetChecked = resetCheckbox.checked;
-                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
-                                        });
-                                    });
-                                </script>
-
                                 <p class="description"><?php esc_html_e('Note: "Separately" option is only available when there is any select layout or single selection layout in the filter.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        const applyCheckbox = document.querySelector('input[name="dapfforwc_style_options[show_apply_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-                                        const resetCheckbox = document.querySelector('input[name="dapfforwc_style_options[show_reset_button][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-                                        const applyButtonText = document.querySelector('input[name="dapfforwc_style_options[applybtntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-                                        const resetButtonText = document.querySelector('input[name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-                                        const applyBehaviorSelect = document.querySelector('select[name="dapfforwc_style_options[apply_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-                                        const showApplyResetOnSelect = document.querySelector('select[name="dapfforwc_style_options[show_apply_reset_on][<?php echo esc_attr($dapfforwc_attribute_name); ?>]"]');
-
-                                        function toggleDisabled() {
-                                            const isApplyChecked = applyCheckbox.checked;
-                                            const isResetChecked = resetCheckbox.checked;
-                                            applyButtonText.disabled = !isApplyChecked;
-                                            applyBehaviorSelect.disabled = !isApplyChecked;
-                                            resetButtonText.disabled = !isResetChecked;
-                                            showApplyResetOnSelect.disabled = !(isApplyChecked || isResetChecked);
-                                        }
-
-                                        applyCheckbox.addEventListener('change', toggleDisabled);
-                                        resetCheckbox.addEventListener('change', toggleDisabled);
-                                        toggleDisabled(); // Initial call to set the correct state
-                                    });
-                                </script>
-
-                            <?php }
-
-                            if ($dapfforwc_attribute_name === 'date_filter') { ?>
+                            </div>
+                            <div data-attr-only="date_filter">
                                 <!-- date_filter text manage -->
                                 <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
                                     <div class="col-6">
@@ -438,9 +581,8 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
 
-                            <?php }
-
-                            if ($dapfforwc_attribute_name === 'dimensions') { ?>
+                            </div>
+                            <div data-attr-only="dimensions">
                                 <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
                                     <!-- Length (cm): -->
                                     <div class="col-6">
@@ -484,22 +626,21 @@ if (!defined('ABSPATH')) {
                                     </div>
                                 </div>
 
-                            <?php }
+                            </div>
 
 
-                            ?>
+
+
                         </div>
                     </div>
-                <?php
-                    continue; // Skip custom fields in this loop
-                }
-                $dapfforwc_selected_style = $dapfforwc_form_styles[$dapfforwc_attribute_name]['type'] ?? 'dropdown';
-                $dapfforwc_sub_option = $dapfforwc_form_styles[$dapfforwc_attribute_name]['sub_option'] ?? ''; // current stored in database
-                global $dapfforwc_sub_options; //get from root page
+                    <div class="style-options-block style-options-full" data-style-block="full" style="display: <?php echo $dapfforwc_is_simple ? 'none' : 'block'; ?>;">
+                        <?php
+                        $dapfforwc_selected_style = $dapfforwc_form_styles[$dapfforwc_attribute_name]['type'] ?? 'checkbox';
+                        $dapfforwc_sub_option = $dapfforwc_form_styles[$dapfforwc_attribute_name]['sub_option'] ?? ''; // current stored in database
+                        global $dapfforwc_sub_options; //get from root page
 
-                ?>
-                <div class="style-options" id="options-<?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_attribute_name === $dapfforwc_first_attribute && $dapfforwc_attribute_name !== "product-category" ? 'block' : 'none'; ?>;">
-                    <h3 class="section-title"><?php echo esc_html($option->attribute_label); ?> <?php echo esc_html__('Filter Style', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
+                        ?>
+                        <div class="style-options-inner">
 
                     <!-- Primary Options -->
                     <div class="primary_options">
@@ -522,7 +663,7 @@ if (!defined('ABSPATH')) {
                                 </span>
                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][type]" value="<?php echo esc_html($key); ?>" <?php checked($dapfforwc_selected_style, $key); ?> data-type="<?php echo esc_html($key); ?>">
                                 <img src="<?php echo esc_url(plugins_url('../assets/images/' . $key . '.png', __FILE__)); ?>" alt="<?php echo esc_attr($key); ?>">
-                                <!-- <div class="title"> -->
+                                <!-- <div class="plugincy_title"> -->
                                 <?php
                                 // echo esc_html($key); 
                                 ?>
@@ -538,16 +679,15 @@ if (!defined('ABSPATH')) {
                             <?php foreach ($dapfforwc_sub_options[$dapfforwc_selected_style] as $key => $label) : ?>
 
                                 <label class="<?php echo $dapfforwc_sub_option === $key ? 'active ' : '';
-                                                echo esc_attr($key); ?> <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
-                                                                            echo "pro-only";
-                                                                        } ?>">
+                                                echo esc_attr($key);
+                                                echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") ? ' pro-only' : ''; ?>">
                                     <span class="active" style="display:none;">
                                     </span>
                                     <input <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
-                                                echo "disabled";
-                                            } ?> type="radio" class="optionselect" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
+                                                echo 'disabled';
+                                            } ?> type="radio" class="optionselect" name="<?php echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") ? '_pro' : 'dapfforwc_style_options'; ?>[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
                                     <img src="<?php echo esc_url(plugins_url('../assets/images/' . $key . '.png', __FILE__)); ?>" alt="<?php echo esc_attr($label); ?>">
-                                    <!-- <div class="title"> -->
+                                    <!-- <div class="plugincy_title"> -->
                                     <?php
                                     // echo esc_html($label); 
                                     ?>
@@ -586,415 +726,1717 @@ if (!defined('ABSPATH')) {
                         } else {
                             $dapfforwc_terms = [];
                         }
-                        if ($dapfforwc_attribute_name !== "product-category" && $dapfforwc_attribute_name !== "tag" && $dapfforwc_attribute_name !== "search") {
                         ?>
-                            <div class="advanced-options <?php echo esc_attr($dapfforwc_attribute_name); ?>" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
+                            <div class="advanced-options" data-attr-exclude="product-category tag search" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
                                 <h4 class="advanced-title" style="margin: 0;"><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
-                                <?php if (!empty($dapfforwc_terms)) : ?>
+                                <p class="no-terms-message" style="display: <?php echo empty($dapfforwc_terms) ? 'block' : 'none'; ?>;"><?php esc_html_e('No terms found. Please create terms for this attribute first.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
 
-                                    <!-- Color Options -->
-                                    <div class="plugincy_color" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' ? 'block' : 'none'; ?>;">
-                                        <h5><?php esc_html_e('Set Colors for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
-                                        <div class="color-options">
-                                            <?php foreach ($dapfforwc_terms as $term) :
-                                                if (isset($term['slug'])) {
-                                                    $dapfforwc_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term["slug"]]
-                                                        ?? dapfforwc_color_name_to_hex(esc_attr($term["slug"])); // Fetch stored color or default
-                                                } else {
-                                                    // Handle the case where $term is not an object or does not have 'slug'
-                                                    $dapfforwc_color_value = '#000000'; // Default color or some fallback
-                                                }
-                                            ?>
-                                                <div class="term-option">
-                                                    <label for="color-<?php if (isset($term['slug'])) {
-                                                                            echo esc_attr($term['slug']);
-                                                                        } ?>">
-                                                        <strong><?php if (isset($term['name'])) {
-                                                                    echo esc_html($term['name']);
-                                                                } ?></strong>
-                                                    </label>
-                                                    <input type="color" id="color-<?php if (isset($term['slug'])) {
-                                                                                        echo esc_attr($term['slug']);
-                                                                                    } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][colors][<?php if (isset($term['slug'])) {
-                                                                                                                                                                                        echo esc_attr($term['slug']);
+                                <!-- Color Options -->
+                                <div class="plugincy_color" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' ? 'block' : 'none'; ?>;">
+                                    <h5><?php esc_html_e('Set Colors for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
+                                    <div class="color-options">
+                                        <?php foreach ($dapfforwc_terms as $term) :
+                                            if (isset($term['slug'])) {
+                                                $dapfforwc_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term["slug"]]
+                                                    ?? dapfforwc_color_name_to_hex(esc_attr($term["slug"])); // Fetch stored color or default
+                                            } else {
+                                                // Handle the case where $term is not an object or does not have 'slug'
+                                                $dapfforwc_color_value = '#000000'; // Default color or some fallback
+                                            }
+                                        ?>
+                                            <div class="term-option">
+                                                <label for="color-<?php if (isset($term['slug'])) {
+                                                                        echo esc_attr($term["slug"]);
+                                                                    } ?>">
+                                                    <strong><?php if (isset($term['name'])) {
+                                                                echo esc_html($term['name']);
+                                                            } ?></strong>
+                                                </label>
+                                                <input type="color" id="color-<?php if (isset($term['slug'])) {
+                                                                                    echo esc_attr($term["slug"]);
+                                                                                } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][colors][<?php if (isset($term['slug'])) {
+                                                                                                                                                                                        echo esc_attr($term["slug"]);
                                                                                                                                                                                     } ?>]" value="<?php echo esc_attr($dapfforwc_color_value); ?>">
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
+                                            </div>
+                                        <?php endforeach; ?>
                                     </div>
+                                </div>
 
-                                    <!-- Image Options -->
-                                    <div class="image" style="display: <?php echo $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
-                                        <h5><?php esc_html_e('Set Images for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
-                                        <div class="image-options">
-                                            <?php foreach ($dapfforwc_terms as $term) :
-                                                if (isset($term['slug'])) {
-                                                    $brand_image_url = dapfforwc_get_wc_brand_image_by_slug($term['slug']);
-                                                    $dapfforwc_image_value = isset($brand_image_url) && !empty($brand_image_url) ? $brand_image_url : $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term['slug']] ?? ''; // Fetch stored image URL
-                                                } else {
-                                                    $dapfforwc_image_value = '';
-                                                }
+                                <!-- Image Options -->
+                                <div class="image" style="display: <?php echo $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
+                                    <h5><?php esc_html_e('Set Images for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h5>
+                                    <div class="image-options">
+                                        <?php foreach ($dapfforwc_terms as $term) :
+                                            if (isset($term['slug'])) {
+                                                $brand_image_url = dapfforwc_get_wc_brand_image_by_slug($term['slug']);
+                                                $dapfforwc_image_value = isset($brand_image_url) && !empty($brand_image_url) ? $brand_image_url : $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term["slug"]] ?? ''; // Fetch stored image URL
+                                            } else {
+                                                $dapfforwc_image_value = '';
+                                            }
 
-                                            ?>
-                                                <div class="term-option">
-                                                    <img src="<?php echo esc_attr(isset($dapfforwc_image_value) && !empty($dapfforwc_image_value)  ? $dapfforwc_image_value : plugin_dir_url(__FILE__) . '../assets/images/upload.png'); ?>" style=" max-width: 170px; ">
-                                                    <label for="image-<?php if (isset($term['slug'])) {
-                                                                            echo esc_attr($term['slug']);
-                                                                        } ?>">
-                                                        <strong><?php if (isset($term['name'])) {
-                                                                    echo esc_html($term['name']);
-                                                                } ?></strong>
-                                                    </label>
-                                                    <input type="hidden" id="image-<?php if (isset($term['slug'])) {
-                                                                                        echo esc_attr($term['slug']);
-                                                                                    } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][images][<?php if (isset($term['slug'])) {
-                                                                                                                                                                                        echo esc_attr($term['slug']);
+                                        ?>
+                                            <div class="term-option">
+                                                <img src="<?php echo esc_attr(isset($dapfforwc_image_value) && !empty($dapfforwc_image_value)  ? $dapfforwc_image_value : plugin_dir_url(__FILE__) . '../assets/images/upload.png'); ?>" style=" max-width: 170px; ">
+                                                <label for="image-<?php if (isset($term['slug'])) {
+                                                                        echo esc_attr($term["slug"]);
+                                                                    } ?>">
+                                                    <strong><?php if (isset($term['name'])) {
+                                                                echo esc_html($term['name']);
+                                                            } ?></strong>
+                                                </label>
+                                                <input type="hidden" id="image-<?php if (isset($term['slug'])) {
+                                                                                    echo esc_attr($term["slug"]);
+                                                                                } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][images][<?php if (isset($term['slug'])) {
+                                                                                                                                                                                        echo esc_attr($term["slug"]);
                                                                                                                                                                                     } ?>]" value="<?php echo esc_attr($dapfforwc_image_value); ?>" placeholder="<?php esc_attr_e('Image URL', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                                    <button type="button" class="upload-image-button">
-                                                        <svg class="edit-icon" viewBox="0 0 24 24">
-                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                                        </svg>
-                                                    </button>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        </div>
+                                                <button type="button" class="upload-image-button">
+                                                    <svg class="edit-icon" viewBox="0 0 24 24">
+                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        <?php endforeach; ?>
                                     </div>
-
-                                <?php else : ?>
-                                    <p><?php esc_html_e('No terms found. Please create terms for this attribute first.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                                <?php endif; ?>
+                                </div>
                             </div>
-                        <?php } ?>
 
                         <!-- Advanced Options for Color/Image Ends -->
 
-                        <!-- Optional Settings -->
-                        <div class="optional_settings">
-                            <h4><?php esc_html_e('Optional Settings:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
+                        <div style="display: flex;flex-wrap: wrap;gap: 20px;">
+                            <!-- Optional Settings -->
+                            <div class="optional_settings">
+                                <h4><?php esc_html_e('Optional Settings:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
 
-                            <div class="row" style="padding-top: 16px;">
-                                <div class="col-6">
-                                    <!-- Hierarchical -->
-                                    <div class="setting-item hierarchical" style="display:none;">
-                                        <p><strong><?php esc_html_e('Enable Hierarchical:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="disabled"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? '', 'disabled'); ?>>
-                                            <?php esc_html_e('Disabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? '', 'enable'); ?>>
-                                            <?php esc_html_e('Enabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label class="pro-only">
-                                            <input disabled type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_separate"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? '', 'enable_separate'); ?>>
-                                            <?php esc_html_e('Enabled & Seperate', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_hide_child"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? '', 'enable_hide_child'); ?>>
-                                            <?php esc_html_e('Enabled & hide child', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                    </div>
-                                    <?php if ($dapfforwc_attribute_name === "price") { ?>
-                                        <div class="setting-item min-max-price-set" style="display:none;">
-                                            <?php
-                                            $product_min = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]["min_price"]) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]["min_price"]) : 0;
-                                            $product_max = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]["max_price"]) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]["max_price"]) : 100000;
-                                            ?>
-                                            <p><strong><?php esc_html_e('Set Min & Max Price:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                            <p>Auto Set <label id="auto_price" class="switch auto_price">
-                                                    <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][auto_price]" <?php echo isset($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price']) && $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price'] == "on" ? 'checked' : ''; ?>>
-                                                    <span class="slider round"></span>
-                                                </label></p>
-                                            <div id="price_set" style="display:<?php echo isset($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price']) && $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price'] === "on" ? 'none' : 'block'; ?>;">
-                                                <label for="min_price"> Min Price </label>
-                                                <input disabled type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][min_price]" value="0">
-                                                <label for="max_price"> Max Price </label>
-                                                <input type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][max_price]" value="<?php echo esc_attr($product_max); ?>">
+                                <div class="row" style="padding-top: 16px;">
+                                    <div class="col-6">
+                                        <!-- Hierarchical -->
+                                        <div class="setting-item hierarchical" data-attr-only="product-category" style="display:none;">
+                                            <p><strong><?php esc_html_e('Enable Hierarchical:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="disabled"
+                                                    <?php
+                                                    $hierarchical_type = $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? 'disabled';
+                                                    checked($hierarchical_type === 'disabled' || ($hierarchical_type === 'enable_separate'));
+                                                    ?>>
+                                                <?php esc_html_e('Disabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? 'disabled', 'enable'); ?>>
+                                                <?php esc_html_e('Enabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label <?php echo 'class="pro-only"'; ?>>
+                                                    <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_separate"
+                                                        <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? 'disabled', 'enable_separate'); ?>>
+                                                <?php esc_html_e('Enabled & Seperate', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_hide_child"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? 'disabled', 'enable_hide_child'); ?>>
+                                                <?php esc_html_e('Enabled & hide child', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                        </div>
+                                        <div class="setting-item min-max-price-set" data-attr-only="price" style="display:none;">
+                                                <?php
+                                                $product_min = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]["min_price"]) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]["min_price"]) : 0;
+                                                $product_max = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]["max_price"]) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]["max_price"]) : 100000;
+                                                ?>
+                                                <p><strong><?php esc_html_e('Set Min & Max Price:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <p>Auto Set <label id="auto_price" class="switch auto_price">
+                                                        <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][auto_price]" <?php echo isset($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price']) && $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price'] == "on" ? 'checked' : ''; ?>>
+                                                        <span class="slider round"></span>
+                                                    </label></p>
+                                                <div id="price_set" style="display:<?php echo isset($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price']) && $dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['auto_price'] === "on" ? 'none' : 'block'; ?>;">
+                                                    <label for="min_price"> Min Price </label>
+                                                    <input disabled type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][min_price]" value="0">
+                                                    <label for="max_price"> Max Price </label>
+                                                    <input type="number" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][max_price]" value="<?php echo esc_attr($product_max); ?>">
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <script>
-                                            document.addEventListener('DOMContentLoaded', function() {
-                                                // Find all auto_price checkboxes in the current attribute section
-                                                document.querySelectorAll('.auto_price input[type="checkbox"]').forEach(function(checkbox) {
-                                                    checkbox.addEventListener('change', function() {
-                                                        var priceSet = this.closest('.min-max-price-set').querySelector('#price_set');
-                                                        if (this.checked) {
-                                                            priceSet.style.display = 'none';
-                                                        } else {
-                                                            priceSet.style.display = 'block';
-                                                        }
-                                                    });
-                                                });
-                                            });
-                                        </script>
-                                    <?php } ?>
-
-                                    <!-- Enable Minimization Option -->
-                                    <div class="setting-item">
-                                        <p><strong><?php esc_html_e('Enable Minimization Option:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="disabled"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'disabled'); ?>>
-                                            <?php esc_html_e('Disabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="arrow"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'arrow'); ?>>
-                                            <?php esc_html_e('Enabled with Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="no_arrow"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'no_arrow'); ?>>
-                                            <?php esc_html_e('Enabled without Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                        <label>
-                                            <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="minimize_initial"
-                                                <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'minimize_initial'); ?>>
-                                            <?php esc_html_e('Initially Minimized', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                        </label>
-                                    </div>
-
-
-                                    <!-- Single Selection Option -->
-                                    <?php if ($dapfforwc_attribute_name !== "rating" && $dapfforwc_attribute_name !== "price" && $dapfforwc_attribute_name !== "search") { ?>
-                                        <div class="setting-item single-selection" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'block'; ?> ;">
-                                            <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                            <label>
-                                                <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['single_selection'] ?? '', 'yes'); ?>>
-                                                <?php esc_html_e('Only one value can be selected at a time', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                            </label>
-                                        </div>
-                                    <?php } ?>
-
-                                    <!-- Show/Hide Number of Products -->
-                                    <?php if ($dapfforwc_attribute_name !== "rating" && $dapfforwc_attribute_name !== "price" && $dapfforwc_attribute_name !== "search") { ?>
-
-                                        <div class="setting-item show-product-count">
-                                            <p><strong><?php esc_html_e('Show/Hide Number of Products:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                            <label>
-                                                <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][show_product_count]" value="yes"
-                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_product_count'] ?? '', 'yes'); ?>>
-                                                <?php esc_html_e('Show number of products', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                                            </label>
-                                        </div>
-                                    <?php }
-                                    ?>
-                                    <!-- Max Height -->
-                                    <?php if ($dapfforwc_attribute_name !== "price") { ?>
+                                        <!-- Enable Minimization Option -->
                                         <div class="setting-item">
-                                            <p><strong><?php esc_html_e('Max Height:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <p><strong><?php esc_html_e('Enable Minimization Option:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
-                                                <?php $max_height = isset($dapfforwc_form_styles["max_height"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["max_height"][$dapfforwc_attribute_name]) : 0; ?>
-                                                <input type="number" name="dapfforwc_style_options[max_height][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($max_height); ?>">
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="disabled"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'disabled'); ?>>
+                                                <?php esc_html_e('Disabled', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="arrow"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'arrow'); ?>>
+                                                <?php esc_html_e('Enabled with Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="no_arrow"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'no_arrow'); ?>>
+                                                <?php esc_html_e('Enabled without Arrow', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                            <label>
+                                                <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][minimize][type]" value="minimize_initial"
+                                                    <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['minimize']['type'] ?? 'arrow', 'minimize_initial'); ?>>
+                                                <?php esc_html_e('Initially Minimized', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                         </div>
-                                    <?php } ?>
-                                    <div class="setting-item">
-                                        <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                        <label>
-                                            <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
-                                            <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
-                                        </label>
-                                    </div>
-                                    <?php
 
 
-                                    if ($dapfforwc_attribute_name === 'price') { ?>
-                                        <div class="row" style="padding-top: 16px; gap:20px;">
-                                            <div class="col-6">
+                                        <!-- Single Selection Option -->
+                                            <div class="setting-item single-selection" data-attr-exclude="price rating search" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'block'; ?> ;">
+                                                <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"
+                                                        <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['single_selection'] ?? '', 'yes'); ?>>
+                                                    <?php esc_html_e('Only one value can be selected at a time', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                </label>
+                                            </div>
+
+                                        <!-- Show/Hide Number of Products -->
+                                            <div class="setting-item show-product-count" data-attr-exclude="price rating search">
+                                                <p><strong><?php esc_html_e('Show/Hide Number of Products:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][show_product_count]" value="yes"
+                                                        <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_product_count'] ?? '', 'yes'); ?>>
+                                                    <?php esc_html_e('Show number of products', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                </label>
+                                            </div>
+                                        <!-- Max Height -->
+                                            <div class="setting-item" data-attr-exclude="price">
+                                                <p><strong><?php esc_html_e('Max Height:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <?php $max_height = isset($dapfforwc_form_styles["max_height"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["max_height"][$dapfforwc_attribute_name]) : 0; ?>
+                                                    <input type="number" name="dapfforwc_style_options[max_height][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($max_height); ?>">
+                                                </label>
+                                            </div>
+                                        <!-- show/hide widget title -->
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Show/Hide Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][show_widget_title]">
+                                                    <option value="yes" <?php selected($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_widget_title'] ?? 'yes', 'yes'); ?>>
+                                                        <?php esc_html_e('Show', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </option>
+                                                    <option value="no" <?php selected($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['show_widget_title'] ?? 'yes', 'no'); ?>>
+                                                        <?php esc_html_e('Hide', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </option>
+                                                </select>
+                                            </label>
+                                        </div>
+                                        <!-- Widget Title -->
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Widget Title:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $widget_title = isset($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["widget_title"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
+                                            </label>
+                                        </div>
+                                        <!-- additional text for 1-4 -->
+                                            <div class="additional_txt_rating" data-attr-only="rating" style="display: <?php echo $dapfforwc_sub_option !== 'rating-text' ? 'none' : 'block'; ?> ;">
                                                 <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Min input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <p><strong><?php esc_html_e('Additional Text for 1-4 Stars:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                     <label>
-                                                        <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["min"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["min"]) : 'Min Price:'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[input_label][price][min]" placeholder="Min Price:" value="<?php echo esc_attr($input_label); ?>">
+                                                        <?php $additional_text = isset($dapfforwc_form_styles["additional_text"]["rating"]) ? esc_attr($dapfforwc_form_styles["additional_text"]["rating"]) : ''; ?>
+                                                        <input type="text" name="dapfforwc_style_options[additional_text][rating]" value="<?php echo esc_attr($additional_text); ?>">
+                                                    </label>
+                                                </div>
+                                                <!-- additional text for 5 -->
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Additional Text for 5 Stars:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $additional_text_5 = isset($dapfforwc_form_styles["additional_text_5"]["rating"]) ? esc_attr($dapfforwc_form_styles["additional_text_5"]["rating"]) : ''; ?>
+                                                        <input type="text" name="dapfforwc_style_options[additional_text_5][rating]" value="<?php echo esc_attr($additional_text_5); ?>">
                                                     </label>
                                                 </div>
                                             </div>
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Min input Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $input_placeholder = isset($dapfforwc_form_styles["input_placeholder"]["price"]["min"]) ? esc_attr($dapfforwc_form_styles["input_placeholder"]["price"]["min"]) : 'Min'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[input_placeholder][price][min]" placeholder="Min" value="<?php echo esc_attr($input_placeholder); ?>">
-                                                    </label>
+                                        <div data-attr-only="price">
+                                            <div class="row" style="padding-top: 16px; gap:20px;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Min input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["min"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["min"]) : 'Min Price:'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[input_label][price][min]" placeholder="Min Price:" value="<?php echo esc_attr($input_label); ?>">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row" style="padding-top: 16px; gap:20px;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Max input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["max"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["max"]) : 'Max Price:'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[input_label][price][max]" placeholder="Max Price:" value="<?php echo esc_attr($input_label); ?>">
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row" style="padding-top: 16px; gap:20px;">
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Max input label:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $input_label = isset($dapfforwc_form_styles["input_label"]["price"]["max"]) ? esc_attr($dapfforwc_form_styles["input_label"]["price"]["max"]) : 'Max Price:'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[input_label][price][max]" placeholder="Max Price:" value="<?php echo esc_attr($input_label); ?>">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Max input Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $input_placeholder = isset($dapfforwc_form_styles["input_placeholder"]["price"]["max"]) ? esc_attr($dapfforwc_form_styles["input_placeholder"]["price"]["max"]) : 'Max'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[input_placeholder][price][max]" placeholder="Max" value="<?php echo esc_attr($input_placeholder); ?>">
-                                                    </label>
+                                        <div data-attr-only="search">
+                                            <div class="row" style="padding-top: 16px;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $placeholder = isset($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) : ''; ?>
+                                                            <input type="text" name="dapfforwc_style_options[placeholder][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($placeholder); ?>">
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    <?php }
-
-                                    if ($dapfforwc_attribute_name === 'search') { ?>
-                                        <div class="row" style="padding-top: 16px;">
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $placeholder = isset($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) : ''; ?>
-                                                        <input type="text" name="dapfforwc_style_options[placeholder][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($placeholder); ?>">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php }
-                                    if ($dapfforwc_attribute_name === 'search' || $dapfforwc_attribute_name === 'reset_btn') { ?>
-                                        <div class="row btn_text" style="padding-top: 16px;">
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Button Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $btntext = isset($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) : ''; ?>
-                                                        <input type="text" name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($btntext); ?>">
-                                                    </label>
+                                        <div data-attr-only="search reset_btn">
+                                            <div class="row btn_text" style="padding-top: 16px;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Button Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $btntext = isset($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["btntext"][$dapfforwc_attribute_name]) : ''; ?>
+                                                            <input type="text" name="dapfforwc_style_options[btntext][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($btntext); ?>">
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                    <?php }
-
-                                    if ($dapfforwc_attribute_name === 'sale_status') { ?>
-                                        <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["onsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["onsale"]) : 'On Sale'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[sale_status_text][onsale]" value="<?php echo esc_attr($on_sale_text); ?>">
-                                                    </label>
+                                        <!-- stock status -->
+                                        <div data-attr-only="status">
+                                            <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('In Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $in_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["instock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["instock"]) : 'In Stock'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[stock_status_text][instock]" value="<?php echo esc_attr($in_stock_text); ?>">
+                                                        </label>
+                                                    </div>
                                                 </div>
-                                            </div>
 
-                                            <!-- not on sale -->
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Not On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $not_on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["notonsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["notonsale"]) : 'Not On Sale'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[sale_status_text][notonsale]" value="<?php echo esc_attr($not_on_sale_text); ?>">
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    <?php }
-
-                                    // stock status
-                                    if ($dapfforwc_attribute_name === 'status') { ?>
-                                        <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('In Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $in_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["instock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["instock"]) : 'In Stock'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[stock_status_text][instock]" value="<?php echo esc_attr($in_stock_text); ?>">
-                                                    </label>
-                                                </div>
-                                            </div>
-
-                                            <!-- out of stock -->
-                                            <div class="col-6">
-                                                <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Out of Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                    <label>
-                                                        <?php $out_of_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["outofstock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["outofstock"]) : 'Out of Stock'; ?>
-                                                        <input type="text" name="dapfforwc_style_options[stock_status_text][outofstock]" value="<?php echo esc_attr($out_of_stock_text); ?>">
-                                                    </label>
+                                                <!-- out of stock -->
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Out of Stock Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $out_of_stock_text = isset($dapfforwc_form_styles["stock_status_text"]["outofstock"]) ? esc_attr($dapfforwc_form_styles["stock_status_text"]["outofstock"]) : 'Out of Stock'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[stock_status_text][outofstock]" value="<?php echo esc_attr($out_of_stock_text); ?>">
+                                                        </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    <?php }
 
-                                    // Determine if ordering options should be shown for this attribute
-                                    $show_ordering = !in_array($dapfforwc_attribute_name, ['price', 'rating', 'search', 'status', 'sale_status', 'dimensions', 'sku', 'discount', 'date_filter', 'reset_btn', 'authors']);
+                                        <div data-attr-only="sale_status">
+                                            <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["onsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["onsale"]) : 'On Sale'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[sale_status_text][onsale]" value="<?php echo esc_attr($on_sale_text); ?>">
+                                                        </label>
+                                                    </div>
+                                                </div>
 
-                                    if ($show_ordering) :
+                                                <!-- not on sale -->
+                                                <div class="col-6">
+                                                    <div class="setting-item">
+                                                        <p><strong><?php esc_html_e('Not On Sale Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                        <label>
+                                                            <?php $not_on_sale_text = isset($dapfforwc_form_styles["sale_status_text"]["notonsale"]) ? esc_attr($dapfforwc_form_styles["sale_status_text"]["notonsale"]) : 'Not On Sale'; ?>
+                                                            <input type="text" name="dapfforwc_style_options[sale_status_text][notonsale]" value="<?php echo esc_attr($not_on_sale_text); ?>">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php
                                         $order_by = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_by']) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_by']) : 'default';
                                         $order_direction = isset($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_direction']) ? esc_attr($dapfforwc_form_styles[$dapfforwc_attribute_name]['order_direction']) : 'asc';
-
-                                        // Check if menu order is available (only for category, tag, brand, and attributes)
-                                        $show_menu_order = in_array($dapfforwc_attribute_name, ['product-category', 'tag', 'brands']) ||
-                                            (isset($all_attributes[$dapfforwc_attribute_name]));
-                                    ?>
-                                        <!-- Order By Setting -->
-                                        <div class="setting-item">
-                                            <p><strong><?php esc_html_e('Order Values/Terms By:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
-                                            <label>
-                                                <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_by]">
-                                                    <option value="default" <?php selected($order_by, 'default'); ?>>
-                                                        <?php esc_html_e('Default', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
-                                                    </option>
-                                                    <option value="alpha" <?php selected($order_by, 'alpha'); ?>>
-                                                        <?php esc_html_e('Alphabetical', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
-                                                    </option>
-                                                    <option value="numeric" <?php selected($order_by, 'numeric'); ?>>
-                                                        <?php esc_html_e('Numeric', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
-                                                    </option>
-                                                    <option value="month_year" <?php selected($order_by, 'month_year'); ?>>
-                                                        <?php esc_html_e('Month & Year', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
-                                                    </option>
-                                                    <?php if ($show_menu_order) : ?>
-                                                        <option value="menu_order" <?php selected($order_by, 'menu_order'); ?>>
-                                                            <?php esc_html_e('Menu Order', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                        ?>
+                                        <div data-attr-exclude="price rating search status sale_status dimensions sku discount date_filter reset_btn authors">
+                                            <!-- Order By Setting -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Order Values/Terms By:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_by]">
+                                                        <option value="default" <?php selected($order_by, 'default'); ?>>
+                                                            <?php esc_html_e('Default', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                    <?php endif; ?>
-                                                    <option value="count" <?php selected($order_by, 'count'); ?>>
-                                                        <?php esc_html_e('Product Count', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
-                                                    </option>
-                                                </select>
-                                            </label>
+                                                        <option value="alpha" <?php selected($order_by, 'alpha'); ?>>
+                                                            <?php esc_html_e('Alphabetical', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="numeric" <?php selected($order_by, 'numeric'); ?>>
+                                                            <?php esc_html_e('Numeric', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="month_year" <?php selected($order_by, 'month_year'); ?>>
+                                                            <?php esc_html_e('Month & Year', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="menu_order" data-menu-order-option="1" <?php selected($order_by, 'menu_order'); ?>>
+                                                            <?php esc_html_e('Menu Order', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="count" <?php selected($order_by, 'count'); ?>>
+                                                            <?php esc_html_e('Product Count', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                    </select>
+                                                </label>
+                                            </div>
+
+                                            <!-- Order Direction Setting -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Order Direction:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_direction]">
+                                                        <option value="asc" <?php selected($order_direction, 'asc'); ?>>
+                                                            <?php esc_html_e('Ascending', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="desc" <?php selected($order_direction, 'desc'); ?>>
+                                                            <?php esc_html_e('Descending', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                    </select>
+                                                </label>
+                                            </div>
                                         </div>
 
-                                        <!-- Order Direction Setting -->
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- optional ends -->
+                            <!-- Advanced settings -->
+                            <div class="dapfforwc-advanced-settings-container optional_settings" style="border: 1px solid #764ba2;">
+                                <div class="dapfforwc-advanced-settings-header">
+                                    <h4 style="color: #764ba2;"><?php esc_html_e('Advanced Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
+                                </div>
+                                <div class="dapfforwc-advanced-settings-content" style="padding-top: 20px;">
+                                    <div class="dapfforwc-advanced-settings-inner">
                                         <div class="setting-item">
-                                            <p><strong><?php esc_html_e('Order Direction:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <p><strong><?php esc_html_e('CSS Class:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
-                                                <select name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][order_direction]">
-                                                    <option value="asc" <?php selected($order_direction, 'asc'); ?>>
-                                                        <?php esc_html_e('Ascending', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                <?php $css_class = isset($dapfforwc_form_styles["css_class"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["css_class"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[css_class][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($css_class); ?>">
+                                            </label>
+                                        </div>
+                                        <!-- Condition Management -->
+                                        <div data-attr-exclude="search price rating dimensions sku discount date_filter reset_btn">
+                                            <!-- Operator -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Operator:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <?php $operator = isset($dapfforwc_form_styles["operator"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["operator"][$dapfforwc_attribute_name]) : 'OR'; ?>
+                                                    <select name="dapfforwc_style_options[operator][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                        <option value="AND" <?php selected($operator, 'AND'); ?>>
+                                                            <?php esc_html_e('AND', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="OR" <?php selected($operator, 'OR'); ?>>
+                                                            <?php esc_html_e('OR', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                    </select>
+                                                </label>
+                                            </div>
+
+                                            <!-- Include/Exclude terms use select with multiple from filters -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Include/Exclude Terms From Filters:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <!-- terms select -->
+                                                <div class="terms-include-exclude" style="display: flex; gap: 10px; align-items: center;">
+                                                    <label>
+                                                        <?php
+                                                        $terms_selected = isset($dapfforwc_form_styles["terms"][$dapfforwc_attribute_name]) ? $dapfforwc_form_styles["terms"][$dapfforwc_attribute_name] : array();
+                                                        ?>
+                                                        <select class="plugincy_select2" name="dapfforwc_style_options[terms][<?php echo esc_attr($dapfforwc_attribute_name); ?>][]" multiple style="width: 200px; height: 100px;" data-placeholder="<?php esc_attr_e('Select terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                                            <?php foreach ($dapfforwc_terms as $term) :
+                                                                $value = is_array($term) ? $term['slug'] : $term->slug;
+                                                                $title = is_array($term) ? $term['name'] : $term->name;
+                                                            ?>
+                                                                <option value="<?php echo esc_attr($value); ?>" <?php echo in_array($term['slug'], $terms_selected) ? 'selected' : ''; ?>>
+                                                                    <?php echo esc_html($title); ?>
+                                                                </option>
+                                                            <?php endforeach; ?>
+                                                        </select>
+                                                    </label>
+                                                    <label>
+                                                        <?php $include_exclude = isset($dapfforwc_form_styles["include_exclude"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["include_exclude"][$dapfforwc_attribute_name]) : 'none'; ?>
+                                                        <select name="dapfforwc_style_options[include_exclude][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                            <option value="none" <?php selected($include_exclude, 'none'); ?>>
+                                                                <?php esc_html_e('None', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="include" <?php selected($include_exclude, 'include'); ?>>
+                                                                <?php esc_html_e('Include', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="exclude" <?php selected($include_exclude, 'exclude'); ?>>
+                                                                <?php esc_html_e('Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                            <!-- always display all terms -->
+
+                                            <!-- <div class="setting-item">
+                                                <p><strong><?php //esc_html_e('Always Display All Terms:', 'dynamic-ajax-product-filters-for-woocommerce'); 
+                                                            ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[always_display_all_terms][<?php //echo esc_attr($dapfforwc_attribute_name); 
+                                                                                                                                    ?>]" value="yes"
+                                                        <?php //checked($dapfforwc_form_styles["always_display_all_terms"][$dapfforwc_attribute_name] ?? '', 'yes'); 
+                                                        ?>>
+                                                    <?php //esc_html_e('Always Display All Terms', 'dynamic-ajax-product-filters-for-woocommerce'); 
+                                                    ?>
+                                                </label>
+                                            </div> -->
+
+                                            <!-- enable/disable Terms Search -->
+                                            <div class="search_settings" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'block'; ?> ;">
+                                                <span class="dapfforwc_divider"><span class="dapfforwc_divider_title">Terms Search</span></span>
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Enable/Disable Terms Search:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <input type="checkbox" name="dapfforwc_style_options[enable_terms_search][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes" class="enable-terms-search-checkbox"
+                                                            <?php checked($dapfforwc_form_styles["enable_terms_search"][$dapfforwc_attribute_name] ?? '', 'yes'); ?>>
+                                                        <?php esc_html_e('Enable Terms Search', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </label>
+                                                </div>
+                                                <!-- terms search title & placeholder -->
+                                                <div class="setting-item search-terms-rel" style="display: <?php echo isset($dapfforwc_form_styles["enable_terms_search"][$dapfforwc_attribute_name]) && $dapfforwc_form_styles["enable_terms_search"][$dapfforwc_attribute_name] === 'yes' ? 'block' : 'none'; ?>;">
+                                                    <p><strong><?php esc_html_e('Terms Search Title & Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <div class="terms-search-texts" style="display: flex; gap: 10px; align-items: center;">
+                                                        <label>
+                                                            <?php $terms_search_placeholder = isset($dapfforwc_form_styles["terms_search_texts"][$dapfforwc_attribute_name]['placeholder']) ? esc_attr($dapfforwc_form_styles["terms_search_texts"][$dapfforwc_attribute_name]['placeholder']) : ''; ?>
+                                                            <input type="text" name="dapfforwc_style_options[terms_search_texts][<?php echo esc_attr($dapfforwc_attribute_name); ?>][placeholder]" placeholder="<?php esc_attr_e('Placeholder', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" value="<?php echo esc_attr($terms_search_placeholder); ?>">
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <!-- Search position in the title bar/after title/ after all terms -->
+                                                <div class="setting-item search-terms-rel" style="display: <?php echo isset($dapfforwc_form_styles["enable_terms_search"][$dapfforwc_attribute_name]) && $dapfforwc_form_styles["enable_terms_search"][$dapfforwc_attribute_name] === 'yes' ? 'block' : 'none'; ?>;">
+                                                    <p><strong><?php esc_html_e('Terms Search Position:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $terms_search_position = isset($dapfforwc_form_styles["terms_search_position"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["terms_search_position"][$dapfforwc_attribute_name]) : 'after_title'; ?>
+                                                        <select name="dapfforwc_style_options[terms_search_position][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                            <option value="in_title_bar" <?php selected($terms_search_position, 'in_title_bar'); ?>>
+                                                                <?php esc_html_e('In Title Bar', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="after_title" <?php selected($terms_search_position, 'after_title'); ?>>
+                                                                <?php esc_html_e('After Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="after_all_terms" <?php selected($terms_search_position, 'after_all_terms'); ?>>
+                                                                <?php esc_html_e('After All Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+
+                                            </div>
+
+
+
+                                            <!-- layout vertical/horizontal if vertical then show no. of columns -->
+                                            <div class="setting-item layout_settings" data-display="flex" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'flex'; ?> ; gap: 20px; align-items: center; flex-wrap: wrap;">
+                                                <span style="width: 100%;display:block;height: 1px;background: #eee;margin: 10px 0;"></span>
+                                                <div>
+                                                    <p><strong><?php esc_html_e('Layout:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $layout = isset($dapfforwc_form_styles["layout"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["layout"][$dapfforwc_attribute_name]) : 'vertical'; ?>
+                                                        <select name="dapfforwc_style_options[layout][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                            <option value="vertical" <?php selected($layout, 'vertical'); ?>>
+                                                                <?php esc_html_e('Vertical', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="horizontal" <?php selected($layout, 'horizontal'); ?>>
+                                                                <?php esc_html_e('Horizontal', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+                                                <div class="layout-rel" style="display: <?php echo isset($dapfforwc_form_styles["layout"][$dapfforwc_attribute_name]) && $dapfforwc_form_styles["layout"][$dapfforwc_attribute_name] === 'horizontal' ? 'block' : 'none'; ?>;">
+                                                    <p><strong><?php esc_html_e('Number of Columns:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $num_columns = isset($dapfforwc_form_styles["num_columns"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["num_columns"][$dapfforwc_attribute_name]) : '1'; ?>
+                                                        <select name="dapfforwc_style_options[num_columns][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                            <option value="1" <?php selected($num_columns, '1'); ?>>
+                                                                <?php esc_html_e('1', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="2" <?php selected($num_columns, '2'); ?>>
+                                                                <?php esc_html_e('2', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="3" <?php selected($num_columns, '3'); ?>>
+                                                                <?php esc_html_e('3', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                            <option value="4" <?php selected($num_columns, '4'); ?>>
+                                                                <?php esc_html_e('4', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            </option>
+                                                        </select>
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span style="width: 100%;display:block;height: 1px;background: #eee;margin: 10px 0;"></span>
+                                        <!-- enable/disable tooltip -->
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Enable/Disable Tooltip:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <input type="checkbox" name="dapfforwc_style_options[enable_tooltip][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes" class="enable-tooltip-checkbox"
+                                                    <?php checked($dapfforwc_form_styles["enable_tooltip"][$dapfforwc_attribute_name] ?? '', 'yes'); ?>>
+                                                <?php esc_html_e('Enable Tooltip', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </label>
+                                        </div>
+                                        <!-- tooltip text -->
+                                        <div class="setting-item tooltip-rel" style="display: <?php echo isset($dapfforwc_form_styles["enable_tooltip"][$dapfforwc_attribute_name]) && $dapfforwc_form_styles["enable_tooltip"][$dapfforwc_attribute_name] === 'yes' ? 'block' : 'none'; ?>;">
+                                            <p><strong><?php esc_html_e('Tooltip Text:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <?php $tooltip_text = isset($dapfforwc_form_styles["tooltip_text"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["tooltip_text"][$dapfforwc_attribute_name]) : ''; ?>
+                                                <input type="text" name="dapfforwc_style_options[tooltip_text][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($tooltip_text); ?>">
+                                            </label>
+                                        </div>
+                                        <span style="width: 100%;display:block;height: 1px;background: #eee;margin: 10px 0;"></span>
+                                        <!-- Show in Active/Chips Filter widget -->
+                                        <div class="setting-item" style="padding-top: 20px;">
+                                            <p><strong><?php esc_html_e('Show in Active/Chips Filter Widget:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                            <label>
+                                                <select name="dapfforwc_style_options[show_in_active_filters][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
+                                                    <option value="yes" <?php selected($dapfforwc_form_styles["show_in_active_filters"][$dapfforwc_attribute_name] ?? 'yes', 'yes'); ?>>
+                                                        <?php esc_html_e('Yes', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                     </option>
-                                                    <option value="desc" <?php selected($order_direction, 'desc'); ?>>
-                                                        <?php esc_html_e('Descending', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?>
+                                                    <option value="no" <?php selected($dapfforwc_form_styles["show_in_active_filters"][$dapfforwc_attribute_name] ?? 'yes', 'no'); ?>>
+                                                        <?php esc_html_e('No', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                     </option>
                                                 </select>
                                             </label>
                                         </div>
-                                    <?php endif; ?>
-
+                                        <!-- Search specific settings -->
+                                        <div data-attr-only="search">
+                                            <!-- Enable/Disable Auto Suggestion -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Enable/Disable Auto Suggestion:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[enable_auto_suggestion][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes"
+                                                        <?php checked($dapfforwc_form_styles["enable_auto_suggestion"][$dapfforwc_attribute_name] ?? '', 'yes'); ?>>
+                                                    <?php esc_html_e('Enable Auto Suggestion', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                </label>
+                                            </div>
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Search In:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <?php
+                                                    $search_behavior = $dapfforwc_form_styles["search_behavior"][$dapfforwc_attribute_name] ?? ['title'];
+                                                    if (!is_array($search_behavior)) {
+                                                        $search_behavior = [$search_behavior];
+                                                    }
+                                                    $search_behavior = array_map('sanitize_text_field', $search_behavior);
+                                                    ?>
+                                                    <select class="plugincy_select2" name="dapfforwc_style_options[search_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>][]" multiple style="width: 200px; height: 100px;" data-placeholder="<?php esc_attr_e('Select search behavior', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                                        <option value="title" <?php selected(true, in_array('title', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="content" <?php selected(true, in_array('content', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Content', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="excerpt" <?php selected(true, in_array('excerpt', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Excerpt', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="sku" <?php selected(true, in_array('sku', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('SKU', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="tags" <?php selected(true, in_array('tags', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="categories" <?php selected(true, in_array('categories', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Categories', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="attributes" <?php selected(true, in_array('attributes', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Attributes', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="authors" <?php selected(true, in_array('authors', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Authors', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                        <option value="brands" <?php selected(true, in_array('brands', $search_behavior, true)); ?>>
+                                                            <?php esc_html_e('Brands', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        </option>
+                                                    </select>
+                                                </label>
+                                            </div>
+                                            <!-- enable/disable full match -->
+                                            <div class="setting-item">
+                                                <p><strong><?php esc_html_e('Enable/Disable Full Match:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label>
+                                                    <input type="checkbox" name="dapfforwc_style_options[enable_full_match][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes"
+                                                        <?php checked($dapfforwc_form_styles["enable_full_match"][$dapfforwc_attribute_name] ?? '', 'yes'); ?>>
+                                                    <?php esc_html_e('Enable Full Match', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!-- optional ends -->
+
+                        </div>
                     </div>
-
-
-                </div>
             <?php endforeach; ?>
         </div>
     <?php else : ?>
         <p><?php esc_html_e('No attributes found. Please create attributes in WooCommerce first.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
     <?php endif; ?>
+    <input type="hidden" name="dapfforwc_style_options_target" id="dapfforwc_style_options_target" value="<?php echo esc_attr($dapfforwc_selected_attribute); ?>">
+    <input type="hidden" name="dapfforwc_style_options_json" id="dapfforwc_style_options_json" value="">
     <?php submit_button(); ?>
 </form>
+</div>
+</div>
+<script>
+    window.dapfforwcStyleData = <?php echo wp_json_encode([
+        'selectedAttribute' => $dapfforwc_selected_attribute,
+        'attributeNames' => array_values($dapfforwc_option_names),
+        'labels' => $dapfforwc_labels,
+        'options' => $dapfforwc_form_styles,
+        'subOptions' => $dapfforwc_sub_options,
+        'terms' => $dapfforwc_terms_map,
+        'simpleAttributes' => $dapfforwc_simple_attributes,
+        'menuOrderAttributes' => $dapfforwc_menu_order_attributes,
+        'imageBase' => $dapfforwc_image_base,
+        'uploadPlaceholder' => $dapfforwc_upload_placeholder,
+        'isPremium' => false,
+    ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
+</script>
+<script>
+    (function() {
+        const data = window.dapfforwcStyleData;
+        if (!data) {
+            return;
+        }
+
+        const form = document.querySelector('form[action="options.php"]');
+        const container = document.getElementById('style-options-container');
+        const styleOptions = container ? container.querySelector('.style-options') : null;
+        if (!form || !container || !styleOptions) {
+            return;
+        }
+
+        const attributeSet = new Set(data.attributeNames || []);
+        const state = JSON.parse(JSON.stringify(data.options || {}));
+        const isPremium = !!data.isPremium;
+        const imageBase = data.imageBase || '';
+        const uploadPlaceholder = data.uploadPlaceholder || '';
+        const proOnlyKeys = new Set(['dynamic-rating', 'input-price-range', 'color_circle', 'color_value', 'button_check']);
+
+        let currentAttribute = data.selectedAttribute || container.dataset.selectedAttribute || '';
+        if (!currentAttribute && data.attributeNames && data.attributeNames.length) {
+            currentAttribute = data.attributeNames[0];
+        }
+
+        const headerLabel = styleOptions.querySelector('.style-attribute-label');
+        const simpleBlock = styleOptions.querySelector('.style-options-simple');
+        const fullBlock = styleOptions.querySelector('.style-options-full');
+
+        const defaults = {
+            date_filter_texts: {
+                all_time_text: 'All Time',
+                today_text: 'Today',
+                this_week_text: 'This Week',
+                this_month_text: 'This Month',
+                this_year_text: 'This Year',
+            },
+            dimensions_text: {
+                length: 'Length (cm):',
+                width: 'Width (cm):',
+                height: 'Height (cm):',
+                weight: 'Weight (kg):',
+            },
+            input_label: {
+                price: {
+                    min: 'Min Price:',
+                    max: 'Max Price:',
+                },
+            },
+            stock_status_text: {
+                instock: 'In Stock',
+                outofstock: 'Out of Stock',
+            },
+            sale_status_text: {
+                onsale: 'On Sale',
+                notonsale: 'Not On Sale',
+            },
+        };
+
+        const getAllowedTypes = function(attribute) {
+            if (attribute === 'price') {
+                return ['price'];
+            }
+            if (attribute === 'rating') {
+                return ['rating'];
+            }
+            if (attribute === 'search') {
+                return ['plugincy_search'];
+            }
+
+            const types = Object.keys(data.subOptions || {}).filter(function(type) {
+                return type !== 'price' && type !== 'rating' && type !== 'plugincy_search';
+            });
+
+            if (attribute === 'brands' || attribute === 'product-category' || attribute === 'tag') {
+                return types.filter(function(type) {
+                    return type !== 'plugincy_color';
+                });
+            }
+
+            return types;
+        };
+
+        const parseName = function(name) {
+            const parts = [];
+            name.replace(/\[([^\]]*)\]/g, function(match, key) {
+                parts.push(key);
+            });
+            if (parts.length && parts[parts.length - 1] === '') {
+                parts.pop();
+            }
+            return parts;
+        };
+
+        const extractAttribute = function(parts) {
+            if (!parts || !parts.length) {
+                return '';
+            }
+            if (attributeSet.has(parts[0])) {
+                return parts[0];
+            }
+            if (parts.length > 1 && attributeSet.has(parts[1])) {
+                return parts[1];
+            }
+            return '';
+        };
+
+        const getNestedValue = function(obj, parts) {
+            let current = obj;
+            for (let i = 0; i < parts.length; i++) {
+                if (!current || typeof current !== 'object') {
+                    return undefined;
+                }
+                current = current[parts[i]];
+            }
+            return current;
+        };
+
+        const setNestedValue = function(obj, parts, value) {
+            let current = obj;
+            for (let i = 0; i < parts.length; i++) {
+                const key = parts[i];
+                const isLast = i === parts.length - 1;
+                if (isLast) {
+                    current[key] = value;
+                    return;
+                }
+                if (!current[key] || typeof current[key] !== 'object') {
+                    current[key] = {};
+                }
+                current = current[key];
+            }
+        };
+
+        const normalizeType = function(attribute, type) {
+            if (type && data.subOptions && data.subOptions[type]) {
+                return type;
+            }
+            if (attribute === 'price') {
+                return 'price';
+            }
+            if (attribute === 'rating') {
+                return 'rating';
+            }
+            if (attribute === 'search') {
+                return 'plugincy_search';
+            }
+            if (attribute === 'brands') {
+                return 'image';
+            }
+            return 'checkbox';
+        };
+
+        const normalizeSubOption = function(attribute, type, subOption) {
+            const options = (data.subOptions && data.subOptions[type]) ? data.subOptions[type] : {};
+            if (subOption && options[subOption]) {
+                return subOption;
+            }
+            if (type === 'price') {
+                return 'price';
+            }
+            if (type === 'rating') {
+                return 'rating';
+            }
+            if (type === 'plugincy_search') {
+                return 'plugincy_search';
+            }
+            if (type === 'plugincy_color') {
+                return 'plugincy_color';
+            }
+            if (type === 'image') {
+                return 'image';
+            }
+            if (type === 'dropdown') {
+                return 'select';
+            }
+            return Object.keys(options)[0] || '';
+        };
+
+        const getDefaultValue = function(parts) {
+            if (!parts || !parts.length) {
+                return undefined;
+            }
+
+            const attr = extractAttribute(parts);
+            const key = parts[0];
+
+            if (key === 'date_filter_texts') {
+                return defaults.date_filter_texts[parts[1]] || '';
+            }
+            if (key === 'dimensions_text') {
+                return defaults.dimensions_text[parts[1]] || '';
+            }
+            if (key === 'input_label') {
+                return (defaults.input_label[parts[1]] || {})[parts[2]] || '';
+            }
+            if (key === 'stock_status_text') {
+                return defaults.stock_status_text[parts[1]] || '';
+            }
+            if (key === 'sale_status_text') {
+                return defaults.sale_status_text[parts[1]] || '';
+            }
+            if (key === 'show_in_active_filters') {
+                return 'yes';
+            }
+            if (key === 'show_widget_title') {
+                return 'yes';
+            }
+            if (key === 'max_height') {
+                return 0;
+            }
+            if (key === 'order_by') {
+                return 'default';
+            }
+            if (key === 'order_direction') {
+                return 'asc';
+            }
+            if (key === 'include_exclude') {
+                return 'none';
+            }
+            if (key === 'operator') {
+                return 'OR';
+            }
+            if (key === 'terms_search_position') {
+                return 'after_title';
+            }
+            if (key === 'layout') {
+                return 'vertical';
+            }
+            if (key === 'num_columns') {
+                return '1';
+            }
+            if (key === 'show_apply_reset_on') {
+                return 'separate';
+            }
+            if (key === 'apply_behavior') {
+                return 'only_apply';
+            }
+            if (key === 'search_behavior') {
+                return ['title'];
+            }
+
+            if (attr && parts[0] === attr) {
+                const attrKey = parts[1] || '';
+                if (attrKey === 'type') {
+                    return normalizeType(attr);
+                }
+                if (attrKey === 'sub_option') {
+                    return normalizeSubOption(attr, normalizeType(attr), '');
+                }
+                if (attrKey === 'minimize' && parts[2] === 'type') {
+                    return 'arrow';
+                }
+                if (attrKey === 'hierarchical' && parts[2] === 'type') {
+                    return 'disabled';
+                }
+                if (attrKey === 'show_widget_title') {
+                    return 'yes';
+                }
+                if (attrKey === 'order_by') {
+                    return 'default';
+                }
+                if (attrKey === 'order_direction') {
+                    return 'asc';
+                }
+                if (attrKey === 'single_selection') {
+                    return '';
+                }
+                if (attrKey === 'show_product_count') {
+                    return '';
+                }
+                if (attrKey === 'auto_price') {
+                    return attr === 'price' ? 'on' : '';
+                }
+                if (attrKey === 'min_price') {
+                    return 0;
+                }
+                if (attrKey === 'max_price') {
+                    return 100000;
+                }
+            }
+
+            return '';
+        };
+
+        const isAttrAllowed = function(section, attribute) {
+            if (!section) {
+                return false;
+            }
+
+            const only = section.dataset.attrOnly;
+            const exclude = section.dataset.attrExclude;
+            if (only) {
+                return only.split(/\\s+/).includes(attribute);
+            }
+            if (exclude) {
+                return !exclude.split(/\\s+/).includes(attribute);
+            }
+            return true;
+        };
+
+        const setSectionVisibility = function(section, show) {
+            if (!section) {
+                return;
+            }
+
+            const defaultDisplay = section.dataset.display || (section.classList.contains('layout_settings') ? 'flex' : 'block');
+            section.style.display = show ? defaultDisplay : 'none';
+            const isVisible = show && section.offsetParent !== null;
+            section.querySelectorAll('input, select, textarea').forEach(function(input) {
+                input.disabled = !isVisible;
+            });
+        };
+
+        const updateHeader = function(attribute) {
+            if (headerLabel && data.labels && data.labels[attribute]) {
+                headerLabel.textContent = data.labels[attribute];
+            }
+        };
+
+        const updateAttributeNames = function(oldAttr, newAttr) {
+            styleOptions.dataset.currentAttribute = newAttr;
+            container.dataset.selectedAttribute = newAttr;
+            styleOptions.id = 'options-' + newAttr;
+
+            styleOptions.querySelectorAll('[name]').forEach(function(el) {
+                if (el.name && el.name.indexOf('[' + oldAttr + ']') !== -1) {
+                    el.name = el.name.split('[' + oldAttr + ']').join('[' + newAttr + ']');
+                }
+            });
+
+            const applyResetSelect = styleOptions.querySelector('[id^="show_apply_reset_on_"]');
+            if (applyResetSelect) {
+                applyResetSelect.id = 'show_apply_reset_on_' + newAttr;
+            }
+
+            styleOptions.querySelectorAll('label[for^="show_apply_reset_on_"]').forEach(function(label) {
+                label.setAttribute('for', 'show_apply_reset_on_' + newAttr);
+            });
+        };
+
+        const updateAttributeVisibility = function(attribute) {
+            styleOptions.querySelectorAll('[data-attr-only]').forEach(function(section) {
+                setSectionVisibility(section, isAttrAllowed(section, attribute));
+            });
+            styleOptions.querySelectorAll('[data-attr-exclude]').forEach(function(section) {
+                setSectionVisibility(section, isAttrAllowed(section, attribute));
+            });
+
+            if (simpleBlock && fullBlock) {
+                const isSimple = (data.simpleAttributes || []).includes(attribute);
+                setSectionVisibility(simpleBlock, isSimple);
+                setSectionVisibility(fullBlock, !isSimple);
+            }
+        };
+
+        const updateActiveLabels = function(containerEl, selectedValue) {
+            if (!containerEl) {
+                return;
+            }
+            containerEl.querySelectorAll('label').forEach(function(label) {
+                const input = label.querySelector('input[type="radio"]');
+                const active = input && input.value === selectedValue;
+                label.classList.toggle('active', active);
+                const marker = label.querySelector('span.active');
+                if (marker) {
+                    marker.style.display = active ? 'block' : 'none';
+                }
+            });
+        };
+
+        const renderPrimaryOptions = function(attribute) {
+            const containerEl = styleOptions.querySelector('.primary_options');
+            if (!containerEl) {
+                return;
+            }
+
+            containerEl.innerHTML = '';
+            const allowedTypes = getAllowedTypes(attribute);
+            const selectedType = normalizeType(attribute, state[attribute] ? state[attribute].type : '');
+            state[attribute] = state[attribute] || {};
+            state[attribute].type = selectedType;
+
+            const fragment = document.createDocumentFragment();
+            allowedTypes.forEach(function(type) {
+                const label = document.createElement('label');
+                label.className = type + (selectedType === type ? ' active' : '');
+
+                const marker = document.createElement('span');
+                marker.className = 'active';
+                marker.style.display = 'none';
+                label.appendChild(marker);
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.name = 'dapfforwc_style_options[' + attribute + '][type]';
+                input.value = type;
+                input.dataset.type = type;
+                input.checked = selectedType === type;
+
+                const img = document.createElement('img');
+                img.src = imageBase + type + '.png';
+                img.alt = type;
+
+                label.appendChild(input);
+                label.appendChild(img);
+                fragment.appendChild(label);
+            });
+
+            containerEl.appendChild(fragment);
+            updateActiveLabels(containerEl, selectedType);
+        };
+
+        const renderSubOptions = function(attribute) {
+            const containerEl = styleOptions.querySelector('.dynamic-sub-options');
+            if (!containerEl) {
+                return;
+            }
+
+            const selectedType = normalizeType(attribute, state[attribute] ? state[attribute].type : '');
+            const options = (data.subOptions && data.subOptions[selectedType]) ? data.subOptions[selectedType] : {};
+            const selectedSubOption = normalizeSubOption(attribute, selectedType, state[attribute] ? state[attribute].sub_option : '');
+            state[attribute] = state[attribute] || {};
+            state[attribute].sub_option = selectedSubOption;
+
+            containerEl.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+
+            Object.keys(options).forEach(function(key) {
+                const label = document.createElement('label');
+                const isPro = proOnlyKeys.has(key);
+                const isActive = selectedSubOption === key;
+                label.className = key + (isActive ? ' active' : '') + (!isPremium && isPro ? ' pro-only' : '');
+
+                const marker = document.createElement('span');
+                marker.className = 'active';
+                marker.style.display = 'none';
+                label.appendChild(marker);
+
+                const input = document.createElement('input');
+                input.type = 'radio';
+                input.className = 'optionselect';
+                input.value = key;
+                input.name = (!isPremium && isPro) ? ('_pro[' + attribute + '][sub_option]') : ('dapfforwc_style_options[' + attribute + '][sub_option]');
+                input.checked = isActive;
+                if (!isPremium && isPro) {
+                    input.disabled = true;
+                }
+
+                const img = document.createElement('img');
+                img.src = imageBase + key + '.png';
+                img.alt = options[key] || key;
+
+                label.appendChild(input);
+                label.appendChild(img);
+                fragment.appendChild(label);
+            });
+
+            containerEl.appendChild(fragment);
+            updateActiveLabels(containerEl, selectedSubOption);
+        };
+
+        const refreshSelect2 = function(select) {
+            if (!select || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+                return;
+            }
+            const $select = window.jQuery(select);
+            if ($select.hasClass('select2-hidden-accessible')) {
+                $select.select2('destroy');
+            }
+            $select.select2({
+                placeholder: function() {
+                    return $select.data('placeholder');
+                },
+                width: 'resolve',
+                allowClear: true,
+            });
+        };
+
+        const renderTerms = function(attribute) {
+            const terms = (data.terms && data.terms[attribute]) ? data.terms[attribute] : [];
+            const termsSelect = styleOptions.querySelector('select[name^="dapfforwc_style_options[terms]"]');
+            if (termsSelect) {
+                const selected = getNestedValue(state, ['terms', attribute]) || [];
+                const selectedValues = Array.isArray(selected) ? selected : (selected ? [selected] : []);
+                termsSelect.innerHTML = '';
+                terms.forEach(function(term) {
+                    const option = document.createElement('option');
+                    option.value = term.slug;
+                    option.textContent = term.name || term.slug;
+                    option.selected = selectedValues.indexOf(term.slug) !== -1;
+                    termsSelect.appendChild(option);
+                });
+                refreshSelect2(termsSelect);
+            }
+
+            const advanced = styleOptions.querySelector('.advanced-options');
+            if (!advanced) {
+                return;
+            }
+
+            const noTermsMessage = advanced.querySelector('.no-terms-message');
+            if (noTermsMessage) {
+                noTermsMessage.style.display = terms.length ? 'none' : 'block';
+            }
+
+            const colorContainer = advanced.querySelector('.color-options');
+            const imageContainer = advanced.querySelector('.image-options');
+            if (!colorContainer || !imageContainer) {
+                return;
+            }
+
+            colorContainer.innerHTML = '';
+            imageContainer.innerHTML = '';
+
+            const colors = (state[attribute] && state[attribute].colors) ? state[attribute].colors : {};
+            const images = (state[attribute] && state[attribute].images) ? state[attribute].images : {};
+
+            const svgIcon = '<svg class="edit-icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" /></svg>';
+
+            terms.forEach(function(term) {
+                const slug = term.slug;
+                const name = term.name || term.slug;
+                if (!slug) {
+                    return;
+                }
+                const colorValue = colors && Object.prototype.hasOwnProperty.call(colors, slug) ? colors[slug] : (term.default_color || '#000000');
+                const imageValue = images && Object.prototype.hasOwnProperty.call(images, slug) ? images[slug] : (term.default_image || '');
+
+                const colorItem = document.createElement('div');
+                colorItem.className = 'term-option';
+                colorItem.innerHTML = '<label for="color-' + slug + '"><strong>' + name + '</strong></label>' +
+                    '<input type="color" id="color-' + slug + '" name="dapfforwc_style_options[' + attribute + '][colors][' + slug + ']" value="' + colorValue + '">';
+                colorContainer.appendChild(colorItem);
+
+                const imageItem = document.createElement('div');
+                imageItem.className = 'term-option';
+                const imageSrc = imageValue || uploadPlaceholder;
+                imageItem.innerHTML = '<img src="' + imageSrc + '" style="max-width: 170px;">' +
+                    '<label for="image-' + slug + '"><strong>' + name + '</strong></label>' +
+                    '<input type="hidden" id="image-' + slug + '" name="dapfforwc_style_options[' + attribute + '][images][' + slug + ']" value="' + imageValue + '" placeholder="Image URL">' +
+                    '<button type="button" class="upload-image-button">' + svgIcon + '</button>';
+                imageContainer.appendChild(imageItem);
+            });
+        };
+
+        const updateAdvancedOptions = function(attribute) {
+            const advanced = styleOptions.querySelector('.advanced-options');
+            if (!advanced) {
+                return;
+            }
+
+            const type = state[attribute] ? state[attribute].type : '';
+            const canShow = isAttrAllowed(advanced, attribute) && (type === 'plugincy_color' || type === 'image');
+            setSectionVisibility(advanced, canShow);
+
+            if (!canShow) {
+                return;
+            }
+
+            const colorSection = advanced.querySelector('.plugincy_color');
+            const imageSection = advanced.querySelector('.image');
+            setSectionVisibility(colorSection, type === 'plugincy_color');
+            setSectionVisibility(imageSection, type === 'image');
+        };
+
+        const updateTypeDependentUI = function(attribute) {
+            const type = state[attribute] ? state[attribute].type : '';
+            const singleSelection = styleOptions.querySelector('.setting-item.single-selection');
+            const searchSettings = styleOptions.querySelector('.search_settings');
+            const layoutSettings = styleOptions.querySelector('.layout_settings');
+
+            if (type === 'plugincy_color' || type === 'image') {
+                if (singleSelection && isAttrAllowed(singleSelection, attribute)) {
+                    setSectionVisibility(singleSelection, true);
+                }
+                if (searchSettings && isAttrAllowed(searchSettings, attribute)) {
+                    setSectionVisibility(searchSettings, true);
+                }
+                if (layoutSettings && isAttrAllowed(layoutSettings, attribute)) {
+                    setSectionVisibility(layoutSettings, true);
+                }
+                return;
+            }
+
+            if (type === 'dropdown') {
+                if (singleSelection) {
+                    setSectionVisibility(singleSelection, false);
+                }
+                if (searchSettings) {
+                    setSectionVisibility(searchSettings, false);
+                }
+                if (layoutSettings) {
+                    setSectionVisibility(layoutSettings, false);
+                }
+                return;
+            }
+
+            if (singleSelection && isAttrAllowed(singleSelection, attribute)) {
+                setSectionVisibility(singleSelection, true);
+            }
+            if (searchSettings && isAttrAllowed(searchSettings, attribute)) {
+                setSectionVisibility(searchSettings, true);
+            }
+            if (layoutSettings && isAttrAllowed(layoutSettings, attribute)) {
+                setSectionVisibility(layoutSettings, true);
+            }
+        };
+
+        const updateSubOptionDependent = function(attribute) {
+            const subOption = state[attribute] ? state[attribute].sub_option : '';
+            const isSelectType = subOption === 'select' || subOption === 'pluginy_select2';
+            const singleSelection = styleOptions.querySelector('.setting-item.single-selection');
+            const singleSelectionCheckbox = singleSelection ? singleSelection.querySelector('input[type="checkbox"]') : null;
+
+            if (singleSelection && isAttrAllowed(singleSelection, attribute)) {
+                const display = singleSelection.dataset.display || 'block';
+                if (isSelectType) {
+                    if (singleSelectionCheckbox) {
+                        singleSelectionCheckbox.checked = true;
+                        singleSelectionCheckbox.disabled = false;
+                    }
+                    singleSelection.style.display = 'none';
+                } else {
+                    if (singleSelectionCheckbox) {
+                        singleSelectionCheckbox.checked = false;
+                        singleSelectionCheckbox.disabled = false;
+                    }
+                    singleSelection.style.display = display;
+                }
+                singleSelection.querySelectorAll('input, select, textarea').forEach(function(input) {
+                    input.disabled = false;
+                });
+            }
+
+            const searchSettings = styleOptions.querySelector('.search_settings');
+            const layoutSettings = styleOptions.querySelector('.layout_settings');
+            if (searchSettings && isAttrAllowed(searchSettings, attribute)) {
+                setSectionVisibility(searchSettings, !isSelectType);
+            }
+            if (layoutSettings && isAttrAllowed(layoutSettings, attribute)) {
+                setSectionVisibility(layoutSettings, !isSelectType);
+            }
+
+            const ratingText = styleOptions.querySelector('.additional_txt_rating');
+            if (ratingText && attribute === 'rating') {
+                setSectionVisibility(ratingText, subOption === 'rating-text');
+            }
+
+            if (attribute === 'search') {
+                const searchButtonWrapper = styleOptions.querySelector('[data-attr-only~="search"][data-attr-only~="reset_btn"]');
+                if (searchButtonWrapper) {
+                    setSectionVisibility(searchButtonWrapper, subOption !== 'icon_search');
+                }
+            }
+        };
+
+        const updateTermsSearchVisibility = function() {
+            const checkbox = styleOptions.querySelector('.enable-terms-search-checkbox');
+            const sections = styleOptions.querySelectorAll('.search-terms-rel');
+            const show = checkbox && checkbox.checked;
+            sections.forEach(function(section) {
+                setSectionVisibility(section, !!show);
+            });
+        };
+
+        const updateLayoutVisibility = function() {
+            const layoutSelect = styleOptions.querySelector('select[name^="dapfforwc_style_options[layout]"]');
+            const layoutRel = styleOptions.querySelector('.layout-rel');
+            if (!layoutSelect || !layoutRel) {
+                return;
+            }
+            setSectionVisibility(layoutRel, layoutSelect.value === 'horizontal');
+        };
+
+        const updateTooltipVisibility = function() {
+            const checkbox = styleOptions.querySelector('.enable-tooltip-checkbox');
+            const tooltipRel = styleOptions.querySelector('.tooltip-rel');
+            if (!checkbox || !tooltipRel) {
+                return;
+            }
+            setSectionVisibility(tooltipRel, checkbox.checked);
+        };
+
+        const updateAutoPriceVisibility = function() {
+            const checkbox = styleOptions.querySelector('input[name^="dapfforwc_style_options"][name*="[auto_price]"]');
+            const priceSet = styleOptions.querySelector('#price_set');
+            if (!checkbox || !priceSet || checkbox.disabled || priceSet.offsetParent === null) {
+                return;
+            }
+            priceSet.style.display = checkbox.checked ? 'none' : 'block';
+            priceSet.querySelectorAll('input, select, textarea').forEach(function(input) {
+                input.disabled = checkbox.checked;
+            });
+            if (!checkbox.checked) {
+                const minInput = styleOptions.querySelector('input[name^="dapfforwc_style_options"][name*="[min_price]"]');
+                const maxInput = styleOptions.querySelector('input[name^="dapfforwc_style_options"][name*="[max_price]"]');
+                if (minInput) {
+                    const minValue = getNestedValue(state, [currentAttribute, 'min_price']);
+                    minInput.value = minValue === undefined ? getDefaultValue([currentAttribute, 'min_price']) : minValue;
+                }
+                if (maxInput) {
+                    const maxValue = getNestedValue(state, [currentAttribute, 'max_price']);
+                    maxInput.value = maxValue === undefined ? getDefaultValue([currentAttribute, 'max_price']) : maxValue;
+                }
+            }
+        };
+
+        const updateApplyResetVisibility = function() {
+            const resetWrapper = styleOptions.querySelector('[data-attr-only~="reset_btn"]');
+            if (!resetWrapper || resetWrapper.offsetParent === null) {
+                return;
+            }
+
+            const showApply = resetWrapper.querySelector('input[name^="dapfforwc_style_options"][name*="[show_apply_button]"]');
+            const showReset = resetWrapper.querySelector('input[name^="dapfforwc_style_options"][name*="[show_reset_button]"]');
+            const applyText = resetWrapper.querySelector('input[name^="dapfforwc_style_options"][name*="[applybtntext]"]');
+            const applyBehavior = resetWrapper.querySelector('select[name^="dapfforwc_style_options"][name*="[apply_behavior]"]');
+            const resetText = resetWrapper.querySelector('input[name^="dapfforwc_style_options"][name*="[btntext]"]');
+            const applyResetOn = resetWrapper.querySelector('select[name^="dapfforwc_style_options"][name*="[show_apply_reset_on]"]');
+
+            const showApplyChecked = !!(showApply && showApply.checked);
+            const showResetChecked = !!(showReset && showReset.checked);
+
+            if (applyText) {
+                applyText.disabled = !showApplyChecked;
+            }
+            if (applyBehavior) {
+                applyBehavior.disabled = !showApplyChecked;
+            }
+            if (resetText) {
+                resetText.disabled = !showResetChecked;
+            }
+            if (applyResetOn) {
+                applyResetOn.disabled = !(showApplyChecked || showResetChecked);
+            }
+        };
+
+        const updateOrderingVisibility = function(attribute) {
+            const orderSelect = styleOptions.querySelector('select[name^="dapfforwc_style_options"][name*="[order_by]"]');
+            if (!orderSelect) {
+                return;
+            }
+            const menuOption = orderSelect.querySelector('option[data-menu-order-option]');
+            const allowMenuOrder = Array.isArray(data.menuOrderAttributes) && data.menuOrderAttributes.indexOf(attribute) !== -1;
+            if (menuOption) {
+                menuOption.hidden = !allowMenuOrder;
+            }
+            if (!allowMenuOrder && orderSelect.value === 'menu_order') {
+                orderSelect.value = 'default';
+                if (state[attribute]) {
+                    state[attribute].order_by = 'default';
+                }
+            }
+        };
+
+        const syncFormValues = function() {
+            styleOptions.querySelectorAll('[name^="dapfforwc_style_options"]').forEach(function(field) {
+                const parts = parseName(field.name);
+                const value = getNestedValue(state, parts);
+                const fallback = value === undefined ? getDefaultValue(parts) : value;
+
+                if (field.type === 'checkbox') {
+                    const expected = fallback === undefined ? '' : fallback;
+                    field.checked = Array.isArray(expected) ? expected.indexOf(field.value) !== -1 : String(expected) === field.value;
+                    return;
+                }
+
+                if (field.type === 'radio') {
+                    field.checked = String(fallback) === field.value;
+                    return;
+                }
+
+                if (field.tagName === 'SELECT' && field.multiple) {
+                    const values = Array.isArray(fallback) ? fallback : (fallback ? [fallback] : []);
+                    Array.from(field.options).forEach(function(option) {
+                        option.selected = values.indexOf(option.value) !== -1;
+                    });
+                    refreshSelect2(field);
+                    return;
+                }
+
+                if (field.tagName === 'SELECT') {
+                    if (fallback !== undefined && fallback !== '') {
+                        field.value = fallback;
+                    } else if (field.options.length) {
+                        field.value = field.options[0].value;
+                    }
+                    return;
+                }
+
+                field.value = fallback !== undefined ? fallback : '';
+            });
+        };
+
+        const captureCurrentState = function() {
+            const radioGroups = {};
+            styleOptions.querySelectorAll('[name^="dapfforwc_style_options"]').forEach(function(field) {
+                if (field.disabled) {
+                    return;
+                }
+                const name = field.name;
+                const parts = parseName(name);
+
+                if (field.type === 'radio') {
+                    if (!Object.prototype.hasOwnProperty.call(radioGroups, name)) {
+                        radioGroups[name] = '';
+                    }
+                    if (field.checked) {
+                        radioGroups[name] = field.value;
+                    }
+                    return;
+                }
+
+                if (field.type === 'checkbox') {
+                    setNestedValue(state, parts, field.checked ? field.value : '');
+                    return;
+                }
+
+                if (field.tagName === 'SELECT' && field.multiple) {
+                    const values = Array.from(field.selectedOptions).map(function(option) {
+                        return option.value;
+                    });
+                    setNestedValue(state, parts, values);
+                    return;
+                }
+
+                setNestedValue(state, parts, field.value);
+            });
+
+            Object.keys(radioGroups).forEach(function(name) {
+                const parts = parseName(name);
+                setNestedValue(state, parts, radioGroups[name]);
+            });
+        };
+
+        const applyStateForAttribute = function(attribute) {
+            state[attribute] = state[attribute] || {};
+            state[attribute].type = normalizeType(attribute, state[attribute].type);
+            state[attribute].sub_option = normalizeSubOption(attribute, state[attribute].type, state[attribute].sub_option);
+
+            updateAttributeVisibility(attribute);
+            renderPrimaryOptions(attribute);
+            renderSubOptions(attribute);
+            renderTerms(attribute);
+            updateAttributeVisibility(attribute);
+            syncFormValues();
+            updateHeader(attribute);
+            updateAdvancedOptions(attribute);
+            updateTypeDependentUI(attribute);
+            updateSubOptionDependent(attribute);
+            updateTermsSearchVisibility();
+            updateLayoutVisibility();
+            updateTooltipVisibility();
+            updateAutoPriceVisibility();
+            updateApplyResetVisibility();
+            updateOrderingVisibility(attribute);
+        };
+
+        const switchAttribute = function(attribute) {
+            if (!attribute || attribute === currentAttribute) {
+                return;
+            }
+
+            captureCurrentState();
+            const previousAttribute = currentAttribute;
+            currentAttribute = attribute;
+            updateAttributeNames(previousAttribute, attribute);
+            applyStateForAttribute(attribute);
+        };
+
+        window.dapfforwcStyleManager = {
+            capture: captureCurrentState,
+            getState: function() {
+                return state;
+            },
+            switchAttribute: switchAttribute,
+        };
+
+        window.dapfforwcSwitchAttribute = function(attribute) {
+            switchAttribute(attribute);
+        };
+
+        form.addEventListener('change', function(event) {
+            const target = event.target;
+            if (!target) {
+                return;
+            }
+
+            if (target.matches('.primary_options input[type="radio"]')) {
+                state[currentAttribute] = state[currentAttribute] || {};
+                state[currentAttribute].type = target.value;
+                state[currentAttribute].sub_option = normalizeSubOption(currentAttribute, target.value, state[currentAttribute].sub_option);
+                renderSubOptions(currentAttribute);
+                updateActiveLabels(styleOptions.querySelector('.primary_options'), target.value);
+                updateAdvancedOptions(currentAttribute);
+                updateTypeDependentUI(currentAttribute);
+                updateSubOptionDependent(currentAttribute);
+                updateOrderingVisibility(currentAttribute);
+                return;
+            }
+
+            if (target.matches('.optionselect')) {
+                state[currentAttribute] = state[currentAttribute] || {};
+                state[currentAttribute].sub_option = target.value;
+                updateActiveLabels(styleOptions.querySelector('.dynamic-sub-options'), target.value);
+                updateSubOptionDependent(currentAttribute);
+                return;
+            }
+
+            if (target.matches('.enable-terms-search-checkbox')) {
+                updateTermsSearchVisibility();
+                return;
+            }
+
+            if (target.matches('select[name^="dapfforwc_style_options[layout]"]')) {
+                updateLayoutVisibility();
+                return;
+            }
+
+            if (target.matches('.enable-tooltip-checkbox')) {
+                updateTooltipVisibility();
+                return;
+            }
+
+            if (target.matches('input[name^="dapfforwc_style_options"][name*="[auto_price]"]')) {
+                updateAutoPriceVisibility();
+                return;
+            }
+
+            if (target.matches('input[name^="dapfforwc_style_options"][name*="[show_apply_button]"]') ||
+                target.matches('input[name^="dapfforwc_style_options"][name*="[show_reset_button]"]')) {
+                updateApplyResetVisibility();
+            }
+        });
+
+        if (currentAttribute) {
+            applyStateForAttribute(currentAttribute);
+        }
+    })();
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form[action="options.php"]');
+        if (!form) {
+            return;
+        }
+
+        const optionPage = form.querySelector('input[name="option_page"]');
+        if (!optionPage || optionPage.value !== 'dapfforwc_style_options_group') {
+            return;
+        }
+
+        const jsonInput = form.querySelector('#dapfforwc_style_options_json');
+        const targetInput = form.querySelector('#dapfforwc_style_options_target');
+        if (!jsonInput) {
+            return;
+        }
+
+        const setNestedValue = function(target, parts, value) {
+            let current = target;
+            for (let i = 0; i < parts.length; i++) {
+                const key = parts[i];
+                const isLast = i === parts.length - 1;
+
+                if (isLast) {
+                    if (key === '') {
+                        if (Array.isArray(current)) {
+                            current.push(value);
+                        }
+                        return;
+                    }
+
+                    if (current[key] === undefined) {
+                        current[key] = value;
+                    } else if (Array.isArray(current[key])) {
+                        current[key].push(value);
+                    } else {
+                        current[key] = [current[key], value];
+                    }
+                    return;
+                }
+
+                if (key === '') {
+                    return;
+                }
+
+                const nextKey = parts[i + 1];
+                if (!Object.prototype.hasOwnProperty.call(current, key) || typeof current[key] !== 'object' || current[key] === null) {
+                    current[key] = nextKey === '' ? [] : {};
+                }
+                current = current[key];
+            }
+        };
+
+        form.addEventListener('submit', function() {
+            let options = null;
+
+            if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.capture === 'function') {
+                window.dapfforwcStyleManager.capture();
+                options = window.dapfforwcStyleManager.getState() || {};
+                if (targetInput) {
+                    targetInput.value = '';
+                }
+            } else {
+                const formData = new FormData(form);
+                options = {};
+
+                for (const [name, value] of formData.entries()) {
+                    if (!name || name === 'dapfforwc_style_options_json' || name === 'dapfforwc_style_options_target') {
+                        continue;
+                    }
+
+                    if (!name.startsWith('dapfforwc_style_options')) {
+                        continue;
+                    }
+
+                    const parts = [];
+                    name.replace(/\[([^\]]*)\]/g, function(match, key) {
+                        parts.push(key);
+                    });
+
+                    if (!parts.length) {
+                        continue;
+                    }
+
+                    setNestedValue(options, parts, value);
+                }
+            }
+
+            if (!options || !Object.keys(options).length) {
+                return;
+            }
+
+            jsonInput.value = JSON.stringify(options);
+
+            form.querySelectorAll('[name^="dapfforwc_style_options"]').forEach(function(field) {
+                if (field === jsonInput || field === targetInput) {
+                    return;
+                }
+                field.disabled = true;
+            });
+        });
+    });
+</script>

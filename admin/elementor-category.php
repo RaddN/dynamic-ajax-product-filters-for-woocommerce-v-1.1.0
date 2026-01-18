@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Custom Elementor Category Registration
  * This ensures the category appears at the correct position

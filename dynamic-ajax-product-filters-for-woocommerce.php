@@ -1,10 +1,9 @@
 <?php
-
 /**
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.5.2.10
+ * Version:     1.5.2.43
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -23,7 +22,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.5.2.10');
+define('DAPFFORWC_VERSION', '1.5.2.43');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -78,6 +77,118 @@ $dapfforwc_options = get_option('dapfforwc_options') ?: [
 ];
 $dapfforwc_advance_settings = get_option('dapfforwc_advance_options') ?: [];
 $dapfforwc_seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options') ?: [];
+
+
+
+if (!function_exists('dapfforwc_check_seo_settings')) {
+    function dapfforwc_check_seo_settings()
+    {
+        global $dapfforwc_seo_permalinks_options;
+
+        // Get all attributes and custom fields for default prefix options
+        $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
+        $all_attributes = $all_data['attributes'] ?? [];
+        $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
+        $custom_fields = $all_data['custom_fields'] ?? [];
+        $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+
+        $attributes = [];
+        foreach ($all_attributes as $attribute) {
+            if (in_array($attribute['attribute_name'], $exclude_attributes)) {
+                continue;
+            }
+            $attributes[] = (object) [
+                'attribute_name' => $attribute['attribute_name'],
+                'attribute_label' => $attribute['attribute_label'],
+            ];
+        }
+
+        $all_custom_fields = [];
+        foreach ($custom_fields as $custom_field) {
+            if (in_array($custom_field['name'], $exclude_custom_fields)) {
+                continue;
+            }
+            $all_custom_fields[] = (object) [
+                'attribute_name' => $custom_field['name'],
+                'attribute_label' => $custom_field['label'],
+            ];
+        }
+
+        // Define default SEO permalink options
+        $default_seo_permalinks_options = [
+            'use_attribute_type_in_permalinks' => "on",
+            'dapfforwc_permalinks_prefix_options' => [
+                "product-category" => 'cata',
+                'tag' => 'tags',
+                'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
+                    $carry[$attr->attribute_name] = $attr->attribute_name;
+                    return $carry;
+                }, []) : [
+                    'color' => 'color',
+                    'size' => 'size',
+                    'brand' => 'brand',
+                    'material' => 'material',
+                    'style' => 'style',
+                ],
+                'custom' => !empty($all_custom_fields) ? array_reduce($all_custom_fields, function ($carry, $attr) {
+                    $carry[$attr->attribute_name] = $attr->attribute_name;
+                    return $carry;
+                }, []) : [],
+                'price' => 'price',
+                'rating' => 'rating',
+                'brand' => 'brand',
+                'author' => 'author',
+                'stock_status' => 'stockStatus',
+                'sale_status' => 'saleStatus',
+                'width' => 'width',
+                'min_width' => 'min_width',
+                'max_width' => 'max_width',
+                'length' => 'length',
+                'height' => 'height',
+                'min_height' => 'min_height',
+                'max_height' => 'max_height',
+                'weight' => 'weight',
+                'min_weight' => 'min_weight',
+                'max_weight' => 'max_weight',
+                'sku' => 'sku',
+                'discount' => 'discount',
+                'date_filter' => 'date',
+                'plugincy_search' => 'title',
+            ],
+            'filters_word_in_permalinks' => 'filters',
+            'use_filters_word_in_permalinks' => '',
+            'use_anchor' => 0,
+        ];
+
+        // Merge with existing options and check for missing keys
+        if (!empty($dapfforwc_seo_permalinks_options)) {
+            // Check top-level keys
+            foreach ($default_seo_permalinks_options as $key => $default_value) {
+                if (!isset($dapfforwc_seo_permalinks_options[$key])) {
+                    $dapfforwc_seo_permalinks_options[$key] = $default_value;
+                } elseif ($key === 'dapfforwc_permalinks_prefix_options' && is_array($default_value)) {
+                    // Check nested keys in dapfforwc_permalinks_prefix_options
+                    if (!is_array($dapfforwc_seo_permalinks_options[$key])) {
+                        $dapfforwc_seo_permalinks_options[$key] = $default_value;
+                    } else {
+                        foreach ($default_value as $nested_key => $nested_default) {
+                            if (!isset($dapfforwc_seo_permalinks_options[$key][$nested_key])) {
+                                $dapfforwc_seo_permalinks_options[$key][$nested_key] = $nested_default;
+                            }
+                        }
+                    }
+                }
+            }
+            // Update the option if any keys were missing
+            update_option('dapfforwc_seo_permalinks_options', $dapfforwc_seo_permalinks_options);
+        } else {
+            // If option doesn't exist, use defaults and save
+            $dapfforwc_seo_permalinks_options = $default_seo_permalinks_options;
+            update_option('dapfforwc_seo_permalinks_options', $dapfforwc_seo_permalinks_options);
+        }
+    }
+}
+
 $dapfforwc_styleoptions = get_option('dapfforwc_style_options') ?: [];
 
 $dapfforwc_use_url_filter = isset($dapfforwc_options['use_url_filter']) ? $dapfforwc_options['use_url_filter'] : false;
@@ -184,11 +295,14 @@ $dapfforwc_allowed_tags = array(
         'class' => array(),
         'style' => array(),
         'id' => array(),
+        'title' => array(),
+
     ),
     'p' => array(
         'class' => array(),
         'style' => array(),
         'id' => array(),
+        'title' => array(),
     ),
     'br' => array(
         'style' => array(),
@@ -1534,6 +1648,8 @@ function dapfforwc_check_woocommerce()
 
         // filter error detector
         add_action('admin_bar_menu', 'dapfforwc_add_debug_menu', 100);
+
+        dapfforwc_check_seo_settings();
     }
 }
 
@@ -1553,7 +1669,7 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.2.10', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.2.43', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     $dapfforwc_localized_data = array(
         'dapfforwc_options' => $dapfforwc_options,
@@ -1574,9 +1690,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.2.10');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.2.10');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.2.10', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.2.43');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.2.43');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.2.43', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -1614,6 +1730,7 @@ function dapfforwc_enqueue_scripts()
             $css .= "}\n";
         }
     }
+
     // Add the generated CSS as inline style
     wp_add_inline_style('filter-style', $css);
     wp_add_inline_script('select2-js', '
@@ -1629,15 +1746,24 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.2.10');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.2.43');
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.2.10', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.2.43', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
 
+
+    wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.6.70');
+    wp_enqueue_script('pluginy-select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.4.6.70', true);
+
+
     $inline_script = 'document.addEventListener("DOMContentLoaded", function () {
+    const styleContainer = document.getElementById("style-options-container");
+    if (styleContainer && styleContainer.dataset && styleContainer.dataset.dynamic === "true") {
+        return;
+    }
     const dropdown = document.getElementById("attribute-dropdown");
     const dropdown_main = document.getElementById("main-texonomy-dropdown");
     const dropdown_attr = document.getElementById("child-attr-dropdown");
@@ -1704,7 +1830,13 @@ function dapfforwc_admin_scripts($hook)
     }
 });
 
-    const savedAttribute = localStorage.getItem("dapfforwc_selected_attribute");
+
+    let savedAttribute = localStorage.getItem("dapfforwc_selected_attribute");
+           if (!savedAttribute) {
+                savedAttribute = JSON.stringify({ attribute: "product-category" });
+                localStorage.setItem("dapfforwc_selected_attribute", savedAttribute);
+                
+            }
     if (savedAttribute) {
         try {
             const parsed = JSON.parse(savedAttribute);
@@ -1794,11 +1926,15 @@ function dapfforwc_admin_scripts($hook)
             document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
                 advanceoptions.style.display = "none";
             })
+            radio.closest(".style-options").querySelector(`.search_settings`).style.display = "none";  
+            radio.closest(".style-options").querySelector(`.layout_settings`).style.display = "none";  
            } else {
             radio.closest(".style-options").querySelector(`.setting-item.single-selection`).style.display = "block";
             document.querySelectorAll(".advanced-options").forEach(advanceoptions =>{
                 advanceoptions.style.display = "none";
             })
+            radio.closest(".style-options").querySelector(`.search_settings`).style.display = "block";  
+            radio.closest(".style-options").querySelector(`.layout_settings`).style.display = "flex";  
            }
         });
     });
@@ -1849,7 +1985,10 @@ function dapfforwc_admin_scripts($hook)
         const selectedType = radio.value;
         if(selectedType==="icon_search") {
             document.querySelector(`#options-search .optional_settings .btn_text`).style.display = "none";
-        }else{
+        } else if(selectedType==="rating-text"){
+                document.querySelector(`.optional_settings .additional_txt_rating`).style.display = "block";
+        } else{
+            document.querySelector(`.optional_settings .additional_txt_rating`).style.display = "none";
             document.querySelector(`#options-search .optional_settings .btn_text`).style.display = "block";
         }
 
@@ -1926,7 +2065,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.2.10');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.2.43');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2228,7 +2367,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.5.2.10",
+            "1.5.2.43",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -3277,3 +3416,60 @@ add_filter('redirect_canonical', function ($redirect_url, $requested_url) {
     }
     return $redirect_url;
 }, 10, 2);
+
+
+
+
+/**
+ * Modify search query according to configured search behavior.
+ */
+function dapfforwc_search_by_title_only($search, $wp_query)
+{
+    global $wpdb, $dapfforwc_styleoptions;
+
+    // Only apply if our custom flag is set
+    if (!$wp_query->get('dapfforwc_search_post_title')) {
+        return $search;
+    }
+
+    $q = $wp_query->query_vars;
+    $search_terms = isset($q['search_terms']) ? (array)$q['search_terms'] : array();
+    $full_match_enabled = isset($dapfforwc_styleoptions['enable_full_match']['search']) && $dapfforwc_styleoptions['enable_full_match']['search'] === 'yes';
+    if ($full_match_enabled && !empty($q['s'])) {
+        $search_terms = array(sanitize_text_field($q['s']));
+    }
+
+    if (empty($search_terms)) {
+        return $search;
+    }
+
+    $search_behavior = array('title');
+
+    $n = $full_match_enabled || !empty($q['exact']) ? '' : '%';
+    $search_clauses = array();
+
+    foreach ($search_terms as $term) {
+        $term_like = esc_sql($wpdb->esc_like($term));
+        $like_expression = "{$n}{$term_like}{$n}";
+        $term_clauses = array();
+
+        if (in_array('title', $search_behavior, true)) {
+            $term_clauses[] = "{$wpdb->posts}.post_title LIKE '{$like_expression}'";
+        }
+
+        if (!empty($term_clauses)) {
+            $search_clauses[] = '(' . implode(' OR ', $term_clauses) . ')';
+        }
+    }
+
+    if (empty($search_clauses)) {
+        return $search;
+    }
+
+    $search = ' AND (' . implode(' AND ', $search_clauses) . ') ';
+    if (!is_user_logged_in()) {
+        $search .= " AND ({$wpdb->posts}.post_password = '') ";
+    }
+
+    return $search;
+}

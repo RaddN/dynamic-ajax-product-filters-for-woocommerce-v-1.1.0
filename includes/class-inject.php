@@ -1,5 +1,4 @@
 <?php
-
 /**
  * WooCommerce Custom Class Injection System - Enhanced Version
  * Adds consistent custom classes to WooCommerce elements for reliable filtering

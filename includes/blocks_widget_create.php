@@ -1,5 +1,4 @@
 <?php
-
 if (!defined('ABSPATH')) {
     exit;
 }
@@ -290,7 +289,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             // $output .= json_encode($filter_options_manage);
             $index = 0;
             if ($filter_options_manage) {
-                $output .= '<style id="filter-widget-ordering">form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}';
+                $output .= '<style id="filter-widget-ordering">form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}';
                 foreach ($filter_options_manage as $options) {
                     if ($options["id"] == "product-category" && !isset($dapfforwc_options["show_categories"])) {
                         continue;
@@ -342,13 +341,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter {' . $form_style_css . '}';
             }
             if ($container_style_css) {
-                $output .= '.filter-group {' . $container_style_css . '}';
+                $output .= '.plugincy-filter-group {' . $container_style_css . '}';
             }
             if ($widget_title_style_css) {
-                $output .= '.filter-group .title {' . $widget_title_style_css . '}';
+                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_title_style_css . '}';
             }
             if ($widget_items_style_css) {
-                $output .= '.filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;}';
+                $output .= '.plugincy-filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;}';
             }
             if ($button_style_css) {
                 $output .= 'form#product-filter button {' . $button_style_css . '}';
@@ -381,13 +380,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter {' . $form_sm_style_css . '}';
             }
             if ($container_sm_style_css) {
-                $output .= '.filter-group {' . $container_sm_style_css . '}';
+                $output .= '.plugincy-filter-group {' . $container_sm_style_css . '}';
             }
             if ($widget_sm_title_style_css) {
-                $output .= '.filter-group .title {' . $widget_sm_title_style_css . '}';
+                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_sm_title_style_css . '}';
             }
             if ($widget_items_sm_style_css) {
-                $output .= '.filter-group .items {' . $widget_items_sm_style_css . '}';
+                $output .= '.plugincy-filter-group .items {' . $widget_items_sm_style_css . '}';
             }
             if ($button_sm_style_css) {
                 $output .= 'form#product-filter button {' . $button_sm_style_css . '}';
@@ -412,13 +411,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 $output .= 'form#product-filter {' . $form_md_style_css . '}';
             }
             if ($container_md_style_css) {
-                $output .= '.filter-group {' . $container_md_style_css . '}';
+                $output .= '.plugincy-filter-group {' . $container_md_style_css . '}';
             }
             if ($widget_md_title_style_css) {
-                $output .= '.filter-group .title {' . $widget_md_title_style_css . '}';
+                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_md_title_style_css . '}';
             }
             if ($widget_items_md_style_css) {
-                $output .= '.filter-group .items {' . $widget_items_md_style_css . '}';
+                $output .= '.plugincy-filter-group .items {' . $widget_items_md_style_css . '}';
             }
             if ($button_md_style_css) {
                 $output .= 'form#product-filter button {' . $button_md_style_css . '}';
@@ -992,7 +991,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label'     => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'      => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '#product-filter .filter-group' => 'background-color: {{VALUE}} !important;',
+                        '#product-filter .plugincy-filter-group' => 'background-color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1003,7 +1002,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        '#product-filter .filter-group' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .plugincy-filter-group' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1015,7 +1014,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        '#product-filter .filter-group' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .plugincy-filter-group' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1027,7 +1026,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%', 'em'],
                     'selectors'  => [
-                        '#product-filter .filter-group' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
+                        '#product-filter .plugincy-filter-group' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}};',
                     ],
                 ]
             );
@@ -1037,7 +1036,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name'      => 'container_box_shadow',
                     'label'     => esc_html__('Box Shadow', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector'  => '#product-filter .filter-group',
+                    'selector'  => '#product-filter .plugincy-filter-group',
                 ]
             );
 
@@ -1054,7 +1053,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     ],
                     'default'   => 'visible',
                     'selectors' => [
-                        '#product-filter .filter-group' => 'overflow: {{VALUE}};',
+                        '#product-filter .plugincy-filter-group' => 'overflow: {{VALUE}};',
                     ],
                 ]
             );
@@ -1080,7 +1079,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'name'     => 'widget_title_background',
                     'label'    => esc_html__('Background', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'types'    => ['classic', 'gradient'],
-                    'selector' => '{{WRAPPER}} .filter-group .title',
+                    'selector' => '{{WRAPPER}} .plugincy-filter-group .plugincy_title',
                 ]
             );
 
@@ -1089,7 +1088,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                 [
                     'name' => 'widget_title_typography',
                     'label' => esc_html__('Typography', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    'selector' => '{{WRAPPER}} .filter-group .title',
+                    'selector' => '{{WRAPPER}} .plugincy-filter-group .plugincy_title',
                 ]
             );
 
@@ -1099,7 +1098,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Text Color', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::COLOR,
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'color: {{VALUE}} !important;',
+                        '{{WRAPPER}} .plugincy-filter-group .plugincy_title' => 'color: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1111,7 +1110,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'type'       => \Elementor\Controls_Manager::DIMENSIONS,
                     'size_units' => ['px', '%'],
                     'selectors'  => [
-                        '{{WRAPPER}} .filter-group .title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} .plugincy-filter-group .plugincy_title' => 'border-radius: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1140,7 +1139,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                         ],
                     ],
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'text-align: {{VALUE}} !important; justify-content: {{VALUE}} !important;',
+                        '{{WRAPPER}} .plugincy-filter-group .plugincy_title' => 'text-align: {{VALUE}} !important; justify-content: {{VALUE}} !important;',
                     ],
                 ]
             );
@@ -1151,7 +1150,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Padding', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} .plugincy-filter-group .plugincy_title' => 'padding: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -1162,7 +1161,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'label' => esc_html__('Margin', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type' => \Elementor\Controls_Manager::DIMENSIONS,
                     'selectors' => [
-                        '{{WRAPPER}} .filter-group .title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
+                        '{{WRAPPER}} .plugincy-filter-group .plugincy_title' => 'margin: {{TOP}}{{UNIT}} {{RIGHT}}{{UNIT}} {{BOTTOM}}{{UNIT}} {{LEFT}}{{UNIT}} !important;',
                     ],
                 ]
             );
@@ -2199,7 +2198,7 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $output = '';
 
             if (!empty($settings['form_elements'])) {
-                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .filter-group {order: 999;}'; // Start the style tag
+                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}'; // Start the style tag
                 foreach ($settings['form_elements'] as $index => $element) {
                     $element_type = $element['element_type'];
                     $is_visible = $element['element_visible'] === 'yes' ? "block" : "none";

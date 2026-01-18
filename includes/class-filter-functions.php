@@ -463,6 +463,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         $query->set('dapfforwc_filters_applied', true);
 
+        if (apply_filters('dapfforwc_disable_query_cache', true, $params, $query)) {
+            $query->set('cache_results', false);
+        }
+
         $tax_query = array();
         $meta_query = array();
         $cat_operator = isset($params['cat_operator']) ? $params['cat_operator'] : 'IN';
@@ -586,7 +590,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply plugincy_search filter
         if (isset($params['plugincy_search']) && !empty($params['plugincy_search'])) {
+            add_filter('posts_search', 'dapfforwc_search_by_title_only', 500, 2);
             $query->set('s', $params['plugincy_search']);
+            $query->set('dapfforwc_search_post_title', true);
         }
 
 
@@ -804,6 +810,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             return $args;
         }
 
+        if (apply_filters('dapfforwc_disable_query_cache', true, $params, $args)) {
+            $args['cache_results'] = false;
+        }
+
         $tax_query = isset($args['tax_query']) ? $args['tax_query'] : array();
         $meta_query = isset($args['meta_query']) ? $args['meta_query'] : array();
         $cat_operator = isset($params['cat_operator']) ? $params['cat_operator'] : 'IN';
@@ -927,6 +937,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Apply plugincy_search filter
         if (isset($params['plugincy_search']) && !empty($params['plugincy_search'])) {
             $args['s'] = $params['plugincy_search'];
+            $args['dapfforwc_search_post_title'] = true;
         }
 
 

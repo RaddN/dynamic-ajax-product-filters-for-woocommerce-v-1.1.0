@@ -1,5 +1,4 @@
 <?php
-
 // settings-init.php
 
 if (!defined('ABSPATH')) {
@@ -285,6 +284,25 @@ function dapfforwc_settings_init()
             }, []) : [],
             'price' => 'price',
             'rating' => 'rating',
+            'brand' => 'brand',
+            'author' => 'author',
+            'stock_status' => 'stockStatus',
+            'sale_status' => 'saleStatus',
+            'sale_status' => 'saleStatus',
+            'width' => 'width',
+            'min_width' => 'min_width',
+            'max_width' => 'max_width',
+            'length' => 'length',
+            'height' => 'height',
+            'min_height' => 'min_height',
+            'max_height' => 'max_height',
+            'weight' => 'weight',
+            'min_weight' => 'min_weight',
+            'max_weight' => 'max_weight',
+            'sku' => 'sku',
+            'discount' => 'discount',
+            'date_filter' => 'date',
+            'plugincy_search' => 'title',
         ],
         'filters_word_in_permalinks' => 'filters',
         'use_filters_word_in_permalinks' => '',
