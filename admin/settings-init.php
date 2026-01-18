@@ -140,7 +140,7 @@ function dapfforwc_settings_init()
     register_setting(
         'dapfforwc_style_options_group',
         'dapfforwc_style_options',
-        'dapfforwc_sanitize_options'
+        'dapfforwc_sanitize_style_options'
     );
 
     // Add Form Style section
@@ -486,6 +486,26 @@ function dapfforwc_sanitize_options($input)
 
     if (isset($input['seo_title']) && isset($input['seo_description']) && !isset($input['use_attribute_type_in_permalinks'])) {
         update_option('woocommerce_slug_check_dismissed_time', false);
+    }
+
+    return $sanitized;
+}
+
+function dapfforwc_sanitize_style_options($input)
+{
+    if (!is_array($input)) {
+        return [];
+    }
+
+    $sanitized = [];
+
+    foreach ($input as $key => $value) {
+        if (is_array($value)) {
+            $sanitized[$key] = dapfforwc_sanitize_style_options($value);
+            continue;
+        }
+
+        $sanitized[$key] = sanitize_text_field(wp_unslash($value));
     }
 
     return $sanitized;

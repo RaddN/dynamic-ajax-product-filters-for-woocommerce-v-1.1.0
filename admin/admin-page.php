@@ -2479,7 +2479,7 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
         if (is_string($raw_json) && $raw_json !== '') {
             $decoded = json_decode($raw_json, true);
             if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
-                $input = dapfforwc_sanitize_options($decoded);
+                $input = dapfforwc_sanitize_style_options($decoded);
             } elseif (!$has_posted_options && is_array($old_value)) {
                 $input = $old_value;
             }
@@ -2492,70 +2492,54 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
         return $input;
     }
 
-    $target_attribute = '';
-    if (isset($_POST['dapfforwc_style_options_target'])) {
-        $target_attribute = sanitize_text_field(wp_unslash($_POST['dapfforwc_style_options_target']));
-    }
+    $per_attribute_groups = [
+        'show_in_active_filters',
+        'widget_title',
+        'placeholder',
+        'btntext',
+        'show_apply_button',
+        'applybtntext',
+        'apply_behavior',
+        'show_reset_button',
+        'show_apply_reset_on',
+        'max_height',
+        'css_class',
+        'operator',
+        'terms',
+        'include_exclude',
+        'enable_terms_search',
+        'terms_search_texts',
+        'terms_search_position',
+        'layout',
+        'num_columns',
+        'enable_tooltip',
+        'tooltip_text',
+        'enable_auto_suggestion',
+        'search_behavior',
+        'enable_full_match',
+        'additional_text',
+        'additional_text_5',
+        'input_label',
+    ];
 
-    if ($target_attribute !== '') {
-        // Merge a single-attribute save into the existing option set.
-        $existing_options = is_array($old_value) ? $old_value : [];
-        $merged_options = is_array($existing_options) ? $existing_options : [];
-        $per_attribute_groups = [
-            'show_in_active_filters',
-            'widget_title',
-            'placeholder',
-            'btntext',
-            'show_apply_button',
-            'applybtntext',
-            'apply_behavior',
-            'show_reset_button',
-            'show_apply_reset_on',
-            'max_height',
-            'css_class',
-            'operator',
-            'terms',
-            'include_exclude',
-            'enable_terms_search',
-            'terms_search_texts',
-            'terms_search_position',
-            'layout',
-            'num_columns',
-            'enable_tooltip',
-            'tooltip_text',
-            'enable_auto_suggestion',
-            'search_behavior',
-            'enable_full_match',
-            'additional_text',
-            'additional_text_5',
-            'input_label',
-        ];
-
-        if (array_key_exists($target_attribute, $input)) {
-            $merged_options[$target_attribute] = $input[$target_attribute];
-        } else {
-            unset($merged_options[$target_attribute]);
-        }
-
-        foreach ($per_attribute_groups as $group) {
-            if (!isset($merged_options[$group]) || !is_array($merged_options[$group])) {
-                $merged_options[$group] = [];
-            }
-
-            if (isset($input[$group]) && is_array($input[$group]) && array_key_exists($target_attribute, $input[$group])) {
-                $merged_options[$group][$target_attribute] = $input[$group][$target_attribute];
-            } else {
-                unset($merged_options[$group][$target_attribute]);
-            }
-        }
-
+    if (is_array($old_value)) {
+        $merged_options = $old_value;
         foreach ($input as $key => $value) {
-            if ($key === $target_attribute || in_array($key, $per_attribute_groups, true)) {
+            if (in_array($key, $per_attribute_groups, true) && is_array($value)) {
+                $existing_group = isset($merged_options[$key]) && is_array($merged_options[$key]) ? $merged_options[$key] : [];
+                foreach ($value as $attribute_key => $attribute_value) {
+                    if ($attribute_value === null) {
+                        unset($existing_group[$attribute_key]);
+                    } else {
+                        $existing_group[$attribute_key] = $attribute_value;
+                    }
+                }
+                $merged_options[$key] = $existing_group;
                 continue;
             }
+
             $merged_options[$key] = $value;
         }
-
         $input = $merged_options;
     }
 

@@ -1606,6 +1606,25 @@ if (!defined('ABSPATH')) {
             return '';
         };
 
+        const dirtyAttributes = new Set();
+        let hasGlobalChanges = false;
+
+        const markDirtyFromField = function(field) {
+            if (!field || !field.name || field.name.indexOf('dapfforwc_style_options') !== 0) {
+                return;
+            }
+            const parts = parseName(field.name);
+            if (!parts.length) {
+                return;
+            }
+            const attr = extractAttribute(parts);
+            if (attr) {
+                dirtyAttributes.add(attr);
+                return;
+            }
+            hasGlobalChanges = true;
+        };
+
         const getNestedValue = function(obj, parts) {
             let current = obj;
             for (let i = 0; i < parts.length; i++) {
@@ -2394,6 +2413,12 @@ if (!defined('ABSPATH')) {
                 return state;
             },
             switchAttribute: switchAttribute,
+            getDirtyAttributes: function() {
+                return Array.from(dirtyAttributes);
+            },
+            hasGlobalChanges: function() {
+                return hasGlobalChanges;
+            },
         };
 
         window.dapfforwcSwitchAttribute = function(attribute) {
@@ -2405,6 +2430,7 @@ if (!defined('ABSPATH')) {
             if (!target) {
                 return;
             }
+            markDirtyFromField(target);
 
             if (target.matches('.primary_options input[type="radio"]')) {
                 state[currentAttribute] = state[currentAttribute] || {};
@@ -2508,45 +2534,52 @@ if (!defined('ABSPATH')) {
             return '';
         };
 
-        const buildPayload = function(options, attribute) {
+        const buildPayload = function(options, attributes, includeGlobals) {
             if (!options || typeof options !== 'object') {
                 return {};
             }
 
-            if (!attribute) {
-                return options;
-            }
+            const attrList = Array.isArray(attributes) ? attributes.filter(Boolean) : [];
+            const shouldIncludeGlobals = !!includeGlobals;
 
             const payload = {};
-            if (Object.prototype.hasOwnProperty.call(options, attribute)) {
-                payload[attribute] = options[attribute];
+            if (attrList.length) {
+                attrList.forEach(function(attribute) {
+                    if (Object.prototype.hasOwnProperty.call(options, attribute)) {
+                        payload[attribute] = options[attribute];
+                    }
+                });
+
+                perAttributeGroupSet.forEach(function(group) {
+                    const groupValues = options[group];
+                    if (!groupValues || typeof groupValues !== 'object') {
+                        return;
+                    }
+                    attrList.forEach(function(attribute) {
+                        if (Object.prototype.hasOwnProperty.call(groupValues, attribute)) {
+                            if (!payload[group] || typeof payload[group] !== 'object') {
+                                payload[group] = {};
+                            }
+                            payload[group][attribute] = groupValues[attribute];
+                        }
+                    });
+                });
             }
 
-            perAttributeGroupSet.forEach(function(group) {
-                const groupValues = options[group];
-                if (!groupValues || typeof groupValues !== 'object') {
-                    return;
-                }
-                if (Object.prototype.hasOwnProperty.call(groupValues, attribute)) {
-                    if (!payload[group] || typeof payload[group] !== 'object') {
-                        payload[group] = {};
+            if (shouldIncludeGlobals) {
+                Object.keys(options).forEach(function(key) {
+                    if (attrList.indexOf(key) !== -1) {
+                        return;
                     }
-                    payload[group][attribute] = groupValues[attribute];
-                }
-            });
-
-            Object.keys(options).forEach(function(key) {
-                if (key === attribute) {
-                    return;
-                }
-                if (perAttributeGroupSet.has(key)) {
-                    return;
-                }
-                if (attributeNames.indexOf(key) !== -1) {
-                    return;
-                }
-                payload[key] = options[key];
-            });
+                    if (perAttributeGroupSet.has(key)) {
+                        return;
+                    }
+                    if (attributeNames.indexOf(key) !== -1) {
+                        return;
+                    }
+                    payload[key] = options[key];
+                });
+            }
 
             return payload;
         };
@@ -2657,22 +2690,31 @@ if (!defined('ABSPATH')) {
                 }
             }
 
-            if (!options || !Object.keys(options).length) {
-                return;
+            let dirtyAttributes = [];
+            let includeGlobals = true;
+            if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.getDirtyAttributes === 'function') {
+                dirtyAttributes = window.dapfforwcStyleManager.getDirtyAttributes();
+                includeGlobals = typeof window.dapfforwcStyleManager.hasGlobalChanges === 'function'
+                    ? window.dapfforwcStyleManager.hasGlobalChanges()
+                    : true;
+            } else if (options && typeof options === 'object') {
+                dirtyAttributes = Object.keys(options).filter(function(key) {
+                    return attributeNames.indexOf(key) !== -1;
+                });
             }
 
             const currentAttribute = resolveTargetAttribute(targetInput ? targetInput.value : '');
-            const payloadObject = buildPayload(options, currentAttribute);
-            if (!payloadObject || !Object.keys(payloadObject).length) {
-                return;
+            const payloadObject = buildPayload(options, dirtyAttributes, includeGlobals);
+            if (payloadObject && Object.keys(payloadObject).length) {
+                const payload = safeStringify(payloadObject);
+                if (!payload) {
+                    return;
+                }
+                setHiddenValue(jsonInput, payload);
+            } else {
+                setHiddenValue(jsonInput, '');
             }
 
-            const payload = safeStringify(payloadObject);
-            if (!payload) {
-                return;
-            }
-
-            setHiddenValue(jsonInput, payload);
             if (targetInput) {
                 setHiddenValue(targetInput, currentAttribute);
             }
