@@ -4,7 +4,7 @@ if (!defined('ABSPATH')) {
 }
 ?>
 
-<form method="post" action="options.php">
+<form method="post" action="options.php" id="dapfforwc-style-options-form">
     <?php
     settings_fields('dapfforwc_style_options_group');
     do_settings_sections('dapfforwc-style');
@@ -99,6 +99,35 @@ if (!defined('ABSPATH')) {
             return $option->attribute_name;
         }, $dapfforwc_attributes)
     ));
+    $dapfforwc_per_attribute_groups = [
+        'show_in_active_filters',
+        'widget_title',
+        'placeholder',
+        'btntext',
+        'show_apply_button',
+        'applybtntext',
+        'apply_behavior',
+        'show_reset_button',
+        'show_apply_reset_on',
+        'max_height',
+        'css_class',
+        'operator',
+        'terms',
+        'include_exclude',
+        'enable_terms_search',
+        'terms_search_texts',
+        'terms_search_position',
+        'layout',
+        'num_columns',
+        'enable_tooltip',
+        'tooltip_text',
+        'enable_auto_suggestion',
+        'search_behavior',
+        'enable_full_match',
+        'additional_text',
+        'additional_text_5',
+        'input_label',
+    ];
 
     $dapfforwc_normalize_terms = function ($terms, $include_brand_image = false) {
         $normalized = [];
@@ -206,6 +235,7 @@ if (!defined('ABSPATH')) {
                 const attributeDropdown = document.getElementById('attribute-dropdown');
                 const style_container = document.getElementById('style-options-container');
                 const targetInput = document.getElementById('dapfforwc_style_options_target');
+                const jsonInput = document.getElementById('dapfforwc_style_options_json');
                 const selectedAttribute = style_container ? style_container.dataset.selectedAttribute : '';
                 let isInitializing = true;
 
@@ -232,13 +262,59 @@ if (!defined('ABSPATH')) {
                     });
                 };
 
-                const setStoredAttribute = function(value) {
-                    if (!value) {
+                const normalizeAttributeValue = function(value) {
+                    if (typeof value === 'string') {
+                        return value;
+                    }
+                    if (value && typeof value.value === 'string') {
+                        return value.value;
+                    }
+                    return '';
+                };
+
+                const getEffectiveAttribute = function(value) {
+                    const normalized = normalizeAttributeValue(value);
+                    if (normalized && isValidAttribute(normalized)) {
+                        return normalized;
+                    }
+                    if (attributeDropdown && isValidAttribute(attributeDropdown.value)) {
+                        return attributeDropdown.value;
+                    }
+                    if (style_container && isValidAttribute(style_container.dataset.selectedAttribute)) {
+                        return style_container.dataset.selectedAttribute;
+                    }
+                    return '';
+                };
+
+                const setHiddenValue = function(input, value) {
+                    if (!input) {
                         return;
                     }
-                    localStorage.setItem('dapfforwc_selected_attribute', JSON.stringify({
-                        attribute: value
-                    }));
+                    const safeValue = typeof value === 'string' ? value : '';
+                    input.value = safeValue;
+                    input.setAttribute('value', safeValue);
+                };
+
+                const syncHiddenInputs = function(value) {
+                    const effective = getEffectiveAttribute(value);
+                    setHiddenValue(targetInput, effective);
+                    if (jsonInput) {
+                        const jsonValue = typeof jsonInput.value === 'string' ? jsonInput.value : '';
+                        if (jsonValue === '[object Object]') {
+                            setHiddenValue(jsonInput, '');
+                        }
+                    }
+                };
+
+                const setStoredAttribute = function(value) {
+                    if (!value || typeof value !== 'string') {
+                        return;
+                    }
+                    try {
+                        localStorage.setItem('dapfforwc_selected_attribute', JSON.stringify({
+                            attribute: value
+                        }));
+                    } catch (e) {}
                 };
 
                 mainTaxonomyDropdown.addEventListener('change', function() {
@@ -253,6 +329,7 @@ if (!defined('ABSPATH')) {
                         let selectedattr = childAttrDropdown.value;
                         if (!selectedattr) {
                             style_container.style.display = 'none';
+                            syncHiddenInputs('');
                         } else {
                             updateAttributeDropdown(selectedattr, !isInitializing);
                         }
@@ -261,6 +338,7 @@ if (!defined('ABSPATH')) {
                         let selectedcus = childCustomDropdown.value;
                         if (!selectedcus) {
                             style_container.style.display = 'none';
+                            syncHiddenInputs('');
                         } else {
                             updateAttributeDropdown(selectedcus, !isInitializing);
                         }
@@ -281,15 +359,23 @@ if (!defined('ABSPATH')) {
                 });
 
                 function updateAttributeDropdown(selectedValue, shouldSwitch) {
+                    const effectiveAttribute = getEffectiveAttribute(selectedValue);
+                    if (!effectiveAttribute) {
+                        syncHiddenInputs('');
+                        return;
+                    }
+
                     // Set the attribute-dropdown to the selected value
-                    attributeDropdown.value = selectedValue;
-                    if (targetInput) {
-                        targetInput.value = selectedValue;
-                    }
-                    setStoredAttribute(selectedValue);
+                    attributeDropdown.value = effectiveAttribute;
+                    setHiddenValue(targetInput, effectiveAttribute);
+                    setHiddenValue(jsonInput, '');
+                    setStoredAttribute(effectiveAttribute);
                     if (shouldSwitch && typeof window.dapfforwcSwitchAttribute === 'function') {
-                        window.dapfforwcSwitchAttribute(selectedValue);
+                        window.dapfforwcSwitchAttribute(effectiveAttribute);
                     }
+                    setTimeout(function() {
+                        syncHiddenInputs(effectiveAttribute);
+                    }, 0);
                 }
 
                 const storedAttribute = getStoredAttribute();
@@ -299,9 +385,7 @@ if (!defined('ABSPATH')) {
                         setStoredAttribute(initialAttribute);
                     }
                     attributeDropdown.value = initialAttribute;
-                    if (targetInput) {
-                        targetInput.value = initialAttribute;
-                    }
+                    setHiddenValue(targetInput, initialAttribute);
                     mainTaxonomyDropdown.value = initialAttribute;
                     childAttrDropdown.value = initialAttribute;
                     childCustomDropdown.value = initialAttribute;
@@ -322,11 +406,18 @@ if (!defined('ABSPATH')) {
                     if (storedAttribute && storedAttribute !== selectedAttribute && typeof window.dapfforwcSwitchAttribute === 'function') {
                         window.dapfforwcSwitchAttribute(initialAttribute);
                     }
+                    syncHiddenInputs(initialAttribute);
                 }
 
                 setTimeout(function() {
                     isInitializing = false;
                 }, 0);
+
+                if (attributeDropdown) {
+                    attributeDropdown.addEventListener('change', function() {
+                        updateAttributeDropdown(this.value, !isInitializing);
+                    });
+                }
             });
         </script>
 
@@ -1391,6 +1482,7 @@ if (!defined('ABSPATH')) {
         'menuOrderAttributes' => $dapfforwc_menu_order_attributes,
         'imageBase' => $dapfforwc_image_base,
         'uploadPlaceholder' => $dapfforwc_upload_placeholder,
+        'perAttributeGroups' => $dapfforwc_per_attribute_groups,
         'isPremium' => false,
     ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 </script>
@@ -1401,7 +1493,7 @@ if (!defined('ABSPATH')) {
             return;
         }
 
-        const form = document.querySelector('form[action="options.php"]');
+        const form = document.getElementById('dapfforwc-style-options-form') || document.querySelector('form[action="options.php"]');
         const container = document.getElementById('style-options-container');
         const styleOptions = container ? container.querySelector('.style-options') : null;
         if (!form || !container || !styleOptions) {
@@ -1409,6 +1501,7 @@ if (!defined('ABSPATH')) {
         }
 
         const attributeSet = new Set(data.attributeNames || []);
+        const perAttributeGroups = new Set(data.perAttributeGroups || []);
         const state = JSON.parse(JSON.stringify(data.options || {}));
         const isPremium = !!data.isPremium;
         const imageBase = data.imageBase || '';
@@ -1487,6 +1580,17 @@ if (!defined('ABSPATH')) {
                 parts.pop();
             }
             return parts;
+        };
+
+        const buildName = function(parts, hasArraySuffix) {
+            let rebuilt = 'dapfforwc_style_options';
+            parts.forEach(function(part) {
+                rebuilt += '[' + part + ']';
+            });
+            if (hasArraySuffix) {
+                rebuilt += '[]';
+            }
+            return rebuilt;
         };
 
         const extractAttribute = function(parts) {
@@ -1721,8 +1825,26 @@ if (!defined('ABSPATH')) {
             styleOptions.id = 'options-' + newAttr;
 
             styleOptions.querySelectorAll('[name]').forEach(function(el) {
-                if (el.name && el.name.indexOf('[' + oldAttr + ']') !== -1) {
-                    el.name = el.name.split('[' + oldAttr + ']').join('[' + newAttr + ']');
+                if (!el.name || el.name.indexOf('dapfforwc_style_options') !== 0) {
+                    return;
+                }
+                const hasArraySuffix = /\[\]$/.test(el.name);
+                const parts = parseName(el.name);
+                if (!parts.length) {
+                    return;
+                }
+
+                let changed = false;
+                if (parts[0] === oldAttr) {
+                    parts[0] = newAttr;
+                    changed = true;
+                } else if (parts.length > 1 && parts[1] === oldAttr && perAttributeGroups.has(parts[0])) {
+                    parts[1] = newAttr;
+                    changed = true;
+                }
+
+                if (changed) {
+                    el.name = buildName(parts, hasArraySuffix);
                 }
             });
 
@@ -2338,7 +2460,7 @@ if (!defined('ABSPATH')) {
 </script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const form = document.querySelector('form[action="options.php"]');
+        const form = document.getElementById('dapfforwc-style-options-form') || document.querySelector('form[action="options.php"]');
         if (!form) {
             return;
         }
@@ -2352,6 +2474,118 @@ if (!defined('ABSPATH')) {
         const targetInput = form.querySelector('#dapfforwc_style_options_target');
         if (!jsonInput) {
             return;
+        }
+
+        const attributeNames = (window.dapfforwcStyleData && Array.isArray(window.dapfforwcStyleData.attributeNames))
+            ? window.dapfforwcStyleData.attributeNames
+            : [];
+        const perAttributeGroups = (window.dapfforwcStyleData && Array.isArray(window.dapfforwcStyleData.perAttributeGroups))
+            ? window.dapfforwcStyleData.perAttributeGroups
+            : [];
+        const perAttributeGroupSet = new Set(perAttributeGroups);
+
+        const resolveTargetAttribute = function(value) {
+            if (typeof value === 'string' && value !== '' && (!attributeNames.length || attributeNames.indexOf(value) !== -1)) {
+                return value;
+            }
+
+            const container = document.getElementById('style-options-container');
+            if (container && container.dataset && container.dataset.selectedAttribute) {
+                const selected = container.dataset.selectedAttribute;
+                if (!attributeNames.length || attributeNames.indexOf(selected) !== -1) {
+                    return selected;
+                }
+            }
+
+            const styleOptions = container ? container.querySelector('.style-options') : null;
+            if (styleOptions && styleOptions.dataset && styleOptions.dataset.currentAttribute) {
+                const current = styleOptions.dataset.currentAttribute;
+                if (!attributeNames.length || attributeNames.indexOf(current) !== -1) {
+                    return current;
+                }
+            }
+
+            return '';
+        };
+
+        const buildPayload = function(options, attribute) {
+            if (!options || typeof options !== 'object') {
+                return {};
+            }
+
+            if (!attribute) {
+                return options;
+            }
+
+            const payload = {};
+            if (Object.prototype.hasOwnProperty.call(options, attribute)) {
+                payload[attribute] = options[attribute];
+            }
+
+            perAttributeGroupSet.forEach(function(group) {
+                const groupValues = options[group];
+                if (!groupValues || typeof groupValues !== 'object') {
+                    return;
+                }
+                if (Object.prototype.hasOwnProperty.call(groupValues, attribute)) {
+                    if (!payload[group] || typeof payload[group] !== 'object') {
+                        payload[group] = {};
+                    }
+                    payload[group][attribute] = groupValues[attribute];
+                }
+            });
+
+            Object.keys(options).forEach(function(key) {
+                if (key === attribute) {
+                    return;
+                }
+                if (perAttributeGroupSet.has(key)) {
+                    return;
+                }
+                if (attributeNames.indexOf(key) !== -1) {
+                    return;
+                }
+                payload[key] = options[key];
+            });
+
+            return payload;
+        };
+
+        const safeStringify = function(value) {
+            try {
+                return JSON.stringify(value);
+            } catch (error) {
+                const seen = new WeakSet();
+                return JSON.stringify(value, function(key, val) {
+                    if (typeof val === 'object' && val !== null) {
+                        if (seen.has(val)) {
+                            return;
+                        }
+                        seen.add(val);
+                    }
+                    return val;
+                });
+            }
+        };
+
+        const setHiddenValue = function(input, value) {
+            if (!input) {
+                return;
+            }
+            const safeValue = typeof value === 'string' ? value : '';
+            input.value = safeValue;
+            input.setAttribute('value', safeValue);
+        };
+
+        if (targetInput) {
+            const normalizedTarget = resolveTargetAttribute(targetInput.value);
+            if (normalizedTarget) {
+                setHiddenValue(targetInput, normalizedTarget);
+            }
+        }
+
+        if (jsonInput.value === '[object Object]') {
+            setHiddenValue(jsonInput, '');
         }
 
         const setNestedValue = function(target, parts, value) {
@@ -2395,10 +2629,8 @@ if (!defined('ABSPATH')) {
 
             if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.capture === 'function') {
                 window.dapfforwcStyleManager.capture();
-                options = window.dapfforwcStyleManager.getState() || {};
-                if (targetInput) {
-                    targetInput.value = '';
-                }
+                const state = window.dapfforwcStyleManager.getState();
+                options = (state && typeof state === 'object') ? state : {};
             } else {
                 const formData = new FormData(form);
                 options = {};
@@ -2429,7 +2661,21 @@ if (!defined('ABSPATH')) {
                 return;
             }
 
-            jsonInput.value = JSON.stringify(options);
+            const currentAttribute = resolveTargetAttribute(targetInput ? targetInput.value : '');
+            const payloadObject = buildPayload(options, currentAttribute);
+            if (!payloadObject || !Object.keys(payloadObject).length) {
+                return;
+            }
+
+            const payload = safeStringify(payloadObject);
+            if (!payload) {
+                return;
+            }
+
+            setHiddenValue(jsonInput, payload);
+            if (targetInput) {
+                setHiddenValue(targetInput, currentAttribute);
+            }
 
             form.querySelectorAll('[name^="dapfforwc_style_options"]').forEach(function(field) {
                 if (field === jsonInput || field === targetInput) {
