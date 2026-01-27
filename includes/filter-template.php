@@ -2041,7 +2041,7 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php }
 
     if ($atts['mobile_responsive'] === 'style_3' ||  $atts['mobile_responsive'] === 'style_4') { ?>
-        <button id="filter-button" style="position: fixed;z-index: 2147483645;bottom: 20px;right: 20px;background-color: #041a57;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
+        <button id="filter-button" style="position: fixed;z-index: 2147483645;bottom: 20px;right: 20px;background-color: <?php echo esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#041a57'); ?>;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
             <svg style=" width: 20px; fill: #fff; " xmlns="https://www.w3.org/2000/svg" viewBox="0 0 512 512" role="graphics-symbol" aria-hidden="false" aria-label="">
                 <path d="M3.853 54.87C10.47 40.9 24.54 32 40 32H472C487.5 32 501.5 40.9 508.1 54.87C514.8 68.84 512.7 85.37 502.1 97.33L320 320.9V448C320 460.1 313.2 471.2 302.3 476.6C291.5 482 278.5 480.9 268.8 473.6L204.8 425.6C196.7 419.6 192 410.1 192 400V320.9L9.042 97.33C-.745 85.37-2.765 68.84 3.854 54.87L3.853 54.87z"></path>
             </svg>
@@ -2746,9 +2746,9 @@ function dapfforwc_render_category_hierarchy(
             . '</a>'
             . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
             . '</div>'
-            : ($sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '<div style="display:flex;align-items: center;text-decoration: none;">'
+            : ($sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '<label style="display:flex;align-items: center;text-decoration: none;">'
                 . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
-                . '</div>' : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : ''));
+                . '</label>' : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : ''));
 
         // Render child categories
         if (!empty($child_categories)) {

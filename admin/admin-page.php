@@ -2571,6 +2571,104 @@ require_once(plugin_dir_path(__FILE__) . 'advance_settings.php');
 require_once(plugin_dir_path(__FILE__) . 'page-seo-permalinks.php');
 
 
+/**
+ * Clear caches when plugin settings are saved from the admin page.
+ */
+function dapfforwc_maybe_clear_caches_on_settings_save($option, $old_value, $value)
+{
+    static $has_cleared = false;
+
+    if ($has_cleared) {
+        return;
+    }
+
+    if (!is_admin()) {
+        return;
+    }
+
+    if (!isset($_POST['action']) || sanitize_text_field(wp_unslash($_POST['action'])) !== 'update') {
+        return;
+    }
+
+    if (!isset($_POST['option_page'])) {
+        return;
+    }
+
+    $option_page = sanitize_text_field(wp_unslash($_POST['option_page']));
+    $allowed_pages = [
+        'dapfforwc_options_group',
+        'dapfforwc_style_options_group',
+        'dapfforwc_advance_settings',
+        'dapfforwc_seo_permalinks_settings',
+        'dapfforwc_template_options_group',
+    ];
+
+    if (!in_array($option_page, $allowed_pages, true)) {
+        return;
+    }
+
+    $allowed_options = [
+        'dapfforwc_options',
+        'dapfforwc_style_options',
+        'dapfforwc_advance_options',
+        'dapfforwc_seo_permalinks_options',
+        'dapfforwc_template_options',
+    ];
+
+    if (!in_array($option, $allowed_options, true)) {
+        return;
+    }
+
+    $referer_page = '';
+    if (isset($_POST['_wp_http_referer'])) {
+        $referer_query = wp_parse_url(wp_unslash($_POST['_wp_http_referer']), PHP_URL_QUERY);
+        if (is_string($referer_query) && $referer_query !== '') {
+            parse_str($referer_query, $referer_args);
+            if (isset($referer_args['page'])) {
+                $referer_page = sanitize_text_field($referer_args['page']);
+            }
+        }
+    }
+
+    if ($referer_page !== '' && $referer_page !== 'dapfforwc-admin') {
+        return;
+    }
+
+    $has_cleared = true;
+
+    if (function_exists('dapfforwc_clear_woocommerce_caches')) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+
+    if (!function_exists('is_plugin_active')) {
+        require_once ABSPATH . 'wp-admin/includes/plugin.php';
+    }
+
+    if (function_exists('is_plugin_active') && is_plugin_active('litespeed-cache/litespeed-cache.php')) {
+        do_action('litespeed_purge_all');
+    }
+
+    if (function_exists('is_plugin_active') && is_plugin_active('wp-rocket/wp-rocket.php') && function_exists('rocket_clean_domain')) {
+        $skip_rocket_clean = false;
+        if (class_exists('FrameWpf') && method_exists('FrameWpf', '_')) {
+            $frame = FrameWpf::_();
+            if (is_object($frame) && method_exists($frame, 'getModule')) {
+                $options_module = $frame->getModule('options');
+                if (is_object($options_module) && method_exists($options_module, 'get')) {
+                    $skip_rocket_clean = (int) $options_module->get('disable_clean_rocket_cache') === 1;
+                }
+            }
+        }
+
+        if (!$skip_rocket_clean) {
+            rocket_clean_domain();
+        }
+    }
+}
+add_action('updated_option', 'dapfforwc_maybe_clear_caches_on_settings_save', 10, 3);
+
+
+
 
 /**
  * Handle cache clearing functionality

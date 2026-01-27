@@ -527,7 +527,7 @@ msgid "Enabled & hide child"
 msgstr "Activé, et cacher l'enfant"
 
 #: admin/form_style_tab.php:356
-msgid "Enabled & Seperate"
+msgid "Enabled & Separate"
 msgstr "Activé, Et Séparée"
 
 #: admin/form_style_tab.php:418

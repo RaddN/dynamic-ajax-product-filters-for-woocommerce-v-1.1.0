@@ -288,7 +288,7 @@ form.rfilterbuttons * {
 #product-filter input[type="checkbox"].filter-square-check {
   -webkit-appearance: checkbox !important;
 }
-#product-filter .items.checkbox_hide input {
+#product-filter .items.checkbox_hide input:not(.search-terms) {
   display: none !important;
 }
 #product-filter .filter-radio-check:hover,

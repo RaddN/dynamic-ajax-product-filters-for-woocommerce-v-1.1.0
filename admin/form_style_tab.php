@@ -919,7 +919,7 @@ if (!defined('ABSPATH')) {
                                             <label <?php echo 'class="pro-only"'; ?>>
                                                     <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_separate"
                                                         <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['hierarchical']['type'] ?? 'disabled', 'enable_separate'); ?>>
-                                                <?php esc_html_e('Enabled & Seperate', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                <?php esc_html_e('Enabled & Separate', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </label>
                                             <label>
                                                 <input type="radio" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][hierarchical][type]" value="enable_hide_child"
@@ -972,8 +972,8 @@ if (!defined('ABSPATH')) {
 
 
                                         <!-- Single Selection Option -->
-                                            <div class="setting-item single-selection" data-attr-exclude="price rating search" style="display: <?php echo $dapfforwc_sub_option === 'select' || $dapfforwc_sub_option === 'pluginy_select2' ? 'none' : 'block'; ?> ;">
-                                                <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <div class="setting-item single-selection" data-attr-exclude="price rating search" style="display: <?php echo $dapfforwc_sub_option === 'select' ? 'none' : 'block'; ?> ;">
+                                                    <p><strong><?php esc_html_e('Single Selection:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                 <label>
                                                     <input type="checkbox" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][single_selection]" value="yes"
                                                         <?php checked($dapfforwc_form_styles[esc_attr($dapfforwc_attribute_name)]['single_selection'] ?? '', 'yes'); ?>>
@@ -1803,20 +1803,52 @@ if (!defined('ABSPATH')) {
             return '';
         };
 
+         const normalizeAttrToken = function(value) {
+            return String(value || '').trim().toLowerCase();
+        };
+
+        const normalizeAttributeName = function(value) {
+            const normalized = normalizeAttrToken(value);
+            if (normalized === 'plugincy_search') {
+                return 'search';
+            }
+            return normalized;
+        };
+
+        const parseAttrTokens = function(value) {
+            if (!value) {
+                return [];
+            }
+            return String(value)
+                .split(/[\s,]+/)
+                .map(normalizeAttrToken)
+                .filter(Boolean);
+        };
+
         const isAttrAllowed = function(section, attribute) {
             if (!section) {
                 return false;
             }
 
-            const only = section.dataset.attrOnly;
-            const exclude = section.dataset.attrExclude;
-            if (only) {
-                return only.split(/\\s+/).includes(attribute);
+            const attr = normalizeAttributeName(attribute);
+            const only = parseAttrTokens(section.dataset.attrOnly);
+            const exclude = parseAttrTokens(section.dataset.attrExclude);
+            if (only.length) {
+                return only.includes(attr);
             }
-            if (exclude) {
-                return !exclude.split(/\\s+/).includes(attribute);
+            if (exclude.length) {
+                return !exclude.includes(attr);
             }
             return true;
+        };
+
+        const hideExcludedSections = function(attribute) {
+            const attr = normalizeAttributeName(attribute);
+            styleOptions.querySelectorAll('[data-attr-only], [data-attr-exclude]').forEach(function(section) {
+                if (!isAttrAllowed(section, attr)) {
+                    setSectionVisibility(section, false);
+                }
+            });
         };
 
         const setSectionVisibility = function(section, show) {
@@ -2147,13 +2179,15 @@ if (!defined('ABSPATH')) {
 
         const updateSubOptionDependent = function(attribute) {
             const subOption = state[attribute] ? state[attribute].sub_option : '';
-            const isSelectType = subOption === 'select' || subOption === 'pluginy_select2';
+            const isSelectSubOption = subOption === 'select';
+            const isSelect2SubOption = subOption === 'pluginy_select2';
+            const isSelectType = isSelectSubOption || isSelect2SubOption;
             const singleSelection = styleOptions.querySelector('.setting-item.single-selection');
             const singleSelectionCheckbox = singleSelection ? singleSelection.querySelector('input[type="checkbox"]') : null;
 
             if (singleSelection && isAttrAllowed(singleSelection, attribute)) {
                 const display = singleSelection.dataset.display || 'block';
-                if (isSelectType) {
+                if (isSelectSubOption) {
                     if (singleSelectionCheckbox) {
                         singleSelectionCheckbox.checked = true;
                         singleSelectionCheckbox.disabled = false;
@@ -2161,7 +2195,14 @@ if (!defined('ABSPATH')) {
                     singleSelection.style.display = 'none';
                 } else {
                     if (singleSelectionCheckbox) {
-                        singleSelectionCheckbox.checked = false;
+                        if (!isSelect2SubOption) {
+                            singleSelectionCheckbox.checked = false;
+                        } else {
+                            const storedValue = state[attribute] ? state[attribute].single_selection : '';
+                            if (!storedValue) {
+                                singleSelectionCheckbox.checked = false;
+                            }
+                        }
                         singleSelectionCheckbox.disabled = false;
                     }
                     singleSelection.style.display = display;
@@ -2393,6 +2434,7 @@ if (!defined('ABSPATH')) {
             updateAutoPriceVisibility();
             updateApplyResetVisibility();
             updateOrderingVisibility(attribute);
+            hideExcludedSections(attribute);
         };
 
         const switchAttribute = function(attribute) {
@@ -2442,6 +2484,7 @@ if (!defined('ABSPATH')) {
                 updateTypeDependentUI(currentAttribute);
                 updateSubOptionDependent(currentAttribute);
                 updateOrderingVisibility(currentAttribute);
+                hideExcludedSections(currentAttribute);
                 return;
             }
 
@@ -2450,6 +2493,7 @@ if (!defined('ABSPATH')) {
                 state[currentAttribute].sub_option = target.value;
                 updateActiveLabels(styleOptions.querySelector('.dynamic-sub-options'), target.value);
                 updateSubOptionDependent(currentAttribute);
+                hideExcludedSections(currentAttribute);
                 return;
             }
 

@@ -485,7 +485,7 @@ msgid "Enabled & hide child"
 msgstr ""
 
 #: admin/form_style_tab.php:356
-msgid "Enabled & Seperate"
+msgid "Enabled & Separate"
 msgstr ""
 
 #: admin/form_style_tab.php:418
