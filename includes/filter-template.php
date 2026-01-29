@@ -1349,8 +1349,17 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
     $cat_op  = strtoupper($dapfforwc_styleoptions["operator"]["product-category"] ?? 'OR');
+    if (is_product_category()) {
+        $cat_op = 'AND';
+    }
     $tag_op  = strtoupper($dapfforwc_styleoptions["operator"]["tag"] ?? 'OR');
+    if (is_product_tag()) {
+        $tag_op = 'AND';
+    }
     $brand_op = strtoupper($dapfforwc_styleoptions["operator"]["brands"] ?? 'OR');
+    if (dapfforwc_is_product_brand()) {
+        $brand_op = 'AND';
+    }
     $author_op = strtoupper($dapfforwc_styleoptions["operator"]["authors"] ?? 'OR');
     $status_op = strtoupper($dapfforwc_styleoptions["operator"]["status"] ?? 'OR');
     $sale_status_op = strtoupper($dapfforwc_styleoptions["operator"]["sale_status"] ?? 'OR');

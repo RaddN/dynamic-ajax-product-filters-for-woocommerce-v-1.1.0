@@ -26,6 +26,10 @@ define('DAPFFORWC_VERSION', '1.5.2.51');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
+if (!defined('dapfforwc_PLUGIN_BASE_NAME')) {
+    define('dapfforwc_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
+}
+
 // Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
 if (!defined('GM_PF_PLACEHOLDER')) {
     define('GM_PF_PLACEHOLDER', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
@@ -2018,11 +2022,23 @@ attachSubOptionListeners();
 
 function dapfforwc_add_settings_link($links)
 {
-    $settings_link = '<a href="admin.php?page=dapfforwc-admin">Settings</a>';
+    if (!is_array($links)) {
+        $links = [];
+    }
+    $old_links = $links;
+    $links = [];
+    $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=dapfforwc-admin')) . '">' . esc_html__('Settings', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
+    $support_link = '<a href="' . esc_url("https://www.plugincy.com/support/") . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
+    $documentation_link = '<a href="' . esc_url("https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/") . '">' . esc_html__('Documentation', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
+    $our_plugins_link = '<a href="' . esc_url(admin_url('admin.php?page=plugincy-plugins')) . '">' . esc_html__('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
     $get_pro_link = '<a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" style="color:#d54e21;font-weight:bold;">' . esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
-    array_unshift($links, $settings_link);
+    $links[] = $settings_link;
+    $links[] = $support_link;
+    $links[] = $documentation_link;
+    $links[] = $our_plugins_link;
     $links[] = $get_pro_link;
-    return $links;
+    $links = array_merge($links, $old_links);
+    return array_filter($links);
 }
 
 function dapfforwc_get_full_slug($post_id)
@@ -3472,4 +3488,37 @@ function dapfforwc_search_by_title_only($search, $wp_query)
     }
 
     return $search;
+}
+
+
+
+add_filter('plugin_row_meta', 'dapfforwc_plugin_row_meta', 10, 2);
+
+/**
+ * Show row meta on the plugin screen.
+ *
+ * @param mixed $links Plugin Row Meta.
+ * @param mixed $file  Plugin Base file.
+ *
+ * @return array
+ */
+function dapfforwc_plugin_row_meta($links, $file)
+{
+    if (dapfforwc_PLUGIN_BASE_NAME !== $file) {
+        return $links;
+    }
+
+    $docs_url = 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/';
+
+    $community_support_url = 'https://wordpress.org/support/plugin/dynamic-ajax-product-filters-for-woocommerce/';
+
+    $support_url = 'https://www.plugincy.com/support/';
+
+    $row_meta = array(
+        'docs'    => '<a href="' . esc_url($docs_url) . '" aria-label="' . esc_attr__('View documentation', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Docs', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
+        'support' => '<a href="' . esc_url($support_url) . '" aria-label="' . esc_attr__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
+        'community_support' => '<a href="' . esc_url($community_support_url) . '" aria-label="' . esc_attr__('Visit community forums', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Community support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
+    );
+
+    return array_merge($links, $row_meta);
 }
