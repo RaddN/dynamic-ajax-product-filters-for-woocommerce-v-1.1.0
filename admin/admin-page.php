@@ -24,369 +24,13 @@ function dapfforwc_admin_menu()
         'plugincy-plugins',
         'dapfforwc_render_plugincy_plugins_page'
     );
+    // Add "Get Pro" submenu (external link)
     add_submenu_page(
         'dapfforwc-admin',
-        esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
-        esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+        __('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+        __('⭐ Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
         'manage_options',
-        'dapfforwc-get-pro',
-        function () {
-?>
-        <div class="wrap dapfforwc-get-pro-page">
-            <div class="dapfforwc-pro-header">
-                <h1><?php echo esc_html__('Upgrade to Dynamic AJAX Product Filters Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h1>
-                <p class="dapfforwc-pro-subtitle"><?php echo esc_html__('Take your WooCommerce store to the next level with advanced filtering capabilities and premium features.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-            </div>
-
-            <div class="dapfforwc-pro-content">
-                <div class="dapfforwc-features-grid">
-                    <h2><?php echo esc_html__('Premium Features', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
-
-                    <div class="dapfforwc-feature-list">
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-yes-alt"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Separate Child Values for Hierarchical Filters', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Display child categories and attributes separately for better organization and user experience.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-admin-links"></span>
-                            <div>
-                                <h3><?php echo esc_html__('SEO Friendly URLs', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Generate clean, SEO-optimized URLs for filtered pages to improve search engine rankings.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-star-filled"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Filter by Dynamic Rating', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Allow customers to filter products by star ratings for better product discovery.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-database-import"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Import & Export Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Easily backup and transfer your filter configurations between sites.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-image-rotate"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Customize Loading Effects', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Choose from multiple loading animations to match your site\'s design and branding.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-layout"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Custom Product Template Design', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Create unique product layouts with advanced template customization options.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-editor-code"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Custom CSS Editor', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Fine-tune the appearance with built-in CSS editor for pixel-perfect customization.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-sos"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Premium Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Get priority email support from our expert team with faster response times.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-
-                        <div class="dapfforwc-feature-item">
-                            <span class="dashicons dashicons-plus-alt"></span>
-                            <div>
-                                <h3><?php echo esc_html__('Many More Features', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h3>
-                                <p><?php echo esc_html__('Regular updates with new features, improvements, and compatibility enhancements.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="dapfforwc-pro-cta">
-                    <div class="dapfforwc-cta-content">
-                        <h2><?php echo esc_html__('Ready to Upgrade?', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
-                        <p><?php echo esc_html__('Join thousands of store owners who have enhanced their WooCommerce filtering experience with our Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-
-                        <div class="dapfforwc-action-buttons">
-                            <a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-primary" style="background: #ff5a36; color: #fff;">
-                                <span class="dashicons dashicons-star-filled"></span>
-                                <?php echo esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </a>
-                            <a href="https://plugincy.com/product-filters-for-woocommerce/" target="_blank" class="btn btn-accent">
-                                <span class="dashicons dashicons-visibility"></span>
-                                <?php echo esc_html__('View Demo', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </a>
-                            <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" class="btn btn-primary">
-                                <span class="dashicons dashicons-book"></span>
-                                <?php echo esc_html__('View Documentation', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </a>
-                            <a href="https://www.plugincy.com/support/" target="_blank" class="btn btn-secondary">
-                                <span class="dashicons dashicons-sos"></span>
-                                <?php echo esc_html__('Get Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
-                            </a>
-                        </div>
-
-                        <div class="dapfforwc-guarantees">
-                            <div class="dapfforwc-guarantee-item">
-                                <span class="dashicons dashicons-clock"></span>
-                                <span><?php echo esc_html__('24/7 Premium Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                            </div>
-                            <div class="dapfforwc-guarantee-item">
-                                <span class="dashicons dashicons-update"></span>
-                                <span><?php echo esc_html__('Regular Updates', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                            </div>
-                            <div class="dapfforwc-guarantee-item">
-                                <span class="dashicons dashicons-money-alt"></span>
-                                <span><?php echo esc_html__('30-Day Money Back', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <style>
-            .notice {
-                display: none;
-            }
-
-            .dapfforwc-get-pro-page {
-                max-width: 1200px;
-                margin: 0 auto;
-                background: #fff;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            }
-
-            .dapfforwc-pro-header {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                padding: 40px;
-                text-align: center;
-                border-radius: 8px 8px 0 0;
-            }
-
-            .dapfforwc-pro-header h1 {
-                font-size: 2.5em;
-                margin: 0 0 15px 0;
-                font-weight: 600;
-                color: #fff;
-            }
-
-            .dapfforwc-pro-subtitle {
-                font-size: 1.2em;
-                margin: 0;
-                opacity: 0.9;
-            }
-
-            .dapfforwc-pro-content {
-                padding: 40px;
-            }
-
-            .dapfforwc-features-grid h2 {
-                text-align: center;
-                font-size: 2em;
-                margin-bottom: 30px;
-                color: #333;
-            }
-
-            .dapfforwc-feature-list {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-                gap: 25px;
-                margin-bottom: 50px;
-            }
-
-            .dapfforwc-feature-item {
-                display: flex;
-                align-items: flex-start;
-                padding: 20px;
-                border: 1px solid #e1e5e9;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-            }
-
-            .dapfforwc-feature-item:hover {
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                border-color: #667eea;
-            }
-
-            .dapfforwc-feature-item .dashicons {
-                color: #667eea;
-                font-size: 24px;
-                margin-right: 15px;
-                margin-top: 5px;
-                flex-shrink: 0;
-            }
-
-            .dapfforwc-feature-item h3 {
-                margin: 0 0 10px 0;
-                font-size: 1.1em;
-                color: #333;
-            }
-
-            .dapfforwc-feature-item p {
-                margin: 0;
-                color: #666;
-                line-height: 1.5;
-            }
-
-            .dapfforwc-pro-cta {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 10px;
-                padding: 40px;
-                text-align: center;
-                color: white;
-            }
-
-            .dapfforwc-cta-content h2 {
-                font-size: 2em;
-                margin: 0 0 15px 0;
-                color: #fff;
-            }
-
-            .dapfforwc-cta-content p {
-                font-size: 1.1em;
-                margin: 0 0 30px 0;
-                opacity: 0.9;
-            }
-
-            .dapfforwc-action-buttons {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 15px;
-                margin-bottom: 30px;
-            }
-
-            .btn {
-                padding: 12px 20px !important;
-                font-size: 1em !important;
-                font-weight: 600 !important;
-                border-radius: 5px !important;
-                text-decoration: none !important;
-                transition: all 0.3s ease !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                gap: 8px !important;
-                border: 2px solid transparent !important;
-                min-width: 150px !important;
-                justify-content: center !important;
-            }
-
-            .btn-primary {
-                background: #667eea;
-                color: #fff !important;
-                box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3) !important;
-            }
-
-            .btn-primary:hover {
-                background: #5a6fd8 !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4) !important;
-                color: #fff !important;
-            }
-
-            .btn-accent {
-                background: #fff !important;
-                color: #667eea !important;
-                box-shadow: 0 3px 10px rgba(118, 75, 162, 0.3) !important;
-                border: 1px solid #5a6fd8 !important;
-            }
-
-            .btn-accent:hover {
-                background: #fff !important;
-                transform: translateY(-2px) !important;
-                box-shadow: 0 5px 20px rgba(118, 75, 162, 0.4) !important;
-                color: #5a6fd8 !important;
-
-            }
-
-            .btn-secondary {
-                background: transparent !important;
-                color: #fff !important;
-                border-color: rgba(255, 255, 255, 0.3) !important;
-            }
-
-            .btn-secondary:hover {
-                background: rgba(255, 255, 255, 0.1) !important;
-                border-color: rgba(255, 255, 255, 0.6) !important;
-                color: #fff !important;
-            }
-
-            .btn .dashicons {
-                font-size: 16px !important;
-                width: 16px !important;
-                height: 16px !important;
-            }
-
-            .dapfforwc-guarantees {
-                display: flex;
-                justify-content: center;
-                flex-wrap: wrap;
-                gap: 30px;
-                margin-top: 20px;
-            }
-
-            .dapfforwc-guarantee-item {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-size: 0.95em;
-                opacity: 0.9;
-            }
-
-            .dapfforwc-guarantee-item .dashicons {
-                font-size: 18px;
-            }
-
-            @media (max-width: 768px) {
-                .dapfforwc-feature-list {
-                    grid-template-columns: 1fr;
-                }
-
-                .dapfforwc-pro-header,
-                .dapfforwc-pro-content,
-                .dapfforwc-pro-cta {
-                    padding: 20px;
-                }
-
-                .dapfforwc-pro-header h1 {
-                    font-size: 2em;
-                }
-
-                .dapfforwc-action-buttons {
-                    flex-direction: column;
-                    align-items: center;
-                }
-
-                .btn {
-                    min-width: 200px !important;
-                }
-
-                .dapfforwc-guarantees {
-                    flex-direction: column;
-                    gap: 15px;
-                }
-            }
-        </style>
-    <?php
-        }
+        'https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/'
     );
 }
 add_action('admin_menu', 'dapfforwc_admin_menu');
@@ -394,7 +38,7 @@ add_action('admin_menu', 'dapfforwc_admin_menu');
 function dapfforwc_render_plugincy_plugins_page()
 {
     if (!current_user_can('install_plugins')) {
-        wp_die(esc_html__('You do not have sufficient permissions to install plugins on this site.', 'ultimate-product-table-for-woocommerce'));
+        wp_die(esc_html__('You do not have sufficient permissions to install plugins on this site.', 'dynamic-ajax-product-filters-for-woocommerce'));
     }
 
     require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -417,8 +61,8 @@ function dapfforwc_render_plugincy_plugins_page()
         ),
     ));
 
-    echo '<div class="wrap">';
-    echo '<h1>' . esc_html__('Plugincy Plugins', 'ultimate-product-table-for-woocommerce') . '</h1>';
+    echo '<div class="wrap plugin-install-php">';
+    echo '<h1>' . esc_html__('Plugincy Plugins', 'dynamic-ajax-product-filters-for-woocommerce') . '</h1>';
 
     if (is_wp_error($api)) {
         echo '<div class="notice notice-error"><p>' . esc_html($api->get_error_message()) . '</p></div></div>';
@@ -428,11 +72,11 @@ function dapfforwc_render_plugincy_plugins_page()
     $plugins = !empty($api->plugins) ? $api->plugins : array();
 
     if (empty($plugins)) {
-        echo '<p>' . esc_html__('No plugins found for this author.', 'ultimate-product-table-for-woocommerce') . '</p></div>';
+        echo '<p>' . esc_html__('No plugins found for this author.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p></div>';
         return;
     }
 
-    echo '<div class="wp-list-table widefat plugin-install-grid">';
+    echo '<div id="the-list" class="wp-list-table widefat plugin-install-grid">';
 
     foreach ($plugins as $plugin) {
         $plugin_obj = is_array($plugin) ? (object) $plugin : $plugin;
@@ -446,26 +90,26 @@ function dapfforwc_render_plugincy_plugins_page()
         switch ($status['status']) {
             case 'install':
                 $action_class = 'install-now button button-primary';
-                $action_text = esc_html__('Install Now', 'ultimate-product-table-for-woocommerce');
+                $action_text = esc_html__('Install Now', 'dynamic-ajax-product-filters-for-woocommerce');
                 $action_url = $status['url'];
                 break;
             case 'update_available':
                 $action_class = 'update-now button';
-                $action_text = esc_html__('Update Now', 'ultimate-product-table-for-woocommerce');
+                $action_text = esc_html__('Update Now', 'dynamic-ajax-product-filters-for-woocommerce');
                 $action_url = $status['url'];
                 break;
             default:
                 if (!empty($status['file']) && is_plugin_active($status['file'])) {
                     $action_class = 'button disabled';
-                    $action_text = esc_html__('Active', 'ultimate-product-table-for-woocommerce');
+                    $action_text = esc_html__('Active', 'dynamic-ajax-product-filters-for-woocommerce');
                     $action_disabled = true;
                 } elseif (!empty($status['file']) && current_user_can('activate_plugin', $status['file'])) {
                     $action_class = 'activate-now button button-primary';
-                    $action_text = esc_html__('Activate', 'ultimate-product-table-for-woocommerce');
+                    $action_text = esc_html__('Activate', 'dynamic-ajax-product-filters-for-woocommerce');
                     $action_url = wp_nonce_url(self_admin_url('plugins.php?action=activate&plugin=' . $status['file']), 'activate-plugin_' . $status['file']);
                 } else {
                     $action_class = 'button disabled';
-                    $action_text = esc_html__('Installed', 'ultimate-product-table-for-woocommerce');
+                    $action_text = esc_html__('Installed', 'dynamic-ajax-product-filters-for-woocommerce');
                     $action_disabled = true;
                 }
         }
@@ -503,12 +147,12 @@ function dapfforwc_render_plugincy_plugins_page()
             echo '<img class="plugin-icon" src="' . $icon . '" alt="" />';
         }
         if ($details_url) {
-            echo '<h3><a class="thickbox open-plugin-details-modal" href="' . esc_url($details_url) . '" aria-label="' . esc_attr(sprintf(__('More details about %s', 'ultimate-product-table-for-woocommerce'), $name)) . '">' . esc_html($name) . '</a></h3>';
+            echo '<h3><a class="thickbox open-plugin-details-modal" href="' . esc_url($details_url) . '" aria-label="' . esc_attr(sprintf(__('More details about %s', 'dynamic-ajax-product-filters-for-woocommerce'), $name)) . '">' . esc_html($name) . '</a></h3>';
         } else {
             echo '<h3>' . esc_html($name) . '</h3>';
         }
         if (!empty($author)) {
-            echo '<p class="author">' . sprintf(esc_html__('By %s', 'ultimate-product-table-for-woocommerce'), wp_kses_post($author)) . '</p>';
+            echo '<p class="author">' . sprintf(esc_html__('By %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_kses_post($author)) . '</p>';
         }
         echo '</div>';
         echo '<div class="action-links"><ul class="plugin-action-buttons"><li>' . $action_html . '</li></ul></div>';
@@ -517,13 +161,13 @@ function dapfforwc_render_plugincy_plugins_page()
 
         echo '<div class="plugin-card-bottom">';
         echo '<div class="vers column-rating">';
-        echo '<span>' . sprintf(esc_html__('Version %s', 'ultimate-product-table-for-woocommerce'), esc_html($version)) . '</span>';
+        echo '<span>' . sprintf(esc_html__('Version %s', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($version)) . '</span>';
         if ($active_installs !== null) {
             $installs = number_format_i18n((int) $active_installs);
-            echo '<span style="margin-left:10px;">' . sprintf(esc_html__('%s+ active installs', 'ultimate-product-table-for-woocommerce'), esc_html($installs)) . '</span>';
+            echo '<span style="margin-left:10px;">' . sprintf(esc_html__('%s+ active installs', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($installs)) . '</span>';
         }
         echo '</div>';
-        echo '<div class="column-compatibility"><span class="compatibility-compatible">' . esc_html__('Compatible with your version of WordPress', 'ultimate-product-table-for-woocommerce') . '</span></div>';
+        echo '<div class="column-compatibility"><span class="compatibility-compatible">' . esc_html__('Compatible with your version of WordPress', 'dynamic-ajax-product-filters-for-woocommerce') . '</span></div>';
         echo '</div>';
         echo '</div>';
     }
@@ -690,7 +334,7 @@ function dapfforwc_get_loading_effects()
 function dapfforwc_admin_page_content()
 {
     global $dapfforwc_options, $dapfforwc_allowed_tags;
-    ?>
+?>
     <div class="wrap dapfforwc_admin plugincyajaxfilters_admin_settings">
         <!-- welcome box here -->
         <div class="plugincy-filter-welcome-container">
@@ -1378,6 +1022,19 @@ function dapfforwc_admin_page_content()
                     'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-widgets-with-dynamic-ajax-product-filter-for-woocommerce/'
                 ],
                 [
+                    'title' => __('Display WooCommerce Product Filters with Gutenberg Block Editor | Widget & Page Editor', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('In this tutorial, you’ll learn how to display Dynamic AJAX Product Filters using the Gutenberg (Block) Editor in WooCommerce.
+
+We’ll cover both methods:
+-Using the Widget (Block-based Widgets screen)
+-Using the Page Editor (Gutenberg blocks)
+This allows you to easily add product filters to shop pages, archive pages, or custom layouts without any coding.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/cSffasQjhQs',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Filter display', 'with Gutenberg', 'with Block Editor'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-block-editor-gutenberg-with-dynamic-ajax-product-filter-for-woocommerce/'
+                ],
+                [
                     'title' => __('Display Dynamic Ajax Product Filter on other page builder (using shortcode method)', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'description' => __('In this tutorial, you’ll learn how to display Dynamic AJAX Product Filters in Divi using the shortcode method for WooCommerce.
 If you’re using the Divi theme or Divi Builder, this video will show you how to easily insert product filters anywhere on your site without coding. Using shortcodes ensures full compatibility and flexible placement within Divi layouts.', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -1405,11 +1062,28 @@ We’ll show you how to display the active filters widget.', 'dynamic-ajax-produ
                     'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-chips-widget-for-currently-selected-values/'
                 ],
                 [
+                    'title' => __('Display single button style filter widget on Elementor, Gutenburg & with shortcode', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('In this tutorial, you’ll learn how to display a Single Button Style Product Filter using Dynamic AJAX Product Filters for WooCommerce with multiple methods.
+We’ll show how to add and use the single button filter with Widget,
+Elementor, Gutenberg Shortcode. Single button style filters are perfect for minimal UI designs, mobile-friendly layouts, and stores that want a clean, distraction-free filtering experience.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/bUvLk-Ky6cw',
+                    'difficulty' => 'beginner',
+                    'topics' => ['Display single button style filter', 'with Widgets', 'with Elementor', 'with Shortcode'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-single-filter-using-button-style-widget/'
+                ],
+                [
                     'title' => __(' How to reorder/rearrange filter widget with elementor & gutenburg.', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'description' => __('Learn how to reorder and rearrange filter widgets using Elementor and Gutenberg.', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'url' => 'https://www.youtube.com/embed/VU5GAgyU0xY',
                     'difficulty' => 'intermediate',
                     'topics' => ['Elementor', 'Gutenberg', 'Widget Management', 'Drag-and-Drop'],
+                ],
+                [
+                    'title' => __(' Terms Ordering in WooCommerce', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to order filter terms.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/Ks75aKgI1Ao',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['Ordering Terms', 'Custom Sorting', 'Filter Management'],
                 ],
                 [
                     'title' => __('How to Remove a Filter with global settings, Exclude Attribute & Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -1426,6 +1100,22 @@ We’ll show you how to display the active filters widget.', 'dynamic-ajax-produ
                     'difficulty' => 'intermediate',
                     'topics' => ['SEO Configuration', 'Meta Tags', 'URL Structure', 'Robots.txt'],
                     'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/seo/seo-and-filter-url-configuration-for-dynamic-ajax-product-filter/'
+                ],
+                [
+                    'title' => __('Text Management in Dynamic AJAX Product Filters | Customize Filter Titles, Labels, and Placeholders', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to customize filter titles, labels, and placeholders in Dynamic AJAX Product Filters.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/jAinYTITbBQ',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['Text Customization', 'Filter Titles', 'Labels', 'Placeholders'],
+                    'doc_url' => ''
+                ],
+                [
+                    'title' => __('How to Debug & Fix Dynamic AJAX Product Filter Issues in WooCommerce (Cache Clean Included)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'description' => __('Learn how to debug and fix issues in Dynamic AJAX Product Filters.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'url' => 'https://www.youtube.com/embed/qopBt2uTWtQ',
+                    'difficulty' => 'intermediate',
+                    'topics' => ['Debugging', 'Fixing Issues', 'Cache Cleaning'],
+                    'doc_url' => 'https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/troubleshooting_and_debugging/managing-selectors-in-product-filters/'
                 ],
 
                 // [

@@ -1744,8 +1744,19 @@ function dapfforwc_enqueue_scripts()
 
 function dapfforwc_admin_scripts($hook)
 {
+    // Enqueue global admin menu styles for all admin pages
+    wp_enqueue_style(
+        'dapfforwc-admin-menu-style',
+        plugin_dir_url(__FILE__) . 'assets/css/admin-menu.min.css',
+        [],
+        '1.5.2.51',
+        'all'
+    );
+
+    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.5.2.51', true);
+    
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
-        return; // Load only on the plugin's admin page
+        return; // Load additional styles only on the plugin's admin page
     }
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
