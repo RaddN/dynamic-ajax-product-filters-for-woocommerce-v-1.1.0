@@ -317,15 +317,41 @@ if (!defined('ABSPATH')) {
                     } catch (e) {}
                 };
 
+                const toggleChildAttrSelect2 = function(shouldEnable) {
+                    if (!childAttrDropdown || !window.jQuery || !window.jQuery.fn || !window.jQuery.fn.select2) {
+                        return;
+                    }
+                    const $select = window.jQuery(childAttrDropdown);
+                    const isInitialized = $select.hasClass('select2-hidden-accessible');
+
+                    if (shouldEnable) {
+                        if (!isInitialized) {
+                            $select.select2({
+                                placeholder: 'Select an attribute',
+                                width: 'resolve',
+                                allowClear: false,
+                            });
+                        }
+                        const $container = $select.next('.select2');
+                        if ($container.length) {
+                            $container.show();
+                        }
+                    } else if (isInitialized) {
+                        $select.select2('destroy');
+                    }
+                };
+
                 mainTaxonomyDropdown.addEventListener('change', function() {
                     const selectedValue = this.value;
 
                     // Hide both child dropdowns initially
                     childAttrDropdown.style.display = 'none';
                     childCustomDropdown.style.display = 'none';
+                    toggleChildAttrSelect2(false);
 
                     if (selectedValue === 'attributes') {
                         childAttrDropdown.style.display = 'block';
+                        toggleChildAttrSelect2(true);
                         let selectedattr = childAttrDropdown.value;
                         if (!selectedattr) {
                             style_container.style.display = 'none';
@@ -348,15 +374,34 @@ if (!defined('ABSPATH')) {
                     }
                 });
 
-                childAttrDropdown.addEventListener('change', function() {
-                    style_container.style.display = 'block';
-                    updateAttributeDropdown(this.value, !isInitializing);
-                });
+                const handleChildDropdownChange = function(value) {
+                    if (style_container) {
+                        style_container.style.display = 'block';
+                    }
+                    updateAttributeDropdown(value, !isInitializing);
+                };
 
-                childCustomDropdown.addEventListener('change', function() {
-                    style_container.style.display = 'block';
-                    updateAttributeDropdown(this.value, !isInitializing);
-                });
+                const bindChildAttrChange = function() {
+                    if (!childAttrDropdown) {
+                        return;
+                    }
+                    const handler = function() {
+                        handleChildDropdownChange(childAttrDropdown.value);
+                    };
+                    if (window.jQuery && window.jQuery.fn) {
+                        window.jQuery(childAttrDropdown).on('change', handler);
+                    } else {
+                        childAttrDropdown.addEventListener('change', handler);
+                    }
+                };
+
+                bindChildAttrChange();
+
+                if (childCustomDropdown) {
+                    childCustomDropdown.addEventListener('change', function() {
+                        handleChildDropdownChange(this.value);
+                    });
+                }
 
                 function updateAttributeDropdown(selectedValue, shouldSwitch) {
                     const effectiveAttribute = getEffectiveAttribute(selectedValue);
@@ -394,10 +439,12 @@ if (!defined('ABSPATH')) {
                         mainTaxonomyDropdown.value = 'attributes';
                         childAttrDropdown.style.display = 'block';
                         childCustomDropdown.style.display = 'none';
+                        toggleChildAttrSelect2(true);
                     } else if (childCustomDropdown.value) {
                         mainTaxonomyDropdown.value = 'custom_fields';
                         childCustomDropdown.style.display = 'block';
                         childAttrDropdown.style.display = 'none';
+                        toggleChildAttrSelect2(false);
                     }
 
                     if (style_container) {

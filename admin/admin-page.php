@@ -922,11 +922,32 @@ function dapfforwc_admin_page_content()
                     </div>
                     <div class="plugincy-dapfforwc-card-body">
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters layout="top_view/sidebar"]</code>
+                        <div style="position: relative;">
+                            <code class="plugincy-code-box">[plugincy_filters layout="top_view/sidebar"]</code>
+                            <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters layout="sidebar"]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                </svg>
+                            </button>
+                        </div>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
+                        <div style="position: relative;">
+                            <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
+                            <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters_single name="attribute_selector"]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                </svg>
+                            </button>
+                        </div>
                         <p class="plugincy-code-description"><?php echo esc_html__('Displays selected filters.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <code class="plugincy-code-box" style="margin-bottom: 10px;">[plugincy_filters_selected]</code>
+                        <div style="position: relative;">
+                            <code class="plugincy-code-box" style="margin-bottom: 10px;">[plugincy_filters_selected]</code>
+                            <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters_selected]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                </svg>
+                            </button>
+                        </div>
                         <a href="https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/" target="_blank" class="plugincy-learn-more-link"><?php echo esc_html__('Learn more about using shortcodes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
                         <div class="plugincy-shortcode-note" style="margin-top:15px; padding:10px; border:1px solid #e2e2e2; border-radius:6px; background:#f9f9f9; display:flex; align-items:center; gap:8px;">
                             <span class="dashicons dashicons-filter" style="color:#ff6b35; font-size:18px;"></span>
@@ -1557,7 +1578,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                                     </div>
                                     <div class="dapfforwc-shortcode-block">
                                         <code><?php echo esc_html($tutorial['shortcode']); ?></code>
-                                        <button class="dapfforwc-copy-btn" onclick="copyShortcode(this, '<?php echo esc_attr($tutorial['shortcode']); ?>')" title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                        <button class="dapfforwc-copy-btn" onclick="copyToClipboard(event, '<?php echo esc_attr($tutorial['shortcode']); ?>')" title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
                                             <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
                                                 <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
                                             </svg>
@@ -1933,23 +1954,41 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                 gap: 8px;
             }
 
+
             .dapfforwc-copy-btn {
                 background: #2563eb;
-                color: white;
+                color: #ffffff;
                 border: none;
-                border-radius: 4px;
-                width: 24px;
-                height: 24px;
+                padding: 6px 14px;
+                border-radius: 3px;
+                font-size: 12px;
+                font-weight: 500;
                 cursor: pointer;
+                transition: all 0.2s;
                 display: flex;
                 align-items: center;
-                justify-content: center;
-                transition: all 0.2s;
-                flex-shrink: 0;
+                gap: 6px;
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+            }
+
+            .copy-icon {
+                width: 12px;
+                height: 12px;
             }
 
             .dapfforwc-copy-btn:hover {
-                background: #1d4ed8;
+                background: #135e96;
+            }
+
+            .dapfforwc-copy-btn:active {
+                transform: scale(0.98);
+            }
+
+            .dapfforwc-copy-btn.copied {
+                background: #00a32a;
             }
 
             /* Parameters */

@@ -119,7 +119,7 @@ function dapfforwc_exclude_attributes_render()
         ];
     }
     ?>
-    <select id="exclude-attributes" multiple style="scrollbar-width: thin;min-width: 141px;">
+    <select class="plugincy_select2" id="exclude-attributes" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Attributes to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
         <?php foreach ($dapfforwc_attributes as $option) : ?>
             <option value="<?php echo esc_attr($option->attribute_name); ?>" 
                 <?php echo in_array($option->attribute_name, $exclude_attributes) ? 'selected' : ''; ?>>
@@ -145,7 +145,6 @@ function dapfforwc_exclude_attributes_render()
             updateHiddenInput(); // Initial update
         });
     </script>
-    <p class="description" style="max-width: 800px;"><?php esc_html_e('Use Ctrl + Click to select/remove multiple options.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
     <?php
 }
 function dapfforwc_exclude_custom_fields_render()
@@ -163,14 +162,16 @@ function dapfforwc_exclude_custom_fields_render()
         ];
     }
     ?>
-    <select disabled class="pro-only" id="exclude_custom_fields" multiple style="scrollbar-width: thin;min-width: 141px;">
-        <?php foreach ($dapfforwc_attributes as $option) : ?>
-            <option value="<?php echo esc_attr($option->attribute_name); ?>" 
-                <?php echo in_array($option->attribute_name, $exclude_custom_fields) ? 'selected' : ''; ?>>
-                <?php echo esc_html($option->attribute_label); ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
+    <div class="pro-only">
+        <select class="plugincy_select2" disabled id="exclude_custom_fields" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Custom Fields to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+            <?php foreach ($dapfforwc_attributes as $option) : ?>
+                <option value="<?php echo esc_attr($option->attribute_name); ?>" 
+                    <?php echo in_array($option->attribute_name, $exclude_custom_fields) ? 'selected' : ''; ?>>
+                    <?php echo esc_html($option->attribute_label); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
 
     <input disabled type="hidden" name="dapfforwc_advance_options[exclude_custom_fields]" id="exclude_custom_fields-string" value="<?php echo esc_attr(implode(',', $exclude_custom_fields)); ?>">
 
@@ -189,6 +190,5 @@ function dapfforwc_exclude_custom_fields_render()
             updateHiddenInput(); // Initial update
         });
     </script>
-    <p class="description" style="max-width: 800px;"><?php esc_html_e('Use Ctrl + Click to select/remove multiple options.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
     <?php
 }
