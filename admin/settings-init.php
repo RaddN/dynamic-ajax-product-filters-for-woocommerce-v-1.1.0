@@ -302,6 +302,7 @@ function dapfforwc_settings_init()
             'sku' => 'sku',
             'discount' => 'discount',
             'date_filter' => 'date',
+            'pagination' => 'paged',
             'plugincy_search' => 'title',
         ],
         'filters_word_in_permalinks' => 'filters',

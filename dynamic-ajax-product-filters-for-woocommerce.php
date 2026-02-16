@@ -157,6 +157,7 @@ if (!function_exists('dapfforwc_check_seo_settings')) {
                 'sku' => 'sku',
                 'discount' => 'discount',
                 'date_filter' => 'date',
+                'pagination' => 'paged',
                 'plugincy_search' => 'title',
             ],
             'filters_word_in_permalinks' => 'filters',

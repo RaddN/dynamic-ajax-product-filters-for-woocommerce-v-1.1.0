@@ -71,6 +71,7 @@ function dapfforwc_permalinks_prefix_render()
         'discount' => 'discount',
         'discount' => 'discount',
         'date_filter' => 'date',
+        'pagination' => 'paged',
         'plugincy_search' => 'title',
         'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
             $carry[$attr->attribute_name] = $attr->attribute_name;
@@ -316,6 +317,12 @@ function dapfforwc_permalinks_prefix_render()
                 <input type="text" id="dapfforwc_plugincy_search_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][plugincy_search]"
                     value="<?php echo isset($options['plugincy_search']) ? esc_attr($options['plugincy_search']) : 'title'; ?>"
                     placeholder="<?php esc_attr_e('Search', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+            </div>
+            <div class="dapfforwc-form-group">
+                <label for="dapfforwc_pagination_prefix"><?php esc_html_e('Pagination', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <input type="text" id="dapfforwc_pagination_prefix" name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][pagination]"
+                    value="<?php echo isset($options['pagination']) ? esc_attr($options['pagination']) : 'paged'; ?>"
+                    placeholder="<?php esc_attr_e('Pagination', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
             </div>
             <?php if (!empty($attributes)) : ?>
                 <?php foreach ($attributes as $attribute) : ?>

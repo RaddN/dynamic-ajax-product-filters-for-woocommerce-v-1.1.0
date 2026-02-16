@@ -489,6 +489,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $query->set('posts_per_page', $params['per_page']);
         }
+        if (isset($params['paged']) && $params['paged'] > 0) {
+            $query->set('paged', absint($params['paged']));
+        }
         $ordering_args = $this->resolve_ordering_args($params);
         foreach ($ordering_args as $key => $value) {
             $query->set($key, $value);
@@ -835,6 +838,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         if (isset($params['per_page']) && $params['per_page'] > 0) {
             $args['posts_per_page'] = $params['per_page'];
+        }
+        if (isset($params['paged']) && $params['paged'] > 0) {
+            $args['paged'] = absint($params['paged']);
         }
         $ordering_args = $this->resolve_ordering_args($params);
         foreach ($ordering_args as $key => $value) {
@@ -1658,6 +1664,15 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
 
         // Pagination / ordering
+        if (isset($permalink_params['paged']) && absint($permalink_params['paged']) > 0) {
+            $params['paged'] = absint($permalink_params['paged']);
+        }
+        if (isset($_GET['paged']) && absint($_GET['paged']) > 0) {
+            $params['paged'] = absint($_GET['paged']);
+        } elseif (isset($_GET['product-page']) && absint($_GET['product-page']) > 0) {
+            $params['paged'] = absint($_GET['product-page']);
+        }
+
         if (isset($_GET['per_page']) && $_GET['per_page'] !== '') {
             $per_page = absint($_GET['per_page']);
             if ($per_page > 0) {
@@ -2055,6 +2070,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
         }
 
+        $prefixed_pagination = $this->resolve_prefix_key($prefixes, 'pagination', 'paged');
+        if (isset($request[$prefixed_pagination]) && $request[$prefixed_pagination] !== '') {
+            $prefixed_page = absint(wp_unslash($request[$prefixed_pagination]));
+            if ($prefixed_page > 0) {
+                $normalized['paged'] = $prefixed_page;
+            }
+        }
+
         $prefixed_length = $this->resolve_prefix_key($prefixes, 'length', 'length');
         if (isset($request[$prefixed_length]) && $request[$prefixed_length] !== '') {
             $range = sanitize_text_field(wp_unslash($request[$prefixed_length]));
@@ -2359,6 +2382,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $add($this->resolve_prefix_key($prefixes, 'sku', 'sku'));
         $add($this->resolve_prefix_key($prefixes, 'discount', 'discount'));
         $add($this->resolve_prefix_key($prefixes, 'date_filter', 'date'));
+        $pagination_key = $this->resolve_prefix_key($prefixes, 'pagination', 'paged');
+        if ($pagination_key !== '' && $pagination_key !== 'paged' && $pagination_key !== 'product-page') {
+            $add($pagination_key);
+        }
 
         if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
             foreach ($prefixes['attribute'] as $attr_name => $attr_prefix) {
@@ -2452,7 +2479,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             'new_arrivals',
             'date_filter',
             'date_from',
-            'date_to'
+            'date_to',
+            'paged',
+            'product-page'
         );
 
         foreach ($filter_params as $param) {
@@ -2477,6 +2506,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Also honor configured prefix keys for attributes/custom meta when permalinks prefixes are enabled
         $prefixes = $this->get_prefixes_config();
+        $pagination_prefix = trim((string) $this->resolve_prefix_key($prefixes, 'pagination', 'paged'));
+        if ($pagination_prefix !== '' && isset($_REQUEST[$pagination_prefix])) {
+            $_GET[$pagination_prefix] = $this->sanitize_request_value($_REQUEST[$pagination_prefix]);
+        }
 
         if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
             foreach ($prefixes['attribute'] as $attribute_name => $attribute_prefix) {
