@@ -3238,7 +3238,7 @@ add_action('wp_enqueue_scripts', function () {
 function dapfforwc_clear_woocommerce_caches()
 {
     $transients = array(
-        'dapfforwc_attributes_cache_v1',
+        'dapfforwc_attributes_cache_v2',
         'dapfforwc_product_details_cache_v1',
         'dapfforwc_min_max_prices_cache_v1',
     );

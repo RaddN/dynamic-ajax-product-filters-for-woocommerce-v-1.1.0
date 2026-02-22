@@ -3032,7 +3032,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
 {
     global $wpdb;
 
-    $cache_key = 'dapfforwc_attributes_cache_v1';
+    $cache_key = 'dapfforwc_attributes_cache_v2';
     $cached = get_transient($cache_key);
     if ($cached !== false && is_array($cached)) {
         return $cached;
@@ -3123,6 +3123,111 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
                 }
             }
         }
+    }
+
+
+     // Keep parent categories available when children contain products.
+    if (!empty($data['categories'])) {
+        $category_hierarchy_query = "
+            SELECT t.term_id, t.name, t.slug, tt.parent, tm.meta_value AS menu_order
+            FROM {$wpdb->prefix}terms AS t
+            INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON t.term_id = tt.term_id
+            LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+            WHERE tt.taxonomy = 'product_cat'
+        ";
+        $category_hierarchy_results = $wpdb->get_results($category_hierarchy_query, ARRAY_A);
+
+        $category_hierarchy = [];
+        if (!empty($category_hierarchy_results)) {
+            foreach ($category_hierarchy_results as $row) {
+                $category_hierarchy[intval($row['term_id'])] = [
+                    'name' => $row['name'],
+                    'slug' => rawurldecode($row['slug']),
+                    'parent' => intval($row['parent']),
+                    'menu_order' => (isset($row['menu_order']) && $row['menu_order'] !== '' && is_numeric($row['menu_order']))
+                        ? intval($row['menu_order'])
+                        : 0,
+                ];
+            }
+        }
+
+        $category_product_sets = [];
+        foreach ($data['categories'] as $term_id => $category) {
+            $term_id = intval($term_id);
+            $category_product_sets[$term_id] = [];
+
+            foreach ($category['products'] as $product_id) {
+                $category_product_sets[$term_id][intval($product_id)] = true;
+            }
+
+            $parent_id = intval($category['parent']);
+            $visited = [];
+            while ($parent_id > 0 && isset($category_hierarchy[$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                if (!isset($data['categories'][$parent_id])) {
+                    $data['categories'][$parent_id] = [
+                        'name' => $category_hierarchy[$parent_id]['name'],
+                        'slug' => $category_hierarchy[$parent_id]['slug'],
+                        'parent' => $category_hierarchy[$parent_id]['parent'],
+                        'products' => [],
+                    ];
+                }
+
+                if (!isset($category_product_sets[$parent_id])) {
+                    $category_product_sets[$parent_id] = [];
+                }
+
+                $parent_id = intval($category_hierarchy[$parent_id]['parent']);
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            if (empty($product_set)) {
+                continue;
+            }
+
+            $parent_id = isset($data['categories'][$term_id]['parent']) ? intval($data['categories'][$term_id]['parent']) : 0;
+            $visited = [];
+            while ($parent_id > 0 && isset($data['categories'][$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                foreach ($product_set as $product_id => $_) {
+                    $category_product_sets[$parent_id][$product_id] = true;
+                }
+
+                $parent_id = intval($data['categories'][$parent_id]['parent']);
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            $data['categories'][$term_id]['products'] = array_map('intval', array_keys($product_set));
+        }
+
+        // Keep category output in WooCommerce menu order, then by name.
+        $category_names = [];
+        foreach ($data['categories'] as $term_id => $category) {
+            $category_names[intval($term_id)] = $category['name'] ?? '';
+        }
+
+        uksort($data['categories'], function ($a, $b) use ($category_hierarchy, $category_names) {
+            $a = intval($a);
+            $b = intval($b);
+
+            $order_a = isset($category_hierarchy[$a]['menu_order']) ? intval($category_hierarchy[$a]['menu_order']) : 0;
+            $order_b = isset($category_hierarchy[$b]['menu_order']) ? intval($category_hierarchy[$b]['menu_order']) : 0;
+
+            if ($order_a !== $order_b) {
+                return $order_a <=> $order_b;
+            }
+
+            $name_cmp = strcasecmp($category_names[$a] ?? '', $category_names[$b] ?? '');
+            if ($name_cmp !== 0) {
+                return $name_cmp;
+            }
+
+            return $a <=> $b;
+        });
     }
 
     // Separate query for authors (post_author)
