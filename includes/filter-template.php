@@ -2747,17 +2747,21 @@ function dapfforwc_render_category_hierarchy(
 
         // Fetch child categories
         $child_categories = dapfforwc_get_child_categories($child_category, $category->term_id);
+        $is_select_mode = ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2'));
+        $toggle_control = (!empty($child_categories) && $hierarchical === 'enable_hide_child' && !$is_select_mode)
+            ? '<span class="show-sub-cata" style="cursor:pointer;" role="button" tabindex="0" aria-expanded="false">+</span>'
+            : '';
 
         // Render current category
         $categoryHierarchyOutput .= $use_anchor === 'on' && $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2')
-            ? '<div style="display:flex;align-items: center;"><a href="' . esc_attr($anchorlink) . '">'
+            ? '<div class="dapfforwcpro-category-row" style="display:flex;align-items: center;text-decoration: none;"><a href="' . esc_attr($anchorlink) . '">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
             . '</a>'
-            . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata">+</span>' : '')
-            . '</div>'
-            : ($sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '<label style="display:flex;align-items: center;text-decoration: none;">'
-                . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : '')
-                . '</label>' : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count) . (!empty($child_categories) && $hierarchical === 'enable_hide_child' ? '<span class="show-sub-cata" style="cursor:pointer;">+</span>' : ''));
+            . $toggle_control
+             : (!$is_select_mode ? '<div class="dapfforwcpro-category-row" style="display:flex;align-items: center;text-decoration: none;">'
+                . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
+                . $toggle_control
+                . '</div>' : dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count));
 
         // Render child categories
         if (!empty($child_categories)) {

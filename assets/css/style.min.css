@@ -564,6 +564,9 @@ form.rfilterselected ul *,
 span.show-sub-cata {
   cursor: pointer !important;
 }
+form#product-filter span.show-sub-cata {
+    padding: 0 10px;
+}
 form#product-filter a {
   text-decoration: none !important;
 }
@@ -633,7 +636,7 @@ form#product-filter .checkbox input[type="radio"]:focus {
 }
 
 /* Style the label text */
-form#product-filter .checkbox label {
+form#product-filter .checkbox > label {
   display: block;
   margin-bottom: 8px;
   font-size: 14px;
