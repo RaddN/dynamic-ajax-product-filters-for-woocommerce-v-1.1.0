@@ -865,7 +865,7 @@ if (!defined('ABSPATH')) {
                             $dapfforwc_terms = [];
                         }
                         ?>
-                            <div class="advanced-options" data-attr-exclude="product-category tag search" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
+                            <div class="advanced-options" data-attr-exclude="tag search" style="display: <?php echo $dapfforwc_selected_style === 'plugincy_color' || $dapfforwc_selected_style === 'image' ? 'block' : 'none'; ?>;">
                                 <h4 class="advanced-title" style="margin: 0;"><?php esc_html_e('Advanced Options for Terms', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h4>
                                 <p class="no-terms-message" style="display: <?php echo empty($dapfforwc_terms) ? 'block' : 'none'; ?>;"><?php esc_html_e('No terms found. Please create terms for this attribute first.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
 
