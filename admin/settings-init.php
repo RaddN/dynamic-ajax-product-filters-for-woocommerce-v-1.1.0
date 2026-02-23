@@ -489,6 +489,10 @@ function dapfforwc_sanitize_options($input)
         update_option('woocommerce_slug_check_dismissed_time', false);
     }
 
+    if (function_exists('dapfforwc_clear_woocommerce_caches')) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+
     return $sanitized;
 }
 
@@ -507,6 +511,10 @@ function dapfforwc_sanitize_style_options($input)
         }
 
         $sanitized[$key] = sanitize_text_field(wp_unslash($value));
+    }
+
+    if (function_exists('dapfforwc_clear_woocommerce_caches')) {
+        dapfforwc_clear_woocommerce_caches();
     }
 
     return $sanitized;
