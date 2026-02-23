@@ -1020,11 +1020,27 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     // Unified Dimension Filter
     $dimensions = [
-        'length' => ['label' => $dapfforwc_styleoptions['dimensions_text']['length'] ?? 'Length  (cm):', 'unit' => 'cm'],
-        'width' => ['label' => $dapfforwc_styleoptions['dimensions_text']['width'] ?? 'Width (cm):', 'unit' => 'cm'],
-        'height' => ['label' => $dapfforwc_styleoptions['dimensions_text']['height'] ?? 'Height (cm):', 'unit' => 'cm'],
-        'weight' => ['label' => $dapfforwc_styleoptions['dimensions_text']['weight'] ?? 'Weight (kg):', 'unit' => 'kg']
+        'length' => [
+            'label' => !empty(trim((string) ($dapfforwc_styleoptions['dimensions_text']['length'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_text']['length'] : 'Length (cm):',
+            'unit' => 'cm'
+        ],
+        'width' => [
+            'label' => !empty(trim((string) ($dapfforwc_styleoptions['dimensions_text']['width'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_text']['width'] : 'Width (cm):',
+            'unit' => 'cm'
+        ],
+        'height' => [
+            'label' => !empty(trim((string) ($dapfforwc_styleoptions['dimensions_text']['height'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_text']['height'] : 'Height (cm):',
+            'unit' => 'cm'
+        ],
+        'weight' => [
+            'label' => !empty(trim((string) ($dapfforwc_styleoptions['dimensions_text']['weight'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_text']['weight'] : 'Weight (kg):',
+            'unit' => 'kg'
+        ]
     ];
+
+    $dimension_min_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['min'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['min'] : 'Min';
+    $dimension_max_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['max'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['max'] : 'Max';
+
 
     // Check if any dimension is enabled
     $show_any_dimension = false;
@@ -1084,10 +1100,10 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $formOutPut .= '<div class="dimension-label" style=" margin-bottom: 5px; ">' . esc_html($config['label']) . '</div>';
                 $formOutPut .= '<div class="dimension-inputs" style=" display: flex; gap: 10px; margin-bottom: 10px; ">';
                 $formOutPut .= '<div class="dimension-input-group">';
-                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="min_' . esc_attr($dimension) . '" value="' . esc_attr($min_value) . '" placeholder="Min" step="0.1" min="0" />';
+                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="min_' . esc_attr($dimension) . '" value="' . esc_attr($min_value) . '" placeholder="' . esc_attr($dimension_min_placeholder) . '" step="0.1" min="0" />';
                 $formOutPut .= '</div>';
                 $formOutPut .= '<div class="dimension-input-group">';
-                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="max_' . esc_attr($dimension) . '" value="' . esc_attr($max_value) . '" placeholder="Max" step="0.1" min="0" />';
+                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="max_' . esc_attr($dimension) . '" value="' . esc_attr($max_value) . '" placeholder="' . esc_attr($dimension_max_placeholder) . '" step="0.1" min="0" />';
                 $formOutPut .= '</div>';
                 $formOutPut .= '</div>';
                 $formOutPut .= '</div>';

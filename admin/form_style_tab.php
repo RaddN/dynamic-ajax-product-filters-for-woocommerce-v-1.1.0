@@ -764,6 +764,27 @@ if (!defined('ABSPATH')) {
                                         </div>
                                     </div>
                                 </div>
+                                <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Min Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["min"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["min"]) : 'Min'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_placeholder][min]" placeholder="Min" value="<?php echo esc_attr($dimensions_placeholder); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="setting-item">
+                                            <p><strong><?php esc_html_e('Max Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <label>
+                                                <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["max"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["max"]) : 'Max'; ?>
+                                                <input type="text" name="dapfforwc_style_options[dimensions_placeholder][max]" placeholder="Max" value="<?php echo esc_attr($dimensions_placeholder); ?>">
+                                            </label>
+                                        </div>
+                                    </div>
+                                </div>
+
 
                             </div>
 
@@ -1585,6 +1606,10 @@ if (!defined('ABSPATH')) {
                 height: 'Height (cm):',
                 weight: 'Weight (kg):',
             },
+            dimensions_placeholder: {
+                min: 'Min',
+                max: 'Max',
+            },
             input_label: {
                 price: {
                     min: 'Min Price:',
@@ -1764,6 +1789,9 @@ if (!defined('ABSPATH')) {
             }
             if (key === 'dimensions_text') {
                 return defaults.dimensions_text[parts[1]] || '';
+            }
+            if (key === 'dimensions_placeholder') {
+                return defaults.dimensions_placeholder[parts[1]] || '';
             }
             if (key === 'input_label') {
                 return (defaults.input_label[parts[1]] || {})[parts[2]] || '';
@@ -2828,6 +2856,6 @@ if (!defined('ABSPATH')) {
                 setHiddenValue(targetInput, currentAttribute);
             }
         });
-        
+
     });
 </script>
