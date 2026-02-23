@@ -2657,13 +2657,14 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             break;
         case 'rating-text':
             $additional_txt_upto_4 = isset($dapfforwc_styleoptions["additional_text"]["rating"]) && !empty($dapfforwc_styleoptions["additional_text"]["rating"]) ? $dapfforwc_styleoptions["additional_text"]["rating"] : 'Stars & Up';
+            $additional_txt_1 = isset($dapfforwc_styleoptions["additional_text_1"]["rating"]) && !empty($dapfforwc_styleoptions["additional_text_1"]["rating"]) ? $dapfforwc_styleoptions["additional_text_1"]["rating"] : 'Star & Up';
             $additional_txt_5 = isset($dapfforwc_styleoptions["additional_text_5"]["rating"]) && !empty($dapfforwc_styleoptions["additional_text_5"]["rating"]) ? $dapfforwc_styleoptions["additional_text_5"]["rating"] : 'Star';
             $output .= '<label><input ' . ($disable_unselected && !in_array("5", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="5" ' . (in_array("5", $checked) ? ' checked' : '') . '> 5 ' . esc_html($additional_txt_5) . ' 
     </label>
         <label><input ' . ($disable_unselected && !in_array("4", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="4" ' . (in_array("4", $checked) ? ' checked' : '') . '> 4 ' . esc_html($additional_txt_upto_4) . '</label>
         <label><input ' . ($disable_unselected && !in_array("3", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="3" ' . (in_array("3", $checked) ? ' checked' : '') . '> 3 ' . esc_html($additional_txt_upto_4) . '</label>
         <label><input ' . ($disable_unselected && !in_array("2", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="2" ' . (in_array("2", $checked) ? ' checked' : '') . '> 2 ' . esc_html($additional_txt_upto_4) . '</label>
-        <label><input ' . ($disable_unselected && !in_array("1", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="1" ' . (in_array("1", $checked) ? ' checked' : '') . '> 1 ' . esc_html($additional_txt_upto_4) . '</label>';
+        <label><input ' . ($disable_unselected && !in_array("1", $checked) ? "disabled" : "") . ' type="checkbox" name="rating[]" value="1" ' . (in_array("1", $checked) ? ' checked' : '') . '> 1 ' . esc_html($additional_txt_1) . '</label>';
             break;
         case 'rating':
             for ($i = 5; $i >= 1; $i--) {

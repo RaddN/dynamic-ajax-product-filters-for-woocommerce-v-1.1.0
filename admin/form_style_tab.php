@@ -124,6 +124,7 @@ if (!defined('ABSPATH')) {
         'enable_auto_suggestion',
         'search_behavior',
         'enable_full_match',
+        'additional_text_1',
         'additional_text',
         'additional_text_5',
         'input_label',
@@ -1067,10 +1068,17 @@ if (!defined('ABSPATH')) {
                                                 <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
                                             </label>
                                         </div>
-                                        <!-- additional text for 1-4 -->
+                                        <!-- additional text for rating -->
                                             <div class="additional_txt_rating" data-attr-only="rating" style="display: <?php echo $dapfforwc_sub_option !== 'rating-text' ? 'none' : 'block'; ?> ;">
                                                 <div class="setting-item">
-                                                    <p><strong><?php esc_html_e('Additional Text for 1-4 Stars:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <p><strong><?php esc_html_e('Additional Text for 1 Star:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                    <label>
+                                                        <?php $additional_text_1 = isset($dapfforwc_form_styles["additional_text_1"]["rating"]) ? esc_attr($dapfforwc_form_styles["additional_text_1"]["rating"]) : ''; ?>
+                                                        <input type="text" name="dapfforwc_style_options[additional_text_1][rating]" value="<?php echo esc_attr($additional_text_1); ?>">
+                                                    </label>
+                                                </div>
+                                                <div class="setting-item">
+                                                    <p><strong><?php esc_html_e('Additional Text for 2-4 Stars:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                     <label>
                                                         <?php $additional_text = isset($dapfforwc_form_styles["additional_text"]["rating"]) ? esc_attr($dapfforwc_form_styles["additional_text"]["rating"]) : ''; ?>
                                                         <input type="text" name="dapfforwc_style_options[additional_text][rating]" value="<?php echo esc_attr($additional_text); ?>">

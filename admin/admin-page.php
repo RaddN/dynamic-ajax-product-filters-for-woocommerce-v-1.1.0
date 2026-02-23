@@ -2395,6 +2395,7 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
         'enable_auto_suggestion',
         'search_behavior',
         'enable_full_match',
+        'additional_text_1',
         'additional_text',
         'additional_text_5',
         'input_label',
