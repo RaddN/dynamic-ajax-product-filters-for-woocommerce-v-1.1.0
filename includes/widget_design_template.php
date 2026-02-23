@@ -633,7 +633,15 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
             if ($terms) {
                 $formOutPut .= '<div id="' . esc_attr($attribute_name) . '" class="plugincy-filter-group ' . esc_attr($attribute_name) . ' ' . (isset($dapfforwc_styleoptions['css_class'][$attribute_name]) ? $dapfforwc_styleoptions['css_class'][$attribute_name] : '') . '" style="display: ' . (isset($dapfforwc_options['show_attributes']) && !empty($dapfforwc_options['show_attributes']) ? 'block' : 'none !important') . ';">';
-                $attribute_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"][$attribute_name]) && $dapfforwc_styleoptions["widget_title"][$attribute_name] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"][$attribute_name]) : esc_html($attribute_name);
+                $attribute_default_title = '';
+                $first_term = is_array($terms) ? reset($terms) : null;
+                if (is_object($first_term) && !empty($first_term->attribute_label)) {
+                    $attribute_default_title = (string) $first_term->attribute_label;
+                } elseif (is_array($first_term) && !empty($first_term['attribute_label'])) {
+                    $attribute_default_title = (string) $first_term['attribute_label'];
+                }
+                
+                $attribute_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"][$attribute_name]) && $dapfforwc_styleoptions["widget_title"][$attribute_name] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"][$attribute_name]) : esc_html($attribute_default_title);
                 if ($singlevalueattrSelect === "yes" && $show_apply_reset_on === "separate") {
                     $attribute_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce-pro')) . '</span>';
                 }

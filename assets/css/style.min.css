@@ -105,9 +105,6 @@ div#roverlay {
   height: 13px;
   fill: #6b7280 !important;
 }
-#product-filter .plugincy_title {
-  text-transform: capitalize;
-}
 #product-filter .plugincy-filter-group {
   padding: 5px 10px 1px;
 }
@@ -118,8 +115,7 @@ div#roverlay {
   align-items: baseline;
   display: flex;
 }
-#product-filter .plugincy-filter-group .items > label {
-  text-transform: capitalize;
+#product-filter .plugincy-filter-group .items label {
   cursor: pointer;
   font-size: 14px;
 }

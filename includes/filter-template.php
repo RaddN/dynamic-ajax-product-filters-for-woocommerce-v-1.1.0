@@ -2973,6 +2973,7 @@ function dapfforwc_get_updated_filters($product_ids, $all_data = [], $context = 
         if (is_array($all_data['attributes'] ?? []) || is_object($all_data['attributes'] ?? [])) {
             foreach ($all_data['attributes'] ?? [] as $attribute) {
                 $attribute_name = $attribute['attribute_name'];
+                $attribute_label = isset($attribute['attribute_label']) ? (string) $attribute['attribute_label'] : '';
                 $terms = $attribute['terms'];
 
                 $pool = $attr_pools[$attribute_name] ?? $product_ids;
@@ -2983,7 +2984,7 @@ function dapfforwc_get_updated_filters($product_ids, $all_data = [], $context = 
                         if (!empty(array_intersect($pool, $term['products']))) {
                             $attributes[$attribute_name][] = [
                                 'term_id' => $term['term_id'],
-                                'attribute_label' => $term['name'],
+                                'attribute_label' => $attribute_label,
                                 'name'    => $term['name'],
                                 'slug'    => $term['slug'],
                                 'count' => count(array_intersect($term['products'], $pool)),
