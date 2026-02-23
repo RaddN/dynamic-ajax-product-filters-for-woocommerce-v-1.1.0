@@ -614,6 +614,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
         $is_all_cata = true;
         $make_default_selected = true;
+        $dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] = "OR";
     }
 
     if (is_product_category()) {
@@ -1083,7 +1084,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $matched_cata_with_ids = array_intersect_key($cata_lookup, array_flip($category_slugs));
     }
     $all_data_objects["product-category[]"] = array_keys($matched_cata_with_ids);
-    if (!is_shop() && strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] ?? "IN") === 'AND') {
+    if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] ?? "IN") === 'AND') {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
