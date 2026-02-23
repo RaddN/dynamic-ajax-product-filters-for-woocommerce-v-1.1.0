@@ -640,7 +640,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 } elseif (is_array($first_term) && !empty($first_term['attribute_label'])) {
                     $attribute_default_title = (string) $first_term['attribute_label'];
                 }
-                
+
                 $attribute_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"][$attribute_name]) && $dapfforwc_styleoptions["widget_title"][$attribute_name] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"][$attribute_name]) : esc_html($attribute_default_title);
                 if ($singlevalueattrSelect === "yes" && $show_apply_reset_on === "separate") {
                     $attribute_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce-pro')) . '</span>';
@@ -928,11 +928,11 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($status as $stat) {
                 $value = is_object($stat) ? esc_attr($stat->slug) : esc_attr($stat['slug']);
                 $title = is_object($stat) ? esc_html($stat->name) : esc_html($stat['name']);
-                if($value === 'instock') {
+                if ($value === 'instock') {
                     $title = isset($dapfforwc_styleoptions["stock_status_text"]["instock"]) && !empty($dapfforwc_styleoptions["stock_status_text"]["instock"]) ? esc_html($dapfforwc_styleoptions["stock_status_text"]["instock"]) : esc_html__('In Stock', 'dynamic-ajax-product-filters-for-woocommerce');
-                } elseif($value === 'outofstock') {
+                } elseif ($value === 'outofstock') {
                     $title = isset($dapfforwc_styleoptions["stock_status_text"]["outofstock"]) && !empty($dapfforwc_styleoptions["stock_status_text"]["outofstock"]) ? esc_html($dapfforwc_styleoptions["stock_status_text"]["outofstock"]) : esc_html__('Out of Stock', 'dynamic-ajax-product-filters-for-woocommerce');
-                } elseif($value === 'onbackorder') {
+                } elseif ($value === 'onbackorder') {
                     $title = isset($dapfforwc_styleoptions["stock_status_text"]["onbackorder"]) && !empty($dapfforwc_styleoptions["stock_status_text"]["onbackorder"]) ? esc_html($dapfforwc_styleoptions["stock_status_text"]["onbackorder"]) : esc_html__('On Backorder', 'dynamic-ajax-product-filters-for-woocommerce');
                 }
                 $checked = in_array($value, $selected_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
@@ -998,9 +998,9 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             foreach ($sale_status as $stat) {
                 $value = is_object($stat) ? esc_attr($stat->slug) : esc_attr($stat['slug']);
                 $title = is_object($stat) ? esc_html($stat->name) : esc_html($stat['name']);
-                if($value === 'onsale') {
+                if ($value === 'onsale') {
                     $title = isset($dapfforwc_styleoptions["sale_status_text"]["onsale"]) && !empty($dapfforwc_styleoptions["sale_status_text"]["onsale"]) ? esc_html($dapfforwc_styleoptions["sale_status_text"]["onsale"]) : esc_html__('On Sale', 'dynamic-ajax-product-filters-for-woocommerce');
-                } elseif($value === 'notonsale') {
+                } elseif ($value === 'notonsale') {
                     $title = isset($dapfforwc_styleoptions["sale_status_text"]["notonsale"]) && !empty($dapfforwc_styleoptions["sale_status_text"]["notonsale"]) ? esc_html($dapfforwc_styleoptions["sale_status_text"]["notonsale"]) : esc_html__('Not on Sale', 'dynamic-ajax-product-filters-for-woocommerce');
                 }
                 $checked = in_array($value, $selected_sale_status) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
@@ -1201,14 +1201,19 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $date_filter_value = isset($default_filter["date_filter"]) ? $default_filter["date_filter"] : '';
         $date_from_value = isset($default_filter["date_from"]) ? $default_filter["date_from"] : '';
         $date_to_value = isset($default_filter["date_to"]) ? $default_filter["date_to"] : '';
+        $date_filter_all_time_text = !empty(trim((string) ($dapfforwc_styleoptions['date_filter_texts']['all_time_text'] ?? ''))) ? $dapfforwc_styleoptions['date_filter_texts']['all_time_text'] : 'All Time';
+        $date_filter_today_text = !empty(trim((string) ($dapfforwc_styleoptions['date_filter_texts']['today_text'] ?? ''))) ? $dapfforwc_styleoptions['date_filter_texts']['today_text'] : 'Today';
+        $date_filter_this_week_text = !empty(trim((string) ($dapfforwc_styleoptions['date_filter_texts']['this_week_text'] ?? ''))) ? $dapfforwc_styleoptions['date_filter_texts']['this_week_text'] : 'This Week';
+        $date_filter_this_month_text = !empty(trim((string) ($dapfforwc_styleoptions['date_filter_texts']['this_month_text'] ?? ''))) ? $dapfforwc_styleoptions['date_filter_texts']['this_month_text'] : 'This Month';
+        $date_filter_this_year_text = !empty(trim((string) ($dapfforwc_styleoptions['date_filter_texts']['this_year_text'] ?? ''))) ? $dapfforwc_styleoptions['date_filter_texts']['this_year_text'] : 'This Year';
 
         // Date filter options
         $date_options = [
-            '' => $dapfforwc_styleoptions['date_filter_texts']['all_time_text'] ?? 'All Time',
-            'today' => $dapfforwc_styleoptions['date_filter_texts']['today_text'] ?? 'Today',
-            'this_week' => $dapfforwc_styleoptions['date_filter_texts']['this_week_text'] ?? 'This Week',
-            'this_month' => $dapfforwc_styleoptions['date_filter_texts']['this_month_text'] ?? 'This Month',
-            'this_year' => $dapfforwc_styleoptions['date_filter_texts']['this_year_text'] ?? 'This Year',
+            '' => $date_filter_all_time_text,
+            'today' => $date_filter_today_text,
+            'this_week' => $date_filter_this_week_text,
+            'this_month' => $date_filter_this_month_text,
+            'this_year' => $date_filter_this_year_text,
             // 'custom' => 'Custom Range'
         ];
 
