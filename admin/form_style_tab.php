@@ -1356,8 +1356,8 @@ if (!defined('ABSPATH')) {
                                                     <label>
                                                         <?php $terms_search_position = isset($dapfforwc_form_styles["terms_search_position"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["terms_search_position"][$dapfforwc_attribute_name]) : 'after_title'; ?>
                                                         <select name="dapfforwc_style_options[terms_search_position][<?php echo esc_attr($dapfforwc_attribute_name); ?>]">
-                                                            <option value="in_title_bar" <?php selected($terms_search_position, 'in_title_bar'); ?>>
-                                                                <?php esc_html_e('In Title Bar', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                            <option value="in_title_bar" disabled>
+                                                                <?php esc_html_e('In Title Bar (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                             </option>
                                                             <option value="after_title" <?php selected($terms_search_position, 'after_title'); ?>>
                                                                 <?php esc_html_e('After Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
@@ -1450,15 +1450,15 @@ if (!defined('ABSPATH')) {
                                             <!-- Enable/Disable Auto Suggestion -->
                                             <div class="setting-item">
                                                 <p><strong><?php esc_html_e('Enable/Disable Auto Suggestion:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                <label>
-                                                    <input type="checkbox" name="dapfforwc_style_options[enable_auto_suggestion][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes"
-                                                        <?php checked($dapfforwc_form_styles["enable_auto_suggestion"][$dapfforwc_attribute_name] ?? '', 'yes'); ?>>
-                                                    <?php esc_html_e('Enable Auto Suggestion', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                <label class="pro-only">
+                                                    <input disabled type="checkbox" name="dapfforwc_style_options[enable_auto_suggestion][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes"
+                                                        >
+                                                    <?php esc_html_e('Enable Auto Suggestion (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                 </label>
                                             </div>
                                             <div class="setting-item">
-                                                <p><strong><?php esc_html_e('Search In:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                <label>
+                                                <p><strong><?php esc_html_e('Search In (Pro):', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                <label class="pro-only">
                                                     <?php
                                                     $search_behavior = $dapfforwc_form_styles["search_behavior"][$dapfforwc_attribute_name] ?? ['title'];
                                                     if (!is_array($search_behavior)) {
@@ -1466,32 +1466,32 @@ if (!defined('ABSPATH')) {
                                                     }
                                                     $search_behavior = array_map('sanitize_text_field', $search_behavior);
                                                     ?>
-                                                    <select class="plugincy_select2" name="dapfforwc_style_options[search_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>][]" multiple style="width: 200px; height: 100px;" data-placeholder="<?php esc_attr_e('Select search behavior', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                                        <option value="title" <?php selected(true, in_array('title', $search_behavior, true)); ?>>
+                                                    <select class="plugincy_select2" name="dapfforwc_style_options[search_behavior][<?php echo esc_attr($dapfforwc_attribute_name); ?>][]" multiple style="width: 200px; height: 100px;" data-placeholder="<?php esc_attr_e('Select search behavior', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" disabled>
+                                                        <option value="title" selected="selected" disabled>
                                                             <?php esc_html_e('Title', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="content" <?php selected(true, in_array('content', $search_behavior, true)); ?>>
+                                                        <option value="content" disabled>
                                                             <?php esc_html_e('Content', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="excerpt" <?php selected(true, in_array('excerpt', $search_behavior, true)); ?>>
+                                                        <option value="excerpt" disabled>
                                                             <?php esc_html_e('Excerpt', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="sku" <?php selected(true, in_array('sku', $search_behavior, true)); ?>>
+                                                        <option value="sku" disabled>
                                                             <?php esc_html_e('SKU', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="tags" <?php selected(true, in_array('tags', $search_behavior, true)); ?>>
+                                                        <option value="tags" disabled>
                                                             <?php esc_html_e('Tags', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="categories" <?php selected(true, in_array('categories', $search_behavior, true)); ?>>
+                                                        <option value="categories" disabled>
                                                             <?php esc_html_e('Categories', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="attributes" <?php selected(true, in_array('attributes', $search_behavior, true)); ?>>
+                                                        <option value="attributes" disabled>
                                                             <?php esc_html_e('Attributes', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="authors" <?php selected(true, in_array('authors', $search_behavior, true)); ?>>
+                                                        <option value="authors" disabled>
                                                             <?php esc_html_e('Authors', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
-                                                        <option value="brands" <?php selected(true, in_array('brands', $search_behavior, true)); ?>>
+                                                        <option value="brands" disabled>
                                                             <?php esc_html_e('Brands', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                                         </option>
                                                     </select>
