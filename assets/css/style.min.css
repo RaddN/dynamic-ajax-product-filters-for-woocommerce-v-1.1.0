@@ -459,7 +459,7 @@ form.rfilterbuttons * {
   margin-left: 25px;
 }
 
-#product-filter .plugincy_collapsable_minimize_initial svg {
+#product-filter .plugincy_collapsable_minimize_initial .collaps svg {
   transform: rotate(-90deg);
 }
 #product-filter .plugincy_collapsable_minimize_initial .rotatable.rotated {

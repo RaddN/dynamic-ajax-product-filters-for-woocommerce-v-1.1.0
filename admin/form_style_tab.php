@@ -1704,6 +1704,39 @@ if (!defined('ABSPATH')) {
             hasGlobalChanges = true;
         };
 
+        const syncStateFromField = function(field) {
+            if (!field || !field.name || field.name.indexOf('dapfforwc_style_options') !== 0) {
+                return;
+            }
+
+            const parts = parseName(field.name);
+            if (!parts.length) {
+                return;
+            }
+
+            if (field.type === 'radio') {
+                if (field.checked) {
+                    setNestedValue(state, parts, field.value);
+                }
+                return;
+            }
+
+            if (field.type === 'checkbox') {
+                setNestedValue(state, parts, field.checked ? field.value : '');
+                return;
+            }
+
+            if (field.tagName === 'SELECT' && field.multiple) {
+                const values = Array.from(field.selectedOptions).map(function(option) {
+                    return option.value;
+                });
+                setNestedValue(state, parts, values);
+                return;
+            }
+
+            setNestedValue(state, parts, field.value);
+        };
+
         const getNestedValue = function(obj, parts) {
             let current = obj;
             for (let i = 0; i < parts.length; i++) {
@@ -2272,19 +2305,16 @@ if (!defined('ABSPATH')) {
                 if (isSelectSubOption) {
                     if (singleSelectionCheckbox) {
                         singleSelectionCheckbox.checked = true;
+                        if (state[attribute]) {
+                            state[attribute].single_selection = 'yes';
+                        }
                         singleSelectionCheckbox.disabled = false;
                     }
                     singleSelection.style.display = 'none';
                 } else {
                     if (singleSelectionCheckbox) {
-                        if (!isSelect2SubOption) {
-                            singleSelectionCheckbox.checked = false;
-                        } else {
-                            const storedValue = state[attribute] ? state[attribute].single_selection : '';
-                            if (!storedValue) {
-                                singleSelectionCheckbox.checked = false;
-                            }
-                        }
+                        const storedValue = state[attribute] ? state[attribute].single_selection : '';
+                        singleSelectionCheckbox.checked = String(storedValue) === 'yes';
                         singleSelectionCheckbox.disabled = false;
                     }
                     singleSelection.style.display = display;
@@ -2554,6 +2584,7 @@ if (!defined('ABSPATH')) {
             if (!target) {
                 return;
             }
+            syncStateFromField(target);
             markDirtyFromField(target);
 
             if (target.matches('.primary_options input[type="radio"]')) {
@@ -2611,6 +2642,7 @@ if (!defined('ABSPATH')) {
             if (!target) {
                 return;
             }
+            syncStateFromField(target);
             markDirtyFromField(target);
         });
 
@@ -2797,33 +2829,43 @@ if (!defined('ABSPATH')) {
                 window.dapfforwcStyleManager.capture();
             }
 
-            const formData = new FormData(form);
-            const options = {};
-
-            for (const [name, value] of formData.entries()) {
-                if (!name || name === 'dapfforwc_style_options_json' || name === 'dapfforwc_style_options_target') {
-                    continue;
+            let options = {};
+            if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.getState === 'function') {
+                const stateOptions = window.dapfforwcStyleManager.getState();
+                if (stateOptions && typeof stateOptions === 'object') {
+                    options = stateOptions;
                 }
-
-                if (!name.startsWith('dapfforwc_style_options')) {
-                    continue;
-                }
-
-                const parts = [];
-                name.replace(/\[([^\]]*)\]/g, function(match, key) {
-                    parts.push(key);
-                });
-
-                if (!parts.length) {
-                    continue;
-                }
-
-                setNestedValue(options, parts, value);
             }
 
-            let dirtyAttributes = Object.keys(options).filter(function(key) {
-                return attributeNames.indexOf(key) !== -1;
-            });
+            if (!options || typeof options !== 'object' || !Object.keys(options).length) {
+                const formData = new FormData(form);
+                options = {};
+
+                for (const [name, value] of formData.entries()) {
+                    if (!name || name === 'dapfforwc_style_options_json' || name === 'dapfforwc_style_options_target') {
+                        continue;
+                    }
+
+                    if (!name.startsWith('dapfforwc_style_options')) {
+                        continue;
+                    }
+
+                    const parts = [];
+                    name.replace(/\[([^\]]*)\]/g, function(match, key) {
+                        parts.push(key);
+                    });
+
+                    if (!parts.length) {
+                        continue;
+                    }
+
+                    setNestedValue(options, parts, value);
+                }
+            }
+
+            const currentAttribute = resolveTargetAttribute(targetInput ? targetInput.value : '');
+
+            let dirtyAttributes = [];
             let includeGlobals = true;
             if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.getDirtyAttributes === 'function') {
                 const managerDirty = window.dapfforwcStyleManager.getDirtyAttributes();
@@ -2837,7 +2879,16 @@ if (!defined('ABSPATH')) {
                     : true;
             }
 
-            const currentAttribute = resolveTargetAttribute(targetInput ? targetInput.value : '');
+            if (!dirtyAttributes.length) {
+                if (currentAttribute) {
+                    dirtyAttributes.push(currentAttribute);
+                } else {
+                    dirtyAttributes = Object.keys(options).filter(function(key) {
+                        return attributeNames.indexOf(key) !== -1;
+                    });
+                }
+            }
+
             if (currentAttribute && dirtyAttributes.indexOf(currentAttribute) === -1) {
                 dirtyAttributes.push(currentAttribute);
             }

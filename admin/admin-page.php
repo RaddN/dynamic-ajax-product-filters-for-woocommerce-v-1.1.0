@@ -2401,6 +2401,29 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
         'input_label',
     ];
 
+    $posted_style_options = [];
+    if (isset($_POST['dapfforwc_style_options']) && is_array($_POST['dapfforwc_style_options'])) {
+        $posted_style_options = dapfforwc_sanitize_style_options(wp_unslash($_POST['dapfforwc_style_options']));
+    }
+
+    if (is_array($posted_style_options) && !empty($posted_style_options)) {
+        if (!is_array($input)) {
+            $input = [];
+        }
+
+        foreach ($posted_style_options as $posted_key => $posted_value) {
+            if (!in_array($posted_key, $per_attribute_groups, true) || !is_array($posted_value)) {
+                continue;
+            }
+
+            $existing_group = isset($input[$posted_key]) && is_array($input[$posted_key]) ? $input[$posted_key] : [];
+            foreach ($posted_value as $attribute_key => $attribute_value) {
+                $existing_group[$attribute_key] = $attribute_value;
+            }
+            $input[$posted_key] = $existing_group;
+        }
+    }
+
     if (is_array($old_value)) {
         $merged_options = $old_value;
         foreach ($input as $key => $value) {
