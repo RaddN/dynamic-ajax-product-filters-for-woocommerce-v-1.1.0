@@ -2849,6 +2849,62 @@ if (!defined('ABSPATH')) {
             }
         };
 
+        const collectLiveFormOptions = function() {
+            const formData = new FormData(form);
+            const liveOptions = {};
+
+            for (const [name, value] of formData.entries()) {
+                if (!name || name === 'dapfforwc_style_options_json' || name === 'dapfforwc_style_options_target') {
+                    continue;
+                }
+
+                if (!name.startsWith('dapfforwc_style_options')) {
+                    continue;
+                }
+
+                const parts = [];
+                name.replace(/\[([^\]]*)\]/g, function(match, key) {
+                    parts.push(key);
+                });
+
+                if (!parts.length) {
+                    continue;
+                }
+
+                setNestedValue(liveOptions, parts, value);
+            }
+
+            return liveOptions;
+        };
+
+        const mergeOptionValues = function(target, source) {
+            const baseTarget = (target && typeof target === 'object') ? target : {};
+            if (!source || typeof source !== 'object') {
+                return baseTarget;
+            }
+
+            Object.keys(source).forEach(function(key) {
+                const sourceValue = source[key];
+                if (Array.isArray(sourceValue)) {
+                    baseTarget[key] = sourceValue.slice();
+                    return;
+                }
+
+                if (sourceValue && typeof sourceValue === 'object') {
+                    const targetValue = baseTarget[key];
+                    baseTarget[key] = mergeOptionValues(
+                        targetValue && typeof targetValue === 'object' && !Array.isArray(targetValue) ? targetValue : {},
+                        sourceValue
+                    );
+                    return;
+                }
+
+                baseTarget[key] = sourceValue;
+            });
+
+            return baseTarget;
+        };
+
         form.addEventListener('submit', function() {
             if (window.dapfforwcStyleManager && typeof window.dapfforwcStyleManager.capture === 'function') {
                 window.dapfforwcStyleManager.capture();
@@ -2862,31 +2918,12 @@ if (!defined('ABSPATH')) {
                 }
             }
 
-            if (!options || typeof options !== 'object' || !Object.keys(options).length) {
-                const formData = new FormData(form);
+            if (!options || typeof options !== 'object') {
                 options = {};
-
-                for (const [name, value] of formData.entries()) {
-                    if (!name || name === 'dapfforwc_style_options_json' || name === 'dapfforwc_style_options_target') {
-                        continue;
-                    }
-
-                    if (!name.startsWith('dapfforwc_style_options')) {
-                        continue;
-                    }
-
-                    const parts = [];
-                    name.replace(/\[([^\]]*)\]/g, function(match, key) {
-                        parts.push(key);
-                    });
-
-                    if (!parts.length) {
-                        continue;
-                    }
-
-                    setNestedValue(options, parts, value);
-                }
             }
+
+            const liveOptions = collectLiveFormOptions();
+            options = mergeOptionValues(options, liveOptions);
 
             const currentAttribute = resolveTargetAttribute(targetInput ? targetInput.value : '');
 

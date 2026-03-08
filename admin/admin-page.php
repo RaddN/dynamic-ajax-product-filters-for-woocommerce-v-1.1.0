@@ -2406,6 +2406,21 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
         $posted_style_options = dapfforwc_sanitize_style_options(wp_unslash($_POST['dapfforwc_style_options']));
     }
 
+    $merge_style_values = static function ($existing, $incoming) use (&$merge_style_values) {
+        if (!is_array($incoming)) {
+            return $incoming;
+        }
+
+        $merged = is_array($existing) ? $existing : [];
+        foreach ($incoming as $incoming_key => $incoming_value) {
+            $merged[$incoming_key] = is_array($incoming_value)
+                ? $merge_style_values($merged[$incoming_key] ?? [], $incoming_value)
+                : $incoming_value;
+        }
+
+        return $merged;
+    };
+
     if (is_array($posted_style_options) && !empty($posted_style_options)) {
         if (!is_array($input)) {
             $input = [];
@@ -2421,6 +2436,21 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
                 $existing_group[$attribute_key] = $attribute_value;
             }
             $input[$posted_key] = $existing_group;
+            continue;
+        }
+
+        foreach ($posted_style_options as $posted_key => $posted_value) {
+            if (in_array($posted_key, $per_attribute_groups, true)) {
+                continue;
+            }
+
+            if (is_array($posted_value)) {
+                $existing_value = isset($input[$posted_key]) && is_array($input[$posted_key]) ? $input[$posted_key] : [];
+                $input[$posted_key] = $merge_style_values($existing_value, $posted_value);
+                continue;
+            }
+
+            $input[$posted_key] = $posted_value;
         }
     }
 
