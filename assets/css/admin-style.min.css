@@ -110,7 +110,9 @@
   border-radius: 50%;
   margin-right: 10px;
   outline: 0;
-  transition: background-color 0.3s, border 0.3s;
+  transition:
+    background-color 0.3s,
+    border 0.3s;
 }
 .dapfforwc_admin input[type="radio"]:checked {
   background-color: #007bff;
@@ -255,6 +257,7 @@
 .dapfforwc_admin .input-price-range:before,
 .dapfforwc_admin .pro-only:hover:before {
   width: 90%;
+  min-width: 140px;
   height: 20px;
   left: 34px;
   text-align: center;
@@ -386,7 +389,9 @@
   width: 100%;
   height: 100%;
   display: block;
-  animation: 0.5s backwards chase-b4c8mmmd, 1.25s 0.5s infinite chase-49opz7md;
+  animation:
+    0.5s backwards chase-b4c8mmmd,
+    1.25s 0.5s infinite chase-49opz7md;
   border: 5.6px solid #474bff;
   border-radius: 50%;
   box-shadow: 0 -33.6px 0 -5.6px #474bff;
@@ -908,21 +913,29 @@ div#wpfooter {
   padding: 0 10px;
 }
 
-.toplevel_page_dapfforwc-admin .select2-container--default .select2-selection--single {
-    width: 100%;
-    border: 2px solid #e2e8f0 !important;
-    border-radius: 8px !important;
-    font-size: 16px !important;
-    transition: border-color 0.3s ease !important;
-    max-width: 100%;
-    min-height: 48px !important;
+.toplevel_page_dapfforwc-admin
+  .select2-container--default
+  .select2-selection--single {
+  width: 100%;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  font-size: 16px !important;
+  transition: border-color 0.3s ease !important;
+  max-width: 100%;
+  min-height: 48px !important;
 }
 
-.toplevel_page_dapfforwc-admin .select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 48px !important;
+.toplevel_page_dapfforwc-admin
+  .select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  line-height: 48px !important;
 }
 
-.toplevel_page_dapfforwc-admin .select2-container--default .select2-selection--single .select2-selection__arrow {
-    height: 46px !important;
-    width: 29px !important;
+.toplevel_page_dapfforwc-admin
+  .select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  height: 46px !important;
+  width: 29px !important;
 }

@@ -119,7 +119,7 @@ function dapfforwc_exclude_attributes_render()
         ];
     }
     ?>
-    <select class="plugincy_select2" id="exclude-attributes" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Attributes to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+    <select class="plugincy_select2" id="exclude-attributes" name="dapfforwc_advance_options[exclude_attributes][]" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Attributes to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
         <?php foreach ($dapfforwc_attributes as $option) : ?>
             <option value="<?php echo esc_attr($option->attribute_name); ?>" 
                 <?php echo in_array($option->attribute_name, $exclude_attributes) ? 'selected' : ''; ?>>
@@ -127,24 +127,6 @@ function dapfforwc_exclude_attributes_render()
             </option>
         <?php endforeach; ?>
     </select>
-
-    <input type="hidden" name="dapfforwc_advance_options[exclude_attributes]" id="exclude-attributes-string" value="<?php echo esc_attr(implode(',', $exclude_attributes)); ?>">
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectElement = document.getElementById('exclude-attributes');
-            const hiddenInput = document.getElementById('exclude-attributes-string');
-
-            function updateHiddenInput() {
-                const selectedOptions = Array.from(selectElement.selectedOptions);
-                const selectedValues = selectedOptions.map(option => option.value);
-                hiddenInput.value = selectedValues.join(',');
-            }
-
-            selectElement.addEventListener('change', updateHiddenInput);
-            updateHiddenInput(); // Initial update
-        });
-    </script>
     <?php
 }
 function dapfforwc_exclude_custom_fields_render()
@@ -163,7 +145,7 @@ function dapfforwc_exclude_custom_fields_render()
     }
     ?>
     <div class="pro-only">
-        <select class="plugincy_select2" disabled id="exclude_custom_fields" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Custom Fields to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+        <select class="plugincy_select2" disabled id="exclude_custom_fields" name="dapfforwc_advance_options[exclude_custom_fields][]" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Custom Fields to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
             <?php foreach ($dapfforwc_attributes as $option) : ?>
                 <option value="<?php echo esc_attr($option->attribute_name); ?>" 
                     <?php echo in_array($option->attribute_name, $exclude_custom_fields) ? 'selected' : ''; ?>>
@@ -172,23 +154,5 @@ function dapfforwc_exclude_custom_fields_render()
             <?php endforeach; ?>
         </select>
     </div>
-
-    <input disabled type="hidden" name="dapfforwc_advance_options[exclude_custom_fields]" id="exclude_custom_fields-string" value="<?php echo esc_attr(implode(',', $exclude_custom_fields)); ?>">
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const selectElement = document.getElementById('exclude_custom_fields');
-            const hiddenInput = document.getElementById('exclude_custom_fields-string');
-
-            function updateHiddenInput() {
-                const selectedOptions = Array.from(selectElement.selectedOptions);
-                const selectedValues = selectedOptions.map(option => option.value);
-                hiddenInput.value = selectedValues.join(',');
-            }
-
-            selectElement.addEventListener('change', updateHiddenInput);
-            updateHiddenInput(); // Initial update
-        });
-    </script>
     <?php
 }

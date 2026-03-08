@@ -10,6 +10,7 @@ function dapfforwc_settings_init()
         'show_categories' => "on",
         'show_attributes' => "on",
         'show_tags' => "on",
+        'show_custom_taxonomies' => "",
         'show_price_range' => "on",
         'show_rating' => "on",
         'show_search' => "on",
@@ -40,6 +41,11 @@ function dapfforwc_settings_init()
         'dapfforwc_options',
         'dapfforwc_sanitize_options'
     );
+    register_setting(
+        'dapfforwc_options_group',
+        'dapfforwc_advance_options',
+        'dapfforwc_sanitize_advance_options'
+    );
 
     add_settings_section('dapfforwc_section', '', null, 'dapfforwc-admin');
 
@@ -55,6 +61,10 @@ function dapfforwc_settings_init()
         'show_tags' => [
             'label' => esc_html__('Show Tags', 'dynamic-ajax-product-filters-for-woocommerce'),
             'description' => esc_html__('Enable this option to show tags in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_custom_taxonomies' => [
+            'label' => esc_html__('Show Custom Taxonomies', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => esc_html__('Enable this option to show selected custom product taxonomies in the filter.', 'dynamic-ajax-product-filters-for-woocommerce')
         ],
         'show_price_range' => [
             'label' => esc_html__('Show Price Range', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -172,7 +182,7 @@ function dapfforwc_settings_init()
     register_setting(
         'dapfforwc_advance_settings',
         'dapfforwc_advance_options',
-        'dapfforwc_sanitize_options'
+        'dapfforwc_sanitize_advance_options'
     );
     // Add the "Advance Settings" section
     add_settings_section(
@@ -223,14 +233,12 @@ function dapfforwc_settings_init()
     add_settings_field('sidebar_on_top', esc_html__('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('mobile_breakpoint', esc_html__('Mobile Breakpoint', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_mobile_breakpoint_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('default_value_selected', esc_html__('Make Default Options Selected', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_default_value_selected_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
-    add_settings_field('exclude_attributes', esc_html__('Exclude Attribute', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_exclude_attributes_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
-    add_settings_field('exclude_custom_fields', esc_html__('Exclude Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_exclude_custom_fields_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
     $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
-    $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
+    $exclude_attributes = isset($Advance_options['exclude_attributes']) ? explode(',', $Advance_options['exclude_attributes']) : [];
     $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
-    $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+    $exclude_custom_fields = isset($Advance_options['exclude_custom_fields']) ? explode(',', $Advance_options['exclude_custom_fields']) : [];
     $attributes = [];
     foreach ($all_attributes as $attribute) {
         if (in_array($attribute['attribute_name'], $exclude_attributes)) {
@@ -487,6 +495,122 @@ function dapfforwc_sanitize_options($input)
 
     if (isset($input['seo_title']) && isset($input['seo_description']) && !isset($input['use_attribute_type_in_permalinks'])) {
         update_option('woocommerce_slug_check_dismissed_time', false);
+    }
+
+    if (function_exists('dapfforwc_clear_woocommerce_caches')) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+
+    return $sanitized;
+}
+
+function dapfforwc_sanitize_advance_options($input)
+{
+    $defaults = [
+        'product_selector' => 'ul.products',
+        'pagination_selector' => '.woocommerce-pagination',
+        'product_shortcode' => 'products',
+        'remove_outofStock' => 0,
+        'allow_data_share' => "on",
+        'sidebar_on_top' => "on",
+        'mobile_breakpoint' => 768,
+        'default_value_selected' => 0,
+        'exclude_attributes' => "",
+        'exclude_custom_fields' => "",
+        'no_products_text' => 'No products were found matching your selection.',
+        'select2_placeholder' => 'Select Options',
+    ];
+
+    $existing = get_option('dapfforwc_advance_options');
+    $sanitized = wp_parse_args(is_array($existing) ? $existing : [], $defaults);
+
+    if (!is_array($input)) {
+        return $sanitized;
+    }
+
+    $full_form_keys = [
+        'product_selector',
+        'pagination_selector',
+        'product_shortcode',
+        'mobile_breakpoint',
+        'no_products_text',
+        'select2_placeholder',
+    ];
+
+    $checkbox_keys = [
+        'remove_outofStock',
+        'allow_data_share',
+        'sidebar_on_top',
+        'default_value_selected',
+    ];
+
+    $is_full_submission = false;
+
+    foreach ($full_form_keys as $full_form_key) {
+        if (array_key_exists($full_form_key, $input)) {
+            $is_full_submission = true;
+            break;
+        }
+    }
+
+    foreach ($checkbox_keys as $checkbox_key) {
+        if ($is_full_submission) {
+            $sanitized[$checkbox_key] = isset($input[$checkbox_key]) && $input[$checkbox_key] === 'on' ? 'on' : '';
+        } elseif (array_key_exists($checkbox_key, $input)) {
+            $sanitized[$checkbox_key] = $input[$checkbox_key] === 'on' ? 'on' : '';
+        }
+    }
+
+    if (array_key_exists('product_selector', $input)) {
+        $product_selector = sanitize_text_field(wp_unslash($input['product_selector']));
+        $sanitized['product_selector'] = $product_selector !== '' ? $product_selector : 'ul.products';
+    }
+
+    if (array_key_exists('pagination_selector', $input)) {
+        $pagination_selector = sanitize_text_field(wp_unslash($input['pagination_selector']));
+        $sanitized['pagination_selector'] = $pagination_selector !== '' ? $pagination_selector : '.woocommerce-pagination';
+    }
+
+    if (array_key_exists('product_shortcode', $input)) {
+        $product_shortcode = sanitize_text_field(wp_unslash($input['product_shortcode']));
+        $sanitized['product_shortcode'] = $product_shortcode !== '' ? $product_shortcode : 'products';
+    }
+
+    if (array_key_exists('mobile_breakpoint', $input)) {
+        $mobile_breakpoint = absint($input['mobile_breakpoint']);
+        $sanitized['mobile_breakpoint'] = $mobile_breakpoint > 0 ? $mobile_breakpoint : 768;
+    }
+
+    if (array_key_exists('exclude_attributes', $input)) {
+        $raw_values = $input['exclude_attributes'];
+        if (!is_array($raw_values)) {
+            $raw_values = explode(',', wp_unslash((string) $raw_values));
+        }
+        $clean_values = array_filter(array_map(static function ($value) {
+            return sanitize_text_field(wp_unslash((string) $value));
+        }, array_map('trim', $raw_values)), 'strlen');
+        $sanitized['exclude_attributes'] = implode(',', array_unique($clean_values));
+    }
+
+    if (array_key_exists('exclude_custom_fields', $input)) {
+        $raw_values = $input['exclude_custom_fields'];
+        if (!is_array($raw_values)) {
+            $raw_values = explode(',', wp_unslash((string) $raw_values));
+        }
+        $clean_values = array_filter(array_map(static function ($value) {
+            return sanitize_text_field(wp_unslash((string) $value));
+        }, array_map('trim', $raw_values)), 'strlen');
+        $sanitized['exclude_custom_fields'] = implode(',', array_unique($clean_values));
+    }
+
+    if (array_key_exists('no_products_text', $input)) {
+        $no_products_text = sanitize_text_field(wp_unslash($input['no_products_text']));
+        $sanitized['no_products_text'] = $no_products_text !== '' ? $no_products_text : 'No products were found matching your selection.';
+    }
+
+    if (array_key_exists('select2_placeholder', $input)) {
+        $select2_placeholder = sanitize_text_field(wp_unslash($input['select2_placeholder']));
+        $sanitized['select2_placeholder'] = $select2_placeholder !== '' ? $select2_placeholder : 'Select Options';
     }
 
     if (function_exists('dapfforwc_clear_woocommerce_caches')) {

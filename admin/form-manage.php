@@ -7,8 +7,8 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
 {
     global $$settings;
 ?>
-    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" || $key === "show_custom_fields"  ? ' pro-only' : ''; ?>">
-        <input <?php echo $key === "use_anchor" || $key === "show_custom_fields" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" || $key === "show_custom_fields" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php $key === "use_anchor" || $key === "show_custom_fields" ? '' : checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
+    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? ' pro-only' : ''; ?>">
+        <input <?php echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? '' : checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
         <span class="slider round"></span>
         <span class="switch-on">On</span>
         <span class="switch-off">Off</span>
@@ -48,17 +48,412 @@ function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
     }
 }
 
+
+function dapfforwc_render_form_manage_popup_assets()
+{
+    static $assets_rendered = false;
+
+    if ($assets_rendered) {
+        return;
+    }
+
+    $assets_rendered = true;
+    ?>
+    <style>
+        .dapfforwc-form-manage-setting {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .dapfforwc-form-manage-setting label {
+            margin: 0;
+        }
+
+        .dapfforwc-form-manage-settings-trigger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            padding: 0;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: #fff;
+            color: #334155;
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .dapfforwc-form-manage-settings-trigger:hover,
+        .dapfforwc-form-manage-settings-trigger:focus {
+            background: #eff6ff;
+            border-color: #60a5fa;
+            color: #1d4ed8;
+            outline: none;
+        }
+
+        .dapfforwc-form-manage-settings-trigger .dashicons {
+            width: 18px;
+            height: 18px;
+            font-size: 18px;
+        }
+
+        .dapfforwc-form-manage-popup {
+            position: fixed;
+            inset: 0;
+            z-index: 100000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .dapfforwc-form-manage-popup[hidden] {
+            display: none;
+        }
+
+        .dapfforwc-form-manage-popup-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.5);
+        }
+
+        .dapfforwc-form-manage-popup-panel {
+            position: relative;
+            width: min(560px, 100%);
+            max-height: calc(100vh - 48px);
+            overflow: visible;
+            padding: 24px;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.25);
+        }
+
+        .dapfforwc-form-manage-popup-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .dapfforwc-form-manage-popup-title {
+            margin: 0;
+            font-size: 20px;
+            line-height: 1.3;
+            color: #0f172a;
+        }
+
+        .dapfforwc-form-manage-popup-description {
+            margin: 8px 0 0;
+            color: #475569;
+        }
+
+        .dapfforwc-form-manage-popup-close {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            border: 0;
+            border-radius: 999px;
+            background: #f1f5f9;
+            color: #334155;
+            cursor: pointer;
+        }
+
+        .dapfforwc-form-manage-popup-close:hover,
+        .dapfforwc-form-manage-popup-close:focus {
+            background: #e2e8f0;
+            outline: none;
+        }
+
+        .dapfforwc-form-manage-popup-body .plugincy_select2 {
+            width: 100% !important;
+        }
+
+        .dapfforwc-form-manage-popup-body .select2-container {
+            width: 100% !important;
+        }
+
+        .dapfforwc-form-manage-popup .select2-dropdown {
+            z-index: 100001;
+        }
+
+        .dapfforwc-form-manage-popup-body .description {
+            margin-top: 10px;
+        }
+
+        .dapfforwc-form-manage-popup-footer {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        body.dapfforwc-popup-open {
+            overflow: hidden;
+        }
+
+        @media (max-width: 782px) {
+            .dapfforwc-form-manage-popup {
+                padding: 16px;
+            }
+
+            .dapfforwc-form-manage-popup-panel {
+                padding: 20px;
+            }
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const popupClass = '.dapfforwc-form-manage-popup';
+            let activePopup = null;
+
+            function initPopupSelects(popup) {
+                if (typeof jQuery === 'undefined' || !jQuery.fn || typeof jQuery.fn.select2 !== 'function') {
+                    return;
+                }
+
+                const $popup = jQuery(popup);
+
+                jQuery(popup).find('.plugincy_select2').each(function () {
+                    const $select = jQuery(this);
+
+                    if ($select.hasClass('select2-hidden-accessible')) {
+                        $select.select2('destroy');
+                    }
+
+                    $select.select2({
+                        placeholder: function () {
+                            return jQuery(this).data('placeholder');
+                        },
+                        width: '100%',
+                        allowClear: true,
+                        dropdownParent: $popup,
+                    });
+                });
+            }
+
+            function closePopup(popup) {
+                if (!popup) {
+                    return;
+                }
+
+                popup.hidden = true;
+                document.body.classList.remove('dapfforwc-popup-open');
+
+                if (popup.__triggerElement && typeof popup.__triggerElement.focus === 'function') {
+                    popup.__triggerElement.focus();
+                }
+
+                if (activePopup === popup) {
+                    activePopup = null;
+                }
+            }
+
+            document.querySelectorAll('.dapfforwc-form-manage-settings-trigger').forEach(function (trigger) {
+                trigger.addEventListener('click', function () {
+                    const popup = document.getElementById(trigger.getAttribute('data-popup-target'));
+
+                    if (!popup) {
+                        return;
+                    }
+
+                    popup.__triggerElement = trigger;
+                    popup.hidden = false;
+                    document.body.classList.add('dapfforwc-popup-open');
+                    activePopup = popup;
+                    initPopupSelects(popup);
+                });
+            });
+
+            document.addEventListener('click', function (event) {
+                const closeTarget = event.target.closest('[data-popup-close="true"]');
+
+                if (!closeTarget) {
+                    return;
+                }
+
+                closePopup(closeTarget.closest(popupClass));
+            });
+
+            document.addEventListener('keydown', function (event) {
+                if (event.key === 'Escape' && activePopup) {
+                    closePopup(activePopup);
+                }
+            });
+        });
+    </script>
+    <?php
+}
+
+function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $description, $render_callback)
+{
+    dapfforwc_render_form_manage_popup_assets();
+    ?>
+    <button
+        type="button"
+        class="dapfforwc-form-manage-settings-trigger"
+        data-popup-target="<?php echo esc_attr($popup_id); ?>"
+        aria-haspopup="dialog"
+        aria-controls="<?php echo esc_attr($popup_id); ?>"
+    >
+        <span class="dashicons dashicons-admin-generic" aria-hidden="true"></span>
+        <span class="screen-reader-text"><?php echo esc_html($button_label); ?></span>
+    </button>
+    <div id="<?php echo esc_attr($popup_id); ?>" class="dapfforwc-form-manage-popup" hidden>
+        <div class="dapfforwc-form-manage-popup-backdrop" data-popup-close="true"></div>
+        <div class="dapfforwc-form-manage-popup-panel" role="dialog" aria-modal="true" aria-labelledby="<?php echo esc_attr($popup_id); ?>-title">
+            <div class="dapfforwc-form-manage-popup-header">
+                <div>
+                    <h2 id="<?php echo esc_attr($popup_id); ?>-title" class="dapfforwc-form-manage-popup-title"><?php echo esc_html($title); ?></h2>
+                    <p class="dapfforwc-form-manage-popup-description"><?php echo esc_html($description); ?></p>
+                </div>
+                <button type="button" class="dapfforwc-form-manage-popup-close" data-popup-close="true" aria-label="<?php esc_attr_e('Close settings popup', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                    <span class="dashicons dashicons-no-alt" aria-hidden="true"></span>
+                </button>
+            </div>
+            <div class="dapfforwc-form-manage-popup-body">
+                <?php
+                if (is_callable($render_callback)) {
+                    call_user_func($render_callback);
+                }
+                ?>
+            </div>
+            <div class="dapfforwc-form-manage-popup-footer">
+                <button type="submit" class="button button-primary"><?php esc_html_e('Save Changes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+            </div>
+        </div>
+    </div>
+    <?php
+}
+
+function dapfforwc_render_form_manage_pro_notice($message)
+{
+    ?>
+    <p class="description" style="margin-bottom: 12px;"><?php echo esc_html($message); ?></p>
+    <?php
+}
+
+function dapfforwc_form_manage_attribute_settings_render()
+{
+    dapfforwc_exclude_attributes_render();
+}
+
+function dapfforwc_form_manage_custom_fields_settings_render()
+{
+    dapfforwc_render_form_manage_pro_notice(__('This control is available in Pro.', 'dynamic-ajax-product-filters-for-woocommerce'));
+    dapfforwc_exclude_custom_fields_render();
+}
+
+function dapfforwc_get_product_custom_taxonomy_options()
+{
+    $taxonomies = get_object_taxonomies('product', 'objects');
+    $excluded_taxonomies = [
+        'product_cat',
+        'product_tag',
+        'product_brand',
+        'product_shipping_class',
+    ];
+
+    $custom_taxonomies = [];
+
+    foreach ($taxonomies as $taxonomy) {
+        if (strpos($taxonomy->name, 'pa_') === 0) {
+            continue;
+        }
+
+        if (in_array($taxonomy->name, $excluded_taxonomies, true)) {
+            continue;
+        }
+
+        $custom_taxonomies[] = (object) [
+            'name' => $taxonomy->name,
+            'label' => $taxonomy->label ? $taxonomy->label : $taxonomy->name,
+        ];
+    }
+
+    return $custom_taxonomies;
+}
+
+function dapfforwc_render_custom_taxonomy_popup_fallback()
+{
+    $custom_taxonomies = dapfforwc_get_product_custom_taxonomy_options();
+
+    dapfforwc_render_form_manage_pro_notice(__('This control is available in Pro.', 'dynamic-ajax-product-filters-for-woocommerce'));
+
+    if (empty($custom_taxonomies)) {
+        ?>
+        <p class="description"><?php esc_html_e('No custom product taxonomies were found on this site.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        <?php
+        return;
+    }
+
+    ?>
+    <select class="plugincy_select2" disabled multiple style="scrollbar-width: thin; min-width: 141px;" data-placeholder="<?php esc_attr_e('Select Custom Taxonomies', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+        <?php foreach ($custom_taxonomies as $taxonomy) : ?>
+            <option value="<?php echo esc_attr($taxonomy->name); ?>"><?php echo esc_html($taxonomy->label); ?></option>
+        <?php endforeach; ?>
+    </select>
+    <?php
+}
+
+function dapfforwc_form_manage_custom_taxonomy_settings_render()
+{
+    if (function_exists('dapfforwc_selected_custom_taxonomies_render')) {
+        dapfforwc_selected_custom_taxonomies_render();
+        return;
+    }
+
+    dapfforwc_render_custom_taxonomy_popup_fallback();
+}
+
 function dapfforwc_show_categories_render()
 {
     dapfforwc_render_checkbox('show_categories');
 }
 function dapfforwc_show_attributes_render()
 {
-    dapfforwc_render_checkbox('show_attributes');
+    ?>
+    <div class="dapfforwc-form-manage-setting">
+        <?php dapfforwc_render_checkbox('show_attributes'); ?>
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-attribute-settings-popup',
+            __('Open attribute settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Exclude Attributes', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Choose which attributes should stay hidden from the filter form.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_form_manage_attribute_settings_render'
+        );
+        ?>
+    </div>
+    <?php
 }
 function dapfforwc_show_tags_render()
 {
     dapfforwc_render_checkbox('show_tags');
+}
+function dapfforwc_show_custom_taxonomies_render()
+{
+    ?>
+    <div class="dapfforwc-form-manage-setting">
+        <?php dapfforwc_render_checkbox('show_custom_taxonomies'); ?>
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-custom-taxonomy-settings-popup',
+            __('Open custom taxonomy filter settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Custom Taxonomy Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Select which custom product taxonomies should be available in the filter form.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_form_manage_custom_taxonomy_settings_render'
+        );
+        ?>
+    </div>
+    <?php
 }
 function dapfforwc_show_price_range_render()
 {
@@ -106,7 +501,20 @@ function dapfforwc_show_date_filter_render()
 }
 function dapfforwc_show_custom_fields_render()
 {
-    dapfforwc_render_checkbox('show_custom_fields');
+    ?>
+    <div class="dapfforwc-form-manage-setting">
+        <?php dapfforwc_render_checkbox('show_custom_fields'); ?>
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-custom-fields-settings-popup',
+            __('Open custom field settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Exclude Custom Fields', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Choose which custom fields should stay hidden from the filter form.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_form_manage_custom_fields_settings_render'
+        );
+        ?>
+    </div>
+    <?php
 }
 function dapfforwc_use_filters_word_in_permalinks_render()
 {

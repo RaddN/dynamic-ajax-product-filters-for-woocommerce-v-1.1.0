@@ -794,3 +794,9 @@ button.button.dapfforwc-reset-filters-btn {
   justify-content: center;
   gap: 5px;
 }
+
+
+form.woocommerce-ordering, .woocommerce .woocommerce-result-count {
+    position: relative !important;
+    z-index: 99 !important;
+}
