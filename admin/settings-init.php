@@ -446,6 +446,20 @@ function dapfforwc_sanitize_options($input)
     }
 
     $sanitized = array();
+    $is_seo_permalinks_submission =
+        array_key_exists('dapfforwc_permalinks_prefix_options', $input) ||
+        array_key_exists('seo_title', $input) ||
+        array_key_exists('seo_description', $input) ||
+        array_key_exists('seo_keywords', $input) ||
+        array_key_exists('enable_seo', $input) ||
+        array_key_exists('use_attribute_type_in_permalinks', $input);
+
+    if ($is_seo_permalinks_submission) {
+        // Unchecked checkboxes are omitted from POST; keep an explicit off-state
+        // so the SEO permalink defaults logic does not turn this back on.
+        $sanitized['use_attribute_type_in_permalinks'] =
+            isset($input['use_attribute_type_in_permalinks']) && $input['use_attribute_type_in_permalinks'] === 'on' ? 'on' : '';
+    }
 
     // Loop through each element of the array
     foreach ($input as $key => $value) {

@@ -19,7 +19,7 @@ function dapfforwc_check_woocommerce_duplicate_slugs() {
         }
 
         // Check if the option is not set or if the dismissed time is within the last 3 days
-        if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) || ($dismissed_time !== false && (time() - $dismissed_time) < 3 * DAY_IN_SECONDS)) {
+        if (($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] ?? '') === 'on' || ($dismissed_time !== false && (time() - $dismissed_time) < 3 * DAY_IN_SECONDS)) {
             return; // Don't show the notice
         }
 

@@ -706,42 +706,84 @@ select#child-custom-dropdown:focus {
   align-items: center;
   justify-content: center;
   max-width: 250px;
+  min-height: 170px;
+  background: #fff;
+  cursor: pointer;
+}
+.dapfforwc_admin .image-options > .term-option img {
+  position: relative;
+  z-index: 0;
+  display: block;
 }
 .dapfforwc_admin .image-options > .term-option label {
   position: absolute;
-  background: #f5f4f4;
+  background: rgba(245, 244, 244, 0.96);
   width: 100%;
   padding: 6px 20px;
   bottom: 0;
   margin: 0;
   box-sizing: border-box;
+  z-index: 3;
 }
-.dapfforwc_admin .image-options > .term-option button {
+.dapfforwc_admin .image-options > .term-option .term-option-actions {
   position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  height: 100%;
-  background: transparent;
-  border: none;
-  display: none;
-  padding: 10px;
-  cursor: pointer;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(-6px);
+  pointer-events: none;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+  z-index: 3;
 }
-.dapfforwc_admin .image-options > .term-option:hover button {
-  display: block;
+.dapfforwc_admin .image-options > .term-option .term-option-actions button {
+  position: static;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.12);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+.dapfforwc_admin .image-options > .term-option .term-option-actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(15, 23, 42, 0.18);
+}
+.dapfforwc_admin .image-options > .term-option .term-option-actions .remove-image-button.is-hidden {
+  display: none;
+}
+.dapfforwc_admin .image-options > .term-option:hover .term-option-actions,
+.dapfforwc_admin .image-options > .term-option:focus-within .term-option-actions {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 .dapfforwc_admin .image-options > .term-option:hover {
   transform: translateY(-5px);
   box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
 }
-.dapfforwc_admin .edit-icon {
+.dapfforwc_admin .edit-icon,
+.dapfforwc_admin .trash-icon {
   width: 20px;
   height: 20px;
+}
+.dapfforwc_admin .edit-icon {
   fill: #667eea;
-  background: #fff;
-  border-radius: 50%;
-  padding: 7px;
+}
+.dapfforwc_admin .trash-icon {
+  fill: #dc2626;
 }
 .dapfforwc_admin .image-options > .term-option:hover:before {
   content: "";
@@ -752,6 +794,7 @@ select#child-custom-dropdown:focus {
   top: 0;
   left: 0;
   opacity: 0.5;
+  z-index: 1;
 }
 .dapfforwc_admin .form-table {
   margin-top: 0;

@@ -928,15 +928,20 @@ if (!defined('ABSPATH')) {
                                         <div class="image-options">
                                             <?php foreach ($dapfforwc_terms as $term) :
                                                 if (isset($term['slug'])) {
-                                                    $brand_image_url = dapfforwc_get_wc_brand_image_by_slug($term['slug']);
-                                                    $dapfforwc_image_value = isset($brand_image_url) && !empty($brand_image_url) ? $brand_image_url : $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term["slug"]] ?? ''; // Fetch stored image URL
+                                                    $dapfforwc_default_image_url = dapfforwc_get_wc_brand_image_by_slug($term['slug']) ?: '';
+                                                    $dapfforwc_custom_image_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['images'][$term["slug"]] ?? '';
                                                 } else {
-                                                    $dapfforwc_image_value = '';
+                                                    $dapfforwc_default_image_url = '';
+                                                    $dapfforwc_custom_image_value = '';
                                                 }
 
+                                                $dapfforwc_image_preview = !empty($dapfforwc_custom_image_value)
+                                                    ? $dapfforwc_custom_image_value
+                                                    : (!empty($dapfforwc_default_image_url) ? $dapfforwc_default_image_url : $dapfforwc_upload_placeholder);
+
                                             ?>
-                                                <div class="term-option">
-                                                    <img src="<?php echo esc_attr(isset($dapfforwc_image_value) && !empty($dapfforwc_image_value)  ? $dapfforwc_image_value : plugin_dir_url(__FILE__) . '../assets/images/upload.png'); ?>" style=" max-width: 170px; ">
+                                                <div class="term-option <?php echo !empty($dapfforwc_custom_image_value) ? 'has-custom-image' : ''; ?>" data-default-image="<?php echo esc_attr($dapfforwc_default_image_url); ?>" data-placeholder-image="<?php echo esc_attr($dapfforwc_upload_placeholder); ?>">
+                                                    <img src="<?php echo esc_attr($dapfforwc_image_preview); ?>" style="max-width: 170px;">
                                                     <label for="image-<?php if (isset($term['slug'])) {
                                                                             echo esc_attr($term["slug"]);
                                                                         } ?>">
@@ -948,12 +953,21 @@ if (!defined('ABSPATH')) {
                                                                                         echo esc_attr($term["slug"]);
                                                                                     } ?>" name="dapfforwc_style_options[<?php echo esc_attr($dapfforwc_attribute_name); ?>][images][<?php if (isset($term['slug'])) {
                                                                                                                                                                                     echo esc_attr($term["slug"]);
-                                                                                                                                                                                } ?>]" value="<?php echo esc_attr($dapfforwc_image_value); ?>" placeholder="<?php esc_attr_e('Image URL', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                                    <button type="button" class="upload-image-button">
-                                                        <svg class="edit-icon" viewBox="0 0 24 24">
-                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
-                                                        </svg>
-                                                    </button>
+                                                                                                                                                                                } ?>]" value="<?php echo esc_attr($dapfforwc_custom_image_value); ?>" placeholder="<?php esc_attr_e('Image URL', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                                    <div class="term-option-actions">
+                                                        <button type="button" class="upload-image-button" title="<?php echo esc_attr__('Select image', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" aria-label="<?php echo esc_attr__('Select image', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                                            <svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" />
+                                                            </svg>
+                                                            <span class="screen-reader-text"><?php esc_html_e('Select image', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                        </button>
+                                                        <button type="button" class="remove-image-button <?php echo empty($dapfforwc_custom_image_value) ? 'is-hidden' : ''; ?>" title="<?php echo esc_attr__('Remove image', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" aria-label="<?php echo esc_attr__('Remove image', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                                            <svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                <path d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9zM7 9h2v8H7V9zm1 12c-1.1 0-2-.9-2-2V8h12v11c0 1.1-.9 2-2 2H8z" />
+                                                            </svg>
+                                                            <span class="screen-reader-text"><?php esc_html_e('Remove image', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             <?php endforeach; ?>
                                         </div>
@@ -1558,6 +1572,8 @@ if (!defined('ABSPATH')) {
                                     'imageBase' => $dapfforwc_image_base,
                                     'uploadPlaceholder' => $dapfforwc_upload_placeholder,
                                     'perAttributeGroups' => $dapfforwc_per_attribute_groups,
+                                    'selectImageLabel' => esc_html__('Select image', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                    'removeImageLabel' => esc_html__('Remove image', 'dynamic-ajax-product-filters-for-woocommerce'),
                                     'isPremium' => false,
                                 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
 </script>
@@ -2201,7 +2217,10 @@ if (!defined('ABSPATH')) {
             const colors = (state[attribute] && state[attribute].colors) ? state[attribute].colors : {};
             const images = (state[attribute] && state[attribute].images) ? state[attribute].images : {};
 
-            const svgIcon = '<svg class="edit-icon" viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" /></svg>';
+            const selectImageLabel = data.selectImageLabel || 'Select image';
+            const removeImageLabel = data.removeImageLabel || 'Remove image';
+            const uploadSvgIcon = '<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" /></svg>';
+            const removeSvgIcon = '<svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9zM7 9h2v8H7V9zm1 12c-1.1 0-2-.9-2-2V8h12v11c0 1.1-.9 2-2 2H8z" /></svg>';
 
             terms.forEach(function(term) {
                 const slug = term.slug;
@@ -2210,7 +2229,8 @@ if (!defined('ABSPATH')) {
                     return;
                 }
                 const colorValue = colors && Object.prototype.hasOwnProperty.call(colors, slug) ? colors[slug] : (term.default_color || '#000000');
-                const imageValue = images && Object.prototype.hasOwnProperty.call(images, slug) ? images[slug] : (term.default_image || '');
+                const storedImageValue = images && Object.prototype.hasOwnProperty.call(images, slug) ? images[slug] : '';
+                const defaultImageValue = term.default_image || '';
 
                 const colorItem = document.createElement('div');
                 colorItem.className = 'term-option';
@@ -2219,12 +2239,17 @@ if (!defined('ABSPATH')) {
                 colorContainer.appendChild(colorItem);
 
                 const imageItem = document.createElement('div');
-                imageItem.className = 'term-option';
-                const imageSrc = imageValue || uploadPlaceholder;
+                imageItem.className = 'term-option' + (storedImageValue ? ' has-custom-image' : '');
+                imageItem.setAttribute('data-default-image', defaultImageValue);
+                imageItem.setAttribute('data-placeholder-image', uploadPlaceholder);
+                const imageSrc = storedImageValue || defaultImageValue || uploadPlaceholder;
                 imageItem.innerHTML = '<img src="' + imageSrc + '" style="max-width: 170px;">' +
                     '<label for="image-' + slug + '"><strong>' + name + '</strong></label>' +
-                    '<input type="hidden" id="image-' + slug + '" name="dapfforwc_style_options[' + attribute + '][images][' + slug + ']" value="' + imageValue + '" placeholder="Image URL">' +
-                    '<button type="button" class="upload-image-button">' + svgIcon + '</button>';
+                    '<input type="hidden" id="image-' + slug + '" name="dapfforwc_style_options[' + attribute + '][images][' + slug + ']" value="' + storedImageValue + '" placeholder="Image URL">' +
+                    '<div class="term-option-actions">' +
+                    '<button type="button" class="upload-image-button" title="' + selectImageLabel + '" aria-label="' + selectImageLabel + '">' + uploadSvgIcon + '<span class="screen-reader-text">' + selectImageLabel + '</span></button>' +
+                    '<button type="button" class="remove-image-button' + (storedImageValue ? '' : ' is-hidden') + '" title="' + removeImageLabel + '" aria-label="' + removeImageLabel + '">' + removeSvgIcon + '<span class="screen-reader-text">' + removeImageLabel + '</span></button>' +
+                    '</div>';
                 imageContainer.appendChild(imageItem);
             });
         };

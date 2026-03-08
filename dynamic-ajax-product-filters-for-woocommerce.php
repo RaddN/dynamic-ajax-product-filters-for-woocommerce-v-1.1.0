@@ -1763,13 +1763,15 @@ function dapfforwc_admin_scripts($hook)
     global $dapfforwc_sub_options;
     wp_enqueue_style('wp-color-picker');
     wp_enqueue_script('wp-color-picker');
-    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], '1.5.7');
+    $dapfforwc_admin_style_version = filemtime(plugin_dir_path(__FILE__) . 'assets/css/admin-style.min.css');
+    $dapfforwc_media_uploader_version = filemtime(plugin_dir_path(__FILE__) . 'assets/js/media-uploader.min.js');
+    wp_enqueue_style('dapfforwc-admin-style', plugin_dir_url(__FILE__) . 'assets/css/admin-style.min.css', [], $dapfforwc_admin_style_version);
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
     wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.7', true);
     wp_enqueue_media();
-    wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], '1.0.0', true);
+    wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], $dapfforwc_media_uploader_version, true);
 
 
     wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.4.6.70');
