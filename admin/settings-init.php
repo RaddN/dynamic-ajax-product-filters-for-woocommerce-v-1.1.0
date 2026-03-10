@@ -167,6 +167,12 @@ function dapfforwc_settings_init()
     $Advance_options = get_option('dapfforwc_advance_options') ?: [
         'product_selector' => 'ul.products',
         'pagination_selector' => '.woocommerce-pagination',
+        'advanced_pagination_enabled' => '',
+        'advanced_pagination_mode' => 'number',
+        'advanced_pagination_prev_selector' => '',
+        'advanced_pagination_next_selector' => '',
+        'advanced_pagination_load_more_selector' => '',
+        'advanced_pagination_infinite_scroll_selector' => '',
         'product_shortcode' => 'products',
         'remove_outofStock' => 0,
         'allow_data_share' => "on",
@@ -528,6 +534,12 @@ function dapfforwc_sanitize_advance_options($input)
     $defaults = [
         'product_selector' => 'ul.products',
         'pagination_selector' => '.woocommerce-pagination',
+        'advanced_pagination_enabled' => '',
+        'advanced_pagination_mode' => 'number',
+        'advanced_pagination_prev_selector' => '',
+        'advanced_pagination_next_selector' => '',
+        'advanced_pagination_load_more_selector' => '',
+        'advanced_pagination_infinite_scroll_selector' => '',
         'product_shortcode' => 'products',
         'remove_outofStock' => 0,
         'allow_data_share' => "on",
@@ -550,6 +562,11 @@ function dapfforwc_sanitize_advance_options($input)
     $full_form_keys = [
         'product_selector',
         'pagination_selector',
+        'advanced_pagination_mode',
+        'advanced_pagination_prev_selector',
+        'advanced_pagination_next_selector',
+        'advanced_pagination_load_more_selector',
+        'advanced_pagination_infinite_scroll_selector',
         'product_shortcode',
         'mobile_breakpoint',
         'no_products_text',
@@ -557,6 +574,7 @@ function dapfforwc_sanitize_advance_options($input)
     ];
 
     $checkbox_keys = [
+        'advanced_pagination_enabled',
         'remove_outofStock',
         'allow_data_share',
         'sidebar_on_top',
@@ -588,6 +606,32 @@ function dapfforwc_sanitize_advance_options($input)
     if (array_key_exists('pagination_selector', $input)) {
         $pagination_selector = sanitize_text_field(wp_unslash($input['pagination_selector']));
         $sanitized['pagination_selector'] = $pagination_selector !== '' ? $pagination_selector : '.woocommerce-pagination';
+    }
+
+    if (array_key_exists('advanced_pagination_mode', $input)) {
+        $allowed_modes = [
+            'number',
+            'number_prev_next',
+            'load_more',
+            'infinite_scroll',
+        ];
+        $advanced_pagination_mode = sanitize_key(wp_unslash($input['advanced_pagination_mode']));
+        $sanitized['advanced_pagination_mode'] = in_array($advanced_pagination_mode, $allowed_modes, true) ? $advanced_pagination_mode : 'number';
+    }
+
+    $pagination_selector_fields = [
+        'advanced_pagination_prev_selector',
+        'advanced_pagination_next_selector',
+        'advanced_pagination_load_more_selector',
+        'advanced_pagination_infinite_scroll_selector',
+    ];
+
+    foreach ($pagination_selector_fields as $selector_field) {
+        if (!array_key_exists($selector_field, $input)) {
+            continue;
+        }
+
+        $sanitized[$selector_field] = sanitize_text_field(wp_unslash($input[$selector_field]));
     }
 
     if (array_key_exists('product_shortcode', $input)) {

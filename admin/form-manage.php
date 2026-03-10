@@ -187,6 +187,57 @@ function dapfforwc_render_form_manage_popup_assets()
             margin-top: 10px;
         }
 
+        .dapfforwc-popup-setting-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .dapfforwc-popup-setting {
+            display: grid;
+            gap: 8px;
+        }
+
+        .dapfforwc-popup-setting[hidden] {
+            display: none !important;
+        }
+
+        .dapfforwc-popup-setting-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .dapfforwc-popup-setting-label {
+            margin: 0;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .dapfforwc-popup-setting-note {
+            margin: 0;
+            padding: 12px 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #475569;
+        }
+
+        .dapfforwc-popup-setting-field[hidden] {
+            display: none !important;
+        }
+
+        .dapfforwc-popup-setting input[type="text"],
+        .dapfforwc-popup-setting input[type="number"],
+        .dapfforwc-popup-setting select {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .dapfforwc-popup-setting .switch {
+            margin-right: 0;
+        }
+
         .dapfforwc-form-manage-popup-footer {
             display: flex;
             justify-content: flex-end;
@@ -298,7 +349,7 @@ function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $d
     ?>
     <button
         type="button"
-        class="dapfforwc-form-manage-settings-trigger"
+        class="dapfforwc-form-manage-settings-trigger dapfforwcpro-form-manage-settings-trigger"
         data-popup-target="<?php echo esc_attr($popup_id); ?>"
         aria-haspopup="dialog"
         aria-controls="<?php echo esc_attr($popup_id); ?>"

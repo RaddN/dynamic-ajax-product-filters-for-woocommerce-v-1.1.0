@@ -21,12 +21,173 @@ function dapfforwc_pagination_selector_callback()
     global $dapfforwc_advance_settings;
     $pagination_selector = isset($dapfforwc_advance_settings['pagination_selector']) ? esc_attr($dapfforwc_advance_settings['pagination_selector']) : '.woocommerce-pagination';
 ?>
-    <input type="text" name="dapfforwc_advance_options[pagination_selector]" value="<?php echo esc_attr($pagination_selector); ?>" placeholder=".woocommerce-pagination">
+    <div class="dapfforwc-form-manage-setting">
+        <input type="text" name="dapfforwc_advance_options[pagination_selector]" value="<?php echo esc_attr($pagination_selector); ?>" placeholder=".woocommerce-pagination">
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-advanced-pagination-popup',
+            __('Manage advanced pagination settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Advanced Pagination', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Set an explicit pagination mode only when your theme uses custom pagination markup or mixed pagination behaviors.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_render_advanced_pagination_settings_popup'
+        );
+        ?>
+    </div>
     <p class="description">
         <?php esc_html_e('Enter the CSS selector for the pagination container. Default is .woocommerce-pagination.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
     </p>
 <?php
 }
+
+function dapfforwc_get_advanced_pagination_setting($key, $default = '')
+{
+    global $dapfforwc_advance_settings;
+
+    if (!isset($dapfforwc_advance_settings[$key])) {
+        return $default;
+    }
+
+    return $dapfforwc_advance_settings[$key];
+}
+
+function dapfforwc_render_advanced_pagination_switch($key, $is_checked)
+{
+    ?>
+    <label class="switch <?php echo esc_attr($key); ?>">
+        <input type="checkbox" id="<?php echo esc_attr($key); ?>" name="dapfforwc_advance_options[<?php echo esc_attr($key); ?>]" <?php checked($is_checked); ?>>
+        <span class="slider round"></span>
+        <span class="switch-on">On</span>
+        <span class="switch-off">Off</span>
+    </label>
+    <?php
+}
+
+function dapfforwc_render_advanced_pagination_popup_assets()
+{
+    static $assets_rendered = false;
+
+    if ($assets_rendered) {
+        return;
+    }
+
+    $assets_rendered = true;
+    ?>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('[data-dapfforwc-advanced-pagination-root="true"]').forEach(function (root) {
+                const toggle = root.querySelector('input[name="dapfforwc_advance_options[advanced_pagination_enabled]"]');
+                const modeField = root.querySelector('select[name="dapfforwc_advance_options[advanced_pagination_mode]"]');
+
+                if (!toggle || !modeField) {
+                    return;
+                }
+
+                const updateState = function () {
+                    const isEnabled = !!toggle.checked;
+                    const selectedMode = modeField.value || 'number';
+
+                    root.querySelectorAll('[data-dapfforwc-pagination-managed="true"]').forEach(function (section) {
+                        const modeList = (section.getAttribute('data-dapfforwc-pagination-modes') || '')
+                            .split(',')
+                            .map(function (value) {
+                                return value.trim();
+                            })
+                            .filter(Boolean);
+                        const isVisible = isEnabled && (!modeList.length || modeList.indexOf(selectedMode) !== -1);
+
+                        section.hidden = !isVisible;
+                        section.querySelectorAll('input, select, textarea').forEach(function (field) {
+                            field.disabled = !isVisible;
+                        });
+                    });
+                };
+
+                toggle.addEventListener('change', updateState);
+                modeField.addEventListener('change', updateState);
+                updateState();
+            });
+        });
+    </script>
+    <?php
+}
+
+function dapfforwc_render_advanced_pagination_settings_popup()
+{
+    $enabled = dapfforwc_get_advanced_pagination_setting('advanced_pagination_enabled') === 'on';
+    $mode = sanitize_key((string) dapfforwc_get_advanced_pagination_setting('advanced_pagination_mode', 'number'));
+    $allowed_modes = [
+        'number' => __('Number', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'number_prev_next' => __('Number + Prev/Next', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'load_more' => __('Load More', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'infinite_scroll' => __('Infinite Scroll', 'dynamic-ajax-product-filters-for-woocommerce'),
+    ];
+
+    if (!isset($allowed_modes[$mode])) {
+        $mode = 'number';
+    }
+
+    $prev_selector = (string) dapfforwc_get_advanced_pagination_setting('advanced_pagination_prev_selector', '');
+    $next_selector = (string) dapfforwc_get_advanced_pagination_setting('advanced_pagination_next_selector', '');
+    $load_more_selector = (string) dapfforwc_get_advanced_pagination_setting('advanced_pagination_load_more_selector', '');
+    $infinite_scroll_selector = (string) dapfforwc_get_advanced_pagination_setting('advanced_pagination_infinite_scroll_selector', '');
+
+    $show_mode_field = $enabled;
+    $show_prev_next_fields = $enabled && $mode === 'number_prev_next';
+    $show_load_more_field = $enabled && $mode === 'load_more';
+    $show_infinite_scroll_field = $enabled && $mode === 'infinite_scroll';
+
+    dapfforwc_render_advanced_pagination_popup_assets();
+    ?>
+    <div class="dapfforwc-popup-setting-grid" data-dapfforwc-advanced-pagination-root="true">
+        <p class="dapfforwc-popup-setting-note">
+            <?php esc_html_e('Keep the Pagination Selector above pointed at the container that should be refreshed after AJAX. Enable advanced pagination only when you need to force a specific pagination behavior.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+        </p>
+
+        <div class="dapfforwc-popup-setting">
+            <div class="dapfforwc-popup-setting-heading">
+                <label class="dapfforwc-popup-setting-label" for="advanced_pagination_enabled"><?php esc_html_e('Enable Advanced Pagination', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+                <?php dapfforwc_render_advanced_pagination_switch('advanced_pagination_enabled', $enabled); ?>
+            </div>
+            <p class="description"><?php esc_html_e('When enabled, the selected mode and selectors will take priority over the plugin\'s automatic pagination detection.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+
+        <div class="dapfforwc-popup-setting" data-dapfforwc-pagination-managed="true" <?php echo $show_mode_field ? '' : 'hidden'; ?>>
+            <label class="dapfforwc-popup-setting-label" for="advanced_pagination_mode"><?php esc_html_e('Pagination Mode', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <select id="advanced_pagination_mode" name="dapfforwc_advance_options[advanced_pagination_mode]" <?php disabled(!$show_mode_field); ?>>
+                <?php foreach ($allowed_modes as $option_value => $option_label) : ?>
+                    <option value="<?php echo esc_attr($option_value); ?>" <?php selected($mode, $option_value); ?>><?php echo esc_html($option_label); ?></option>
+                <?php endforeach; ?>
+            </select>
+            <p class="description"><?php esc_html_e('Choose the only pagination behavior this filter should use to avoid conflicts with theme or builder markup.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+
+        <div class="dapfforwc-popup-setting" data-dapfforwc-pagination-managed="true" data-dapfforwc-pagination-modes="number_prev_next" <?php echo $show_prev_next_fields ? '' : 'hidden'; ?>>
+            <label class="dapfforwc-popup-setting-label" for="advanced_pagination_prev_selector"><?php esc_html_e('Previous Selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <input type="text" id="advanced_pagination_prev_selector" name="dapfforwc_advance_options[advanced_pagination_prev_selector]" value="<?php echo esc_attr($prev_selector); ?>" placeholder=".page-numbers .prev, .pagination .prev" <?php disabled(!$show_prev_next_fields); ?>>
+            <p class="description"><?php esc_html_e('Optional. Use this when the Previous control has custom markup or sits outside the main pagination wrapper.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+
+        <div class="dapfforwc-popup-setting" data-dapfforwc-pagination-managed="true" data-dapfforwc-pagination-modes="number_prev_next" <?php echo $show_prev_next_fields ? '' : 'hidden'; ?>>
+            <label class="dapfforwc-popup-setting-label" for="advanced_pagination_next_selector"><?php esc_html_e('Next Selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <input type="text" id="advanced_pagination_next_selector" name="dapfforwc_advance_options[advanced_pagination_next_selector]" value="<?php echo esc_attr($next_selector); ?>" placeholder=".page-numbers .next, .pagination .next" <?php disabled(!$show_prev_next_fields); ?>>
+            <p class="description"><?php esc_html_e('Optional. Use this when the Next control has custom markup or sits outside the main pagination wrapper.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+
+        <div class="dapfforwc-popup-setting" data-dapfforwc-pagination-managed="true" data-dapfforwc-pagination-modes="load_more" <?php echo $show_load_more_field ? '' : 'hidden'; ?>>
+            <label class="dapfforwc-popup-setting-label" for="advanced_pagination_load_more_selector"><?php esc_html_e('Load More Trigger Selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <input type="text" id="advanced_pagination_load_more_selector" name="dapfforwc_advance_options[advanced_pagination_load_more_selector]" value="<?php echo esc_attr($load_more_selector); ?>" placeholder=".load-more, .woocommerce-load-more" <?php disabled(!$show_load_more_field); ?>>
+            <p class="description"><?php esc_html_e('Optional. Use this when the Load More button is custom or outside the main pagination wrapper.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+
+        <div class="dapfforwc-popup-setting" data-dapfforwc-pagination-managed="true" data-dapfforwc-pagination-modes="infinite_scroll" <?php echo $show_infinite_scroll_field ? '' : 'hidden'; ?>>
+            <label class="dapfforwc-popup-setting-label" for="advanced_pagination_infinite_scroll_selector"><?php esc_html_e('Infinite Scroll Trigger Selector', 'dynamic-ajax-product-filters-for-woocommerce'); ?></label>
+            <input type="text" id="advanced_pagination_infinite_scroll_selector" name="dapfforwc_advance_options[advanced_pagination_infinite_scroll_selector]" value="<?php echo esc_attr($infinite_scroll_selector); ?>" placeholder=".infinite-scroll-trigger, .yith-wcan-infinite-scroll" <?php disabled(!$show_infinite_scroll_field); ?>>
+            <p class="description"><?php esc_html_e('Optional. Use this when infinite scrolling depends on a custom trigger or sentinel element.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+    </div>
+    <?php
+}
+
 // Render the "Product Shortcode Selector" field
 function dapfforwc_product_shortcode_callback()
 {
