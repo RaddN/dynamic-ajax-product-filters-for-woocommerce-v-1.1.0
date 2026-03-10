@@ -8,6 +8,22 @@ function dapfforwc_use_attribute_type_in_permalinks_render()
     dapfforwc_render_checkbox('use_attribute_type_in_permalinks', "dapfforwc_seo_permalinks_options");
 }
 
+function dapfforwc_filters_word_in_permalinks_render()
+{
+?>
+    <div class="dapfforwc-form-group pro-only">
+        <input disabled type="text" id="dapfforwc_filters_word_in_permalinks" name="_pro"
+            value="filters"
+            placeholder="<?php esc_attr_e('filters', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" />
+        <p class="description">
+            <?php echo esc_html__('Choose the permalink segment used before filter values.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+            <code>/shop/filters/color/blue</code>
+            <?php echo esc_html__('Use lowercase letters, numbers, or hyphens. Rewrite rules refresh when you save.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+        </p>
+    </div>
+<?php
+}
+
 function dapfforwc_enable_seo_render()
 {
     dapfforwc_render_checkbox('enable_seo', "dapfforwc_seo_permalinks_options");

@@ -228,6 +228,11 @@ function dapfforwc_settings_init()
         'dapfforwcpro_advance_settings_section'
     );
 
+    add_settings_field('wait_cursor_on_filtering', esc_html__('Wait Cursor on Filtering', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_wait_cursor_on_filtering_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('use_overlay', esc_html__('Use Overlay', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_use_overlay_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('smart_auto_scroll', esc_html__('Smart Auto Scroll', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_smart_auto_scroll_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('pagination_via_ajax', esc_html__('Pagination via AJAX', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_pagination_via_ajax_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('sorting_via_ajax', esc_html__('Product Sorting via AJAX', 'dynamic-ajax-product-filters-for-woocommerce-pro'), "dapfforwc_sorting_via_ajax_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('remove_outofStock', esc_html__('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('allow_data_share', esc_html__('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('sidebar_on_top', esc_html__('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
@@ -337,7 +342,7 @@ function dapfforwc_settings_init()
     // add_settings_field('use_filters_word_in_permalinks', esc_html__('Use Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
     if (isset($dapfforwc_options["use_url_filter"]) && $dapfforwc_options["use_url_filter"] !== "ajax") {
         add_settings_field('use_attribute_type_in_permalinks', esc_html__('Use Attribute Type in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_use_attribute_type_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
-        // add_settings_field('filters_word_in_permalinks', esc_html__('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
+        add_settings_field('filters_word_in_permalinks', esc_html__('Filters Word in Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_filters_word_in_permalinks_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
         add_settings_field('permalinks_prefix', esc_html__('Permalinks Prefix', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_permalinks_prefix_render", 'dapfforwc-seo-permalinks', 'dapfforwc_seo_permalinks_section');
     }
     // Add the "SEO Setup" section
