@@ -167,6 +167,8 @@ function dapfforwc_settings_init()
     $Advance_options = get_option('dapfforwc_advance_options') ?: [
         'product_selector' => 'ul.products',
         'pagination_selector' => '.woocommerce-pagination',
+        'sorting_selector' => 'form.woocommerce-ordering select',
+        'result_count_selector' => '.woocommerce-result-count',
         'advanced_pagination_enabled' => '',
         'advanced_pagination_mode' => 'number',
         'advanced_pagination_prev_selector' => '',
@@ -213,6 +215,20 @@ function dapfforwc_settings_init()
         'pagination_selector',
         esc_html__('Pagination Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
         'dapfforwc_pagination_selector_callback',
+        'dapfforwc-advance-settings',
+        'dapfforwc_advance_settings_section'
+    );
+    add_settings_field(
+        'sorting_selector',
+        esc_html__('Sorting Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'dapfforwc_sorting_selector_callback',
+        'dapfforwc-advance-settings',
+        'dapfforwc_advance_settings_section'
+    );
+    add_settings_field(
+        'result_count_selector',
+        esc_html__('Result Count Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+        'dapfforwc_result_count_selector_callback',
         'dapfforwc-advance-settings',
         'dapfforwc_advance_settings_section'
     );
@@ -534,6 +550,8 @@ function dapfforwc_sanitize_advance_options($input)
     $defaults = [
         'product_selector' => 'ul.products',
         'pagination_selector' => '.woocommerce-pagination',
+        'sorting_selector' => 'form.woocommerce-ordering select',
+        'result_count_selector' => '.woocommerce-result-count',
         'advanced_pagination_enabled' => '',
         'advanced_pagination_mode' => 'number',
         'advanced_pagination_prev_selector' => '',
@@ -562,6 +580,8 @@ function dapfforwc_sanitize_advance_options($input)
     $full_form_keys = [
         'product_selector',
         'pagination_selector',
+        'sorting_selector',
+        'result_count_selector',
         'advanced_pagination_mode',
         'advanced_pagination_prev_selector',
         'advanced_pagination_next_selector',
@@ -606,6 +626,16 @@ function dapfforwc_sanitize_advance_options($input)
     if (array_key_exists('pagination_selector', $input)) {
         $pagination_selector = sanitize_text_field(wp_unslash($input['pagination_selector']));
         $sanitized['pagination_selector'] = $pagination_selector !== '' ? $pagination_selector : '.woocommerce-pagination';
+    }
+
+    if (array_key_exists('sorting_selector', $input)) {
+        $sorting_selector = sanitize_text_field(wp_unslash($input['sorting_selector']));
+        $sanitized['sorting_selector'] = $sorting_selector !== '' ? $sorting_selector : 'form.woocommerce-ordering select';
+    }
+
+    if (array_key_exists('result_count_selector', $input)) {
+        $result_count_selector = sanitize_text_field(wp_unslash($input['result_count_selector']));
+        $sanitized['result_count_selector'] = $result_count_selector !== '' ? $result_count_selector : '.woocommerce-result-count';
     }
 
     if (array_key_exists('advanced_pagination_mode', $input)) {

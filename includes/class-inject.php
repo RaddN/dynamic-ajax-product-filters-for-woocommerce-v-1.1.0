@@ -61,6 +61,19 @@ class dapfforwc_Custom_Class_Injector
         add_filter('render_block', array($this, 'add_block_template_class'), 10, 2);
     }
 
+    private function get_advanced_selector_setting($key, $default)
+    {
+        $advanced_settings = get_option('dapfforwc_advance_options');
+
+        if (!is_array($advanced_settings) || !isset($advanced_settings[$key])) {
+            return $default;
+        }
+
+        $value = trim((string) $advanced_settings[$key]);
+
+        return $value !== '' ? $value : $default;
+    }
+
     /**
      * Improved products wrapper class addition
      */
@@ -255,6 +268,7 @@ class dapfforwc_Custom_Class_Injector
     public function inject_pagination_class()
     {
         if (is_woocommerce()) {
+            $result_count_selector = $this->get_advanced_selector_setting('result_count_selector', '.woocommerce-result-count');
             echo '<script>
                 jQuery(document).ready(function($) {
                     // Target multiple possible pagination selectors
@@ -267,7 +281,7 @@ class dapfforwc_Custom_Class_Injector
                         ".nav-links:not(header .nav-links)",
                         ".woocommerce .paginate_links:not(header .paginate_links)",
                         ".products + .navigation",
-                        ".woocommerce-result-count + .navigation",
+                        "' . esc_js($result_count_selector) . ' + .navigation",
                         ".wc-block-pagination:not(header .wc-block-pagination)"
                     ];
                     
@@ -433,9 +447,10 @@ class dapfforwc_Custom_Class_Injector
     public function inject_result_count_class()
     {
         if (is_woocommerce()) {
+            $result_count_selector = $this->get_advanced_selector_setting('result_count_selector', '.woocommerce-result-count');
             echo '<script>
                 jQuery(document).ready(function($) {
-                    $(".woocommerce-result-count").addClass("' . esc_attr($this->custom_classes['result_count']) . '");
+                    $("' . esc_js($result_count_selector) . '").addClass("' . esc_attr($this->custom_classes['result_count']) . '");
                 });
             </script>';
         }

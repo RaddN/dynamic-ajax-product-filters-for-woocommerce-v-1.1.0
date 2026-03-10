@@ -39,6 +39,30 @@ function dapfforwc_pagination_selector_callback()
 <?php
 }
 
+function dapfforwc_sorting_selector_callback()
+{
+    global $dapfforwc_advance_settings;
+    $sorting_selector = isset($dapfforwc_advance_settings['sorting_selector']) ? esc_attr($dapfforwc_advance_settings['sorting_selector']) : 'form.woocommerce-ordering select';
+?>
+    <input type="text" name="dapfforwc_advance_options[sorting_selector]" value="<?php echo esc_attr($sorting_selector); ?>" placeholder="form.woocommerce-ordering select">
+    <p class="description">
+        <?php esc_html_e('Enter the CSS selector for the WooCommerce sorting dropdown. Default is form.woocommerce-ordering select.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+    </p>
+<?php
+}
+
+function dapfforwc_result_count_selector_callback()
+{
+    global $dapfforwc_advance_settings;
+    $result_count_selector = isset($dapfforwc_advance_settings['result_count_selector']) ? esc_attr($dapfforwc_advance_settings['result_count_selector']) : '.woocommerce-result-count';
+?>
+    <input type="text" name="dapfforwc_advance_options[result_count_selector]" value="<?php echo esc_attr($result_count_selector); ?>" placeholder=".woocommerce-result-count">
+    <p class="description">
+        <?php esc_html_e('Enter the CSS selector for the result count wrapper. Default is .woocommerce-result-count.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+    </p>
+<?php
+}
+
 function dapfforwc_get_advanced_pagination_setting($key, $default = '')
 {
     global $dapfforwc_advance_settings;
