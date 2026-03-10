@@ -2737,33 +2737,40 @@ function dapfforwc_render_category_hierarchy(
     $categoryHierarchyOutput = "";
     foreach ($categories as $category) {
         if (is_object($category)) {
+            $term_id = (int) ($category->term_id ?? 0);
             $value = esc_attr($category->slug);
             $title = esc_html($category->name);
         } elseif (is_array($category)) {
+            $term_id = (int) ($category['term_id'] ?? 0);
             $value = esc_attr($category['slug']);
             $title = esc_html($category['name']);
         } else {
             // Handle cases where $category is neither an object nor an array
+            $term_id = 0;
             $value = '';
             $title = '';
         }
         $count = $show_count === 'yes' ? (is_object($category) ? $category->count : $category["count"]) : 0;
-        $checked = in_array($category->slug, $selected_categories) ? ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') ? ' selected' : ' checked') : '';
+        $is_select_mode = ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2') || $sub_option === 'select2_classic');
+        $checked = in_array($value, $selected_categories, true) ? ($is_select_mode ? ' selected' : ' checked') : '';
         $anchorlink = $use_filters_word === 'on' ? "filters/$value" : "?filters=$value";
 
         // Fetch child categories
-        $child_categories = dapfforwc_get_child_categories($child_category, $category->term_id);
-        $is_select_mode = ($sub_option === 'select' || str_contains($sub_option, 'pluginy_select2'));
+        $child_categories = dapfforwc_get_child_categories($child_category, $term_id);
         $toggle_control = (!empty($child_categories) && $hierarchical === 'enable_hide_child' && !$is_select_mode)
             ? '<span class="show-sub-cata" style="cursor:pointer;" role="button" tabindex="0" aria-expanded="false">+</span>'
             : '';
+        $node_open = !$is_select_mode ? '<div class="dapfforwcpro-hierarchy-node">' : '';
+        $node_close = !$is_select_mode ? '</div>' : '';
 
         // Render current category
-        $categoryHierarchyOutput .= $use_anchor === 'on' && $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2')
+        $categoryHierarchyOutput .= $node_open;
+        $categoryHierarchyOutput .= $use_anchor === 'on' && !$is_select_mode
             ? '<div class="dapfforwcpro-category-row" style="display:flex;align-items: center;text-decoration: none;"><a href="' . esc_attr($anchorlink) . '">'
             . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
             . '</a>'
             . $toggle_control
+            . '</div>'
              : (!$is_select_mode ? '<div class="dapfforwcpro-category-row" style="display:flex;align-items: center;text-decoration: none;">'
                 . dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $dapfforwc_styleoptions, "product-category", "product-category", $singlevaluecataSelect, $count)
                 . $toggle_control
@@ -2781,6 +2788,7 @@ function dapfforwc_render_category_hierarchy(
             }
             $categoryHierarchyOutput .= $sub_option !== 'select' && !str_contains($sub_option, 'pluginy_select2') ? '</div>' : '';
         }
+        $categoryHierarchyOutput .= $node_close;
     }
     return $categoryHierarchyOutput;
 }

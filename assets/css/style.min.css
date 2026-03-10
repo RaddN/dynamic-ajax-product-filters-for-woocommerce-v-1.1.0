@@ -461,6 +461,15 @@ form.rfilterbuttons * {
 #product-filter .child-categories {
   margin-left: 25px;
 }
+#product-filter .dapfforwcpro-hierarchy-node {
+  min-width: 0;
+}
+#product-filter .dapfforwcpro-hierarchy-node > .dapfforwcpro-category-row {
+  width: 100%;
+}
+#product-filter .plugincy-terms-layout-horizontal .dapfforwcpro-hierarchy-node > .child-categories {
+  margin-top: 6px;
+}
 
 #product-filter .plugincy_collapsable_minimize_initial .collaps svg {
   transform: rotate(-90deg);
