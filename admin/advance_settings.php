@@ -64,23 +64,23 @@ function dapfforwc_remove_outofStock_render()
 }
 function dapfforwc_wait_cursor_on_filtering_render()
 {
-    dapfforwc_render_advance_checkbox('wait_cursor_on_filtering', esc_html__('Show the browser wait cursor while filters are loading new products.', 'dynamic-ajax-product-filters-for-woocommerce-pro'), );
+    dapfforwc_render_advance_checkbox('wait_cursor_on_filtering', esc_html__('Show the browser wait cursor while filters are loading new products.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 function dapfforwc_use_overlay_render()
 {
-    dapfforwc_render_advance_checkbox('use_overlay', esc_html__('Display a page overlay during AJAX filtering requests.', 'dynamic-ajax-product-filters-for-woocommerce-pro'));
+    dapfforwc_render_advance_checkbox('use_overlay', esc_html__('Display a page overlay during AJAX filtering requests.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 function dapfforwc_smart_auto_scroll_render()
 {
-    dapfforwc_render_advance_checkbox('smart_auto_scroll', esc_html__('Automatically scroll to the product grid after AJAX updates and enable scroll-based pagination helpers.', 'dynamic-ajax-product-filters-for-woocommerce-pro'));
+    dapfforwc_render_advance_checkbox('smart_auto_scroll', esc_html__('Automatically scroll to the product grid after AJAX updates and enable scroll-based pagination helpers.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 function dapfforwc_pagination_via_ajax_render()
 {
-    dapfforwc_render_advance_checkbox('pagination_via_ajax', esc_html__('Load pagination links through AJAX instead of a full page reload.', 'dynamic-ajax-product-filters-for-woocommerce-pro'));
+    dapfforwc_render_advance_checkbox('pagination_via_ajax', esc_html__('Load pagination links through AJAX instead of a full page reload.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 function dapfforwc_sorting_via_ajax_render()
 {
-    dapfforwc_render_advance_checkbox('sorting_via_ajax', esc_html__('Apply WooCommerce product sorting with AJAX instead of a full page reload.', 'dynamic-ajax-product-filters-for-woocommerce-pro'));
+    dapfforwc_render_advance_checkbox('sorting_via_ajax', esc_html__('Apply WooCommerce product sorting with AJAX instead of a full page reload.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
 function dapfforwc_allow_data_share_render()
 {

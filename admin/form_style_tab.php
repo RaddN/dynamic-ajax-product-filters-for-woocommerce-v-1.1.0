@@ -767,7 +767,7 @@ if (!defined('ABSPATH')) {
                                 <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
                                     <div class="col-6">
                                         <div class="setting-item">
-                                            <p><strong><?php esc_html_e('Min Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <p><strong><?php esc_html_e('Min Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
                                                 <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["min"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["min"]) : 'Min'; ?>
                                                 <input type="text" name="dapfforwc_style_options[dimensions_placeholder][min]" placeholder="Min" value="<?php echo esc_attr($dimensions_placeholder); ?>">
@@ -776,7 +776,7 @@ if (!defined('ABSPATH')) {
                                     </div>
                                     <div class="col-6">
                                         <div class="setting-item">
-                                            <p><strong><?php esc_html_e('Max Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
+                                            <p><strong><?php esc_html_e('Max Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                             <label>
                                                 <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["max"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["max"]) : 'Max'; ?>
                                                 <input type="text" name="dapfforwc_style_options[dimensions_placeholder][max]" placeholder="Max" value="<?php echo esc_attr($dimensions_placeholder); ?>">

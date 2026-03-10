@@ -3,7 +3,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.5.7.5
+ * Version:     1.5.7.7
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -22,7 +22,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.5.7.5');
+define('DAPFFORWC_VERSION', '1.5.7.7');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -1675,7 +1675,7 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.7.5', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.7.7', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     $dapfforwc_localized_data = array(
         'dapfforwc_options' => $dapfforwc_options,
@@ -1696,9 +1696,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.7.5');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.7.5');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.7.5', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.7.7');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.7.7');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.7.7', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -1751,11 +1751,11 @@ function dapfforwc_admin_scripts($hook)
         'dapfforwc-admin-menu-style',
         plugin_dir_url(__FILE__) . 'assets/css/admin-menu.min.css',
         [],
-        '1.5.7.5',
+        '1.5.7.7',
         'all'
     );
 
-    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.5.7.5', true);
+    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.5.7.7', true);
     
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
@@ -1769,7 +1769,7 @@ function dapfforwc_admin_scripts($hook)
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.7.5', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.7.7', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], $dapfforwc_media_uploader_version, true);
 
@@ -2042,10 +2042,10 @@ function dapfforwc_add_settings_link($links)
     }
     $old_links = $links;
     $links = [];
-    $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=dapfforwc-admin')) . '">' . esc_html__('Settings', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
-    $support_link = '<a href="' . esc_url("https://www.plugincy.com/support/") . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
-    $documentation_link = '<a href="' . esc_url("https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/") . '">' . esc_html__('Documentation', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
-    $our_plugins_link = '<a href="' . esc_url(admin_url('admin.php?page=plugincy-plugins')) . '">' . esc_html__('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>';
+    $settings_link = '<a href="' . esc_url(admin_url('admin.php?page=dapfforwc-admin')) . '">' . esc_html__('Settings', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
+    $support_link = '<a href="' . esc_url("https://www.plugincy.com/support/") . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
+    $documentation_link = '<a href="' . esc_url("https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/") . '">' . esc_html__('Documentation', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
+    $our_plugins_link = '<a href="' . esc_url(admin_url('admin.php?page=plugincy-plugins')) . '">' . esc_html__('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
     $get_pro_link = '<a href="https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/" target="_blank" style="color:#d54e21;font-weight:bold;">' . esc_html__('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>';
     $links[] = $settings_link;
     $links[] = $support_link;
@@ -2096,7 +2096,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.7.5');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.7.7');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2398,7 +2398,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.5.7.5",
+            "1.5.7.7",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -3530,9 +3530,9 @@ function dapfforwc_plugin_row_meta($links, $file)
     $support_url = 'https://www.plugincy.com/support/';
 
     $row_meta = array(
-        'docs'    => '<a href="' . esc_url($docs_url) . '" aria-label="' . esc_attr__('View documentation', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Docs', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
-        'support' => '<a href="' . esc_url($support_url) . '" aria-label="' . esc_attr__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
-        'community_support' => '<a href="' . esc_url($community_support_url) . '" aria-label="' . esc_attr__('Visit community forums', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '">' . esc_html__('Community support', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</a>',
+        'docs'    => '<a href="' . esc_url($docs_url) . '" aria-label="' . esc_attr__('View documentation', 'dynamic-ajax-product-filters-for-woocommerce') . '">' . esc_html__('Docs', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>',
+        'support' => '<a href="' . esc_url($support_url) . '" aria-label="' . esc_attr__('Support', 'dynamic-ajax-product-filters-for-woocommerce') . '">' . esc_html__('Support', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>',
+        'community_support' => '<a href="' . esc_url($community_support_url) . '" aria-label="' . esc_attr__('Visit community forums', 'dynamic-ajax-product-filters-for-woocommerce') . '">' . esc_html__('Community support', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>',
     );
 
     return array_merge($links, $row_meta);

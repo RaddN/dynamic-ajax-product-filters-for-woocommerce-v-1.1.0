@@ -2793,7 +2793,7 @@ function dapfforwc_product_filter_shortcode_single($atts)
 
     // Check if the name is provided
     if (empty($atts['name'])) {
-        return '<p style="background:red;background: red;text-align: center;color: #fff;">' . esc_html__('Please provide an attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce-pro') . '</p>';
+        return '<p style="background:red;background: red;text-align: center;color: #fff;">' . esc_html__('Please provide an attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p>';
     }
 
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();

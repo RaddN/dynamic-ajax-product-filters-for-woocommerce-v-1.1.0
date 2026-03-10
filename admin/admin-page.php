@@ -18,8 +18,8 @@ function dapfforwc_admin_menu()
     );
     add_submenu_page(
         'dapfforwc-admin',
-        __('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
-        __('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
+        __('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce'),
+        __('Our Plugins', 'dynamic-ajax-product-filters-for-woocommerce'),
         'install_plugins',
         'plugincy-plugins',
         'dapfforwc_render_plugincy_plugins_page'
