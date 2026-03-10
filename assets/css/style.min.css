@@ -314,6 +314,9 @@ form.rfilterbuttons * {
 #product-filter .rotatable.rotated {
   transform: rotate(270deg);
 }
+#product-filter:not(.dapfforwc-collapse-ready):not(.plugincy_layout_top_view) .plugincy_title.plugincy_collapsable_arrow .rotatable {
+  transform: rotate(270deg);
+}
 #product-filter .plugincy-filter-group a {
   color: unset;
 }

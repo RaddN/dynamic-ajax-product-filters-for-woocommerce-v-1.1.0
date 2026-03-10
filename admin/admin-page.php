@@ -923,13 +923,14 @@ function dapfforwc_admin_page_content()
                     <div class="plugincy-dapfforwc-card-body">
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <div style="position: relative;">
-                            <code class="plugincy-code-box">[plugincy_filters layout="top_view/sidebar"]</code>
+                            <code class="plugincy-code-box">[plugincy_filters layout="sidebar"]</code>
                             <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters layout="sidebar"]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
                                 <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
                                     <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
                                 </svg>
                             </button>
                         </div>
+                        <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Available layouts: sidebar, top_view, top_view_wrap (pro), popup (pro), popup_horizontal_wrap (pro), drawer (pro).', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <div style="position: relative;">
                             <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>

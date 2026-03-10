@@ -1872,6 +1872,10 @@ function dapfforwc_product_filter_shortcode($atts)
         /* responsive filter */
         @media (max-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
+            #product-filter.plugincy_layout_sidebar:not(.dapfforwc-collapse-ready) .plugincy_title.plugincy_collapsable_arrow .rotatable {
+                transform: none;
+            }
+
             .rfilterbuttons,
             #product-filter .items {
                 display: none !important;
