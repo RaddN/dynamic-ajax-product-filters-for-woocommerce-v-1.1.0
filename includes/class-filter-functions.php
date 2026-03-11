@@ -1680,20 +1680,17 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
         }
 
+        if (isset($permalink_params['orderby']) && $permalink_params['orderby'] !== '') {
+            $normalized_orderby = $this->normalize_orderby_value($permalink_params['orderby']);
+            if ($normalized_orderby !== '') {
+                $params['orderby'] = $normalized_orderby;
+            }
+        }
+
         if (isset($_GET['orderby']) && $_GET['orderby'] !== '') {
-            $orderby_key = sanitize_key(str_replace('-', '_', $_GET['orderby']));
-            $allowed_orderby = array(
-                'date'        => 'date',
-                'price'       => 'price',
-                'price_desc'  => 'price-desc',
-                'popularity'  => 'popularity',
-                'rating'      => 'rating',
-                'title'       => 'title',
-                'menu_order'  => 'menu_order',
-                'rand'        => 'rand',
-            );
-            if (isset($allowed_orderby[$orderby_key])) {
-                $params['orderby'] = $allowed_orderby[$orderby_key];
+            $normalized_orderby = $this->normalize_orderby_value($_GET['orderby']);
+            if ($normalized_orderby !== '') {
+                $params['orderby'] = $normalized_orderby;
             }
         }
 
@@ -2078,6 +2075,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             }
         }
 
+        $prefixed_orderby = $this->resolve_prefix_key($prefixes, 'orderby', 'orderby');
+        if (isset($request[$prefixed_orderby]) && $request[$prefixed_orderby] !== '') {
+            $normalized_orderby = $this->normalize_orderby_value($request[$prefixed_orderby]);
+            if ($normalized_orderby !== '') {
+                $normalized['orderby'] = $normalized_orderby;
+            }
+        }
+
         $prefixed_length = $this->resolve_prefix_key($prefixes, 'length', 'length');
         if (isset($request[$prefixed_length]) && $request[$prefixed_length] !== '') {
             $range = sanitize_text_field(wp_unslash($request[$prefixed_length]));
@@ -2219,6 +2224,26 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         return array_values(array_unique($normalized));
+    }
+
+    /**
+     * Normalize requested orderby values to supported WooCommerce options.
+     */
+    private function normalize_orderby_value($value): string
+    {
+        $orderby_key = sanitize_key(str_replace('-', '_', (string) wp_unslash($value)));
+        $allowed_orderby = array(
+            'date'        => 'date',
+            'price'       => 'price',
+            'price_desc'  => 'price-desc',
+            'popularity'  => 'popularity',
+            'rating'      => 'rating',
+            'title'       => 'title',
+            'menu_order'  => 'menu_order',
+            'rand'        => 'rand',
+        );
+
+        return $allowed_orderby[$orderby_key] ?? '';
     }
 
     /**
@@ -2386,6 +2411,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         if ($pagination_key !== '' && $pagination_key !== 'paged' && $pagination_key !== 'product-page') {
             $add($pagination_key);
         }
+        $orderby_key = $this->resolve_prefix_key($prefixes, 'orderby', 'orderby');
+        if ($orderby_key !== '' && $orderby_key !== 'orderby') {
+            $add($orderby_key);
+        }
 
         if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
             foreach ($prefixes['attribute'] as $attr_name => $attr_prefix) {
@@ -2509,6 +2538,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $pagination_prefix = trim((string) $this->resolve_prefix_key($prefixes, 'pagination', 'paged'));
         if ($pagination_prefix !== '' && isset($_REQUEST[$pagination_prefix])) {
             $_GET[$pagination_prefix] = $this->sanitize_request_value($_REQUEST[$pagination_prefix]);
+        }
+        $orderby_prefix = trim((string) $this->resolve_prefix_key($prefixes, 'orderby', 'orderby'));
+        if ($orderby_prefix !== '' && isset($_REQUEST[$orderby_prefix])) {
+            $_GET[$orderby_prefix] = $this->sanitize_request_value($_REQUEST[$orderby_prefix]);
         }
 
         if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {

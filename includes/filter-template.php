@@ -668,32 +668,49 @@ function dapfforwc_product_filter_shortcode($atts)
         $filteroptionsfromurl = $merge_request_filter_state($filteroptionsfromurl, $request_filter_state);
     }
 
-    $has_explicit_filteroptions = !empty($filteroptionsfromurl["product-category[]"])
-        || !empty($filteroptionsfromurl["tag[]"])
-        || !empty($filteroptionsfromurl["attribute"])
-        || !empty($filteroptionsfromurl["custom_meta"])
-        || !empty($filteroptionsfromurl["brand[]"])
-        || !empty($filteroptionsfromurl["author[]"])
-        || !empty($filteroptionsfromurl["stock_status[]"])
-        || !empty($filteroptionsfromurl["sale_status[]"])
-        || !empty($filteroptionsfromurl["rating[]"])
-        || !empty($filteroptionsfromurl["plugincy_search"])
-        || !empty($filteroptionsfromurl["plugincy_search[]"])
-        || isset($filteroptionsfromurl["min_price"])
-        || isset($filteroptionsfromurl["max_price"])
-        || isset($filteroptionsfromurl["discount"])
-        || isset($filteroptionsfromurl["sku"])
-        || isset($filteroptionsfromurl["date_filter"])
-        || isset($filteroptionsfromurl["date_from"])
-        || isset($filteroptionsfromurl["date_to"])
-        || isset($filteroptionsfromurl["min_length"])
-        || isset($filteroptionsfromurl["max_length"])
-        || isset($filteroptionsfromurl["min_width"])
-        || isset($filteroptionsfromurl["max_width"])
-        || isset($filteroptionsfromurl["min_height"])
-        || isset($filteroptionsfromurl["max_height"])
-        || isset($filteroptionsfromurl["min_weight"])
-        || isset($filteroptionsfromurl["max_weight"]);
+    $has_filter_value = static function ($value) use (&$has_filter_value): bool {
+        if (is_array($value)) {
+            foreach ($value as $nested_value) {
+                if ($has_filter_value($nested_value)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        return $value !== null;
+    };
+
+    $has_explicit_filteroptions = $has_filter_value($filteroptionsfromurl["product-category[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["tag[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["attribute"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["custom_meta"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["brand[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["author[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["stock_status[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["sale_status[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["rating[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["plugincy_search"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["plugincy_search[]"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["min_price"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["max_price"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["discount"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["sku"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["date_filter"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["date_from"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["date_to"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["min_length"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["max_length"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["min_width"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["max_width"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["min_height"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["max_height"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["min_weight"] ?? null)
+        || $has_filter_value($filteroptionsfromurl["max_weight"] ?? null);
 
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         foreach ($attributes_list as $attributes) {
@@ -883,6 +900,9 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
 
                 $info = $reverse_prefix[$key];
+                if (in_array($info['type'], ['pagination', 'orderby'], true)) {
+                    continue;
+                }
 
                 // Handle comma-separated values
                 $values = explode(',', $value);

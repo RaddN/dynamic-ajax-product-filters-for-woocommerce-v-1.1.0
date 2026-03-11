@@ -160,6 +160,7 @@ if (!function_exists('dapfforwc_check_seo_settings')) {
                 'date_filter' => 'date',
                 'pagination' => 'paged',
                 'plugincy_search' => 'title',
+                'orderby' => 'orderby',
             ],
             'filters_word_in_permalinks' => 'filters',
             'use_filters_word_in_permalinks' => '',
