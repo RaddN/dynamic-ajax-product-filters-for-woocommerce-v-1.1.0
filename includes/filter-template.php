@@ -197,6 +197,129 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_tags = isset($all_data['tags']) ? $all_data['tags'] : [];
     $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
+    $build_request_filter_state = static function (array $params, array $authors) {
+        $state = array();
+        $normalize_list = static function ($values): array {
+            if (is_array($values)) {
+                $items = $values;
+            } elseif ($values === null || $values === '') {
+                return array();
+            } else {
+                $items = array($values);
+            }
+
+            $items = array_map(static function ($value) {
+                return is_scalar($value) ? trim((string) $value) : '';
+            }, $items);
+
+            return array_values(array_unique(array_filter($items, static function ($value) {
+                return $value !== '';
+            })));
+        };
+        $set_list = static function (array &$target, array $keys, $values) use ($normalize_list): void {
+            $normalized = $normalize_list($values);
+            if (empty($normalized)) {
+                return;
+            }
+
+            foreach ($keys as $key) {
+                $target[$key] = $normalized;
+            }
+        };
+
+        $set_list($state, array('product-category[]'), $params['product-category'] ?? array());
+        $set_list($state, array('tag[]'), $params['tags'] ?? array());
+        $set_list($state, array('brand[]', 'rplurand[]'), $params['rplurand'] ?? array());
+        $set_list($state, array('stock_status[]', 'rplutock_status[]'), $params['rplutock_status'] ?? array());
+        $set_list($state, array('sale_status[]', 'rpn_sale[]'), $params['rpn_sale'] ?? array());
+        $set_list($state, array('rating[]'), $params['rating'] ?? array());
+
+        $author_slugs = array();
+        foreach ($normalize_list($params['rpluthor'] ?? array()) as $author_value) {
+            $author_id = absint($author_value);
+            if ($author_id > 0 && isset($authors[$author_id]['slug'])) {
+                $author_slugs[] = (string) $authors[$author_id]['slug'];
+            } elseif ($author_value !== '') {
+                $author_slugs[] = $author_value;
+            }
+        }
+        $set_list($state, array('author[]', 'rpluthor[]'), $author_slugs);
+
+        if (!empty($params['plugincy_search'])) {
+            $state['plugincy_search'] = (string) $params['plugincy_search'];
+            $state['plugincy_search[]'] = (string) $params['plugincy_search'];
+        }
+
+        if (isset($params['mn_price']) && $params['mn_price'] !== '') {
+            $state['min_price'] = floatval($params['mn_price']);
+        }
+        if (isset($params['mx_price']) && $params['mx_price'] !== '') {
+            $state['max_price'] = floatval($params['mx_price']);
+        }
+        if (isset($state['min_price']) && isset($state['max_price'])) {
+            $state['price[]'] = array($state['min_price'] . '-' . $state['max_price']);
+        }
+
+        foreach (array('min_length', 'max_length', 'min_width', 'max_width', 'min_height', 'max_height', 'min_weight', 'max_weight', 'discount', 'date_filter', 'date_from', 'date_to') as $scalar_key) {
+            if (isset($params[$scalar_key]) && $params[$scalar_key] !== '') {
+                $state[$scalar_key] = $params[$scalar_key];
+            }
+        }
+
+        if (isset($params['sku']) && $params['sku'] !== '') {
+            $sku_values = $normalize_list($params['sku']);
+            if (!empty($sku_values)) {
+                $state['sku'] = $sku_values[0];
+                $state['sku[]'] = $sku_values;
+            }
+        }
+
+        if (!empty($params['attributes']) && is_array($params['attributes'])) {
+            foreach ($params['attributes'] as $attribute_name => $attribute_values) {
+                $attribute_values = $normalize_list($attribute_values);
+                if (empty($attribute_values)) {
+                    continue;
+                }
+                $state['attribute'][$attribute_name] = $attribute_values;
+                $state['attribute[' . $attribute_name . '][]'] = $attribute_values;
+            }
+        }
+
+        if (!empty($params['custom_meta']) && is_array($params['custom_meta'])) {
+            foreach ($params['custom_meta'] as $meta_key => $meta_values) {
+                $meta_values = $normalize_list($meta_values);
+                if (empty($meta_values)) {
+                    continue;
+                }
+                $state['custom_meta'][$meta_key] = $meta_values;
+                $state['custom_meta[' . $meta_key . '][]'] = $meta_values;
+            }
+        }
+
+        return $state;
+    };
+    $merge_request_filter_state = static function (array $base, array $incoming): array {
+        foreach ($incoming as $key => $value) {
+            if (in_array($key, array('attribute', 'custom_meta'), true) && is_array($value)) {
+                $base[$key] = isset($base[$key]) && is_array($base[$key]) ? $base[$key] : array();
+                foreach ($value as $child_key => $child_values) {
+                    $existing = isset($base[$key][$child_key]) && is_array($base[$key][$child_key]) ? $base[$key][$child_key] : array();
+                    $base[$key][$child_key] = array_values(array_unique(array_merge($existing, (array) $child_values)));
+                }
+                continue;
+            }
+
+            if (is_array($value)) {
+                $existing = isset($base[$key]) && is_array($base[$key]) ? $base[$key] : array();
+                $base[$key] = array_values(array_unique(array_merge($existing, $value)));
+                continue;
+            }
+
+            $base[$key] = $value;
+        }
+
+        return $base;
+    };
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         $shortcode = isset($dapfforwc_advance_settings["product_shortcode"]) ? $dapfforwc_advance_settings["product_shortcode"] : 'products'; // Shortcode to search for
         $attributes_list = dapfforwc_get_shortcode_attributes_from_page($post->post_content ?? "", $shortcode);
@@ -534,6 +657,44 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
+    $request_filter_state = array();
+    if (class_exists('DAPFFORWC_WC_Query_Filter_Enhanced')) {
+        $request_filter_state = $build_request_filter_state(
+            DAPFFORWC_WC_Query_Filter_Enhanced::get_instance()->get_filter_params(),
+            $all_authors
+        );
+    }
+    if (!empty($request_filter_state)) {
+        $filteroptionsfromurl = $merge_request_filter_state($filteroptionsfromurl, $request_filter_state);
+    }
+
+    $has_explicit_filteroptions = !empty($filteroptionsfromurl["product-category[]"])
+        || !empty($filteroptionsfromurl["tag[]"])
+        || !empty($filteroptionsfromurl["attribute"])
+        || !empty($filteroptionsfromurl["custom_meta"])
+        || !empty($filteroptionsfromurl["brand[]"])
+        || !empty($filteroptionsfromurl["author[]"])
+        || !empty($filteroptionsfromurl["stock_status[]"])
+        || !empty($filteroptionsfromurl["sale_status[]"])
+        || !empty($filteroptionsfromurl["rating[]"])
+        || !empty($filteroptionsfromurl["plugincy_search"])
+        || !empty($filteroptionsfromurl["plugincy_search[]"])
+        || isset($filteroptionsfromurl["min_price"])
+        || isset($filteroptionsfromurl["max_price"])
+        || isset($filteroptionsfromurl["discount"])
+        || isset($filteroptionsfromurl["sku"])
+        || isset($filteroptionsfromurl["date_filter"])
+        || isset($filteroptionsfromurl["date_from"])
+        || isset($filteroptionsfromurl["date_to"])
+        || isset($filteroptionsfromurl["min_length"])
+        || isset($filteroptionsfromurl["max_length"])
+        || isset($filteroptionsfromurl["min_width"])
+        || isset($filteroptionsfromurl["max_width"])
+        || isset($filteroptionsfromurl["min_height"])
+        || isset($filteroptionsfromurl["max_height"])
+        || isset($filteroptionsfromurl["min_weight"])
+        || isset($filteroptionsfromurl["max_weight"]);
+
     if ($atts['category'] === '' && $atts['attribute'] === '' && $atts['terms'] === '' && $atts['tag'] === '') {
         foreach ($attributes_list as $attributes) {
             // Ensure that the "product-category", 'attribute', and 'terms' keys exist
@@ -568,7 +729,7 @@ function dapfforwc_product_filter_shortcode($atts)
             if (!empty($attrvalue)) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
             }
-            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+            if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && !$has_explicit_filteroptions) {
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
                 $is_all_cata = true;
                 $make_default_selected = true;
@@ -608,7 +769,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
 
-    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"]) && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+    if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"]) && !$has_explicit_filteroptions) {
         $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
@@ -673,7 +834,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"])  && (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"])))) {
+    if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"])  && !$has_explicit_filteroptions) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
         $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
@@ -780,7 +941,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
     update_option('dapfforwc_options', $dapfforwc_options);
 
-    $default_filter = (empty($filteroptionsfromurl) || (!empty($filteroptionsfromurl) && !isset($filteroptionsfromurl["product-category[]"]) && !isset($filteroptionsfromurl["tag[]"]) && !isset($filteroptionsfromurl["attribute"]))) ?
+    $default_filter = !$has_explicit_filteroptions ?
         array_merge(
             $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
             $parsed_filters,
