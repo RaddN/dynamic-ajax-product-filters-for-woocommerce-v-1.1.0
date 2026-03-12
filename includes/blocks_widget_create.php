@@ -672,8 +672,42 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
                     'options' => [
                         'sidebar'      => esc_html__('Sidebar Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
                         'top_view'      => esc_html__('Top View Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'top_view_wrap' => esc_html__('Top View Wrap Layout (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'popup'         => esc_html__('Popup Layout (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'popup_horizontal_wrap' => esc_html__('Popup Horizontal Wrap Layout (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'drawer'        => esc_html__('Drawer Layout (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'sidebar',
+                    'condition' => [
+                        'filter_type' => 'all',
+                    ],
+                ]
+            );
+            $this->add_control(
+                'drawer_position',
+                [
+                    'label'   => esc_html__('Drawer Side (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'type'    => \Elementor\Controls_Manager::SELECT,
+                    'options' => [
+                        'left'  => esc_html__('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'right' => esc_html__('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    ],
+                    'default' => 'right',
+                    'condition' => [
+                        'filter_type' => 'all',
+                    ],
+                ]
+            );
+            $this->add_control(
+                'collapsable',
+                [
+                    'label'   => esc_html__('Collapsable Filters (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'type'    => \Elementor\Controls_Manager::SELECT,
+                    'options' => [
+                        'no'  => esc_html__('No', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'yes' => esc_html__('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    ],
+                    'default' => 'no',
                     'condition' => [
                         'filter_type' => 'all',
                     ],
