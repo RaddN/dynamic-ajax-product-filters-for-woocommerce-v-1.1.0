@@ -626,26 +626,19 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Apply sale status filter (supports on sale and not on sale)
         $sale_filter = $this->get_sale_filter_flags($params);
         if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
-            $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
-            $sale_meta_query = array();
+            $sale_product_ids = $this->get_on_sale_product_filter_ids();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
-                // Only on sale products
+                // Limit to WooCommerce's sale lookup IDs so variable parents are included reliably.
                 $post_in = $this->merge_post_in_lists($query->get('post__in'), $sale_product_ids);
-                $query->set('post__in', !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0)));
-                $sale_meta_query = $this->get_sale_meta_query(true);
+                $query->set('post__in', !empty($post_in) ? $post_in : array(0));
             } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
-                // Only not on sale products
+                // Exclude WooCommerce's sale lookup IDs for the inverse filter.
                 if (!empty($sale_product_ids)) {
                     $query->set('post__not_in', $this->merge_post_not_in_lists($query->get('post__not_in'), $sale_product_ids));
                 }
-                $sale_meta_query = $this->get_sale_meta_query(false);
             }
             // If both are selected, don't apply any filter (show all)
-
-            if (!empty($sale_meta_query)) {
-                $meta_query[] = $sale_meta_query;
-            }
         }
 
         // Apply dimension filters
@@ -742,7 +735,6 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($query->get('post__in'), $discount_products);
                 $query->set('post__in', !empty($post_in) ? $post_in : array(0));
-                $meta_query[] = $this->get_sale_meta_query(true);
             } else {
                 $query->set('post__in', array(0)); // No products found
             }
@@ -974,26 +966,19 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Apply sale status filter (supports on sale and not on sale)
         $sale_filter = $this->get_sale_filter_flags($params);
         if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
-            $sale_product_ids = $this->sanitize_id_list(wc_get_product_ids_on_sale());
-            $sale_meta_query = array();
+            $sale_product_ids = $this->get_on_sale_product_filter_ids();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
-                // Only on sale products
+                // Limit to WooCommerce's sale lookup IDs so variable parents are included reliably.
                 $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $sale_product_ids);
-                $args['post__in'] = !empty($post_in) ? $post_in : (!empty($sale_product_ids) ? $sale_product_ids : array(0));
-                $sale_meta_query = $this->get_sale_meta_query(true);
+                $args['post__in'] = !empty($post_in) ? $post_in : array(0);
             } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
-                // Only not on sale products
+                // Exclude WooCommerce's sale lookup IDs for the inverse filter.
                 if (!empty($sale_product_ids)) {
                     $args['post__not_in'] = $this->merge_post_not_in_lists($args['post__not_in'] ?? array(), $sale_product_ids);
                 }
-                $sale_meta_query = $this->get_sale_meta_query(false);
             }
             // If both are selected, don't apply any filter (show all)
-
-            if (!empty($sale_meta_query)) {
-                $meta_query[] = $sale_meta_query;
-            }
         }
 
         // Apply dimension filters
@@ -1094,7 +1079,6 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $discount_products);
                 $args['post__in'] = !empty($post_in) ? $post_in : array(0);
-                $meta_query[] = $this->get_sale_meta_query(true);
             } else {
                 $args['post__in'] = array(0);
             }
@@ -1138,6 +1122,31 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return $args;
     }
 
+    /**
+     * Get normalized on-sale product IDs for archive filtering.
+     *
+     * WooCommerce may return variation IDs here; map them back to the parent product
+     * so product archive queries include variable products consistently.
+     */
+    private function get_on_sale_product_filter_ids(): array
+    {
+        $ids = array();
+
+        foreach (wc_get_product_ids_on_sale() as $sale_id) {
+            $product = wc_get_product($sale_id);
+            if (!$product) {
+                continue;
+            }
+
+            $target_id = $product->is_type('variation') ? $product->get_parent_id() : $product->get_id();
+            if ($target_id) {
+                $ids[] = $target_id;
+            }
+        }
+
+        return $this->sanitize_id_list($ids);
+    }
+
 
     /**
      * Helper method to get products with specific discount percentage
@@ -1150,20 +1159,15 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         $ids = array();
-        foreach (wc_get_product_ids_on_sale() as $sale_id) {
+        foreach ($this->get_on_sale_product_filter_ids() as $sale_id) {
             $product = wc_get_product($sale_id);
             if (!$product) {
                 continue;
             }
 
-            $target_id = $product->is_type('variation') ? $product->get_parent_id() : $product->get_id();
-            if (!$target_id) {
-                continue;
-            }
-
             $discount = $this->calculate_product_discount_percentage($product);
             if ($discount >= $min_discount) {
-                $ids[] = $target_id;
+                $ids[] = $sale_id;
             }
         }
 
@@ -1334,12 +1338,27 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         global $wpdb;
 
         $where_clauses = array();
+        $posts_table = $wpdb->posts;
+
+        // Sale status filter: enforce sale/not sale IDs at SQL level so fragment queries
+        // and third-party loops can't drop variable parent products.
+        $sale_filter = $this->get_sale_filter_flags($params);
+        if ($sale_filter['onsale'] xor $sale_filter['notonsale']) {
+            $sale_product_ids = $this->get_on_sale_product_filter_ids();
+
+            if ($sale_filter['onsale']) {
+                $where_clauses[] = !empty($sale_product_ids)
+                    ? "{$posts_table}.ID IN (" . implode(',', $sale_product_ids) . ')'
+                    : '1=0';
+            } elseif (!empty($sale_product_ids)) {
+                $where_clauses[] = "{$posts_table}.ID NOT IN (" . implode(',', $sale_product_ids) . ')';
+            }
+        }
 
         // Discount filter: enforce minimum percentage off via SQL so third-party queries can't drop it.
         if (isset($params['discount']) && floatval($params['discount']) > 0) {
             $threshold = floatval($params['discount']);
             $postmeta = $wpdb->postmeta;
-            $posts_table = $wpdb->posts;
 
             $discount_clause = $wpdb->prepare(
                 '(' .
@@ -2258,65 +2277,6 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return array(
             'onsale' => in_array('onsale', $sale_values, true),
             'notonsale' => in_array('notonsale', $sale_values, true),
-        );
-    }
-
-    /**
-     * Build meta query clauses to target sale/not sale states.
-     */
-    private function get_sale_meta_query(bool $on_sale): array
-    {
-        if ($on_sale) {
-            return array(
-                'relation' => 'OR',
-                array(
-                    'key' => '_sale_price',
-                    'value' => 0,
-                    'compare' => '>',
-                    'type' => 'NUMERIC',
-                ),
-                array(
-                    'key' => '_min_variation_sale_price',
-                    'value' => 0,
-                    'compare' => '>',
-                    'type' => 'NUMERIC',
-                ),
-            );
-        }
-
-        return array(
-            'relation' => 'AND',
-            array(
-                'relation' => 'OR',
-                array(
-                    'key' => '_sale_price',
-                    'compare' => 'NOT EXISTS',
-                ),
-                array(
-                    'key' => '_sale_price',
-                    'value' => '',
-                    'compare' => '=',
-                ),
-                array(
-                    'key' => '_sale_price',
-                    'value' => 0,
-                    'compare' => '<=',
-                    'type' => 'NUMERIC',
-                ),
-            ),
-            array(
-                'relation' => 'OR',
-                array(
-                    'key' => '_min_variation_sale_price',
-                    'compare' => 'NOT EXISTS',
-                ),
-                array(
-                    'key' => '_min_variation_sale_price',
-                    'value' => 0,
-                    'compare' => '<=',
-                    'type' => 'NUMERIC',
-                ),
-            ),
         );
     }
 
