@@ -3228,14 +3228,110 @@ function dapfforwc_get_updated_filters($product_ids, $all_data = [], $context = 
 }
 
 
+function dapfforwc_apply_attributes_with_terms_filters($data)
+{
+    return apply_filters('dapfforwc_woocommerce_attributes_with_terms', $data);
+}
+
+function dapfforwc_apply_product_details_filters($data)
+{
+    return apply_filters('dapfforwc_woocommerce_product_details', $data);
+}
+
+function dapfforwc_normalize_decimal_string($value)
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    $value = trim((string) $value);
+    if ($value === '') {
+        return '';
+    }
+
+    if (strpos($value, '.') !== false) {
+        $value = rtrim(rtrim($value, '0'), '.');
+    }
+
+    return $value;
+}
+
+function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
+{
+    global $wpdb;
+
+    $attachment_ids = array_values(array_unique(array_filter(array_map('intval', (array) $attachment_ids))));
+    if (empty($attachment_ids)) {
+        return [];
+    }
+
+    $placeholders = implode(',', array_fill(0, count($attachment_ids), '%d'));
+    $query = $wpdb->prepare(
+        "
+        SELECT p.ID AS attachment_id,
+               p.guid,
+               MAX(CASE WHEN pm.meta_key = '_wp_attached_file' THEN pm.meta_value END) AS attached_file,
+               MAX(CASE WHEN pm.meta_key = '_wp_attachment_metadata' THEN pm.meta_value END) AS attachment_metadata
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id AND pm.meta_key IN ('_wp_attached_file', '_wp_attachment_metadata')
+        WHERE p.ID IN ($placeholders)
+        GROUP BY p.ID
+        ",
+        $attachment_ids
+    );
+
+    $results = $wpdb->get_results($query, ARRAY_A);
+    if (empty($results)) {
+        return [];
+    }
+
+    $upload_dir = wp_get_upload_dir();
+    $base_url = isset($upload_dir['baseurl']) ? untrailingslashit($upload_dir['baseurl']) : '';
+    $thumbnails = [];
+
+    foreach ($results as $row) {
+        $attachment_id = intval($row['attachment_id']);
+        if ($attachment_id <= 0) {
+            continue;
+        }
+
+        $attached_file = isset($row['attached_file']) ? str_replace('\\', '/', (string) $row['attached_file']) : '';
+        $metadata = maybe_unserialize($row['attachment_metadata']);
+        $thumbnail_path = $attached_file;
+
+        if (
+            !empty($attached_file) &&
+            is_array($metadata) &&
+            !empty($metadata['sizes']['thumbnail']['file'])
+        ) {
+            $directory = pathinfo($attached_file, PATHINFO_DIRNAME);
+            $directory = ($directory && $directory !== '.') ? trailingslashit(str_replace('\\', '/', $directory)) : '';
+            $thumbnail_path = $directory . ltrim($metadata['sizes']['thumbnail']['file'], '/');
+        }
+
+        if (!empty($thumbnail_path) && !empty($base_url)) {
+            $thumbnails[$attachment_id] = $base_url . '/' . ltrim($thumbnail_path, '/');
+        } elseif (!empty($row['guid'])) {
+            $thumbnails[$attachment_id] = (string) $row['guid'];
+        }
+    }
+
+    return $thumbnails;
+}
+
 function dapfforwc_get_woocommerce_attributes_with_terms()
 {
     global $wpdb;
+    static $cached_result = null;
+
+    if ($cached_result !== null) {
+        return $cached_result;
+    }
 
     $cache_key = 'dapfforwc_attributes_cache_v2';
     $cached = get_transient($cache_key);
     if ($cached !== false && is_array($cached)) {
-        return $cached;
+        return $cached_result = dapfforwc_apply_attributes_with_terms_filters($cached);
     }
 
     $data = [
@@ -3642,19 +3738,13 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
     // Save to cache
     set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
 
-    return $data;
+    return $cached_result = dapfforwc_apply_attributes_with_terms_filters($data);
 }
 
-function dapfforwc_get_woocommerce_product_details()
+function dapfforwc_build_woocommerce_product_details_data()
 {
     global $wpdb;
-    $cache_key = 'dapfforwc_product_details_cache_v1';
-    $cached = get_transient($cache_key);
-    if ($cached !== false && is_array($cached)) {
-        return $cached;
-    }
 
-    // Query for all products with their meta data, categories, and required fields
     $query = "
         SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
                u.display_name AS author_name,
@@ -3666,28 +3756,37 @@ function dapfforwc_get_woocommerce_product_details()
                MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
                MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
                MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
-               MAX(CASE WHEN pm.meta_key = '_product_type' THEN pm.meta_value END) AS product_type,
                MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
                MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
                MAX(CASE WHEN pm.meta_key = '_length' THEN pm.meta_value END) AS length,
                MAX(CASE WHEN pm.meta_key = '_width' THEN pm.meta_value END) AS width,
                MAX(CASE WHEN pm.meta_key = '_height' THEN pm.meta_value END) AS height,
                MAX(CASE WHEN pm.meta_key = '_weight' THEN pm.meta_value END) AS weight,
-               (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
-                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
-                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS categories,
-               (SELECT GROUP_CONCAT(t.slug SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
-                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
-                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_cat') AS category_slugs,
-               (SELECT GROUP_CONCAT(t.name SEPARATOR ', ') FROM {$wpdb->prefix}term_relationships tr
-                INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-                INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
-                WHERE tr.object_id = p.ID AND tt.taxonomy = 'product_brand') AS product_brands
+               MAX(CASE WHEN pm.meta_key = '_thumbnail_id' THEN pm.meta_value END) AS thumbnail_id,
+               MAX(CASE WHEN ptt.taxonomy = 'product_type' THEN pt.slug END) AS product_type
         FROM {$wpdb->prefix}posts p
         LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+            AND pm.meta_key IN (
+                '_price',
+                '_sale_price',
+                '_regular_price',
+                '_min_variation_price',
+                '_max_variation_price',
+                '_min_variation_regular_price',
+                '_min_variation_sale_price',
+                '_wc_average_rating',
+                '_sku',
+                '_stock_status',
+                '_length',
+                '_width',
+                '_height',
+                '_weight',
+                '_thumbnail_id'
+            )
         LEFT JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+        LEFT JOIN {$wpdb->prefix}term_relationships ptr ON ptr.object_id = p.ID
+        LEFT JOIN {$wpdb->prefix}term_taxonomy ptt ON ptr.term_taxonomy_id = ptt.term_taxonomy_id AND ptt.taxonomy = 'product_type'
+        LEFT JOIN {$wpdb->prefix}terms pt ON pt.term_id = ptt.term_id
         WHERE p.post_type = 'product'
         AND p.post_status = 'publish'
         GROUP BY p.ID
@@ -3696,220 +3795,230 @@ function dapfforwc_get_woocommerce_product_details()
     $results = $wpdb->get_results($query, ARRAY_A);
     $products = [];
 
-    if (!empty($results)) {
-        foreach ($results as $row) {
-            $product_id = $row['ID'];
+    if (empty($results)) {
+        return ['products' => $products];
+    }
 
-            // Get the actual product type - WooCommerce might store it differently
-            $actual_product_type = '';
+    $product_ids = array_values(array_unique(array_map('intval', array_column($results, 'ID'))));
+    $placeholders = implode(',', array_fill(0, count($product_ids), '%d'));
 
-            // First try from the main query result
-            if (!empty($row['product_type'])) {
-                $actual_product_type = $row['product_type'];
-            } else {
-                // If not found, query directly for this product's type
-                $type_query = $wpdb->prepare("
-                    SELECT meta_value 
-                    FROM {$wpdb->prefix}postmeta 
-                    WHERE post_id = %d AND meta_key = '_product_type'
-                ", $product_id);
-                $direct_type = $wpdb->get_var($type_query);
-                $actual_product_type = $direct_type ?: 'simple';
-            }
+    $variation_lookup = [];
+    $variation_query = $wpdb->prepare(
+        "
+        SELECT v.post_parent AS product_id,
+               COUNT(DISTINCT v.ID) AS variation_count,
+               MIN(CASE WHEN v_price.meta_value IS NOT NULL AND v_price.meta_value != '' AND CAST(v_price.meta_value AS DECIMAL(20,6)) > 0 THEN CAST(v_price.meta_value AS DECIMAL(20,6)) END) AS min_price,
+               MIN(CASE WHEN v_regular.meta_value IS NOT NULL AND v_regular.meta_value != '' AND CAST(v_regular.meta_value AS DECIMAL(20,6)) > 0 THEN CAST(v_regular.meta_value AS DECIMAL(20,6)) END) AS min_regular_price,
+               MIN(CASE
+                   WHEN v_sale.meta_value IS NOT NULL
+                       AND v_sale.meta_value != ''
+                       AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                       AND v_regular.meta_value IS NOT NULL
+                       AND v_regular.meta_value != ''
+                       AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                   THEN CAST(v_sale.meta_value AS DECIMAL(20,6))
+               END) AS min_sale_price,
+               MAX(CASE
+                   WHEN v_sale.meta_value IS NOT NULL
+                       AND v_sale.meta_value != ''
+                       AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                       AND v_regular.meta_value IS NOT NULL
+                       AND v_regular.meta_value != ''
+                       AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                   THEN 1
+                   ELSE 0
+               END) AS has_sale,
+               MAX(CASE WHEN v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL THEN 1 ELSE 0 END) AS has_instock
+        FROM {$wpdb->prefix}posts v
+        LEFT JOIN {$wpdb->prefix}postmeta v_price ON v.ID = v_price.post_id AND v_price.meta_key = '_price'
+        LEFT JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+        LEFT JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+        LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
+        WHERE v.post_parent IN ($placeholders)
+          AND v.post_type = 'product_variation'
+          AND v.post_status = 'publish'
+        GROUP BY v.post_parent
+        ",
+        $product_ids
+    );
+    $variation_results = $wpdb->get_results($variation_query, ARRAY_A);
+    foreach ($variation_results as $variation_row) {
+        $variation_lookup[intval($variation_row['product_id'])] = $variation_row;
+    }
 
-            // Also check if product has variations (alternative detection method)
-            $has_variations = $wpdb->get_var($wpdb->prepare("
-                SELECT COUNT(*) 
-                FROM {$wpdb->prefix}posts 
-                WHERE post_parent = %d AND post_type = 'product_variation' AND post_status = 'publish'
-            ", $product_id));
-
-            // If we found variations but type says simple, it's likely variable
-            if ($has_variations > 0 && $actual_product_type === 'simple') {
-                $actual_product_type = 'variable';
-            }
-
-            // Determine product type and pricing
-            $product_type = $actual_product_type;
-            $price = '';
-            $regular_price = '';
-            $sale_price = '';
-            $sale_active = false;
-            $discount_percentage = 0;
-
-            if ($product_type === 'variable') {
-
-                // For variable products, we need to get prices directly from variations
-                $variation_query = $wpdb->prepare("
-                    SELECT 
-                        v.ID as variation_id,
-                        v.post_title as variation_title,
-                        v_price.meta_value as current_price,
-                        v_regular.meta_value as regular_price_val,
-                        v_sale.meta_value as sale_price_val
-                    FROM {$wpdb->prefix}posts v
-                    LEFT JOIN {$wpdb->prefix}postmeta v_price ON v.ID = v_price.post_id AND v_price.meta_key = '_price'
-                    LEFT JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
-                    LEFT JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
-                    WHERE v.post_parent = %d 
-                    AND v.post_type = 'product_variation' 
-                    AND v.post_status = 'publish'
-                ", $product_id);
-
-                $variation_data = $wpdb->get_results($variation_query, ARRAY_A);
-
-                $all_prices = [];
-                $all_regular_prices = [];
-                $all_sale_prices = [];
-                $has_any_sale = false;
-
-                foreach ($variation_data as $variation) {
-                    $variation_id = $variation['variation_id'];
-                    $current_price = $variation['current_price'];
-                    $regular_price_val = $variation['regular_price_val'];
-                    $sale_price_val = $variation['sale_price_val'];
-
-                    // Collect current prices (what customer actually pays)
-                    if (!empty($current_price) && is_numeric($current_price) && floatval($current_price) > 0) {
-                        $all_prices[] = floatval($current_price);
-                    }
-
-                    // Collect regular prices
-                    if (!empty($regular_price_val) && is_numeric($regular_price_val) && floatval($regular_price_val) > 0) {
-                        $all_regular_prices[] = floatval($regular_price_val);
-                    }
-
-                    // Check if this variation has a sale price
-                    if (
-                        !empty($sale_price_val) && is_numeric($sale_price_val) && floatval($sale_price_val) > 0 &&
-                        !empty($regular_price_val) && is_numeric($regular_price_val) &&
-                        floatval($sale_price_val) < floatval($regular_price_val)
-                    ) {
-
-                        $has_any_sale = true;
-                        $all_sale_prices[] = floatval($sale_price_val);
-                    }
-                }
-
-                // Set prices based on variation data
-                $price = !empty($all_prices) ? strval(min($all_prices)) : ($row['min_variation_price'] ?: '');
-                $regular_price = !empty($all_regular_prices) ? strval(min($all_regular_prices)) : ($row['min_variation_regular_price'] ?: '');
-                $sale_active = $has_any_sale;
-
-                if ($has_any_sale && !empty($all_sale_prices)) {
-                    $sale_price = strval(min($all_sale_prices));
-                    $min_sale = min($all_sale_prices);
-                    $corresponding_regular = !empty($all_regular_prices) ? min($all_regular_prices) : 0;
-
-                    if ($corresponding_regular > 0) {
-                        $discount_percentage = round((($corresponding_regular - $min_sale) / $corresponding_regular) * 100, 2);
-                    }
-                } else {
-                    $sale_price = '';
-                }
-            } else {
-
-                // Simple product logic
-                $regular_price = $row['regular_price'] ?: '';
-                $sale_price = $row['sale_price'] ?: '';
-                $price = $row['price'] ?: $regular_price;
-
-                $sale_active = !empty($sale_price) && $sale_price !== '0' && !empty($regular_price) &&
-                    floatval($sale_price) > 0 && floatval($sale_price) < floatval($regular_price);
-
-                // Calculate discount percentage
-                if ($sale_active) {
-                    $discount_percentage = round((($regular_price - $sale_price) / $regular_price) * 100, 2);
-                }
-            }
-
-            // Get rating
-            $rating = floatval($row['average_rating']) ?: 0;
-
-            // Get product categories
-            $product_category = [];
-            if (!empty($row['categories']) && !empty($row['category_slugs'])) {
-                $category_names = explode(', ', $row['categories']);
-                $category_slugs = explode(', ', $row['category_slugs']);
-                $product_category = array_map(function ($name, $slug) {
-                    return ['name' => $name, 'slug' => $slug];
-                }, $category_names, $category_slugs);
-            }
-
-            // Get stock status - handle variable products
-            $stock_status = 'instock'; // default
-            if ($product_type === 'variable') {
-                // Check if any variation is in stock
-                $variation_stock_query = $wpdb->prepare("
-                    SELECT COUNT(*) as in_stock_count
-                    FROM {$wpdb->prefix}posts v
-                    LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
-                    WHERE v.post_parent = %d 
-                    AND v.post_type = 'product_variation' 
-                    AND v.post_status = 'publish'
-                    AND (v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL)
-                ", $product_id);
-
-                $stock_result = $wpdb->get_var($variation_stock_query);
-                $stock_status = ($stock_result > 0) ? 'instock' : 'outofstock';
-            } else {
-                $stock_status = $row['stock_status'] ?: 'instock';
-            }
-
-            // Get additional custom meta fields
-            $custom_meta = [];
-            $custom_meta_query = $wpdb->prepare("
-                SELECT meta_key, meta_value 
-                FROM {$wpdb->prefix}postmeta 
-                WHERE post_id = %d 
-                AND meta_key NOT LIKE '_%%' 
-                AND meta_key NOT IN ('_edit_lock', '_edit_last')
-                AND meta_value IS NOT NULL 
-                AND meta_value != ''
-            ", $product_id);
-
-            $custom_meta_results = $wpdb->get_results($custom_meta_query, ARRAY_A);
-            foreach ($custom_meta_results as $meta) {
-                $custom_meta[$meta['meta_key']] = $meta['meta_value'];
-            }
-
-            $thumbnail = get_the_post_thumbnail_url($product_id, 'thumbnail');
-
-            $products[$product_id] = [
-                'ID' => $product_id,
-                'post_title' => $row['post_title'],
-                'publish_date' => $row['publish_date'],
-                'price' => $price,
-                'regular_price' => $regular_price,
-                'sale_price' => $sale_price,
-                'rating' => $rating,
-                'menu_order' => intval($row['menu_order']),
-                'on_sale' => $sale_active,
-                'discount_percentage' => $discount_percentage,
-                'product_sku' => $row['sku'] ?: '',
-                'product_stock' => $stock_status,
-                'product_type' => $product_type,
-                'product_category' => $product_category,
-                'product_brand' => $row['product_brands'] ?: '',
-                'author' => $row['author_name'] ?: '',
-                'author_id' => intval($row['post_author']),
-                'length' => $row['length'] ?: '',
-                'width' => $row['width'] ?: '',
-                'height' => $row['height'] ?: '',
-                'weight' => $row['weight'] ?: '',
-                'custom_meta' => $custom_meta,
-                'thumbnail' => $thumbnail ?: '',
+    $category_lookup = [];
+    $brand_lookup = [];
+    $taxonomy_query = $wpdb->prepare(
+        "
+        SELECT tr.object_id AS product_id, tt.taxonomy, t.name, t.slug
+        FROM {$wpdb->prefix}term_relationships tr
+        INNER JOIN {$wpdb->prefix}term_taxonomy tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN {$wpdb->prefix}terms t ON t.term_id = tt.term_id
+        WHERE tr.object_id IN ($placeholders)
+          AND tt.taxonomy IN ('product_cat', 'product_brand')
+        ORDER BY tr.object_id, tt.taxonomy, t.name
+        ",
+        $product_ids
+    );
+    $taxonomy_results = $wpdb->get_results($taxonomy_query, ARRAY_A);
+    foreach ($taxonomy_results as $taxonomy_row) {
+        $product_id = intval($taxonomy_row['product_id']);
+        $taxonomy = $taxonomy_row['taxonomy'];
+        if ($taxonomy === 'product_cat') {
+            $slug = rawurldecode($taxonomy_row['slug']);
+            $category_lookup[$product_id][$slug] = [
+                'name' => $taxonomy_row['name'],
+                'slug' => $slug,
             ];
+        } elseif ($taxonomy === 'product_brand') {
+            $brand_lookup[$product_id][$taxonomy_row['name']] = $taxonomy_row['name'];
         }
     }
 
-    // Convert to indexed array for better JSON compatibility
-    $product_data = ['products' => $products];
+    foreach ($category_lookup as $product_id => $categories) {
+        $category_lookup[$product_id] = array_values($categories);
+    }
+    foreach ($brand_lookup as $product_id => $brands) {
+        $brand_lookup[$product_id] = array_values($brands);
+    }
 
-    // Save to cache
+    $custom_meta_lookup = [];
+    $custom_meta_query = $wpdb->prepare(
+        "
+        SELECT post_id, meta_key, meta_value
+        FROM {$wpdb->prefix}postmeta
+        WHERE post_id IN ($placeholders)
+          AND meta_key NOT LIKE '\\_%'
+          AND meta_key NOT IN ('_edit_lock', '_edit_last')
+          AND meta_value IS NOT NULL
+          AND meta_value != ''
+        ORDER BY post_id
+        ",
+        $product_ids
+    );
+    $custom_meta_results = $wpdb->get_results($custom_meta_query, ARRAY_A);
+    foreach ($custom_meta_results as $meta_row) {
+        $product_id = intval($meta_row['post_id']);
+        if (!isset($custom_meta_lookup[$product_id])) {
+            $custom_meta_lookup[$product_id] = [];
+        }
+
+        $custom_meta_lookup[$product_id][$meta_row['meta_key']] = $meta_row['meta_value'];
+    }
+
+    $thumbnail_ids = [];
+    foreach ($results as $row) {
+        if (!empty($row['thumbnail_id'])) {
+            $thumbnail_ids[] = intval($row['thumbnail_id']);
+        }
+    }
+    $thumbnail_lookup = dapfforwc_get_attachment_thumbnail_urls($thumbnail_ids);
+
+    foreach ($results as $row) {
+        $product_id = intval($row['ID']);
+        $variation_stats = $variation_lookup[$product_id] ?? [];
+        $has_variations = !empty($variation_stats['variation_count']);
+        $product_type = !empty($row['product_type']) ? $row['product_type'] : ($has_variations ? 'variable' : 'simple');
+
+        if ($has_variations && $product_type === 'simple') {
+            $product_type = 'variable';
+        }
+
+        $price = '';
+        $regular_price = '';
+        $sale_price = '';
+        $sale_active = false;
+        $discount_percentage = 0;
+
+        if ($product_type === 'variable') {
+            $price = dapfforwc_normalize_decimal_string($variation_stats['min_price'] ?? $row['min_variation_price']);
+            if ($price === '') {
+                $price = dapfforwc_normalize_decimal_string($row['price']);
+            }
+
+            $regular_price = dapfforwc_normalize_decimal_string($variation_stats['min_regular_price'] ?? $row['min_variation_regular_price']);
+            if ($regular_price === '') {
+                $regular_price = dapfforwc_normalize_decimal_string($row['regular_price']);
+            }
+
+            $sale_active = !empty($variation_stats['has_sale']);
+            $sale_price = $sale_active
+                ? dapfforwc_normalize_decimal_string($variation_stats['min_sale_price'] ?? $row['min_variation_sale_price'])
+                : '';
+
+            if ($sale_active && $sale_price !== '' && $regular_price !== '' && floatval($regular_price) > 0) {
+                $discount_percentage = round(((floatval($regular_price) - floatval($sale_price)) / floatval($regular_price)) * 100, 2);
+            }
+        } else {
+            $regular_price = dapfforwc_normalize_decimal_string($row['regular_price']);
+            $sale_price = dapfforwc_normalize_decimal_string($row['sale_price']);
+            $price = dapfforwc_normalize_decimal_string($row['price']);
+
+            if ($price === '') {
+                $price = $regular_price;
+            }
+
+            $sale_active = $sale_price !== '' && $regular_price !== '' && floatval($sale_price) > 0 && floatval($sale_price) < floatval($regular_price);
+            if ($sale_active) {
+                $discount_percentage = round(((floatval($regular_price) - floatval($sale_price)) / floatval($regular_price)) * 100, 2);
+            }
+        }
+
+        $stock_status = ($product_type === 'variable' && $has_variations)
+            ? (!empty($variation_stats['has_instock']) ? 'instock' : 'outofstock')
+            : ($row['stock_status'] ?: 'instock');
+
+        $thumbnail_id = !empty($row['thumbnail_id']) ? intval($row['thumbnail_id']) : 0;
+        $thumbnail = ($thumbnail_id > 0 && isset($thumbnail_lookup[$thumbnail_id])) ? $thumbnail_lookup[$thumbnail_id] : '';
+
+        $products[$product_id] = [
+            'ID' => $product_id,
+            'post_title' => $row['post_title'],
+            'publish_date' => $row['publish_date'],
+            'price' => $price,
+            'regular_price' => $regular_price,
+            'sale_price' => $sale_price,
+            'rating' => floatval($row['average_rating']) ?: 0,
+            'menu_order' => intval($row['menu_order']),
+            'on_sale' => $sale_active,
+            'discount_percentage' => $discount_percentage,
+            'product_sku' => $row['sku'] ?: '',
+            'product_stock' => $stock_status,
+            'product_type' => $product_type,
+            'product_category' => $category_lookup[$product_id] ?? [],
+            'product_brand' => !empty($brand_lookup[$product_id]) ? implode(', ', $brand_lookup[$product_id]) : '',
+            'author' => $row['author_name'] ?: '',
+            'author_id' => intval($row['post_author']),
+            'length' => $row['length'] ?: '',
+            'width' => $row['width'] ?: '',
+            'height' => $row['height'] ?: '',
+            'weight' => $row['weight'] ?: '',
+            'custom_meta' => $custom_meta_lookup[$product_id] ?? [],
+            'thumbnail' => $thumbnail,
+        ];
+    }
+
+    return ['products' => $products];
+}
+
+function dapfforwc_get_woocommerce_product_details()
+{
+    static $cached_result = null;
+
+    if ($cached_result !== null) {
+        return $cached_result;
+    }
+
+    $cache_key = 'dapfforwc_product_details_cache_v2';
+    $cached = get_transient($cache_key);
+    if ($cached !== false && is_array($cached)) {
+        return $cached_result = dapfforwc_apply_product_details_filters($cached);
+    }
+
+    $product_data = dapfforwc_build_woocommerce_product_details_data();
     set_transient($cache_key, $product_data, 12 * HOUR_IN_SECONDS);
 
-    return $product_data;
+    return $cached_result = dapfforwc_apply_product_details_filters($product_data);
 }
 
 /**

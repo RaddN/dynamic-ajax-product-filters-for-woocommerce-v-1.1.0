@@ -3,7 +3,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.5.8
+ * Version:     1.5.8.1
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -22,7 +22,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.5.8');
+define('DAPFFORWC_VERSION', '1.5.8.1');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -1676,7 +1676,7 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.8', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.5.8.1', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     $dapfforwc_localized_data = array(
         'dapfforwc_options' => $dapfforwc_options,
@@ -1697,9 +1697,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.8');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.8');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.8', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.5.8.1');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.5.8.1');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.5.8.1', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -1752,11 +1752,11 @@ function dapfforwc_admin_scripts($hook)
         'dapfforwc-admin-menu-style',
         plugin_dir_url(__FILE__) . 'assets/css/admin-menu.min.css',
         [],
-        '1.5.8',
+        '1.5.8.1',
         'all'
     );
 
-    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.5.8', true);
+    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.5.8.1', true);
     
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
@@ -1770,7 +1770,7 @@ function dapfforwc_admin_scripts($hook)
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.8', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.5.8.1', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], $dapfforwc_media_uploader_version, true);
 
@@ -2097,7 +2097,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.8');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.5.8.1');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2399,7 +2399,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.5.8",
+            "1.5.8.1",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -3244,6 +3244,7 @@ function dapfforwc_clear_woocommerce_caches()
     $transients = array(
         'dapfforwc_attributes_cache_v2',
         'dapfforwc_product_details_cache_v1',
+        'dapfforwc_product_details_cache_v2',
         'dapfforwc_min_max_prices_cache_v1',
     );
 
@@ -3383,30 +3384,133 @@ add_action('wp_enqueue_scripts', function () {
  * Output buffer (final guard) — strips hard-coded tags in header.php.
  * Only runs in fragment mode; safe for all themes.
  */
+add_action('init', function () {
+    if (!gm_pf_is_fragment_request()) return;
+
+    if (!empty($GLOBALS['gm_pf_fragment_buffer_started'])) {
+        return;
+    }
+
+    $GLOBALS['gm_pf_fragment_buffer_level'] = ob_get_level();
+    $GLOBALS['gm_pf_fragment_buffer_started'] = true;
+    ob_start();
+}, 0);
+
 add_action('template_redirect', function () {
     if (!gm_pf_is_fragment_request()) return;
 
     // Remove heavy footer actions (trackers, etc.)
     remove_all_actions('wp_footer');
+}, 0);
 
-    ob_start(static function ($html) {
-        // Kill stylesheets and style/font preloads
+if (!function_exists('gm_pf_cleanup_fragment_output')) {
+    function gm_pf_fragment_dom_cleanup($html)
+    {
+        if (!class_exists('DOMDocument')) {
+            return null;
+        }
+
+        $document = new DOMDocument();
+        $previous = libxml_use_internal_errors(true);
+
+        $loaded = $document->loadHTML(
+            $html,
+            LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD | LIBXML_NOERROR | LIBXML_NOWARNING
+        );
+
+        libxml_clear_errors();
+        libxml_use_internal_errors($previous);
+
+        if (!$loaded) {
+            return null;
+        }
+
+        $xpath = new DOMXPath($document);
+        $queries = [
+            '//head',
+            '//script',
+            '//style',
+            '//noscript',
+            '//link',
+            '//meta',
+            '//header',
+            '//footer',
+            '//*[@id="wpadminbar"]',
+            '//*[@id="wpadminbar-mobile"]',
+            '//*[contains(concat(" ", normalize-space(@class), " "), " no-results ")]//script',
+        ];
+
+        foreach ($queries as $query) {
+            $nodes = $xpath->query($query);
+            if (!$nodes) {
+                continue;
+            }
+
+            for ($index = $nodes->length - 1; $index >= 0; $index--) {
+                $node = $nodes->item($index);
+                if ($node && $node->parentNode) {
+                    $node->parentNode->removeChild($node);
+                }
+            }
+        }
+
+        $body = $document->getElementsByTagName('body')->item(0);
+        if (!$body) {
+            return null;
+        }
+
+        $cleaned = '';
+        foreach ($body->childNodes as $child) {
+            $cleaned .= $document->saveHTML($child);
+        }
+
+        return trim($cleaned);
+    }
+
+    function gm_pf_cleanup_fragment_output($html)
+    {
+        $cleaned = gm_pf_fragment_dom_cleanup($html);
+        if (is_string($cleaned) && $cleaned !== '') {
+            return $cleaned;
+        }
+
         $html = preg_replace('#<link[^>]+rel=["\']stylesheet["\'][^>]*>#i', '', $html);
         $html = preg_replace('#<link[^>]+rel=["\']preload["\'][^>]+as=["\'](?:style|font)["\'][^>]*>#i', '', $html);
-        // Optionally strip <head> content entirely for max speed
+        $html = preg_replace('#<!DOCTYPE[^>]*>#i', '', $html);
         $html = preg_replace('#<head\b[^>]*>.*?</head>#is', '', $html);
-        // Optional: remove theme header/footer wrappers from fragments
         $html = preg_replace('#<header\b[^>]*>.*?</header>#is', '', $html);
         $html = preg_replace('#<footer\b[^>]*>.*?</footer>#is', '', $html);
+        $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);
+        $html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $html);
+        $html = preg_replace('#<body\b[^>]*>#i', '', $html);
+        $html = preg_replace('#</body>#i', '', $html);
+        $html = preg_replace('#<html\b[^>]*>#i', '', $html);
+        $html = preg_replace('#</html>#i', '', $html);
         return $html;
-    });
-}, 0);
+    }
+}
 
 add_action('shutdown', function () {
     if (!gm_pf_is_fragment_request()) return;
-    if (ob_get_level()) {
-        @ob_end_flush();
+
+    $start_level = isset($GLOBALS['gm_pf_fragment_buffer_level']) ? intval($GLOBALS['gm_pf_fragment_buffer_level']) : null;
+    if ($start_level === null) {
+        return;
     }
+
+    while (ob_get_level() > $start_level) {
+        $buffer = ob_get_clean();
+
+        if (ob_get_level() === $start_level) {
+            echo gm_pf_cleanup_fragment_output($buffer);
+            break;
+        }
+
+        echo $buffer;
+    }
+
+    unset($GLOBALS['gm_pf_fragment_buffer_level']);
+    unset($GLOBALS['gm_pf_fragment_buffer_started']);
 }, PHP_INT_MAX);
 
 /** ------------------------------------------------------------------------
