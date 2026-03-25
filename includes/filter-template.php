@@ -113,6 +113,58 @@ if (!function_exists('dapfforwc_get_current_brand')) {
     }
 }
 
+if (!function_exists('dapfforwc_build_reverse_prefix_map')) {
+    function dapfforwc_build_reverse_prefix_map($prefixes)
+    {
+        if (!is_array($prefixes)) {
+            return [];
+        }
+
+        $reverse_prefix = [];
+
+        foreach ($prefixes as $key => $val) {
+            if ($key === 'attribute' || $key === 'custom') {
+                if (!is_array($val)) {
+                    continue;
+                }
+
+                foreach ($val as $nested_key => $nested_val) {
+                    if (!is_scalar($nested_val) || $nested_val === '') {
+                        continue;
+                    }
+
+                    $reverse_prefix[(string) $nested_val] = [
+                        'type' => $key === 'attribute' ? 'attribute' : 'custom_meta',
+                        'key' => (string) $nested_key,
+                    ];
+                }
+
+                continue;
+            }
+
+            if (is_scalar($val) && $val !== '') {
+                $reverse_prefix[(string) $val] = ['type' => (string) $key];
+                continue;
+            }
+
+            if (!is_array($val)) {
+                continue;
+            }
+
+            // Some legacy settings can contain unexpected nested arrays.
+            foreach ($val as $nested_val) {
+                if (!is_scalar($nested_val) || $nested_val === '') {
+                    continue;
+                }
+
+                $reverse_prefix[(string) $nested_val] = ['type' => (string) $key];
+            }
+        }
+
+        return $reverse_prefix;
+    }
+}
+
 
 /**
  * Get all registered brand taxonomies for the product post type
@@ -359,25 +411,10 @@ function dapfforwc_product_filter_shortcode($atts)
 
     // Support shorthand permalinks (?filters=white,laptop) by mapping to categories
     if ($filters !== '1') {
-        $prefix_options = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'];
-        $reverse_prefix = [];
-
-        if (isset($prefix_options) && is_array($prefix_options)) {
-            // Flatten and reverse the prefix
-            foreach ($prefix_options as $key => $val) {
-                if ($key === 'attribute') {
-                    foreach ($val as $attr_key => $attr_val) {
-                        $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
-                    }
-                } else if ($key === 'custom') {
-                    foreach ($val as $custom_key => $custom_val) {
-                        $reverse_prefix[$custom_val] = ['type' => 'custom_meta', 'key' => $custom_key];
-                    }
-                } else {
-                    $reverse_prefix[$val] = ['type' => $key];
-                }
-            }
-        }
+        $prefix_options = isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']) && is_array($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'])
+            ? $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']
+            : [];
+        $reverse_prefix = dapfforwc_build_reverse_prefix_map($prefix_options);
         $filter_value = isset($filters) ? array_filter(array_map('sanitize_text_field', explode(',', $filters))) : [];
         $all_cata_slug = array_column($all_cata, 'slug');
         $cata_in_filter = array_intersect($filter_value, $all_cata_slug);
@@ -446,9 +483,8 @@ function dapfforwc_product_filter_shortcode($atts)
         }
 
         $dimensions = ['length', 'width', 'height', 'weight'];
-        foreach ($dimensions as $dim) {
-
-            $dim = isset($prefix_options[$dim]) ? $prefix_options[$dim] : $dim;
+        foreach ($dimensions as $dimension_key) {
+            $dim = isset($prefix_options[$dimension_key]) && is_scalar($prefix_options[$dimension_key]) ? (string) $prefix_options[$dimension_key] : $dimension_key;
 
             if (!empty($_GET[$dim])) {
                 // sanitize incoming value
@@ -476,11 +512,15 @@ function dapfforwc_product_filter_shortcode($atts)
                     $max = floatval($max_raw);
                 }
 
+                $filter_type = isset($reverse_prefix[$dim]['type']) && is_string($reverse_prefix[$dim]['type'])
+                    ? $reverse_prefix[$dim]['type']
+                    : $dimension_key;
+
                 if ($min !== null) {
-                    $filteroptionsfromurl['min_' . $reverse_prefix[$dim]['type']] = $min;
+                    $filteroptionsfromurl['min_' . $filter_type] = $min;
                 }
                 if ($max !== null) {
-                    $filteroptionsfromurl['max_' . $reverse_prefix[$dim]['type']] = $max;
+                    $filteroptionsfromurl['max_' . $filter_type] = $max;
                 }
             }
         }
@@ -869,30 +909,17 @@ function dapfforwc_product_filter_shortcode($atts)
     // filters === 1
 
     if (isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on") {
-        $prefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"] : "";
+        $prefix = isset($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]) && is_array($dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"])
+            ? $dapfforwc_seo_permalinks_options["dapfforwc_permalinks_prefix_options"]
+            : [];
 
         // Get all query variables
         $query_vars = $_GET;
 
         // Reverse the $prefix to find key from value
-        $reverse_prefix = [];
+        $reverse_prefix = dapfforwc_build_reverse_prefix_map($prefix);
 
-        if (isset($prefix) && is_array($prefix)) {
-            // Flatten and reverse the prefix
-            foreach ($prefix as $key => $val) {
-                if ($key === 'attribute') {
-                    foreach ($val as $attr_key => $attr_val) {
-                        $reverse_prefix[$attr_val] = ['type' => 'attribute', 'key' => $attr_key];
-                    }
-                } else if ($key === 'custom') {
-                    foreach ($val as $custom_key => $custom_val) {
-                        $reverse_prefix[$custom_val] = ['type' => 'custom_meta', 'key' => $custom_key]; //maybe a error here
-                    }
-                } else {
-                    $reverse_prefix[$val] = ['type' => $key];
-                }
-            }
-
+        if (!empty($prefix)) {
             // Process query vars
             foreach ($query_vars as $key => $value) {
                 if (!isset($reverse_prefix[$key])) {
@@ -919,9 +946,8 @@ function dapfforwc_product_filter_shortcode($atts)
         // if $query_vars["length"] .... which value can be length=0-10000&width=0-10000&height=0-10000&weight=0-10000 collect them & store in min_length, max_length, min_width, max_width,min_height, max_height, min_weight, max_weight
         // Collect dimension ranges (length, width, height, weight) from query vars and store min/max values
         $dimensions = ['length', 'width', 'height', 'weight'];
-        foreach ($dimensions as $dim) {
-
-            $dim = isset($prefix[$dim]) ? $prefix[$dim] : $dim;
+        foreach ($dimensions as $dimension_key) {
+            $dim = isset($prefix[$dimension_key]) && is_scalar($prefix[$dimension_key]) ? (string) $prefix[$dimension_key] : $dimension_key;
 
             if (!empty($query_vars[$dim])) {
                 // sanitize incoming value
@@ -949,11 +975,15 @@ function dapfforwc_product_filter_shortcode($atts)
                     $max = floatval($max_raw);
                 }
 
+                $filter_type = isset($reverse_prefix[$dim]['type']) && is_string($reverse_prefix[$dim]['type'])
+                    ? $reverse_prefix[$dim]['type']
+                    : $dimension_key;
+
                 if ($min !== null) {
-                    $parsed_filters['min_' . $reverse_prefix[$dim]['type']] = $min;
+                    $parsed_filters['min_' . $filter_type] = $min;
                 }
                 if ($max !== null) {
-                    $parsed_filters['max_' . $reverse_prefix[$dim]['type']] = $max;
+                    $parsed_filters['max_' . $filter_type] = $max;
                 }
             }
         }
