@@ -324,6 +324,7 @@ function dapfforwc_exclude_attributes_render()
         ];
     }
     ?>
+    <input type="hidden" name="dapfforwc_advance_options[exclude_attributes][]" value="">
     <select class="plugincy_select2" id="exclude-attributes" name="dapfforwc_advance_options[exclude_attributes][]" multiple style="scrollbar-width: thin;min-width: 141px;" data-placeholder="<?php esc_html_e('Select Attributes to Exclude', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
         <?php foreach ($dapfforwc_attributes as $option) : ?>
             <option value="<?php echo esc_attr($option->attribute_name); ?>" 

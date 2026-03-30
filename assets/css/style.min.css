@@ -362,6 +362,7 @@ form.rfilterbuttons * {
   height: 4px;
   background: #ddd;
   border-radius: 5px;
+  cursor: pointer;
 }
 #product-filter .plugincy_slider .plugrogress {
   height: 100%;
@@ -399,6 +400,7 @@ form.rfilterbuttons * {
   width: 17px;
   border-radius: 50%;
   pointer-events: auto;
+  cursor: pointer;
   -webkit-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
   border: 1px solid white;
@@ -412,6 +414,7 @@ form.rfilterbuttons * {
   border: none;
   border-radius: 50%;
   pointer-events: auto;
+  cursor: pointer;
   -moz-appearance: none;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
   border: 1px solid white;

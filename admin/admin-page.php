@@ -412,7 +412,7 @@ function dapfforwc_admin_page_content()
                         </div>
                         <div class="support-item">
                             <span class="dashicons dashicons-shield"></span>
-                            <span><?php echo esc_html__('30-Day Money Back', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                            <span><?php echo esc_html__('Money Back Guarantee', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
                         </div>
                     </div>
                 </div>

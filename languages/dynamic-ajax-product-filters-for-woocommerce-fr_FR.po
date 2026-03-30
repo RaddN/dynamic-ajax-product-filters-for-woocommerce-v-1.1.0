@@ -31,8 +31,8 @@ msgid "3"
 msgstr "3"
 
 #: admin/admin-page.php:145 admin/admin-page.php:620
-msgid "30-Day Money Back"
-msgstr "De Remboursement De 30 Jours"
+msgid "Money Back Guarantee"
+msgstr "Garantie de remboursement"
 
 #. Description of the plugin
 msgid ""

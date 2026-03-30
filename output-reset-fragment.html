@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="profile" href="https://gmpg.org/xfn/11"> 
+	<title>shop &#8211; Dynamic AJAX Product Filters for WooCommerce</title>
+<meta name='robots' content='max-image-preview:large' />
+<meta name="generator" content="WordPress 6.9.4" />
+<meta name="generator" content="WooCommerce 10.4.4" />
+	<noscript><style>.woocommerce-product-gallery{ opacity: 1 !important; }</style></noscript>
+	<meta name="generator" content="Elementor 3.35.7; features: e_font_icon_svg, additional_custom_breakpoints; settings: css_print_method-external, google_font-enabled, font_display-swap">
+			<style>
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload),
+				.e-con.e-parent:nth-of-type(n+4):not(.e-lazyloaded):not(.e-no-lazyload) * {
+					background-image: none !important;
+				}
+				@media screen and (max-height: 1024px) {
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+3):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+				@media screen and (max-height: 640px) {
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload),
+					.e-con.e-parent:nth-of-type(n+2):not(.e-lazyloaded):not(.e-no-lazyload) * {
+						background-image: none !important;
+					}
+				}
+			</style>
+			    <style>
+        /* Mobile-only Sidebar to Top CSS */
+        @media (max-width: 768px) {
+            .sidebar-moved-to-top {
+                order: -1 !important;
+                -webkit-box-ordinal-group: 0 !important;
+                -ms-flex-order: -1 !important;
+                width: 100% !important;
+                margin-bottom: 20px !important;
+                display: block !important;
+            }
+
+            /* Make parent container flex if it isn't already - mobile only */
+            .sidebar-parent-flex {
+                display: flex !important;
+                flex-direction: column !important;
+            }
+
+            .sidebar-moved-to-top .widget {
+                margin-bottom: 15px !important;
+            }
+        }
+
+        /* Desktop - reset to normal positioning */
+        @media (min-width: 769px) {
+            .sidebar-moved-to-top {
+                order: initial !important;
+                -webkit-box-ordinal-group: initial !important;
+                -ms-flex-order: initial !important;
+                width: auto !important;
+                margin-bottom: initial !important;
+            }
+
+            .sidebar-parent-flex {
+                display: initial !important;
+                flex-direction: initial !important;
+            }
+        }
+    </style>
+
+    <script>
+        jQuery(document).ready(function($) {
+
+            var mobileBreakpoint = 768;
+            var $filterForm = $('form#product-filter');
+            // Ensure jQuery is properly loaded
+            if (typeof $ === 'undefined' || !$) {
+                console.warn('jQuery is not properly loaded');
+                return;
+            }
+
+            if ($filterForm.data("mobile-style") !== "style_1" && $filterForm.data("mobile-style") !== "style_2") {
+                return;
+            }
+
+            setTimeout(function() {
+
+                // Common sidebar selectors used across WordPress themes
+                var sidebarSelectors = [
+                    '#sidebar',
+                    '.sidebar',
+                    '#secondary',
+                    '.secondary',
+                    '.widget-area',
+                    '#primary-sidebar',
+                    '.primary-sidebar',
+                    '#main-sidebar',
+                    '.main-sidebar',
+                    '.sidebar-primary',
+                    '.sidebar-secondary',
+                    '#complementary',
+                    '.complementary',
+                    '.aside',
+                    '#aside',
+                    '.sidebar-1',
+                    '.sidebar-2',
+                    '#sidebar-1',
+                    '#sidebar-2'
+                ];
+
+                // Store original sidebar data
+                var sidebarOriginalData = null;
+                var currentlyMovedSidebar = null;
+                var resizeTimer = null;
+
+                // Safe element checking function
+                function isValidElement($element) {
+                    return $element && $element.length > 0 && $element.get(0) && $element.get(0).nodeType === 1;
+                }
+
+                // Function to check if form#product-filter is already at the top of .products
+                function isFilterFormAlreadyAtTop() {
+                    try {
+                        var $products = $(window.getProductSelectorString ? window.getProductSelectorString : '.products');
+
+                        if (!isValidElement($filterForm) || !isValidElement($products)) {
+                            return false;
+                        }
+
+                        // Check if elements are visible and have layout properties
+                        if (!$filterForm.is(':visible') || !$products.is(':visible')) {
+                            return false;
+                        }
+
+                        // Get the position of both elements with null checks
+                        var formOffset = $filterForm.offset();
+                        var productsOffset = $products.offset();
+
+                        // Check if offset() returned valid objects
+                        if (!formOffset || !productsOffset ||
+                            typeof formOffset.top === 'undefined' ||
+                            typeof productsOffset.top === 'undefined') {
+                            return false;
+                        }
+
+                        var formTop = formOffset.top;
+                        var productsTop = productsOffset.top;
+
+                        // Check if form is already above or at the same level as products
+                        // Adding a small tolerance (10px) for any margin/spacing
+                        return formTop <= (productsTop + 10);
+                    } catch (error) {
+                        console.warn('Error checking filter form position:', error);
+                        return false;
+                    }
+                }
+
+                // Function to find and store original sidebar position
+                function findAndStoreSidebarData() {
+                    try {
+                        if (sidebarOriginalData) return true; // Already found and stored
+
+                        var sidebarFound = false;
+
+                        // Look for sidebar containing form#product-filter
+                        $.each(sidebarSelectors, function(index, selector) {
+                            try {
+                                var $sidebar = $(selector);
+
+                                if (isValidElement($sidebar) && !sidebarFound) {
+                                    // Check if this sidebar contains the product filter form
+                                    if ($sidebar.find('form#product-filter').length > 0) {
+                                        sidebarFound = true;
+                                        storeSidebarOriginalData($sidebar);
+                                        return false; // Break the loop
+                                    }
+                                }
+                            } catch (error) {
+                                console.warn('Error checking sidebar selector:', selector, error);
+                            }
+                        });
+
+                        // If no sidebar with common selectors contains form#product-filter, 
+                        // check for any element containing form#product-filter
+                        if (!sidebarFound) {
+                            var $filterForm = $('form#product-filter');
+                            if (isValidElement($filterForm)) {
+                                var $possibleSidebar = $filterForm.closest('div, aside, section');
+                                if (isValidElement($possibleSidebar)) {
+                                    storeSidebarOriginalData($possibleSidebar);
+                                    sidebarFound = true;
+                                }
+                            }
+                        }
+
+                        return sidebarFound;
+                    } catch (error) {
+                        console.warn('Error finding sidebar data:', error);
+                        return false;
+                    }
+                }
+
+                // Store the original sidebar data
+                function storeSidebarOriginalData($sidebar) {
+                    try {
+                        if (!isValidElement($sidebar)) return;
+
+                        var $parent = $sidebar.parent();
+                        if (!isValidElement($parent)) return;
+
+                        var $nextSibling = $sidebar.next();
+                        var $prevSibling = $sidebar.prev();
+
+                        sidebarOriginalData = {
+                            sidebar: $sidebar,
+                            parent: $parent,
+                            nextSibling: isValidElement($nextSibling) ? $nextSibling : null,
+                            prevSibling: isValidElement($prevSibling) ? $prevSibling : null,
+                            index: $parent.children().index($sidebar)
+                        };
+                    } catch (error) {
+                        console.warn('Error storing sidebar data:', error);
+                    }
+                }
+
+                // Function to move sidebar to top (mobile only)
+                function moveSidebarToTop() {
+                    try {
+                        // Check if we're on mobile (<= breakpoint)
+                        if ($(window).width() <= mobileBreakpoint) {
+                            // Check if form#product-filter is already at the top of .products
+                            if (isFilterFormAlreadyAtTop()) {
+                                return; // Don't move if already positioned correctly
+                            }
+
+                            if (!findAndStoreSidebarData()) return;
+
+                            var $sidebar = sidebarOriginalData.sidebar;
+                            if (!isValidElement($sidebar)) return;
+
+                            // Don't move if already moved
+                            if ($sidebar.hasClass('sidebar-moved-to-top')) return;
+
+                            // Try to find .products container first as the preferred target
+                            var $products = $(window.getProductSelectorString ? window.getProductSelectorString : '.products');
+                            var $targetParent = null;
+
+                            if (isValidElement($products)) {
+                                // Move sidebar before .products
+                                $targetParent = $products.parent();
+                                if (isValidElement($targetParent)) {
+                                    $targetParent.addClass('sidebar-parent-flex');
+                                    $sidebar.addClass('sidebar-moved-to-top');
+
+                                    // Safe DOM manipulation
+                                    if ($sidebar.get(0) && $products.get(0)) {
+                                        $products.before($sidebar);
+                                        currentlyMovedSidebar = $sidebar;
+                                    }
+                                }
+                            } else {
+                                // Fallback to original logic if .products not found
+                                var $mainContent = findMainContent($sidebar);
+
+                                if (isValidElement($mainContent)) {
+                                    $targetParent = $mainContent.parent();
+                                    if (isValidElement($targetParent)) {
+                                        $targetParent.addClass('sidebar-parent-flex');
+                                        $sidebar.addClass('sidebar-moved-to-top');
+
+                                        // Safe DOM manipulation
+                                        if ($sidebar.get(0) && $mainContent.get(0)) {
+                                            $mainContent.before($sidebar);
+                                            currentlyMovedSidebar = $sidebar;
+                                        }
+                                    }
+                                } else {
+                                    // Final fallback: move to top of container
+                                    var $container = $sidebar.closest('.container, .wrap, .site, #page, #wrapper, .main-container');
+                                    if (isValidElement($container)) {
+                                        $container.addClass('sidebar-parent-flex');
+                                        $sidebar.addClass('sidebar-moved-to-top');
+
+                                        // Safe DOM manipulation
+                                        if ($sidebar.get(0) && $container.get(0)) {
+                                            $container.prepend($sidebar);
+                                            currentlyMovedSidebar = $sidebar;
+                                        }
+                                    }
+                                }
+                            }
+                        } else {
+                            // Desktop - restore original position
+                            restoreOriginalPosition();
+                        }
+                    } catch (error) {
+                        console.warn('Error moving sidebar to top:', error);
+                    }
+                }
+
+                // Function to find main content
+                function findMainContent($sidebar) {
+                    try {
+                        if (!isValidElement($sidebar)) return null;
+
+                        // First, try to find main content as a sibling
+                        var $mainContent = $sidebar.siblings().filter(function() {
+                            var $this = $(this);
+                            return $this.find('article, .post, .entry, .content').length > 0;
+                        }).first();
+
+                        // If no main content found as sibling, try common content selectors within the same parent
+                        if (!isValidElement($mainContent)) {
+                            var contentSelectors = [
+                                '#main',
+                                '.main',
+                                '#content',
+                                '.content',
+                                '#primary',
+                                '.primary',
+                                '.site-content',
+                                '.entry-content',
+                                '.post-content',
+                                'main',
+                                'article'
+                            ];
+
+                            var $parent = $sidebar.parent();
+                            if (isValidElement($parent)) {
+                                $.each(contentSelectors, function(i, contentSelector) {
+                                    var $content = $parent.find(contentSelector).first();
+                                    if (isValidElement($content) && !$content.is($sidebar) && !$sidebar.find($content).length) {
+                                        $mainContent = $content;
+                                        return false; // Break the loop
+                                    }
+                                });
+                            }
+                        }
+
+                        return isValidElement($mainContent) ? $mainContent : null;
+                    } catch (error) {
+                        console.warn('Error finding main content:', error);
+                        return null;
+                    }
+                }
+
+                // Function to restore original position
+                function restoreOriginalPosition() {
+                    try {
+                        if (!sidebarOriginalData || !currentlyMovedSidebar) return;
+
+                        var $sidebar = currentlyMovedSidebar;
+                        var originalData = sidebarOriginalData;
+
+                        if (!isValidElement($sidebar)) return;
+
+                        // Remove mobile classes
+                        $sidebar.removeClass('sidebar-moved-to-top');
+
+                        // Remove flex class from any parents that might have it
+                        $('.sidebar-parent-flex').removeClass('sidebar-parent-flex');
+
+                        // Restore to original position
+                        if (originalData.nextSibling && isValidElement(originalData.nextSibling)) {
+                            // Insert before the next sibling
+                            if ($sidebar.get(0) && originalData.nextSibling.get(0)) {
+                                originalData.nextSibling.before($sidebar);
+                            }
+                        } else if (originalData.prevSibling && isValidElement(originalData.prevSibling)) {
+                            // Insert after the previous sibling
+                            if ($sidebar.get(0) && originalData.prevSibling.get(0)) {
+                                originalData.prevSibling.after($sidebar);
+                            }
+                        } else if (isValidElement(originalData.parent)) {
+                            // Append to original parent if no siblings
+                            if ($sidebar.get(0) && originalData.parent.get(0)) {
+                                originalData.parent.append($sidebar);
+                            }
+                        }
+
+                        currentlyMovedSidebar = null;
+                    } catch (error) {
+                        console.warn('Error restoring original position:', error);
+                    }
+                }
+
+                // Debounced resize handler
+                function handleResize() {
+                    try {
+                        clearTimeout(resizeTimer);
+                        resizeTimer = setTimeout(function() {
+                            moveSidebarToTop();
+                        }, 150); // Debounce resize events
+                    } catch (error) {
+                        console.warn('Error handling resize:', error);
+                    }
+                }
+
+                // Execute on page load with delay to ensure DOM is ready
+                setTimeout(function() {
+                    try {
+                        moveSidebarToTop();
+                    } catch (error) {
+                        console.warn('Error on initial load:', error);
+                    }
+                }, 100);
+
+                // Re-execute after AJAX calls (for dynamic content)
+                $(document).ajaxComplete(function() {
+                    setTimeout(function() {
+                        try {
+                            moveSidebarToTop();
+                        } catch (error) {
+                            console.warn('Error after AJAX:', error);
+                        }
+                    }, 200);
+                });
+
+                // Re-execute after window resize (debounced)
+                $(window).on('resize', handleResize);
+            }, 2000);
+        });
+    </script>
+    </head>
+
+<body  class="archive post-type-archive post-type-archive-product logged-in wp-embed-responsive wp-theme-astra theme-astra woocommerce-shop woocommerce woocommerce-page woocommerce-no-js ast-desktop ast-plain-container ast-left-sidebar astra-4.12.4 columns-4 tablet-columns-3 mobile-columns-2 ast-woo-shop-archive ast-inherit-site-logo-transparent ast-hfb-header elementor-default elementor-kit-221">
+
+<a
+	class="skip-link screen-reader-text"
+	href="#content">
+		Skip to content</a>
+
+<div
+class="hfeed site" id="page">
+			<header
+		class="site-header header-main-layout-1 ast-primary-menu-enabled ast-logo-title-inline ast-hide-custom-menu-mobile ast-builder-menu-toggle-icon ast-mobile-header-inline" id="masthead" itemtype="https://schema.org/WPHeader" itemscope="itemscope" itemid="#masthead"		>
+			<div id="ast-desktop-header" data-toggle-type="dropdown">
+		<div class="ast-main-header-wrap main-header-bar-wrap ">
+		<div class="ast-primary-header-bar ast-primary-header main-header-bar site-header-focus-item" data-section="section-primary-header-builder">
+						<div class="site-primary-header-wrap ast-builder-grid-row-container site-header-focus-item ast-container" data-section="section-primary-header-builder">
+				<div class="ast-builder-grid-row ast-builder-grid-row-has-sides ast-builder-grid-row-no-center">
+											<div class="site-header-primary-section-left site-header-section ast-flex site-header-section-left">
+									<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
+							<div
+				class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope"				>
+					<div class="ast-site-title-wrap">
+						<span class="site-title" itemprop="name">
+				<a href="http://free-filter-plugin.local/" rel="home" itemprop="url" >
+					Dynamic AJAX Product Filters for WooCommerce
+				</a>
+			</span>
+						
+				</div>				</div>
+			<!-- .site-branding -->
+					</div>
+								</div>
+																								<div class="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section">
+										<div class="ast-builder-menu-1 ast-builder-menu ast-flex ast-builder-menu-1-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-hb-menu-1">
+			<div class="ast-main-header-bar-alignment"><div class="main-header-bar-navigation ast-flex-1"><nav class="site-navigation ast-flex-grow-1 navigation-accessibility" id="primary-site-navigation" aria-label="Primary Site Navigation" itemtype="https://schema.org/SiteNavigationElement" itemscope="itemscope"><div id="ast-hf-menu-1" class="main-navigation ast-inline-flex"><ul class="main-header-menu ast-menu-shadow ast-nav-menu ast-flex  submenu-with-border stack-on-mobile"><li class="page_item page-item-230 menu-item"><a href="http://free-filter-plugin.local/230-2/" class="menu-link"></a></li><li class="page_item page-item-2085 menu-item"><a href="http://free-filter-plugin.local/2085-2/" class="menu-link"></a></li><li class="page_item page-item-8 menu-item"><a href="http://free-filter-plugin.local/cart/" class="menu-link">Cart</a></li><li class="page_item page-item-9 menu-item"><a href="http://free-filter-plugin.local/checkout/" class="menu-link">Checkout</a></li><li class="page_item page-item-2129 menu-item"><a href="http://free-filter-plugin.local/classic-checkout/" class="menu-link">classic checkout</a></li><li class="page_item page-item-222 menu-item"><a href="http://free-filter-plugin.local/elementor-222/" class="menu-link">Elementor #222</a></li><li class="page_item page-item-14 menu-item"><a href="http://free-filter-plugin.local/" class="menu-link">home</a></li><li class="page_item page-item-209 menu-item"><a href="http://free-filter-plugin.local/home-2/" class="menu-link">home 2</a></li><li class="page_item page-item-350 menu-item"><a href="http://free-filter-plugin.local/home-3/" class="menu-link">home 3</a></li><li class="page_item page-item-1805 menu-item"><a href="http://free-filter-plugin.local/huski/" class="menu-link">huski</a></li><li class="page_item page-item-1997 menu-item"><a href="http://free-filter-plugin.local/laptop/" class="menu-link">laptop</a></li><li class="page_item page-item-10 menu-item"><a href="http://free-filter-plugin.local/my-account/" class="menu-link">My account</a></li><li class="page_item page-item-2 menu-item"><a href="http://free-filter-plugin.local/sample-page/" class="menu-link">Sample Page</a></li><li class="page_item page-item-1761 current_page_item menu-item"><a href="http://free-filter-plugin.local/products/" class="menu-link">shop</a></li><li class="page_item page-item-2097 menu-item"><a href="http://free-filter-plugin.local/test/" class="menu-link">test</a></li></ul></div></nav></div></div>		</div>
+									</div>
+												</div>
+					</div>
+								</div>
+			</div>
+	</div> <!-- Main Header Bar Wrap -->
+<div id="ast-mobile-header" class="ast-mobile-header-wrap " data-type="dropdown">
+		<div class="ast-main-header-wrap main-header-bar-wrap" >
+		<div class="ast-primary-header-bar ast-primary-header main-header-bar site-primary-header-wrap site-header-focus-item ast-builder-grid-row-layout-default ast-builder-grid-row-tablet-layout-default ast-builder-grid-row-mobile-layout-default" data-section="section-primary-header-builder">
+									<div class="ast-builder-grid-row ast-builder-grid-row-has-sides ast-builder-grid-row-no-center">
+													<div class="site-header-primary-section-left site-header-section ast-flex site-header-section-left">
+										<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="title_tagline">
+							<div
+				class="site-branding ast-site-identity" itemtype="https://schema.org/Organization" itemscope="itemscope"				>
+					<div class="ast-site-title-wrap">
+						<span class="site-title" itemprop="name">
+				<a href="http://free-filter-plugin.local/" rel="home" itemprop="url" >
+					Dynamic AJAX Product Filters for WooCommerce
+				</a>
+			</span>
+						
+				</div>				</div>
+			<!-- .site-branding -->
+					</div>
+									</div>
+																									<div class="site-header-primary-section-right site-header-section ast-flex ast-grid-right-section">
+										<div class="ast-builder-layout-element ast-flex site-header-focus-item" data-section="section-header-mobile-trigger">
+						<div class="ast-button-wrap">
+				<button type="button" class="menu-toggle main-header-menu-toggle ast-mobile-menu-trigger-minimal"   aria-expanded="false" aria-label="Main menu toggle">
+					<span class="mobile-menu-toggle-icon">
+						<span aria-hidden="true" class="ahfb-svg-iconset ast-inline-flex svg-baseline"><svg class='ast-mobile-svg ast-menu-svg' fill='currentColor' version='1.1' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M3 13h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 7h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1zM3 19h18c0.552 0 1-0.448 1-1s-0.448-1-1-1h-18c-0.552 0-1 0.448-1 1s0.448 1 1 1z'></path></svg></span><span aria-hidden="true" class="ahfb-svg-iconset ast-inline-flex svg-baseline"><svg class='ast-mobile-svg ast-close-svg' fill='currentColor' version='1.1' xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><path d='M5.293 6.707l5.293 5.293-5.293 5.293c-0.391 0.391-0.391 1.024 0 1.414s1.024 0.391 1.414 0l5.293-5.293 5.293 5.293c0.391 0.391 1.024 0.391 1.414 0s0.391-1.024 0-1.414l-5.293-5.293 5.293-5.293c0.391-0.391 0.391-1.024 0-1.414s-1.024-0.391-1.414 0l-5.293 5.293-5.293-5.293c-0.391-0.391-1.024-0.391-1.414 0s-0.391 1.024 0 1.414z'></path></svg></span>					</span>
+									</button>
+			</div>
+					</div>
+									</div>
+											</div>
+						</div>
+	</div>
+				<div class="ast-mobile-header-content content-align-flex-start ">
+						<div class="ast-builder-menu-mobile ast-builder-menu ast-builder-menu-mobile-focus-item ast-builder-layout-element site-header-focus-item" data-section="section-header-mobile-menu">
+			<div class="ast-main-header-bar-alignment"><div class="main-header-bar-navigation"><nav class="site-navigation ast-flex-grow-1 navigation-accessibility" id="ast-mobile-site-navigation" aria-label="Site Navigation" itemtype="https://schema.org/SiteNavigationElement" itemscope="itemscope"><div id="ast-hf-mobile-menu" class="main-navigation"><ul class="main-header-menu ast-nav-menu ast-flex  submenu-with-border astra-menu-animation-fade  stack-on-mobile"><li class="page_item page-item-230 menu-item"><a href="http://free-filter-plugin.local/230-2/" class="menu-link"></a></li><li class="page_item page-item-2085 menu-item"><a href="http://free-filter-plugin.local/2085-2/" class="menu-link"></a></li><li class="page_item page-item-8 menu-item"><a href="http://free-filter-plugin.local/cart/" class="menu-link">Cart</a></li><li class="page_item page-item-9 menu-item"><a href="http://free-filter-plugin.local/checkout/" class="menu-link">Checkout</a></li><li class="page_item page-item-2129 menu-item"><a href="http://free-filter-plugin.local/classic-checkout/" class="menu-link">classic checkout</a></li><li class="page_item page-item-222 menu-item"><a href="http://free-filter-plugin.local/elementor-222/" class="menu-link">Elementor #222</a></li><li class="page_item page-item-14 menu-item"><a href="http://free-filter-plugin.local/" class="menu-link">home</a></li><li class="page_item page-item-209 menu-item"><a href="http://free-filter-plugin.local/home-2/" class="menu-link">home 2</a></li><li class="page_item page-item-350 menu-item"><a href="http://free-filter-plugin.local/home-3/" class="menu-link">home 3</a></li><li class="page_item page-item-1805 menu-item"><a href="http://free-filter-plugin.local/huski/" class="menu-link">huski</a></li><li class="page_item page-item-1997 menu-item"><a href="http://free-filter-plugin.local/laptop/" class="menu-link">laptop</a></li><li class="page_item page-item-10 menu-item"><a href="http://free-filter-plugin.local/my-account/" class="menu-link">My account</a></li><li class="page_item page-item-2 menu-item"><a href="http://free-filter-plugin.local/sample-page/" class="menu-link">Sample Page</a></li><li class="page_item page-item-1761 current_page_item menu-item"><a href="http://free-filter-plugin.local/products/" class="menu-link">shop</a></li><li class="page_item page-item-2097 menu-item"><a href="http://free-filter-plugin.local/test/" class="menu-link">test</a></li></ul></div></nav></div></div>		</div>
+					</div>
+			</div>
+		</header><!-- #masthead -->
+			<div id="content" class="site-content">
+		<div class="ast-container">
+		<div class="widget-area secondary" id="secondary" itemtype="https://schema.org/WPSideBar" itemscope="itemscope">
+	<div class="sidebar-main" >
+		
+		<div class="ast-filter-wrap"><div id="block-32" class="ast-woo-sidebar-widget widget widget_block"><span data-plugency-prov="p1" style="display:contents"><style id="filter-widget-ordering">form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}.search_text{
+                    order: 0!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .rating{
+                    order: 1!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .price-range{
+                    order: 2!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .category{
+                    order: 3!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .tag{
+                    order: 4!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .brands{
+                    order: 5!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .authors{
+                    order: 6!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .status{
+                    order: 7!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .sale_status{
+                    order: 8!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .dimensions{
+                    order: 9!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .sku{
+                    order: 10!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .discount{
+                    order: 11!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .date_filter{
+                    order: 12!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .months{
+                    order: 13!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .material{
+                    order: 14!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .size{
+                    order: 15!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .mens-trend{
+                    order: 16!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .test10{
+                    order: 17!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .acf_text{
+                    order: 18!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .acf-text{
+                    order: 19!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .ast-site-content-layout{
+                    order: 20!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .astra-migrate-meta-layouts{
+                    order: 21!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .post_views_count{
+                    order: 22!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .site-content-style{
+                    order: 23!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .site-sidebar-layout{
+                    order: 24!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .site-sidebar-style{
+                    order: 25!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .stick-header-meta{
+                    order: 26!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .theme-transparent-header-meta{
+                    order: 27!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    .total_sales{
+                    order: 28!important;
+                    display:flex!important;
+                    flex-direction: column;                
+                    }
+                    </style><style>
+            
+ @media screen and (max-width: 768px) {}
+            
+@media screen and (min-width: 576px) and (max-width: 768px) {}
+            
+</style><div>        <style>
+            #product-filter .plugincy-filter-group .plugincy_title {
+                padding: 10px 0 14px;
+            }
+
+            #product-filter .plugincy-filter-group .items {
+                padding: 20px 0 10px;
+            }
+
+            #product-filter .plugincy-filter-group {
+                margin-bottom: 0;
+            }
+        </style>
+        <style>
+        #product-filter .plugrogress-percentage:after,
+        #product-filter .plugrogress-percentage:before,
+        #product-filter .plugincy_slider .plugrogress,
+        #product-filter .plugincy-search-submit,
+        #product-filter .plugincy-term-search-submit,
+        #product-filter .dapfforwc-apply-filters-btn {
+            background: #432fb8 !important;
+        }
+
+        #product-filter .plugincy-filter-group {
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        #product-filter .plugincy-filter-group,
+        #product-filter .plugincy-filter-group .plugincy_title,
+        form#product-filter label,
+        form#product-filter legend {
+            color: #000000;
+        }
+
+        span.plugincy-stars svg {
+            fill: #000000;
+        }
+
+        .rfilterbuttons ul li.checked,
+        .rfilterselected ul li.checked,
+        #product-filter .items.button_check label {
+            border: 1px solid #432fb8;
+        }
+
+        #product-filter label.image-option {
+            border: 2px solid #432fb8;
+        }
+
+        #product-filter input[type="range"]::-webkit-slider-thumb {
+            background: #432fb8;
+        }
+
+        #product-filter input[type="range"]::-moz-range-thumb {
+            background: #432fb8;
+        }
+
+        #product-filter .checkbox_hide .filter-checkbox:checked+span {
+            color: #432fb8;
+        }
+
+        #product-filter .plugincy-filter-group .items {
+            width: 100%;
+            border-top: 1px solid #eeeeee;
+        }
+
+        #product-filter span.reset-value,
+        #product-filter .dapfforwc-reset-filters-btn {
+            background: #ff4d4d;
+        }
+
+        #product-filter .plugrogress-percentage:before {
+            content: "0";
+            content: "0";
+        }
+
+        #product-filter .plugrogress-percentage:after {
+            content: "";
+            content: "500000";
+        }
+
+        #product-filter .plugrogress-percentage:not(.dapfforwcpro-price-labels-ready):before,
+        #product-filter .plugrogress-percentage:not(.dapfforwcpro-price-labels-ready):after {
+            content: "" !important;
+            display: none !important;
+        }
+
+                /* responsive filter */
+        @media (max-width: 769px) {
+
+            #product-filter.plugincy_layout_sidebar:not(.dapfforwc-collapse-ready) .plugincy_title.plugincy_collapsable_arrow .rotatable {
+                transform: none;
+            }
+
+            .rfilterbuttons,
+            #product-filter .items {
+                display: none !important;
+            }
+
+            #product-filter .plugincy-filter-group div .plugincy_title {
+                cursor: pointer !important;
+            }
+
+            #product-filter:before {
+                content: "Filter";
+                background: #432fb8;
+                color: white;
+                padding: 10px 11px;
+                width: 60px;
+                height: 52px;
+                position: absolute;
+                left: 0px;
+                border-radius: 5px 0 0 5px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            form#product-filter {
+                display: flex;
+                flex-direction: row !important;
+                overflow: auto;
+                gap: 10px;
+                height: 66px;
+                margin-left: 64px;
+                scrollbar-width: thin;
+            }
+
+            .plugincy-filter-group .plugincy_title {
+                font-size: 16px !important;
+            }
+
+            .child-categories {
+                display: block !important;
+            }
+
+            span.show-sub-cata {
+                display: none !important;
+            }
+
+            .plugincy-filter-group {
+                min-width: max-content;
+                height: min-content;
+            }
+
+            #product-filter .items {
+                position: absolute;
+                left: 0;
+                background: white;
+                padding: 20px 15px;
+                box-shadow: #efefef99 0 -4px 10px 4px;
+                z-index: 999;
+                top: 70px;
+            }
+
+            .dafilter-word--show #product-filter:before {
+                display: block;
+            }
+
+            .dafilter-word--show form#product-filter {
+                margin-left: 64px;
+            }
+
+            .dafilter-word--hide #product-filter:before {
+                display: none;
+            }
+
+            .dafilter-word--hide form#product-filter {
+                margin-left: 0;
+            }
+        }
+
+            </style>
+                <div class="plugincy_filter_wrapper" style="position: relative;">
+            <!-- Navigation Buttons -->
+            <button type="button" class="plugincy-prev-button" aria-label="Previous" style="display: none;">
+                &#8592;
+            </button>
+            <button type="button" class="plugincy-next-button" aria-label="Next" style="display: none;">
+                &#8594;
+            </button>
+                        <form id="product-filter" class="plugincy_layout_sidebar" method="POST" data-layout='sidebar' data-mobile-style='style_1' data-mobile-breakpoint='768'
+                data-product_show_settings='{&quot;cat_operator&quot;:&quot;OR&quot;,&quot;per_page&quot;:&quot;12&quot;}'
+                                >
+
+                <div class="default_values" style="display:none;"></div><input type="hidden" id="gm-product-filter-nonce" name="gm-product-filter-nonce" value="a0821b2310" /><input type="hidden" name="_wp_http_referer" value="/products/?gm-product-filter-nonce=a0821b2310&#038;cat_operator=OR&#038;gm_pf_fragment=1" />    
+          
+
+   <div id="search_text" class="plugincy-filter-group search_text " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Search Product</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items"><div class="search-container"><input type="search" id="plugincy-search-field" class="search-field" placeholder="Search Product&hellip;" value="" name="plugincy_search" /> <button class="plugincy-search-submit">Search</button></div></div></div><div id="plugincy_rating" class="plugincy-filter-group rating " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Rating</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items rating rating-text"><label><input type="checkbox" name="rating[]" value="5"> 5 agagg 
+    </label>
+        <label><input type="checkbox" name="rating[]" value="4"> 4 Stars &amp; Up</label>
+        <label><input type="checkbox" name="rating[]" value="3"> 3 Stars &amp; Up</label>
+        <label><input type="checkbox" name="rating[]" value="2"> 2 Stars &amp; Up</label>
+        <label><input type="checkbox" name="rating[]" value="1"> 1 agagag</label></div></div><div id="price-range" class="plugincy-filter-group price-range " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Price Range</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items price"><div class="price-input" style="visibility: hidden;margin: 0">
+        <div class="field">
+            <input type="number" id="min-price" name="mn_price" class="input-min" min="0" max="500000" value="0">
+        </div>
+        <div class="separator">-</div>
+        <div class="field">
+            <input type="number" id="max-price" name="mx_price" min="0" max="500000" class="input-max" value="500000">
+        </div>
+        </div>
+        <div class="plugincy_slider">
+        <div class="plugrogress plugrogress-percentage" style="left:0%;right:0%"></div>
+      </div>
+        <div class="range-input">
+        <input type="range" id="price-range-min" class="range-min" min="0" max="500000" value="0">
+        <input type="range" id="price-range-max" class="range-max" min="0" max="500000" value="500000">
+        </div></div></div><div id="product-category" class="plugincy-filter-group category " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Category</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items checkbox"><div class="plugincy-terms-layout-horizontal" style="display: grid;grid-template-columns: repeat(auto-fill, minmax(calc(100% / 2 - 20px), 1fr));column-gap: 10px"><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="test parent with zero product" value="test-parent-with-zero-product"> <span class="option_title">test parent with zero product <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Beauty Care" value="beauty-care"> <span class="option_title">Beauty Care <span class="option_count"><span>(</span>73<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Body Care Products" value="body-care-products"> <span class="option_title">Body Care Products <span class="option_count"><span>(</span>4<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Facial Care" value="facial-care"> <span class="option_title">Facial Care <span class="option_count"><span>(</span>8<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Foot Care" value="foot-care"> <span class="option_title">Foot Care <span class="option_count"><span>(</span>6<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Hair Care" value="hair-care"> <span class="option_title">Hair Care <span class="option_count"><span>(</span>9<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Hair Straighteners" value="hair-straighteners"> <span class="option_title">Hair Straighteners <span class="option_count"><span>(</span>6<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Hair Trimmers" value="hair-trimmers"> <span class="option_title">Hair Trimmers <span class="option_count"><span>(</span>4<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Makeup" value="makeup"> <span class="option_title">Makeup <span class="option_count"><span>(</span>5<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Nail Care" value="nail-care"> <span class="option_title">Nail Care <span class="option_count"><span>(</span>7<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Shaving &amp; Hair Removal" value="shaving-hair-removal"> <span class="option_title">Shaving &amp; Hair Removal <span class="option_count"><span>(</span>6<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Skin Care Products" value="skin-care-products"> <span class="option_title">Skin Care Products <span class="option_count"><span>(</span>5<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Baby Care" value="baby-care"> <span class="option_title">Baby Care <span class="option_count"><span>(</span>30<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Baby Accessories" value="baby-accessories"> <span class="option_title">Baby Accessories <span class="option_count"><span>(</span>4<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Baby Milk Bottle" value="baby-milk-bottle"> <span class="option_title">Baby Milk Bottle <span class="option_count"><span>(</span>3<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Baby Weight Scale" value="baby-weight-scale"> <span class="option_title">Baby Weight Scale <span class="option_count"><span>(</span>8<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Diapers and Wipes" value="diapers-and-wipes"> <span class="option_title">Diapers and Wipes <span class="option_count"><span>(</span>3<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Electric Breast Pump" value="electric-breast-pump"> <span class="option_title">Electric Breast Pump <span class="option_count"><span>(</span>7<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Uncategorized" value="uncategorized"> <span class="option_title">Uncategorized <span class="option_count"><span>(</span>20<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Desktop" value="desktop"> <span class="option_title">Desktop <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Fitness Products" value="fitness-products"> <span class="option_title">Fitness Products <span class="option_count"><span>(</span>14<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Beauty Products" value="beauty-products"> <span class="option_title">Beauty Products <span class="option_count"><span>(</span>2<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Exercise Cycle" value="exercise-cycle"> <span class="option_title">Exercise Cycle <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Sports &amp; Fitness" value="sports-fitness"> <span class="option_title">Sports &amp; Fitness <span class="option_count"><span>(</span>3<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Treadmill" value="treadmill"> <span class="option_title">Treadmill <span class="option_count"><span>(</span>2<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Weight Loss" value="weight-loss"> <span class="option_title">Weight Loss <span class="option_count"><span>(</span>2<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Yoga &amp; Fitness" value="yoga-fitness"> <span class="option_title">Yoga &amp; Fitness <span class="option_count"><span>(</span>2<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Health Care" value="health-care"> <span class="option_title">Health Care <span class="option_count"><span>(</span>292<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Air Mattress" value="air-mattress"> <span class="option_title">Air Mattress <span class="option_count"><span>(</span>15<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Blood Pressure Monitor" value="blood-pressure-monitor"> <span class="option_title">Blood Pressure Monitor <span class="option_count"><span>(</span>28<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Diabetic Wellness" value="diabetic-wellness"> <span class="option_title">Diabetic Wellness <span class="option_count"><span>(</span>35<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Digital Thermometers" value="digital-thermometers"> <span class="option_title">Digital Thermometers <span class="option_count"><span>(</span>19<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Fingertip Oximeter" value="fingertip-oximeter"> <span class="option_title">Fingertip Oximeter <span class="option_count"><span>(</span>15<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Hearing Aid" value="hearing-aid"> <span class="option_title">Hearing Aid <span class="option_count"><span>(</span>13<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Mobility" value="mobility"> <span class="option_title">Mobility <span class="option_count"><span>(</span>11<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Nebulizer Machine" value="nebulizer-machine"> <span class="option_title">Nebulizer Machine <span class="option_count"><span>(</span>33<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Orthopedic Products" value="orthopedic-products"> <span class="option_title">Orthopedic Products <span class="option_count"><span>(</span>12<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Pain Rehabilitation" value="pain-rehabilitation"> <span class="option_title">Pain Rehabilitation <span class="option_count"><span>(</span>28<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Personal Health Care" value="personal-health-care"> <span class="option_title">Personal Health Care <span class="option_count"><span>(</span>50<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Weight Scale" value="weight-scale"> <span class="option_title">Weight Scale <span class="option_count"><span>(</span>29<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Hospital" value="hospital"> <span class="option_title">Hospital <span class="option_count"><span>(</span>7<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Anesthesia Machine" value="anesthesia-machine"> <span class="option_title">Anesthesia Machine <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Autoclave Machine" value="autoclave-machine"> <span class="option_title">Autoclave Machine <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Patient Bed" value="patient-bed"> <span class="option_title">Patient Bed <span class="option_count"><span>(</span>2<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Laboratory" value="laboratory"> <span class="option_title">Laboratory <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Urine Analyzer" value="urine-analyzer"> <span class="option_title">Urine Analyzer <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Laptop" value="laptop"> <span class="option_title">Laptop <span class="option_count"><span>(</span>10<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Test" value="test"> <span class="option_title">Test <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Linux" value="linux"> <span class="option_title">Linux <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="MacBook" value="macbook"> <span class="option_title">MacBook <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Medical" value="medical"> <span class="option_title">Medical <span class="option_count"><span>(</span>14<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Medical Equipment" value="medical-equipment"> <span class="option_title">Medical Equipment <span class="option_count"><span>(</span>14<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Phone" value="phone"> <span class="option_title">Phone <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Tablet" value="tablet"> <span class="option_title">Tablet <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="test parent" value="test-parent"> <span class="option_title">test parent <span class="option_count"><span>(</span>16<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="Shirt" value="shirt"> <span class="option_title">Shirt <span class="option_count"><span>(</span>15<span>)</span></span></span></label><label><input type="checkbox" class="filter-checkbox" name="product-category[]" title="বেকারি ও কনফেকশনারীি" value="বেকারি-ও-কনফেকশনারীি"> <span class="option_title">বেকারি ও কনফেকশনারীি <span class="option_count"><span>(</span>1<span>)</span></span></span></label></div></div></div><div id="color" class="plugincy-filter-group color " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Color</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><span class="tooltip-icon" style="cursor: help" title="atgat"><svg width="16" height="16" viewBox="0 0 20.48 20.48" xmlns="http://www.w3.org/2000/svg"><path d="M10.24 0C4.585 0 0 4.585 0 10.24s4.585 10.24 10.24 10.24 10.24-4.584 10.24-10.24C20.48 4.585 15.896 0 10.24 0m0 19.22c-4.94 0-8.96-4.04-8.96-8.98s4.02-8.96 8.96-8.96 8.96 4.02 8.96 8.96-4.019 8.98-8.96 8.98m-.941-3.211h1.61v-1.625h-1.61zm.922-11.539q-1.407 0-2.317.758c-.607.505-.902 1.517-.887 2.356l.024.047H8.51c0-.5.167-1.219.5-1.477q.5-.387 1.211-.387.82 0 1.261.445.441.446.441 1.273 0 .696-.327 1.188-.329.492-1.102 1.406-.798.719-.985 1.156-.187.438-.195 1.57h1.539q0-.711.09-1.047t.511-.758q.906-.874 1.458-1.711.55-.836.55-1.844 0-1.407-.852-2.191-.852-.786-2.391-.785" /></svg></span><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items plugincy_color"><div class="search-container after_title" style="margin-bottom:20px"><input type="text" class="search-field search-terms" placeholder=""><button class="plugincy-term-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4" /></svg></button></div><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="1.5 kg" value="1-5-kg">
+                <span class="color-box" style="background-color: #000000;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">1.5 kg<span></label><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="black" value="raihanblack">
+                <span class="color-box" style="background-color: #000000;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">black<span></label><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="Olive" value="olive">
+                <span class="color-box" style="background-color: #808000;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">Olive<span></label><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="Sky" value="sky">
+                <span class="color-box" style="background-color: #000000;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">Sky<span></label><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="White" value="white">
+                <span class="color-box" style="background-color: #ffffff;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">White<span></label><label style="position: relative"><input type="checkbox" class="filter-color" name="attribute[color][]" title="Yellow" value="yellow">
+                <span class="color-box" style="background-color: #ffff00;border: 1px solid #000;width: 30px;height: 30px"></span><span class="value" style="display:none">Yellow<span></label></div></div><div id="processor" class="plugincy-filter-group processor agag" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>agagag</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><span class="tooltip-icon" style="cursor: help" title="agaga"><svg width="16" height="16" viewBox="0 0 20.48 20.48" xmlns="http://www.w3.org/2000/svg"><path d="M10.24 0C4.585 0 0 4.585 0 10.24s4.585 10.24 10.24 10.24 10.24-4.584 10.24-10.24C20.48 4.585 15.896 0 10.24 0m0 19.22c-4.94 0-8.96-4.04-8.96-8.98s4.02-8.96 8.96-8.96 8.96 4.02 8.96 8.96-4.019 8.98-8.96 8.98m-.941-3.211h1.61v-1.625h-1.61zm.922-11.539q-1.407 0-2.317.758c-.607.505-.902 1.517-.887 2.356l.024.047H8.51c0-.5.167-1.219.5-1.477q.5-.387 1.211-.387.82 0 1.261.445.441.446.441 1.273 0 .696-.327 1.188-.329.492-1.102 1.406-.798.719-.985 1.156-.187.438-.195 1.57h1.539q0-.711.09-1.047t.511-.758q.906-.874 1.458-1.711.55-.836.55-1.844 0-1.407-.852-2.191-.852-.786-2.391-.785" /></svg></span><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items checkbox"><div class="search-container after_title" style="margin-bottom:20px"><input type="text" class="search-field search-terms" placeholder="Type to search..."><button class="plugincy-term-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4" /></svg></button></div><label><input type="checkbox" class="filter-checkbox" name="attribute[processor][]" title="AMD Ryzen 5" value="amd-ryzen-5"> <span class="option_title">AMD Ryzen 5</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[processor][]" title="AMD Ryzen 7" value="amd-ryzen-7"> <span class="option_title">AMD Ryzen 7</span></label></div></div><div id="months" class="plugincy-filter-group months " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Months</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Apr 2026" value="apr-2026"> <span class="option_title">Apr 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Feb 2026" value="feb-2026"> <span class="option_title">Feb 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Jan 2024" value="jan-2024"> <span class="option_title">Jan 2024</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Jan 2026" value="jan-2026"> <span class="option_title">Jan 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="January 2025" value="january-2025"> <span class="option_title">January 2025</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Jul 2026" value="jul-2026"> <span class="option_title">Jul 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Jun 2026" value="jun-2026"> <span class="option_title">Jun 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="Mar 2026" value="mar-2026"> <span class="option_title">Mar 2026</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[months][]" title="May 2026" value="may-2026"> <span class="option_title">May 2026</span></label></div></div><div id="material" class="plugincy-filter-group material " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Material</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><label><input type="checkbox" class="filter-checkbox" name="attribute[material][]" title="Cord Fabric" value="cord-fabric"> <span class="option_title">Cord Fabric</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[material][]" title="Cotton" value="cotton"> <span class="option_title">Cotton</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[material][]" title="Denim" value="denim"> <span class="option_title">Denim</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[material][]" title="Nylon" value="nylon"> <span class="option_title">Nylon</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[material][]" title="Paly-Cotton" value="paly-cotton"> <span class="option_title">Paly-Cotton</span></label></div></div><div id="size" class="plugincy-filter-group size " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Size</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="L" value="l"> <span class="option_title">L</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="M" value="m"> <span class="option_title">M</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="S" value="s"> <span class="option_title">S</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="XL" value="xl"> <span class="option_title">XL</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="xs" value="xs"> <span class="option_title">xs</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="XXL" value="xxl"> <span class="option_title">XXL</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[size][]" title="XXXL" value="xxxl"> <span class="option_title">XXXL</span></label></div></div><div id="mens-trend" class="plugincy-filter-group mens-trend " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Men&#039;s Trend</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><label><input type="checkbox" class="filter-checkbox" name="attribute[mens-trend][]" title="Nautical" value="nautical"> <span class="option_title">Nautical</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[mens-trend][]" title="Office" value="office"> <span class="option_title">Office</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[mens-trend][]" title="Party" value="party"> <span class="option_title">Party</span></label><label><input type="checkbox" class="filter-checkbox" name="attribute[mens-trend][]" title="Street Style" value="street-style"> <span class="option_title">Street Style</span></label></div></div><div id="test10" class="plugincy-filter-group test10 " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>test10</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><label><input type="checkbox" class="filter-checkbox" name="attribute[test10][]" title="test" value="test"> <span class="option_title">test</span></label></div></div><div id="tag" class="plugincy-filter-group tag sagsgs" style="display: block"><div class="plugincy_title plugincy_collapsable_minimize_initial"><span>gfagagga</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><span class="tooltip-icon" style="cursor: help" title="agagagag"><svg width="16" height="16" viewBox="0 0 20.48 20.48" xmlns="http://www.w3.org/2000/svg"><path d="M10.24 0C4.585 0 0 4.585 0 10.24s4.585 10.24 10.24 10.24 10.24-4.584 10.24-10.24C20.48 4.585 15.896 0 10.24 0m0 19.22c-4.94 0-8.96-4.04-8.96-8.98s4.02-8.96 8.96-8.96 8.96 4.02 8.96 8.96-4.019 8.98-8.96 8.98m-.941-3.211h1.61v-1.625h-1.61zm.922-11.539q-1.407 0-2.317.758c-.607.505-.902 1.517-.887 2.356l.024.047H8.51c0-.5.167-1.219.5-1.477q.5-.387 1.211-.387.82 0 1.261.445.441.446.441 1.273 0 .696-.327 1.188-.329.492-1.102 1.406-.798.719-.985 1.156-.187.438-.195 1.57h1.539q0-.711.09-1.047t.511-.758q.906-.874 1.458-1.711.55-.836.55-1.844 0-1.407-.852-2.191-.852-.786-2.391-.785" /></svg></span><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items checkbox"><div class="search-container after_title" style="margin-bottom:20px"><input type="text" class="search-field search-terms" placeholder="agaga"><button class="plugincy-term-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4" /></svg></button></div><div class="plugincy-terms-layout-horizontal" style="display: grid;grid-template-columns: repeat(auto-fill, minmax(calc(100% / 4 - 20px), 1fr));column-gap: 10px"><label><input type="radio" class="filter-checkbox" name="tags[]" title="10 Attachments" value="10-attachments"> <span class="option_title">10 Attachments <span class="option_count"><span>(</span>1<span>)</span></span></span></label><label><input type="radio" class="filter-checkbox" name="tags[]" title="1 Touch Prime" value="1-touch-prime"> <span class="option_title">1 Touch Prime <span class="option_count"><span>(</span>1<span>)</span></span></span></label></div></div></div><div id="brands" class="plugincy-filter-group brands shsh" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><div style="display: flex;align-items: center;gap: 13px;width: 100%;justify-content: flex-end"><span class="tooltip-icon" style="cursor: help" title="agghhg"><svg width="16" height="16" viewBox="0 0 20.48 20.48" xmlns="http://www.w3.org/2000/svg"><path d="M10.24 0C4.585 0 0 4.585 0 10.24s4.585 10.24 10.24 10.24 10.24-4.584 10.24-10.24C20.48 4.585 15.896 0 10.24 0m0 19.22c-4.94 0-8.96-4.04-8.96-8.98s4.02-8.96 8.96-8.96 8.96 4.02 8.96 8.96-4.019 8.98-8.96 8.98m-.941-3.211h1.61v-1.625h-1.61zm.922-11.539q-1.407 0-2.317.758c-.607.505-.902 1.517-.887 2.356l.024.047H8.51c0-.5.167-1.219.5-1.477q.5-.387 1.211-.387.82 0 1.261.445.441.446.441 1.273 0 .696-.327 1.188-.329.492-1.102 1.406-.798.719-.985 1.156-.187.438-.195 1.57h1.539q0-.711.09-1.047t.511-.758q.906-.874 1.458-1.711.55-.836.55-1.844 0-1.407-.852-2.191-.852-.786-2.391-.785" /></svg></span><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items image"><div class="search-container after_title" style="margin-bottom:20px"><input type="text" class="search-field search-terms" placeholder="zagazgabz"><button class="plugincy-term-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4" /></svg></button></div><div class="plugincy-terms-layout-horizontal" style="display: grid;grid-template-columns: repeat(auto-fill, minmax(calc(100% / 2 - 20px), 1fr));column-gap: 10px"><label class="image-option ">
+            <span class="image-title"><span class="option_title">Lenevo <span class="option_count"><span>(</span>1<span>)</span></span></span></span>
+    <input type="radio" class="filter-image" name="rplurand[]" title="Lenevo" value="lenevo">
+        <svg style="width: 100%;height: 100%" width="78" height="80" viewBox="0 0 78 80" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gradient-69ca0fce2ef16" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2563eb" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#1d4ed8" stop-opacity="1" />
+                </linearGradient>
+                <filter id="shadow-69ca0fce2ef18" x="-20%" y="-20%" width="140%" height="140%">
+                    
+                </filter>
+            </defs>
+            <rect width="78" height="80" rx="8" ry="8" fill="url(#gradient-69ca0fce2ef16)" />
+            <text x="39" y="32" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">Lenevo</text>
+            <line x1="12" y1="42" x2="66" y2="42" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" />
+            <text x="39" y="52" font-family="Arial, Helvetica, sans-serif" font-size="7" fill="rgba(255, 255, 255, 0.7)" text-anchor="middle" dominant-baseline="middle">PREMIUM BRAND</text>
+        </svg></label></div></div></div><div id="authors" class="plugincy-filter-group authors " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Authors</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items image"><div class="search-container in_title_bar" style="margin-bottom:20px"><input type="text" class="search-field search-terms" placeholder="Search Author"><button class="plugincy-term-search-submit"><svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4" /></svg></button></div><label class="image-option ">
+            <span class="image-title"><span class="option_title">admin</span></span>
+    <input type="checkbox" class="filter-image" name="rpluthor[]" title="admin" value="admin"><img decoding="async" width="150" height="150" src="http://free-filter-plugin.local/wp-content/uploads/2025/07/channels4_profile-150x150.jpg" class="attachment-thumbnail size-thumbnail" alt="admin" /></label><label class="image-option ">
+            <span class="image-title"><span class="option_title">Raihan Hossain</span></span>
+    <input type="checkbox" class="filter-image" name="rpluthor[]" title="Raihan Hossain" value="admin2">
+        <svg style="width: 100%;height: 100%" width="78" height="80" viewBox="0 0 78 80" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="gradient-69ca0fce328b0" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#2563eb" stop-opacity="1" />
+                    <stop offset="100%" stop-color="#1d4ed8" stop-opacity="1" />
+                </linearGradient>
+                <filter id="shadow-69ca0fce328b2" x="-20%" y="-20%" width="140%" height="140%">
+                    
+                </filter>
+            </defs>
+            <rect width="78" height="80" rx="8" ry="8" fill="url(#gradient-69ca0fce328b0)" />
+            <text x="39" y="32" font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="bold" fill="#ffffff" text-anchor="middle" dominant-baseline="middle">Raihan Hossain</text>
+            <line x1="12" y1="42" x2="66" y2="42" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" />
+            <text x="39" y="52" font-family="Arial, Helvetica, sans-serif" font-size="7" fill="rgba(255, 255, 255, 0.7)" text-anchor="middle" dominant-baseline="middle">PREMIUM BRAND</text>
+        </svg></label></div></div><div id="status" class="plugincy-filter-group status " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Stock Status</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items checkbox"><label><input type="checkbox" class="filter-checkbox" name="rplutock_status[]" title="Stock Ache" value="instock"> <span class="option_title">Stock Ache</span></label><label><input type="checkbox" class="filter-checkbox" name="rplutock_status[]" title="Stock Nai" value="outofstock"> <span class="option_title">Stock Nai</span></label></div></div><div id="sale_status" class="plugincy-filter-group sale_status " style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Sale Status</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items checkbox"><label><input type="checkbox" class="filter-checkbox" name="rpn_sale[]" title="Sale" value="onsale"> <span class="option_title">Sale</span></label><label><input type="checkbox" class="filter-checkbox" name="rpn_sale[]" title="Not Sale" value="notonsale"> <span class="option_title">Not Sale</span></label></div></div><div id="dimensions" class="plugincy-filter-group dimensions" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Dimensions</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items "><div class="unified-dimension-input-container"><div class="dimension-row"><div class="dimension-label" style="margin-bottom: 5px">Length (cm):</div><div class="dimension-inputs" style="display: flex;gap: 10px;margin-bottom: 10px"><div class="dimension-input-group"><input type="number" name="min_length" value="" placeholder="bsg" step="0.1" min="0" /></div><div class="dimension-input-group"><input type="number" name="max_length" value="" placeholder="agasgas" step="0.1" min="0" /></div></div></div><div class="dimension-row"><div class="dimension-label" style="margin-bottom: 5px">Width (cm):</div><div class="dimension-inputs" style="display: flex;gap: 10px;margin-bottom: 10px"><div class="dimension-input-group"><input type="number" name="min_width" value="" placeholder="bsg" step="0.1" min="0" /></div><div class="dimension-input-group"><input type="number" name="max_width" value="" placeholder="agasgas" step="0.1" min="0" /></div></div></div><div class="dimension-row"><div class="dimension-label" style="margin-bottom: 5px">Height (cm):</div><div class="dimension-inputs" style="display: flex;gap: 10px;margin-bottom: 10px"><div class="dimension-input-group"><input type="number" name="min_height" value="" placeholder="bsg" step="0.1" min="0" /></div><div class="dimension-input-group"><input type="number" name="max_height" value="" placeholder="agasgas" step="0.1" min="0" /></div></div></div><div class="dimension-row"><div class="dimension-label" style="margin-bottom: 5px">Weight (kg):</div><div class="dimension-inputs" style="display: flex;gap: 10px;margin-bottom: 10px"><div class="dimension-input-group"><input type="number" name="min_weight" value="" placeholder="bsg" step="0.1" min="0" /></div><div class="dimension-input-group"><input type="number" name="max_weight" value="" placeholder="agasgas" step="0.1" min="0" /></div></div></div></div></div></div><div id="sku" class="plugincy-filter-group sku" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>SKU</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items sku-container"><input type="text" name="sku" class="sku-field" placeholder="" value="" /></div></div><div id="discount" class="plugincy-filter-group discount" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Minimum Discount (%)</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items discount-container"><div class="discount-input-group"><input type="number" name="discount" class="discount-field" placeholder="Min. % off" value="" min="0" max="100" step="1" /></div></div></div><div id="date_filter" class="plugincy-filter-group date_filter" style="display: block"><div class="plugincy_title plugincy_collapsable_arrow"><span>Date Filter</span><div style="display: flex;align-items: center;gap: 13px;justify-content: flex-end"><div class="collaps"><svg class="rotatable" xmlns="https://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"></path></svg></div></div></div><div class="items date-filter-container"><div class="date-filter-select-group"><select name="date_filter" class="date-filter-select"><option value="" selected>All Time</option><option value="today">Today</option><option value="this_week">This Week</option><option value="this_month">This Month</option><option value="this_year">This Year</option></select></div><div class="custom-date-range" style="display: none !important"><div class="date-input-group"><label>From:</label><input type="date" name="date_from" value="" class="date-from-field" /></div><div class="date-input-group"><label>To:</label><input type="date" name="date_to" value="" class="date-to-field" /></div></div></div></div><div class="dapfforwc-apply-reset-container" style="order:9999"><button type="button" class="button dapfforwc-apply-filters-btn">
+            <svg width="16" height="16" fill="#fff" viewBox="-0.04 -0.04 0.48 0.48" xmlns="http://www.w3.org/2000/svg" class="jam jam-filter"><path d="m.042.04.13.162A.04.04 0 0 1 .18.227V.36L.22.33V.227A.04.04 0 0 1 .229.202L.358.04zm0-.04h.317A.04.04 0 0 1 .39.065L.26.227V.33a.04.04 0 0 1-.016.032l-.04.03A.04.04 0 0 1 .14.36V.227L.01.065A.04.04 0 0 1 .042 0" /></svg>
+            Apply Filters</button><button type="button" class="button dapfforwc-reset-filters-btn">
+                <svg width="16" fill="#fff" height="16" viewBox="0 0 38.4 38.4" xmlns="http://www.w3.org/2000/svg"><path d="M19.2 0v4.267c8.233 0 14.933 6.699 14.933 14.933s-6.7 14.933-14.933 14.933S4.267 27.435 4.267 19.2c0-3.94 1.568-7.65 4.267-10.415v5.082H12.8V2.133H1.067V6.4h3.821A19.18 19.18 0 0 0 0 19.2c0 10.586 8.612 19.2 19.2 19.2s19.2-8.614 19.2-19.2S29.788 0 19.2 0" /></svg>
+                Reset Filters</button></div></form></div>
+    <!-- Loader HTML -->
+    <div id="loader" style="display:none"></div>    <style>
+        #loader {
+                width: 56px;
+                height: 56px;
+                border-radius: 50%;
+                background: conic-gradient(#0000 10%, #432fb8);
+                -webkit-mask: radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 0);
+                animation: spinner-zp9dbg 1s infinite linear;
+            }
+
+            @keyframes spinner-zp9dbg {
+                to {
+                    transform: rotate(1turn);
+                }
+            }    </style>
+    <div id="roverlay" style="display: none;"></div>
+
+</div></span></div></div>
+	</div><!-- .sidebar-main -->
+</div><!-- #secondary -->
+			<div id="primary" class="content-area primary">
+
+				
+				<main id="main" class="site-main">
+					<div class="ast-woocommerce-container">
+			<nav class="woocommerce-breadcrumb" aria-label="Breadcrumb"><a href="http://free-filter-plugin.local">Home</a>&nbsp;&#47;&nbsp;shop</nav><header class="woocommerce-products-header">
+			<h1 class="woocommerce-products-header__title page-title">shop</h1>
+	
+	<div class="plugincy-archive-content-wrapper"><div id="block-28" class="widget widget_block plugincy-archive-widget"><span data-plugency-prov="p2" style="display:contents"><style>.rfilterselected  li{}.rfilterselected  ul {}.rfilterselected  ul li.checked {}.rfilterselected  ul li:hover {}</style><div class=""><form class="rfilterselected"><div><ul></ul></div></form></div></span></div><div id="block-29" class="widget widget_block plugincy-archive-widget"><span data-plugency-prov="p3" style="display:contents"><style>.rfilterbuttons li{}.rfilterbuttons ul {}.rfilterbuttons ul li.checked {}.rfilterbuttons ul li:hover {}</style><div><form class="rfilterbuttons" id="color"><ul><li>
+            <input id="term_1-5-kg" type="checkbox" value="1-5-kg">
+            <label for="term_1-5-kg">1.5 kg</label>
+        </li><li>
+            <input id="term_raihanblack" type="checkbox" value="raihanblack">
+            <label for="term_raihanblack">black</label>
+        </li><li>
+            <input id="term_olive" type="checkbox" value="olive">
+            <label for="term_olive">Olive</label>
+        </li><li>
+            <input id="term_sky" type="checkbox" value="sky">
+            <label for="term_sky">Sky</label>
+        </li><li>
+            <input id="term_white" type="checkbox" value="white">
+            <label for="term_white">White</label>
+        </li><li>
+            <input id="term_yellow" type="checkbox" value="yellow">
+            <label for="term_yellow">Yellow</label>
+        </li></ul></form></div></span></div></div></header>
+<div class="woocommerce-notices-wrapper"></div><p class="woocommerce-result-count" role="alert" aria-relevant="all" >
+	Showing 1&ndash;10 of 450 results</p>
+<form class="woocommerce-ordering" method="get">
+		<select
+		name="orderby"
+		class="orderby"
+					aria-label="Shop order"
+			>
+					<option value="menu_order"  selected='selected'>Default sorting</option>
+					<option value="popularity" >Sort by popularity</option>
+					<option value="rating" >Sort by average rating</option>
+					<option value="date" >Sort by latest</option>
+					<option value="price" >Sort by price: low to high</option>
+					<option value="price-desc" >Sort by price: high to low</option>
+			</select>
+	<input type="hidden" name="paged" value="1" />
+	<input type="hidden" name="gm-product-filter-nonce" value="a0821b2310" /><input type="hidden" name="_wp_http_referer" value="/products/?filters=1&amp;cata=test-parent-with-zero-product" /><input type="hidden" name="cat_operator" value="OR" /><input type="hidden" name="gm_pf_fragment" value="1" /></form>
+<ul class="products columns-4">
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1032 status-publish first instock product_cat-diabetic-wellness product_tag-1-touch-prime product_tag-digital-blood-pressure-monitor-in-bangladesh-buy-online-at-best-prices product_tag-glucose-test-monitor-glucose-meters shipping-taxable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple" data-product_id="1032" data-product_sku="" aria-label="Read more about &ldquo;1 Touch Prime Blood Glucose Test Monitor&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Read more </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">1 Touch Prime Blood Glucose Test Monitor</h2></a>
+<a href="http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1032" data-quantity="1" class="button product_type_simple" data-product_id="1032" data-product_sku="" aria-label="Read more about &ldquo;1 Touch Prime Blood Glucose Test Monitor&rdquo;" rel="nofollow" data-success_message="">Read more</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1032" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1082 status-publish instock product_cat-health-care product_cat-personal-health-care product_tag-2899 product_tag-500g product_tag-acacia-honey product_tag-culinary product_tag-delicious product_tag-flavorful product_tag-golden product_tag-honeycomb product_tag-langnese product_tag-langnese-100-pure-acacia-honey product_tag-langnese-100-pure-acacia-honey-with-natural-honeycomb-500g product_tag-langnese-100-pure-acacia-honey-with-natural-honeycomb-500g-natures-golden-delight product_tag-natural product_tag-pure product_tag-sustainably-sourced product_tag-sweetness product_tag-texture product_tag-versatile shipping-taxable purchasable product-type-variable">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_variable add_to_cart_button" data-product_id="1082" data-product_sku="21sgsgh" aria-label="Select options for &ldquo;100% Pure Acacia Honey with Natural Honeycomb Langnese  - 500g: Nature&#039;s Golden Delight&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Select options </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Health Care			</span>
+			<a href="http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">100% Pure Acacia Honey with Natural Honeycomb Langnese  &#8211; 500g: Nature&#8217;s Golden Delight</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>20.00</bdi></span></span>
+<a href="http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1082" data-quantity="1" class="button product_type_variable add_to_cart_button" data-product_id="1082" data-product_sku="21sgsgh" aria-label="Select options for &ldquo;100% Pure Acacia Honey with Natural Honeycomb Langnese  - 500g: Nature&#039;s Golden Delight&rdquo;" rel="nofollow">Select options</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1082" class="screen-reader-text">
+		This product has multiple variants. The options may be chosen on the product page	</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1227 status-publish instock product_cat-fingertip-oximeter product_cat-health-care product_tag-302a product_tag-302a-fingertip-pulse-oximeter product_tag-302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking product_tag-accurate product_tag-convenient product_tag-digital-health product_tag-fingertip-pulse-oximeter product_tag-health-tracking product_tag-healthcare product_tag-medical-device product_tag-monitoring product_tag-on-the-go product_tag-oxygen-saturation product_tag-portable product_tag-pulse-rate product_tag-reliable product_tag-wellness shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1227" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1227" data-product_sku="HLBFO22" aria-label="Add to cart: &ldquo;302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Fingertip Oximeter			</span>
+			<a href="http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>1,400.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1227" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1227" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1227" data-product_sku="HLBFO22" aria-label="Add to cart: &ldquo;302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking&rdquo;" rel="nofollow" data-success_message="&ldquo;302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1227" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1201 status-publish last instock product_cat-digital-thermometers product_cat-health-care product_tag-5-in-1-intelligent-smart-health-monitoring-device-blood-pressure product_tag-accurate-measurement product_tag-blood-pressure product_tag-comprehensive-monitoring product_tag-convenient product_tag-digital-health product_tag-health-monitor product_tag-health-tracking product_tag-oxygen product_tag-oxygen-levels product_tag-portable product_tag-smart-device product_tag-smart-technology product_tag-temperature product_tag-user-friendly product_tag-vital-signs product_tag-wellness shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1201" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1201" data-product_sku="HLBTM16" aria-label="Add to cart: &ldquo;5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Digital Thermometers			</span>
+			<a href="http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>11,800.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1201" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1201" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1201" data-product_sku="HLBTM16" aria-label="Add to cart: &ldquo;5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature&rdquo;" rel="nofollow" data-success_message="&ldquo;5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1201" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1033 status-publish first instock product_cat-diabetic-wellness product_tag-diabetic-machine product_tag-digital-glucometer-device product_tag-glucometer shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1033" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1033" data-product_sku="" aria-label="Add to cart: &ldquo;Accu Test Elite- Blood Glucose Monitoring System&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu Test Elite- Blood Glucose Monitoring System</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>1,400.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1033" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1033" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1033" data-product_sku="" aria-label="Add to cart: &ldquo;Accu Test Elite- Blood Glucose Monitoring System&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu Test Elite- Blood Glucose Monitoring System&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1033" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1034 status-publish instock product_cat-diabetic-wellness product_tag-accu-answer-4-in-1 product_tag-accurate-diabetes-care product_tag-diabetic-machine sale shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap">
+	
+	<a href="http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><span  class="ast-on-card-button ast-onsale-card" data-notification="default">Sale!</span><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1034" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1034" data-product_sku="" aria-label="Add to cart: &ldquo;Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin</h2></a>
+	<span class="price"><del aria-hidden="true"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>7,000.00</bdi></span></del> <span class="screen-reader-text">Original price was: &#036;7,000.00.</span><ins aria-hidden="true"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>6,100.00</bdi></span></ins><span class="screen-reader-text">Current price is: &#036;6,100.00.</span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1034" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1034" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1034" data-product_sku="" aria-label="Add to cart: &ldquo;Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1034" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1146 status-publish instock product_cat-diabetic-wellness product_cat-health-care product_tag-25pcs product_tag-accu-answer product_tag-accu-answer-isaw-blood-glucose-test-strip-25pcs product_tag-accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions product_tag-accurate product_tag-blood-glucose-test-strip product_tag-blood-sugar product_tag-diabetes product_tag-diabetes-management product_tag-glucose-monitoring product_tag-health product_tag-isaw product_tag-isaw-system product_tag-medical product_tag-monitoring product_tag-reliable product_tag-testing shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1146" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1146" data-product_sku="HLBDW15" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>499.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1146" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1146" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1146" data-product_sku="HLBDW15" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1146" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1147 status-publish last instock product_cat-diabetic-wellness product_cat-health-care product_tag-25pcs product_tag-accu-answer product_tag-accu-answer-isaw-cholesterol-test-strip product_tag-accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions product_tag-accurate product_tag-blood-cholesterol product_tag-cholesterol-monitoring product_tag-cholesterol-test-strip product_tag-diagnostic product_tag-health product_tag-healthcare product_tag-home-testing product_tag-isaw product_tag-medical product_tag-monitoring-system product_tag-reliable product_tag-wellness shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1147" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1147" data-product_sku="HLBDW16" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>2,500.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1147" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1147" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1147" data-product_sku="HLBDW16" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1147" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1148 status-publish first instock product_cat-uncategorized product_tag-25pcs product_tag-accu-answer product_tag-accu-answer-isaw-hemoglobin product_tag-accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions product_tag-accurate product_tag-blood-testing product_tag-diagnostic product_tag-health product_tag-healthcare product_tag-hemoglobin-monitoring product_tag-hemoglobin-test-strip product_tag-home-testing product_tag-isaw product_tag-medical product_tag-monitoring-system product_tag-reliable product_tag-wellness shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1148" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1148" data-product_sku="HLBDW17" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Uncategorized			</span>
+			<a href="http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>1,400.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1148" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1148" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1148" data-product_sku="HLBDW17" aria-label="Add to cart: &ldquo;Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1148" class="screen-reader-text">
+			</span>
+</div></li>
+<li class="ast-grid-common-col ast-full-width ast-article-post remove-featured-img-padding desktop-align-left tablet-align-left mobile-align-left product type-product post-1149 status-publish instock product_cat-diabetic-wellness product_cat-health-care product_tag-25-pcs product_tag-accu-answer product_tag-accu-answer-uric-acid-test-kit-25pcs product_tag-accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions product_tag-accurate product_tag-at-home-monitoring product_tag-diagnostic product_tag-gout product_tag-health product_tag-health-management product_tag-home-testing product_tag-medical product_tag-reliable product_tag-uric-acid-levels product_tag-uric-acid-monitoring product_tag-uric-acid-test-kit product_tag-wellness shipping-taxable purchasable product-type-simple">
+	<div class="astra-shop-thumbnail-wrap"><a href="http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/" class="woocommerce-LoopProduct-link woocommerce-loop-product__link"><img fetchpriority="high" width="300" height="300" src="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png" class="woocommerce-placeholder wp-post-image" alt="Placeholder" decoding="async" srcset="http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-300x300.png 300w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-100x100.png 100w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-600x600.png 600w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-1024x1024.png 1024w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-150x150.png 150w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder-768x768.png 768w, http://free-filter-plugin.local/wp-content/uploads/woocommerce-placeholder.png 1200w" sizes="(max-width: 300px) 100vw, 300px" /></a><a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1149" data-quantity="1" class="ast-on-card-button ast-select-options-trigger product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1149" data-product_sku="HLBDW18" aria-label="Add to cart: &ldquo;Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions&rdquo;" rel="nofollow"> <span class="ast-card-action-tooltip"> Add to cart </span> <span class="ahfb-svg-iconset"> <span class="ast-icon icon-bag"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="ast-bag-icon-svg" x="0px" y="0px" width="100" height="100" viewBox="826 826 140 140" enable-background="new 826 826 140 140" xml:space="preserve">
+				<path d="M960.758,934.509l2.632,23.541c0.15,1.403-0.25,2.657-1.203,3.761c-0.953,1.053-2.156,1.579-3.61,1.579H833.424  c-1.454,0-2.657-0.526-3.61-1.579c-0.952-1.104-1.354-2.357-1.203-3.761l2.632-23.541H960.758z M953.763,871.405l6.468,58.29H831.77  l6.468-58.29c0.15-1.203,0.677-2.218,1.58-3.045c0.903-0.827,1.981-1.241,3.234-1.241h19.254v9.627c0,2.658,0.94,4.927,2.82,6.807  s4.149,2.82,6.807,2.82c2.658,0,4.926-0.94,6.807-2.82s2.821-4.149,2.821-6.807v-9.627h28.882v9.627  c0,2.658,0.939,4.927,2.819,6.807c1.881,1.88,4.149,2.82,6.807,2.82s4.927-0.94,6.808-2.82c1.879-1.88,2.82-4.149,2.82-6.807v-9.627  h19.253c1.255,0,2.332,0.414,3.235,1.241C953.086,869.187,953.612,870.202,953.763,871.405z M924.881,857.492v19.254  c0,1.304-0.476,2.432-1.429,3.385s-2.08,1.429-3.385,1.429c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.43-2.081-1.43-3.385  v-19.254c0-5.315-1.881-9.853-5.641-13.613c-3.76-3.761-8.298-5.641-13.613-5.641s-9.853,1.88-13.613,5.641  c-3.761,3.76-5.641,8.298-5.641,13.613v19.254c0,1.304-0.476,2.432-1.429,3.385c-0.953,0.953-2.081,1.429-3.385,1.429  c-1.303,0-2.432-0.477-3.384-1.429c-0.953-0.953-1.429-2.081-1.429-3.385v-19.254c0-7.973,2.821-14.779,8.461-20.42  c5.641-5.641,12.448-8.461,20.42-8.461c7.973,0,14.779,2.82,20.42,8.461C922.062,842.712,924.881,849.519,924.881,857.492z" />
+				</svg></span> </span> </a></div><div class="astra-shop-summary-wrap">			<span class="ast-woo-product-category">
+				Diabetic Wellness			</span>
+			<a href="http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/" class="ast-loop-product__link"><h2 class="woocommerce-loop-product__title">Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions</h2></a>
+	<span class="price"><span class="woocommerce-Price-amount amount"><bdi><span class="woocommerce-Price-currencySymbol">&#36;</span>1,400.00</bdi></span></span>
+<a href="/products/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1&#038;add-to-cart=1149" aria-describedby="woocommerce_loop_add_to_cart_link_describedby_1149" data-quantity="1" class="button product_type_simple add_to_cart_button ajax_add_to_cart" data-product_id="1149" data-product_sku="HLBDW18" aria-label="Add to cart: &ldquo;Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions&rdquo;" rel="nofollow" data-success_message="&ldquo;Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions&rdquo; has been added to your cart" role="button">Add to cart</a>	<span id="woocommerce_loop_add_to_cart_link_describedby_1149" class="screen-reader-text">
+			</span>
+</div></li>
+</ul>
+<nav class="woocommerce-pagination" aria-label="Product Pagination">
+	<ul class='page-numbers'>
+	<li><span aria-label="Page 1" aria-current="page" class="page-numbers current">1</span></li>
+	<li><a aria-label="Page 2" class="page-numbers" href="http://free-filter-plugin.local/products/page/2/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">2</a></li>
+	<li><a aria-label="Page 3" class="page-numbers" href="http://free-filter-plugin.local/products/page/3/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">3</a></li>
+	<li><a aria-label="Page 4" class="page-numbers" href="http://free-filter-plugin.local/products/page/4/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">4</a></li>
+	<li><span class="page-numbers dots">&hellip;</span></li>
+	<li><a aria-label="Page 43" class="page-numbers" href="http://free-filter-plugin.local/products/page/43/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">43</a></li>
+	<li><a aria-label="Page 44" class="page-numbers" href="http://free-filter-plugin.local/products/page/44/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">44</a></li>
+	<li><a aria-label="Page 45" class="page-numbers" href="http://free-filter-plugin.local/products/page/45/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">45</a></li>
+	<li><a class="next page-numbers" href="http://free-filter-plugin.local/products/page/2/?gm-product-filter-nonce=a0821b2310&#038;_wp_http_referer=%2Fproducts%2F%3Ffilters%3D1%26cata%3Dtest-parent-with-zero-product&#038;cat_operator=OR&#038;gm_pf_fragment=1">&rarr;</a></li>
+</ul>
+</nav>
+					</div> <!-- .ast-woocommerce-container -->
+				</main> <!-- #main -->
+
+				
+			</div> <!-- #primary -->
+				</div> <!-- ast-container -->
+	</div><!-- #content -->
+<footer
+class="site-footer" id="colophon" itemtype="https://schema.org/WPFooter" itemscope="itemscope" itemid="#colophon">
+			<div class="site-above-footer-wrap ast-builder-grid-row-container site-footer-focus-item ast-builder-grid-row-full ast-builder-grid-row-tablet-full ast-builder-grid-row-mobile-full ast-footer-row-stack ast-footer-row-tablet-stack ast-footer-row-mobile-stack" data-section="section-above-footer-builder">
+	<div class="ast-builder-grid-row-container-inner">
+					<div class="ast-builder-footer-grid-columns site-above-footer-inner-wrap ast-builder-grid-row">
+											<div class="site-footer-above-section-1 site-footer-section site-footer-section-1">
+							<aside
+		class="footer-widget-area widget-area site-footer-focus-item footer-widget-area-inner" data-section="sidebar-widgets-footer-widget-1" aria-label="Footer Widget 1" role="region"				>
+						<div class="widget ast-no-widget-row">
+				<p class='no-widget-text'>
+					<a href='http://free-filter-plugin.local/wp-admin/widgets.php'>
+						Add Widget					</a>
+				</p>
+			</div>
+					</aside>
+						</div>
+										</div>
+			</div>
+
+</div>
+<div class="site-below-footer-wrap ast-builder-grid-row-container site-footer-focus-item ast-builder-grid-row-full ast-builder-grid-row-tablet-full ast-builder-grid-row-mobile-full ast-footer-row-stack ast-footer-row-tablet-stack ast-footer-row-mobile-stack" data-section="section-below-footer-builder">
+	<div class="ast-builder-grid-row-container-inner">
+					<div class="ast-builder-footer-grid-columns site-below-footer-inner-wrap ast-builder-grid-row">
+											<div class="site-footer-below-section-1 site-footer-section site-footer-section-1">
+								<div class="ast-builder-layout-element ast-flex site-footer-focus-item ast-footer-copyright" data-section="section-footer-builder">
+				<div class="ast-footer-copyright"><p>Copyright &copy; 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by <a href="https://wpastra.com" rel="nofollow noopener" target="_blank">Astra WordPress Theme</a></p>
+</div>			</div>
+						</div>
+										</div>
+			</div>
+
+</div>
+	</footer><!-- #colophon -->
+	</div><!-- #page -->
+<script type="text/template" id="tmpl-elementor-templates-modal__header">
+	<div class="elementor-templates-modal__header__logo-area"></div>
+	<div class="elementor-templates-modal__header__menu-area"></div>
+	<div class="elementor-templates-modal__header__items-area">
+		<# if ( closeType ) { #>
+			<div class="elementor-templates-modal__header__close elementor-templates-modal__header__close--{{{ closeType }}} elementor-templates-modal__header__item">
+				<# if ( 'skip' === closeType ) { #>
+				<span>Skip</span>
+				<# } #>
+				<i class="eicon-close" aria-hidden="true"></i>
+				<span class="elementor-screen-only">{{{ $e.components?.get( 'document/elements' )?.utils?.getTitleForLibraryClose() }}}</span>
+			</div>
+		<# } #>
+		<div id="elementor-template-library-header-tools"></div>
+	</div>
+</script>
+
+<script type="text/template" id="tmpl-elementor-templates-modal__header__logo">
+	<span class="elementor-templates-modal__header__logo__icon-wrapper e-logo-wrapper">
+		<i class="eicon-elementor-circle"></i>
+	</span>
+	<span class="elementor-templates-modal__header__logo__title">{{{ title }}}</span>
+</script>
+<script type="text/template" id="tmpl-elementor-finder">
+	<div id="elementor-finder__search">
+		<i class="eicon-search" aria-hidden="true"></i>
+		<input id="elementor-finder__search__input" placeholder="Type to find anything in Elementor" autocomplete="off">
+	</div>
+	<div id="elementor-finder__content"></div>
+</script>
+
+<script type="text/template" id="tmpl-elementor-finder-results-container">
+	<div id="elementor-finder__no-results">No Results Found</div>
+	<div id="elementor-finder__results"></div>
+</script>
+
+<script type="text/template" id="tmpl-elementor-finder__results__category">
+	<div class="elementor-finder__results__category__title">{{{ title }}}</div>
+	<div class="elementor-finder__results__category__items"></div>
+</script>
+
+<script type="text/template" id="tmpl-elementor-finder__results__item">
+	<a href="{{ url }}" class="elementor-finder__results__item__link">
+		<div class="elementor-finder__results__item__icon">
+			<i class="eicon-{{{ icon }}}" aria-hidden="true"></i>
+		</div>
+		<div class="elementor-finder__results__item__title">{{{ title }}}</div>
+		<# if ( description ) { #>
+			<div class="elementor-finder__results__item__description">- {{{ description }}}</div>
+		<# } #>
+
+		<# if ( lock ) { #>
+		<div class="elementor-finder__results__item__badge"><i class="{{{ lock.badge.icon }}}"></i>{{ lock.badge.text }}</div>
+		<# } #>
+	</a>
+	<# if ( actions.length ) { #>
+		<div class="elementor-finder__results__item__actions">
+		<# jQuery.each( actions, function() { #>
+			<a class="elementor-finder__results__item__action elementor-finder__results__item__action--{{ this.name }}" href="{{ this.url }}" target="_blank">
+				<i class="eicon-{{{ this.icon }}}"></i>
+			</a>
+		<# } ); #>
+		</div>
+	<# } #>
+</script>
+	<script>
+		(function () {
+			var c = document.body.className;
+			c = c.replace(/woocommerce-no-js/, 'woocommerce-js');
+			document.body.className = c;
+		})();
+	</script>
+		</body>
+</html>

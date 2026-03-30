@@ -30,7 +30,7 @@ msgid "3"
 msgstr ""
 
 #: admin/admin-page.php:145 admin/admin-page.php:620
-msgid "30-Day Money Back"
+msgid "Money Back Guarantee"
 msgstr ""
 
 #. Description of the plugin

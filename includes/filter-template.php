@@ -1556,6 +1556,25 @@ function dapfforwc_product_filter_shortcode($atts)
         ]
     );
 
+    $products_ids_without_price = dapfforwc_getFilteredProductIds(
+        [
+            $products_id_by_cata,
+            $products_id_by_tag,
+            $products_id_by_brand,
+            $common_values,
+            $common_values_custom_meta,
+            $products_id_by_author,
+            $products_id_by_stock_status,
+            $products_id_by_sale_status,
+            $products_id_by_search,
+            $products_id_by_dimensions,
+            $products_id_by_rating,
+            $products_id_by_sku,
+            $products_id_by_discount,
+            $products_id_by_date_filter
+        ]
+    );
+
     
     $all_product_ids = array_map('intval', array_column($product_details, 'ID'));
 
@@ -1794,9 +1813,18 @@ function dapfforwc_product_filter_shortcode($atts)
         'custom_fields' => $products_for_custom_meta
     ]) ?? [];
 
-    $min_max_prices = dapfforwc_get_min_max_price($product_details, $products_ids);
+    $has_active_price_filter = isset($filteroptionsfromurl["min_price"], $filteroptionsfromurl["max_price"])
+        && $filteroptionsfromurl["min_price"] !== ''
+        && $filteroptionsfromurl["max_price"] !== '';
 
-    if (isset($filteroptionsfromurl["default_min"]) && isset($filteroptionsfromurl["default_max"]) && $filteroptionsfromurl["default_min"] <= $min_max_prices["min"] && $filteroptionsfromurl["default_max"] >= $min_max_prices["max"]) {
+    $price_bounds_product_ids = $products_ids;
+    if ($has_active_price_filter) {
+        $price_bounds_product_ids = !empty($products_ids_without_price) ? $products_ids_without_price : $all_product_ids;
+    }
+
+    $min_max_prices = dapfforwc_get_min_max_price($product_details, $price_bounds_product_ids);
+
+    if ($has_active_price_filter && isset($filteroptionsfromurl["default_min"]) && isset($filteroptionsfromurl["default_max"]) && $filteroptionsfromurl["default_min"] <= $min_max_prices["min"] && $filteroptionsfromurl["default_max"] >= $min_max_prices["max"]) {
         $min_max_prices = [
             "min" => $filteroptionsfromurl["default_min"],
             "max" => $filteroptionsfromurl["default_max"],
@@ -1805,6 +1833,44 @@ function dapfforwc_product_filter_shortcode($atts)
 
     $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval($dapfforwc_styleoptions["price"]["min_price"] ?? 0));
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
+    $initial_price_display_min = $all_data_objects["min_price"];
+    $initial_price_display_max = $all_data_objects["max_price"];
+
+    if (isset($_GET['mn_price']) && is_numeric(wp_unslash($_GET['mn_price']))) {
+        $initial_price_display_min = floatval(wp_unslash($_GET['mn_price']));
+    }
+    if (isset($_GET['mx_price']) && is_numeric(wp_unslash($_GET['mx_price']))) {
+        $initial_price_display_max = floatval(wp_unslash($_GET['mx_price']));
+    }
+
+    $price_prefix = 'price';
+    if (
+        isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price']) &&
+        !empty($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'])
+    ) {
+        $price_prefix = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'];
+    }
+
+    if ($price_prefix && isset($_GET[$price_prefix])) {
+        $price_from_url = sanitize_text_field(wp_unslash($_GET[$price_prefix]));
+        if ($price_from_url !== '') {
+            if (strpos($price_from_url, '-') !== false) {
+                list($min_from_url, $max_from_url) = explode('-', $price_from_url, 2);
+            } elseif (strpos($price_from_url, ',') !== false) {
+                list($min_from_url, $max_from_url) = explode(',', $price_from_url, 2);
+            } else {
+                $min_from_url = $price_from_url;
+                $max_from_url = null;
+            }
+
+            if (is_numeric($min_from_url)) {
+                $initial_price_display_min = floatval($min_from_url);
+            }
+            if (isset($max_from_url) && is_numeric($max_from_url)) {
+                $initial_price_display_max = floatval($max_from_url);
+            }
+        }
+    }
 
     ob_start(); // Start output buffering
     if ($atts['layout'] === 'top_view') {
@@ -2071,12 +2137,18 @@ function dapfforwc_product_filter_shortcode($atts)
 
         #product-filter .plugrogress-percentage:before {
             content: "0";
-            content: "<?php echo esc_html($all_data_objects["min_price"]); ?>";
+            content: "<?php echo esc_html($initial_price_display_min); ?>";
         }
 
         #product-filter .plugrogress-percentage:after {
             content: "";
-            content: "<?php echo esc_html($all_data_objects["max_price"]); ?>";
+            content: "<?php echo esc_html($initial_price_display_max); ?>";
+        }
+
+        #product-filter .plugrogress-percentage:not(.dapfforwcpro-price-labels-ready):before,
+        #product-filter .plugrogress-percentage:not(.dapfforwcpro-price-labels-ready):after {
+            content: "" !important;
+            display: none !important;
         }
 
         <?php if ($atts['mobile_responsive'] === 'style_1') { ?>
@@ -2588,44 +2660,8 @@ function dapfforwc_product_filter_shortcode($atts)
 
                 <?php
                 $default_filter = isset($dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"]) && $dapfforwc_seo_permalinks_options["use_attribute_type_in_permalinks"] === "on" ? $all_data_objects : $default_filter;
-                // Get min price from URL if present, using the correct prefix from SEO permalinks options
-                $min_price = $all_data_objects["min_price"];
-
-                // Get max price from URL if present, using the correct prefix from SEO permalinks options
-                $max_price = $all_data_objects["max_price"];
-
-                // Check for price filter in URL
-                $price_prefix = 'price';
-                if (
-                    isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price']) &&
-                    !empty($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'])
-                ) {
-                    $price_prefix = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['price'];
-                }
-
-                // Look for price in $_GET using the prefix
-                $price_from_url = null;
-                if ($price_prefix && isset($_GET[$price_prefix])) {
-                    $price_from_url = sanitize_text_field(wp_unslash($_GET[$price_prefix]));
-                }
-
-                if ($price_from_url) {
-                    // Accept both "min-max" and "min,max" formats
-                    if (strpos($price_from_url, '-') !== false) {
-                        list($min_from_url, $max_from_url) = explode('-', $price_from_url, 2);
-                    } elseif (strpos($price_from_url, ',') !== false) {
-                        list($min_from_url, $max_from_url) = explode(',', $price_from_url, 2);
-                    } else {
-                        $min_from_url = $price_from_url;
-                        $max_from_url = null;
-                    }
-                    if (is_numeric($min_from_url)) {
-                        $min_price = floatval($min_from_url);
-                    }
-                    if (isset($max_from_url) && is_numeric($max_from_url)) {
-                        $max_price = floatval($max_from_url);
-                    }
-                }
+                $min_price = $initial_price_display_min;
+                $max_price = $initial_price_display_max;
                 echo '<div class="default_values" style="display:none;">';
                 if (!empty($all_data_objects) && is_array($all_data_objects) && (!$is_all_cata || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' && !is_shop()))) {
                     foreach ($all_data_objects as $key => $value) {
@@ -2728,6 +2764,19 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
 {
     $default_max_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['max'] ?? $max_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["max_price"]) ? $dapfforwc_styleoptions["price"]["max_price"] : 10000);
     $default_min_price = isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["auto_price"]) ? (ceil(floatval($min_max_prices['min'] ?? $min_price))) : (isset($dapfforwc_styleoptions) && isset($dapfforwc_styleoptions["price"]) && isset($dapfforwc_styleoptions["price"]["min_price"]) ? $dapfforwc_styleoptions["price"]["min_price"] : 0);
+    $default_min_price_float = floatval($default_min_price);
+    $default_max_price_float = floatval($default_max_price);
+    $selected_min_price = is_numeric($min_price) ? floatval($min_price) : $default_min_price_float;
+    $selected_max_price = is_numeric($max_price) ? floatval($max_price) : $default_max_price_float;
+    $selected_min_price = max($default_min_price_float, min($selected_min_price, $default_max_price_float));
+    $selected_max_price = max($default_min_price_float, min($selected_max_price, $default_max_price_float));
+    if ($selected_min_price > $selected_max_price) {
+        $selected_min_price = $selected_max_price;
+    }
+    $price_range_span = max($default_max_price_float - $default_min_price_float, 1);
+    $price_progress_left = (($selected_min_price - $default_min_price_float) / $price_range_span) * 100;
+    $price_progress_right = (($default_max_price_float - $selected_max_price) / $price_range_span) * 100;
+    $price_progress_style = 'left:' . $price_progress_left . '%;right:' . $price_progress_right . '%;';
     $output = '';
 
     switch ($sub_option) {
@@ -2828,7 +2877,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         </div>
       </div>
       <div class="plugincy_slider">
-        <div class="plugrogress"></div>
+        <div class="plugrogress" style="' . esc_attr($price_progress_style) . '"></div>
       </div>
       <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '" >
@@ -2846,7 +2895,7 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         </div>
       </div>
       <div class="plugincy_slider">
-        <div class="plugrogress"></div>
+        <div class="plugrogress" style="' . esc_attr($price_progress_style) . '"></div>
       </div>
       <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '" >
@@ -2864,8 +2913,8 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         </div>
         </div>
         <div class="plugincy_slider">
-        <div class="plugrogress plugrogress-percentage"></div>
-        </div>
+        <div class="plugrogress plugrogress-percentage" style="' . esc_attr($price_progress_style) . '"></div>
+      </div>
         <div class="range-input">
         <input  type="range" id="price-range-min" class="range-min" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $min_price . '">
         <input  type="range" id="price-range-max" class="range-max" min="' . $default_min_price . '" max="' . $default_max_price . '" value="' . $max_price . '">
