@@ -2849,10 +2849,10 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
             $output .= '<option  ' . ($disable_unselected && !$checked ? "disabled" : "") . ' class="filter-option"  title="' . $title . '" value="' . $value . '"' . $checked . '> <span class="option_title">' . $title . ($count != 0 ? ' <span class="option_count"><span>(</span>' . $count . '<span>)</span></span>' : '') . '</span></option>';
             break;
         case 'input-price-range':
-            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
-            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
-            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
-            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
+            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) && !empty($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
+            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) && !empty($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
+            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) && !empty($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
+            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) && !empty($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
             $output .= '<div class="range-input"><label for="min-price">' . $min_label . '</label>
         <input type="number" id="min-price" name="mn_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="' . $min_placeholder . '" value="' . $min_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;">
         
@@ -2860,10 +2860,10 @@ function dapfforwc_render_filter_option($sub_option, $title, $value, $checked, $
         <input type="number" id="max-price" name="mx_price" min="' . $default_min_price . '" max="' . $default_max_price . '" step="1" placeholder="' . $max_placeholder . '" value="' . $max_price . '" style="min-height: 30px;position: relative;top: unset;pointer-events: all;border: 1px solid #ccc;padding: 5px 6px;border-radius: 3px;width: 100%;max-width: 100%;height: 30px;max-height: 30px;"></div>';
             break;
         case 'slider':
-            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
-            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
-            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
-            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
+            $min_label = isset($dapfforwc_styleoptions["input_label"]["price"]["min"]) && !empty($dapfforwc_styleoptions["input_label"]["price"]["min"]) ? $dapfforwc_styleoptions["input_label"]["price"]["min"] : "Min Price:";
+            $min_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) && !empty($dapfforwc_styleoptions["input_placeholder"]["price"]["min"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["min"] : "Min";
+            $max_placeholder = isset($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) && !empty($dapfforwc_styleoptions["input_placeholder"]["price"]["max"]) ? $dapfforwc_styleoptions["input_placeholder"]["price"]["max"] : "Max";
+            $max_label = isset($dapfforwc_styleoptions["input_label"]["price"]["max"]) && !empty($dapfforwc_styleoptions["input_label"]["price"]["max"]) ? $dapfforwc_styleoptions["input_label"]["price"]["max"] : "Max Price:";
 
             $output .= '<div class="price-input">
         <div class="field">
