@@ -506,6 +506,8 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         }
 
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
+        $formOutPut .= $render_search_container($category_search_settings, $sub_option, 'product-category');
+        $formOutPut .= $render_layout_start($category_layout_settings, $sub_option);
 
         if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
             $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
@@ -524,10 +526,11 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         }
 
         if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
-            $formOutPut .= '</select></div></div>';
-        } else {
-            $formOutPut .= '</div></div>';
+            $formOutPut .= '</select>';
         }
+        $formOutPut .= $render_layout_end($category_layout_settings, $sub_option);
+        $formOutPut .= $render_search_after_terms($category_search_settings, $sub_option, 'product-category');
+        $formOutPut .= '</div></div>';
 
         // Render child categories grouped by parent
         foreach ($parent_categories as $parent_category) {
@@ -547,6 +550,8 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 }
 
                 $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
+                $formOutPut .= $render_search_container($category_search_settings, $sub_option, 'product-category');
+                $formOutPut .= $render_layout_start($category_layout_settings, $sub_option);
 
                 if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
                     $formOutPut .= '<select name="product-category[]" class="select ' . esc_attr($sub_option) . ' filter-select" ' . ($singlevaluecataSelect !== "yes" ? 'multiple="multiple"' : '') . '>';
@@ -556,10 +561,11 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $formOutPut .= dapfforwc_render_category_hierarchy($child_categories, $selected_categories, $sub_option, $dapfforwc_styleoptions, $singlevaluecataSelect, $show_count, $use_anchor, $use_filters_word, $hierarchical, $child_categories);
 
                 if ($sub_option === "select" || $sub_option === "pluginy_select2" || $sub_option === "select2_classic") {
-                    $formOutPut .= '</select></div></div>';
-                } else {
-                    $formOutPut .= '</div></div>';
+                    $formOutPut .= '</select>';
                 }
+                $formOutPut .= $render_layout_end($category_layout_settings, $sub_option);
+                $formOutPut .= $render_search_after_terms($category_search_settings, $sub_option, 'product-category');
+                $formOutPut .= '</div></div>';
             }
         }
     } else {
