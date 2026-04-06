@@ -2472,6 +2472,9 @@ if (!defined('ABSPATH')) {
 
         const syncFormValues = function() {
             styleOptions.querySelectorAll('[name^="dapfforwc_style_options"]').forEach(function(field) {
+                if (field.disabled) {
+                    return;
+                }
                 const parts = parseName(field.name);
                 const value = getNestedValue(state, parts);
                 const fallback = value === undefined ? getDefaultValue(parts) : value;
