@@ -61,7 +61,7 @@ if (!defined('ABSPATH')) {
         (object) ['attribute_name' => 'discount', 'attribute_label' => esc_html__('Discount', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'date_filter', 'attribute_label' => esc_html__('Post Date', 'dynamic-ajax-product-filters-for-woocommerce')],
         (object) ['attribute_name' => 'search', 'attribute_label' => esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')],
-        (object) ['attribute_name' => 'reset_btn', 'attribute_label' => esc_html__('Apply & Reset Button', 'dynamic-ajax-product-filters-for-woocommerce')],
+        (object) ['attribute_name' => 'reset_btn', 'attribute_label' => esc_html__('Apply, Reset Button', 'dynamic-ajax-product-filters-for-woocommerce')],
     ];
     $dapfforwc_extra_main_options = [
         (object) ['attribute_name' => "attributes", 'attribute_label' => esc_html__('Attributes', 'dynamic-ajax-product-filters-for-woocommerce')],
