@@ -210,13 +210,9 @@ if (!function_exists('dapfforwc_get_brand_taxonomies')) {
 }
 
 
-function dapfforwc_product_filter_shortcode($atts)
+function dapfforwc_get_product_filter_shortcode_defaults()
 {
-    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $dapfforwc_allowed_tags;
-
-
-    // Define default attributes and merge with user-defined attributes
-    $atts = shortcode_atts(array(
+    return array(
         'attribute' => '',
         'terms' => '',
         'category' => '',
@@ -227,7 +223,279 @@ function dapfforwc_product_filter_shortcode($atts)
         'mobile_responsive' => 'style_4',
         'use_custom_template_design' => 'no',
         'per_page' => '',
-    ), $atts);
+    );
+}
+
+function dapfforwc_get_product_filter_shortcode_builder_schema()
+{
+    return array(
+        'shortcode_tag' => 'plugincy_filters',
+        'group_order' => array('display', 'query', 'selectors', 'url'),
+        'groups' => array(
+            'display' => array(
+                'label' => esc_html__('Display & Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+            ),
+            'query' => array(
+                'label' => esc_html__('Product Query', 'dynamic-ajax-product-filters-for-woocommerce'),
+            ),
+            'selectors' => array(
+                'label' => esc_html__('Theme Selectors', 'dynamic-ajax-product-filters-for-woocommerce'),
+            ),
+            'url' => array(
+                'label' => esc_html__('URL & Redirect', 'dynamic-ajax-product-filters-for-woocommerce'),
+            ),
+        ),
+        'parameters' => array(
+            'layout' => array(
+                'group' => 'display',
+                'label' => esc_html__('Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose how the full filter form should be displayed.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => 'sidebar',
+                'options' => array(
+                    'sidebar' => array(
+                        'label' => esc_html__('Sidebar Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    ),
+                    'top_view' => array(
+                        'label' => esc_html__('Top View Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    ),
+                    'top_view_wrap' => array(
+                        'label' => esc_html__('Top View Wrap Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'locked' => true,
+                    ),
+                    'popup' => array(
+                        'label' => esc_html__('Popup Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'locked' => true,
+                    ),
+                    'popup_horizontal_wrap' => array(
+                        'label' => esc_html__('Popup Horizontal Wrap Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'locked' => true,
+                    ),
+                    'drawer' => array(
+                        'label' => esc_html__('Drawer Layout', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'locked' => true,
+                    ),
+                ),
+            ),
+            'collapsable' => array(
+                'group' => 'display',
+                'label' => esc_html__('Collapsable Filters', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Collapse the shortcode filters into a toggle button on desktop layouts.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => 'no',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    'no' => esc_html__('No', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'yes' => esc_html__('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'drawer_position' => array(
+                'group' => 'display',
+                'label' => esc_html__('Drawer Side', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose which side the drawer opens from when using the drawer layout.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => 'right',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    'left' => esc_html__('Left', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'right' => esc_html__('Right', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'category' => array(
+                'group' => 'query',
+                'label' => esc_html__('Category', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Use category slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => 'clothing,hoodies',
+            ),
+            'cat_operator' => array(
+                'group' => 'query',
+                'label' => esc_html__('Category Operator', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose how multiple category values should match.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use default (IN)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'IN' => esc_html__('IN', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'AND' => esc_html__('AND', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'tag' => array(
+                'group' => 'query',
+                'label' => esc_html__('Tag', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Use tag slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => 'featured,sale',
+            ),
+            'tag_operator' => array(
+                'group' => 'query',
+                'label' => esc_html__('Tag Operator', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose how multiple tag values should match.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use default (IN)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'IN' => esc_html__('IN', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'AND' => esc_html__('AND', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'attribute' => array(
+                'group' => 'query',
+                'label' => esc_html__('Attribute', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Use a product attribute slug.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => 'pa_color',
+            ),
+            'terms' => array(
+                'group' => 'query',
+                'label' => esc_html__('Attribute Terms', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Use attribute term slugs, comma separated.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => 'blue,black',
+            ),
+            'terms_operator' => array(
+                'group' => 'query',
+                'label' => esc_html__('Attribute Terms Operator', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose how multiple attribute term values should match.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use default (IN)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'IN' => esc_html__('IN', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'AND' => esc_html__('AND', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'brand_operator' => array(
+                'group' => 'query',
+                'label' => esc_html__('Brand Operator', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose how multiple brand values should match.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use default (IN)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'IN' => esc_html__('IN', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'AND' => esc_html__('AND', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'product_selector' => array(
+                'group' => 'selectors',
+                'label' => esc_html__('Product Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Enter the CSS selector for the product container. Default is .products.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => '.products',
+            ),
+            'pagination_selector' => array(
+                'group' => 'selectors',
+                'label' => esc_html__('Pagination Selector', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Enter the CSS selector for the pagination container. Default is .woocommerce-pagination.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'placeholder' => '.woocommerce-pagination',
+            ),
+            'mobile_responsive' => array(
+                'group' => 'display',
+                'label' => esc_html__('Mobile Responsive', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Choose the mobile filter style.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => 'style_4',
+                'options' => array(
+                    'style_1' => esc_html__('Style 1', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'style_2' => esc_html__('Style 2', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'style_3' => esc_html__('Style 3', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'style_4' => esc_html__('Style 4', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'per_page' => array(
+                'group' => 'query',
+                'label' => esc_html__('Products Per Page', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Set the maximum number of products per page.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'number',
+                'default' => '',
+                'placeholder' => '12',
+            ),
+            'use_url_filter' => array(
+                'group' => 'url',
+                'label' => esc_html__('URL Filter Mode', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Override the URL filter mode for this shortcode only.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use current setting', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'ajax' => esc_html__('AJAX', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'query_string' => esc_html__('Query String', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'permalinks' => esc_html__('Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'use_attribute_type_in_permalinks' => array(
+                'group' => 'url',
+                'label' => esc_html__('Attribute Type In Permalinks', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Override whether attribute types should be included in permalinks for this shortcode.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    '' => esc_html__('Use current setting', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'no' => esc_html__('No', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'yes' => esc_html__('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'redirect_shop' => array(
+                'group' => 'url',
+                'label' => esc_html__('Redirect When Products Missing', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Redirect filter actions to the shop page when this shortcode is used on a page without products.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'select',
+                'default' => 'no',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'options' => array(
+                    'no' => esc_html__('No', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    'yes' => esc_html__('Yes', 'dynamic-ajax-product-filters-for-woocommerce'),
+                ),
+            ),
+            'redirect_to' => array(
+                'group' => 'url',
+                'label' => esc_html__('Redirect To', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Leave empty to use the WooCommerce shop page automatically.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'text',
+                'default' => '',
+                'badge' => esc_html__('Pro', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'locked' => true,
+                'placeholder' => '/shop',
+            ),
+        ),
+    );
+}
+
+
+function dapfforwc_product_filter_shortcode($atts)
+{
+    global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings, $wp, $dapfforwc_seo_permalinks_options, $template_options, $dapfforwc_allowed_tags;
+
+
+    // Define default attributes and merge with user-defined attributes
+    $atts = shortcode_atts(dapfforwc_get_product_filter_shortcode_defaults(), $atts);
 
     $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
     $desktop_breakpoint = $mobile_breakpoint + 1;

@@ -924,16 +924,34 @@ function dapfforwc_admin_page_content()
                         <h3 style="margin: 0;">Shortcodes for Displaying Filters</h3>
                     </div>
                     <div class="plugincy-dapfforwc-card-body">
+                        <?php
+                        $shortcode_builder_schema = function_exists('dapfforwc_get_product_filter_shortcode_builder_schema')
+                            ? dapfforwc_get_product_filter_shortcode_builder_schema()
+                            : array(
+                                'shortcode_tag' => 'plugincy_filters',
+                                'parameters' => array(),
+                            );
+                        ?>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <div style="position: relative;">
-                            <code class="plugincy-code-box">[plugincy_filters layout="sidebar"]</code>
-                            <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters layout="sidebar"]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
-                                </svg>
-                            </button>
+                        <div
+                            class="dapfforwc-shortcode-builder"
+                            data-shortcode-builder-root
+                            data-shortcode-builder="<?php echo esc_attr(wp_json_encode($shortcode_builder_schema)); ?>"
+                            data-shortcode-empty-value="<?php echo esc_attr__('set value', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"
+                            data-shortcode-save-label="<?php echo esc_attr__('Save', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"
+                            data-shortcode-cancel-label="<?php echo esc_attr__('Cancel', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                            <div class="dapfforwc-generated-shortcode" style="position: relative;">
+                                <div class="plugincy-code-box dapfforwc-shortcode-composer" data-shortcode-builder-inline aria-label="<?php echo esc_attr__('Shortcode builder', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"></div>
+                                <button class="dapfforwc-copy-btn" type="button" data-shortcode-builder-copy title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="dapfforwc-shortcode-popover dapfforwc-shortcode-parameter-popover" data-shortcode-builder-menu hidden></div>
+                            <div class="dapfforwc-shortcode-popover dapfforwc-shortcode-editor-popover" data-shortcode-builder-editor hidden></div>
+                            <p class="plugincy-code-description" style="margin-bottom: 0;"><?php echo esc_html__('Click a value to edit it. Use + to add parameters and x to remove them.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         </div>
-                        <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Available layouts: sidebar, top_view, top_view_wrap (pro), popup (pro), popup_horizontal_wrap (pro), drawer (pro).', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <div style="position: relative;">
                             <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
@@ -1995,6 +2013,374 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                 background: #00a32a;
             }
 
+            .dapfforwc-shortcode-builder {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .dapfforwc-shortcode-composer {
+                display: block;
+                min-height: 52px;
+                padding-right: 108px;
+                line-height: 1.8;
+                white-space: normal;
+                word-break: break-word;
+            }
+
+            .dapfforwc-shortcode-fragment,
+            .dapfforwc-shortcode-static-space {
+                display: inline;
+                color: #6d28d9;
+                font-family: inherit;
+            }
+
+            .dapfforwc-shortcode-tag {
+                color: #7c3aed;
+                font-weight: 600;
+            }
+
+            .dapfforwc-shortcode-attribute {
+                display: inline-flex;
+                align-items: center;
+                gap: 2px;
+                margin: 2px 0;
+                vertical-align: middle;
+                position: relative;
+            }
+
+            .dapfforwc-shortcode-attribute-key,
+            .dapfforwc-shortcode-attribute-separator,
+            .dapfforwc-shortcode-quote {
+                color: #6d28d9;
+                font-family: inherit;
+            }
+
+            .dapfforwc-shortcode-value {
+                display: inline-flex;
+                align-items: center;
+                gap: 0;
+                padding: 1px 6px;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                background: transparent;
+                color: #2563eb;
+                cursor: pointer;
+                font-family: inherit;
+                line-height: 1.4;
+                transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+            }
+
+            .dapfforwc-shortcode-value:hover {
+                background: #ede9fe;
+                border-color: #c4b5fd;
+            }
+
+            .dapfforwc-shortcode-value.is-empty {
+                border-color: #cbd5e1;
+                border-style: dashed;
+                color: #64748b;
+                background: #ffffff;
+            }
+
+            .dapfforwc-shortcode-value-text {
+                color: inherit;
+            }
+
+            .dapfforwc-shortcode-inline-remove,
+            .dapfforwc-shortcode-inline-add {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 24px;
+                height: 24px;
+                border: none;
+                border-radius: 999px;
+                background: transparent;
+                cursor: pointer;
+                vertical-align: middle;
+                transition: background-color 0.2s ease, color 0.2s ease;
+            }
+
+            .dapfforwc-shortcode-inline-remove {
+                color: #dc2626;
+                margin-left: 2px;
+                position: absolute;
+                top: -15px;
+                right: 50%;
+                transform: translateX(-50%);
+            }
+
+            .dapfforwc-shortcode-inline-remove:hover {
+                background: #fee2e2;
+            }
+
+            .dapfforwc-shortcode-inline-add {
+                color: #2563eb;
+                margin-left: 6px;
+            }
+
+            .dapfforwc-shortcode-inline-add:hover {
+                background: #dbeafe;
+            }
+
+            .dapfforwc-shortcode-inline-add:disabled {
+                opacity: 0.45;
+                cursor: not-allowed;
+            }
+
+            .dapfforwc-shortcode-inline-add .dashicons {
+                width: 16px;
+                height: 16px;
+                font-size: 16px;
+            }
+
+            .dapfforwc-shortcode-popover {
+                position: absolute;
+                z-index: 20;
+                min-width: 220px;
+                max-width: 320px;
+                max-height: 320px;
+                overflow-y: auto;
+                padding: 8px;
+                border: 1px solid #dbeafe;
+                border-radius: 12px;
+                background: #ffffff;
+                box-shadow: 0 16px 40px rgba(15, 23, 42, 0.14);
+                scrollbar-width: thin;
+                scrollbar-color: #94a3b8 transparent;
+            }
+
+            .dapfforwc-shortcode-popover[hidden] {
+                display: none !important;
+            }
+
+            .dapfforwc-shortcode-popover::-webkit-scrollbar {
+                width: 6px;
+            }
+
+            .dapfforwc-shortcode-popover::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .dapfforwc-shortcode-popover::-webkit-scrollbar-thumb {
+                background: #94a3b8;
+                border-radius: 999px;
+            }
+
+            .dapfforwc-shortcode-popover::-webkit-scrollbar-thumb:hover {
+                background: #64748b;
+            }
+
+            .dapfforwc-shortcode-menu-section+.dapfforwc-shortcode-menu-section {
+                margin-top: 8px;
+                padding-top: 8px;
+                border-top: 1px solid #e2e8f0;
+            }
+
+            .dapfforwc-shortcode-menu-section-label {
+                display: block;
+                padding: 4px 8px 8px;
+                color: #334155;
+                font-size: 11px;
+                font-weight: 700;
+                letter-spacing: 0.05em;
+                text-transform: uppercase;
+            }
+
+            .dapfforwc-shortcode-popover-header {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+                padding: 4px 4px 8px;
+            }
+
+            .dapfforwc-shortcode-popover-title {
+                color: #0f172a;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .dapfforwc-shortcode-popover-meta {
+                color: #64748b;
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+            }
+
+            .dapfforwc-shortcode-popover-description {
+                color: #64748b;
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .dapfforwc-shortcode-menu-option,
+            .dapfforwc-shortcode-editor-option {
+                width: 100%;
+                border: none;
+                border-radius: 10px;
+                padding: 10px 12px;
+                background: transparent;
+                color: #475569;
+                text-align: left;
+                cursor: pointer;
+                transition: background-color 0.2s ease, color 0.2s ease;
+            }
+
+            .dapfforwc-shortcode-menu-option:hover,
+            .dapfforwc-shortcode-editor-option:hover {
+                background: #eff6ff;
+                color: #1d4ed8;
+            }
+
+            .dapfforwc-shortcode-menu-option:disabled,
+            .dapfforwc-shortcode-menu-option.is-locked,
+            .dapfforwc-shortcode-editor-option:disabled,
+            .dapfforwc-shortcode-editor-option.is-locked {
+                opacity: 1;
+                cursor: not-allowed;
+                color: #64748b;
+            }
+
+            .dapfforwc-shortcode-menu-option:disabled:hover,
+            .dapfforwc-shortcode-menu-option.is-locked:hover,
+            .dapfforwc-shortcode-editor-option:disabled:hover,
+            .dapfforwc-shortcode-editor-option.is-locked:hover {
+                background: #f8fafc;
+                color: #64748b;
+            }
+
+            .dapfforwc-shortcode-editor-option.is-active {
+                background: #dbeafe;
+                color: #1d4ed8;
+                font-weight: 600;
+            }
+
+            .dapfforwc-shortcode-menu-option-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .dapfforwc-shortcode-editor-option-header {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .dapfforwc-shortcode-menu-option-label,
+            .dapfforwc-shortcode-editor-option-label {
+                display: block;
+                color: inherit;
+                font-size: 13px;
+                font-weight: 600;
+            }
+
+            .dapfforwc-shortcode-menu-option-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2px 7px;
+                border-radius: 999px;
+                background: #dbeafe;
+                color: #1d4ed8;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-shortcode-editor-option-badge {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 2px 7px;
+                border-radius: 999px;
+                background: #dbeafe;
+                color: #1d4ed8;
+                font-size: 10px;
+                font-weight: 700;
+                letter-spacing: 0.03em;
+                text-transform: uppercase;
+                flex-shrink: 0;
+            }
+
+            .dapfforwc-shortcode-menu-option-meta,
+            .dapfforwc-shortcode-editor-option-meta {
+                display: block;
+                margin-top: 3px;
+                color: #64748b;
+                font-family: 'Monaco', 'Courier New', monospace;
+                font-size: 11px;
+            }
+
+            .dapfforwc-shortcode-menu-option-description {
+                display: block;
+                margin-top: 4px;
+                color: #64748b;
+                font-size: 12px;
+                line-height: 1.45;
+            }
+
+            .dapfforwc-shortcode-editor-form {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                padding: 4px;
+            }
+
+            .dapfforwc-shortcode-editor-input {
+                width: 100%;
+                min-height: 40px;
+                padding: 0 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #ffffff;
+                color: #1e293b;
+                font-size: 13px;
+            }
+
+            .dapfforwc-shortcode-editor-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 8px;
+            }
+
+            .dapfforwc-shortcode-editor-button {
+                padding: 7px 12px;
+                border-radius: 8px;
+                border: 1px solid #cbd5e1;
+                background: #ffffff;
+                color: #334155;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+            }
+
+            .dapfforwc-shortcode-editor-button.is-primary {
+                border-color: #2563eb;
+                background: #2563eb;
+                color: #ffffff;
+            }
+
+            .dapfforwc-generated-shortcode .plugincy-code-box {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                flex-wrap: wrap;
+                font-size: 12px;
+                padding: 0 3rem 0 1rem;
+                border: 1px solid #eee;
+                background: #f9f3ff;
+                border-radius: 0.5rem;
+                color: #764ba2;
+                font-weight: bold;
+            }
+
             /* Parameters */
             .dapfforwc-tutorial-params-section {
                 margin-top: auto;
@@ -2315,6 +2701,16 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                 font-size: 13px;
                 padding-left: 12px;
             }
+
+            @media (max-width: 782px) {
+                .dapfforwc-shortcode-composer {
+                    padding-right: 96px;
+                }
+
+                .dapfforwc-shortcode-popover {
+                    max-width: calc(100vw - 56px);
+                }
+            }
         </style>
 
         <script>
@@ -2341,6 +2737,661 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     header.classList.add('active');
                 }
             }
+
+            (function() {
+                const shortcodeBuilderRoots = document.querySelectorAll('[data-shortcode-builder-root]');
+                if (!shortcodeBuilderRoots.length) {
+                    return;
+                }
+
+                function setCopiedState(button) {
+                    if (!button) {
+                        return;
+                    }
+                    button.classList.add('copied');
+                    window.setTimeout(function() {
+                        button.classList.remove('copied');
+                    }, 1200);
+                }
+
+                function fallbackCopy(text, button) {
+                    const temporaryTextarea = document.createElement('textarea');
+                    temporaryTextarea.value = text;
+                    temporaryTextarea.setAttribute('readonly', 'readonly');
+                    temporaryTextarea.style.position = 'absolute';
+                    temporaryTextarea.style.left = '-9999px';
+                    document.body.appendChild(temporaryTextarea);
+                    temporaryTextarea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(temporaryTextarea);
+                    setCopiedState(button);
+                }
+
+                function copyShortcode(event, shortcode) {
+                    if (typeof window.copyToClipboard === 'function') {
+                        window.copyToClipboard(event, shortcode);
+                        return;
+                    }
+
+                    const button = event && event.currentTarget ? event.currentTarget : null;
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(shortcode).then(function() {
+                            setCopiedState(button);
+                        }).catch(function() {
+                            fallbackCopy(shortcode, button);
+                        });
+                        return;
+                    }
+
+                    fallbackCopy(shortcode, button);
+                }
+
+                function escapeShortcodeAttribute(value) {
+                    return String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                }
+
+                function initShortcodeBuilder(root) {
+                    let schema = {};
+
+                    try {
+                        schema = JSON.parse(root.getAttribute('data-shortcode-builder') || '{}');
+                    } catch (error) {
+                        schema = {};
+                    }
+
+                    const shortcodeTag = schema.shortcode_tag || 'plugincy_filters';
+                    const groupMap = schema.groups || {};
+                    const groupOrder = Array.isArray(schema.group_order) ? schema.group_order : [];
+                    const parameterMap = schema.parameters || {};
+                    const parameterKeys = Object.keys(parameterMap);
+
+                    if (!parameterKeys.length) {
+                        return;
+                    }
+
+                    const composer = root.querySelector('[data-shortcode-builder-inline]');
+                    const addMenu = root.querySelector('[data-shortcode-builder-menu]');
+                    const editorPopover = root.querySelector('[data-shortcode-builder-editor]');
+                    const copyButton = root.querySelector('[data-shortcode-builder-copy]');
+                    const emptyValueLabel = root.getAttribute('data-shortcode-empty-value') || 'set value';
+                    const saveLabel = root.getAttribute('data-shortcode-save-label') || 'Save';
+                    const cancelLabel = root.getAttribute('data-shortcode-cancel-label') || 'Cancel';
+                    let rows = [];
+
+                    function getDefaultValue(config) {
+                        if (Object.prototype.hasOwnProperty.call(config, 'default') && String(config.default) !== '') {
+                            return String(config.default);
+                        }
+
+                        if (config.type === 'select' && config.options) {
+                            const optionKeys = Object.keys(config.options).filter(function(optionKey) {
+                                return optionKey !== '';
+                            });
+                            return optionKeys.length ? String(optionKeys[0]) : '';
+                        }
+
+                        return '';
+                    }
+
+                    function getAvailableKeys() {
+                        return parameterKeys.filter(function(key) {
+                            return !rows.some(function(row) {
+                                return row.key === key;
+                            }) && !parameterMap[key].locked;
+                        });
+                    }
+
+                    function getMenuKeys() {
+                        return parameterKeys.filter(function(key) {
+                            return !rows.some(function(row) {
+                                return row.key === key;
+                            });
+                        });
+                    }
+
+                    function closeAddMenu() {
+                        addMenu.hidden = true;
+                        addMenu.innerHTML = '';
+                    }
+
+                    function closeEditor() {
+                        editorPopover.hidden = true;
+                        editorPopover.innerHTML = '';
+                    }
+
+                    function positionPopover(popover, anchor) {
+                        const rootRect = root.getBoundingClientRect();
+                        const anchorRect = anchor.getBoundingClientRect();
+
+                        popover.hidden = false;
+                        popover.style.visibility = 'hidden';
+                        popover.style.left = '8px';
+                        popover.style.top = '0';
+
+                        const popoverRect = popover.getBoundingClientRect();
+                        let left = anchorRect.left - rootRect.left;
+                        const maxLeft = Math.max(8, rootRect.width - popoverRect.width - 8);
+                        left = Math.max(8, Math.min(left, maxLeft));
+
+                        const top = anchorRect.bottom - rootRect.top + 8;
+                        popover.style.left = left + 'px';
+                        popover.style.top = top + 'px';
+                        popover.style.visibility = 'visible';
+                    }
+
+                    function getShortcodeString() {
+                        const attributes = [];
+
+                        rows.forEach(function(row) {
+                            const value = row.value === null || typeof row.value === 'undefined' ?
+                                '' :
+                                String(row.value).trim();
+
+                            if (value === '') {
+                                return;
+                            }
+
+                            attributes.push(row.key + '="' + escapeShortcodeAttribute(value) + '"');
+                        });
+
+                        return '[' + shortcodeTag + (attributes.length ? ' ' + attributes.join(' ') : '') + ']';
+                    }
+
+                    function getRowValueDisplay(config, value) {
+                        const normalizedValue = value === null || typeof value === 'undefined' ? '' : String(value);
+                        if (normalizedValue === '') {
+                            return emptyValueLabel;
+                        }
+
+                        return normalizedValue;
+                    }
+
+                    function getOptionConfig(optionValue, config) {
+                        const rawOption = config && config.options ? config.options[optionValue] : null;
+
+                        if (rawOption && typeof rawOption === 'object') {
+                            return {
+                                label: rawOption.label || optionValue,
+                                badge: rawOption.badge || '',
+                                locked: !!rawOption.locked,
+                                description: rawOption.description || '',
+                            };
+                        }
+
+                        return {
+                            label: rawOption || optionValue,
+                            badge: '',
+                            locked: false,
+                            description: '',
+                        };
+                    }
+
+                    function setRowValue(rowId, value) {
+                        rows = rows.map(function(row) {
+                            if (row.id === rowId) {
+                                row.value = value;
+                            }
+                            return row;
+                        });
+                    }
+
+                    function findRow(rowId) {
+                        for (let index = 0; index < rows.length; index++) {
+                            if (rows[index].id === rowId) {
+                                return rows[index];
+                            }
+                        }
+
+                        return null;
+                    }
+
+                    function createFragmentSpan(text, className) {
+                        const span = document.createElement('span');
+                        span.className = className;
+                        span.textContent = text;
+                        return span;
+                    }
+
+                    function addStaticSpace(fragment) {
+                        fragment.appendChild(createFragmentSpan(' ', 'dapfforwc-shortcode-static-space'));
+                    }
+
+                    function openAddMenu(anchor) {
+                        const menuKeys = getMenuKeys();
+                        closeEditor();
+                        addMenu.innerHTML = '';
+
+                        if (!menuKeys.length) {
+                            closeAddMenu();
+                            return;
+                        }
+
+                        const groupedKeys = {};
+                        menuKeys.forEach(function(key) {
+                            const config = parameterMap[key] || {};
+                            const groupKey = config.group || 'other';
+
+                            if (!groupedKeys[groupKey]) {
+                                groupedKeys[groupKey] = [];
+                            }
+
+                            groupedKeys[groupKey].push(key);
+                        });
+
+                        const orderedGroups = [];
+                        groupOrder.forEach(function(groupKey) {
+                            if (groupedKeys[groupKey] && groupedKeys[groupKey].length) {
+                                orderedGroups.push(groupKey);
+                            }
+                        });
+
+                        Object.keys(groupedKeys).forEach(function(groupKey) {
+                            if (orderedGroups.indexOf(groupKey) === -1) {
+                                orderedGroups.push(groupKey);
+                            }
+                        });
+
+                        orderedGroups.forEach(function(groupKey) {
+                            const groupSection = document.createElement('div');
+                            groupSection.className = 'dapfforwc-shortcode-menu-section';
+
+                            const groupConfig = groupMap[groupKey] || {};
+                            if (groupConfig.label) {
+                                const groupLabel = document.createElement('span');
+                                groupLabel.className = 'dapfforwc-shortcode-menu-section-label';
+                                groupLabel.textContent = groupConfig.label;
+                                groupSection.appendChild(groupLabel);
+                            }
+
+                            groupedKeys[groupKey].forEach(function(key) {
+                                const config = parameterMap[key];
+                                const optionButton = document.createElement('button');
+                                optionButton.type = 'button';
+                                optionButton.className = 'dapfforwc-shortcode-menu-option';
+
+                                if (config.locked) {
+                                    optionButton.classList.add('is-locked');
+                                    optionButton.disabled = true;
+                                }
+
+                                const optionHeader = document.createElement('span');
+                                optionHeader.className = 'dapfforwc-shortcode-menu-option-header';
+
+                                const optionLabel = document.createElement('span');
+                                optionLabel.className = 'dapfforwc-shortcode-menu-option-label';
+                                optionLabel.textContent = config.label || key;
+
+                                const optionMeta = document.createElement('span');
+                                optionMeta.className = 'dapfforwc-shortcode-menu-option-meta';
+                                optionMeta.textContent = key;
+
+                                optionHeader.appendChild(optionLabel);
+
+                                if (config.badge) {
+                                    const optionBadge = document.createElement('span');
+                                    optionBadge.className = 'dapfforwc-shortcode-menu-option-badge';
+                                    optionBadge.textContent = config.badge;
+                                    optionHeader.appendChild(optionBadge);
+                                }
+
+                                optionButton.appendChild(optionHeader);
+                                optionButton.appendChild(optionMeta);
+
+                                if (config.description) {
+                                    const optionDescription = document.createElement('span');
+                                    optionDescription.className = 'dapfforwc-shortcode-menu-option-description';
+                                    optionDescription.textContent = config.description;
+                                    optionButton.appendChild(optionDescription);
+                                }
+
+                                if (!config.locked) {
+                                    optionButton.addEventListener('click', function() {
+                                        closeAddMenu();
+                                        addRow(key, true);
+                                    });
+                                }
+
+                                groupSection.appendChild(optionButton);
+                            });
+
+                            addMenu.appendChild(groupSection);
+                        });
+
+                        positionPopover(addMenu, anchor);
+                    }
+
+                    function renderTextEditor(row, config, anchor) {
+                        const header = document.createElement('div');
+                        header.className = 'dapfforwc-shortcode-popover-header';
+
+                        const title = document.createElement('span');
+                        title.className = 'dapfforwc-shortcode-popover-title';
+                        title.textContent = config.label || row.key;
+
+                        const meta = document.createElement('span');
+                        meta.className = 'dapfforwc-shortcode-popover-meta';
+                        meta.textContent = row.key;
+
+                        header.appendChild(title);
+                        header.appendChild(meta);
+
+                        if (config.description) {
+                            const description = document.createElement('span');
+                            description.className = 'dapfforwc-shortcode-popover-description';
+                            description.textContent = config.description;
+                            header.appendChild(description);
+                        }
+
+                        const form = document.createElement('div');
+                        form.className = 'dapfforwc-shortcode-editor-form';
+
+                        const input = document.createElement('input');
+                        input.className = 'dapfforwc-shortcode-editor-input';
+                        input.type = config.type === 'number' ? 'number' : 'text';
+                        input.value = row.value || '';
+                        input.placeholder = config.placeholder || '';
+
+                        if (config.type === 'number') {
+                            input.min = '1';
+                            input.step = '1';
+                        }
+
+                        const actions = document.createElement('div');
+                        actions.className = 'dapfforwc-shortcode-editor-actions';
+
+                        const cancelButton = document.createElement('button');
+                        cancelButton.type = 'button';
+                        cancelButton.className = 'dapfforwc-shortcode-editor-button';
+                        cancelButton.textContent = cancelLabel;
+                        cancelButton.addEventListener('click', function() {
+                            closeEditor();
+                        });
+
+                        const saveButton = document.createElement('button');
+                        saveButton.type = 'button';
+                        saveButton.className = 'dapfforwc-shortcode-editor-button is-primary';
+                        saveButton.textContent = saveLabel;
+                        saveButton.addEventListener('click', function() {
+                            setRowValue(row.id, input.value);
+                            closeEditor();
+                            renderComposer();
+                        });
+
+                        input.addEventListener('keydown', function(event) {
+                            if (event.key === 'Enter') {
+                                event.preventDefault();
+                                saveButton.click();
+                            }
+
+                            if (event.key === 'Escape') {
+                                event.preventDefault();
+                                closeEditor();
+                            }
+                        });
+
+                        actions.appendChild(cancelButton);
+                        actions.appendChild(saveButton);
+                        form.appendChild(input);
+                        form.appendChild(actions);
+
+                        editorPopover.appendChild(header);
+                        editorPopover.appendChild(form);
+                        positionPopover(editorPopover, anchor);
+
+                        window.setTimeout(function() {
+                            input.focus();
+                            input.select();
+                        }, 0);
+                    }
+
+                    function renderSelectEditor(row, config, anchor) {
+                        const header = document.createElement('div');
+                        header.className = 'dapfforwc-shortcode-popover-header';
+
+                        const title = document.createElement('span');
+                        title.className = 'dapfforwc-shortcode-popover-title';
+                        title.textContent = config.label || row.key;
+
+                        const meta = document.createElement('span');
+                        meta.className = 'dapfforwc-shortcode-popover-meta';
+                        meta.textContent = row.key;
+
+                        header.appendChild(title);
+                        header.appendChild(meta);
+
+                        if (config.description) {
+                            const description = document.createElement('span');
+                            description.className = 'dapfforwc-shortcode-popover-description';
+                            description.textContent = config.description;
+                            header.appendChild(description);
+                        }
+
+                        editorPopover.appendChild(header);
+
+                        Object.keys(config.options || {}).filter(function(optionValue) {
+                            return optionValue !== '';
+                        }).forEach(function(optionValue) {
+                            const optionConfig = getOptionConfig(optionValue, config);
+                            const optionButton = document.createElement('button');
+                            optionButton.type = 'button';
+                            optionButton.className = 'dapfforwc-shortcode-editor-option';
+
+                            if (optionConfig.locked) {
+                                optionButton.classList.add('is-locked');
+                                optionButton.disabled = true;
+                            }
+
+                            if (String(row.value) === String(optionValue)) {
+                                optionButton.classList.add('is-active');
+                            }
+
+                            const optionHeader = document.createElement('span');
+                            optionHeader.className = 'dapfforwc-shortcode-editor-option-header';
+
+                            const optionLabel = document.createElement('span');
+                            optionLabel.className = 'dapfforwc-shortcode-editor-option-label';
+                            optionLabel.textContent = optionConfig.label;
+
+                            const optionMeta = document.createElement('span');
+                            optionMeta.className = 'dapfforwc-shortcode-editor-option-meta';
+                            optionMeta.textContent = optionValue;
+
+                            optionHeader.appendChild(optionLabel);
+
+                            if (optionConfig.badge) {
+                                const optionBadge = document.createElement('span');
+                                optionBadge.className = 'dapfforwc-shortcode-editor-option-badge';
+                                optionBadge.textContent = optionConfig.badge;
+                                optionHeader.appendChild(optionBadge);
+                            }
+
+                            optionButton.appendChild(optionHeader);
+                            optionButton.appendChild(optionMeta);
+
+                            if (optionConfig.description) {
+                                const optionDescription = document.createElement('span');
+                                optionDescription.className = 'dapfforwc-shortcode-menu-option-description';
+                                optionDescription.textContent = optionConfig.description;
+                                optionButton.appendChild(optionDescription);
+                            }
+
+                            if (!optionConfig.locked) {
+                                optionButton.addEventListener('click', function() {
+                                    setRowValue(row.id, optionValue);
+                                    closeEditor();
+                                    renderComposer();
+                                });
+                            }
+
+                            editorPopover.appendChild(optionButton);
+                        });
+
+                        positionPopover(editorPopover, anchor);
+                    }
+
+                    function openEditor(rowId, anchor) {
+                        const row = findRow(rowId);
+                        const config = row ? parameterMap[row.key] : null;
+
+                        if (!row || !config) {
+                            return;
+                        }
+
+                        closeAddMenu();
+                        editorPopover.innerHTML = '';
+
+                        if (config.type === 'select') {
+                            renderSelectEditor(row, config, anchor);
+                            return;
+                        }
+
+                        renderTextEditor(row, config, anchor);
+                    }
+
+                    function addRow(key, openEditorAfterCreate) {
+                        if (!parameterMap[key] || parameterMap[key].locked || rows.some(function(row) {
+                            return row.key === key;
+                        })) {
+                            return;
+                        }
+
+                        const newRow = {
+                            id: 'row-' + Date.now() + '-' + Math.random().toString(16).slice(2),
+                            key: key,
+                            value: getDefaultValue(parameterMap[key]),
+                        };
+
+                        rows.push(newRow);
+                        renderComposer();
+
+                        if (openEditorAfterCreate) {
+                            const valueButton = composer.querySelector('[data-row-id="' + newRow.id + '"] [data-shortcode-row-value]');
+                            if (valueButton) {
+                                openEditor(newRow.id, valueButton);
+                            }
+                        }
+                    }
+
+                    function removeRow(rowId) {
+                        closeAddMenu();
+                        closeEditor();
+                        rows = rows.filter(function(row) {
+                            return row.id !== rowId;
+                        });
+                    }
+
+                    function renderComposer() {
+                        const fragment = document.createDocumentFragment();
+                        composer.innerHTML = '';
+
+                        fragment.appendChild(createFragmentSpan('[', 'dapfforwc-shortcode-fragment dapfforwc-shortcode-bracket'));
+                        fragment.appendChild(createFragmentSpan(shortcodeTag, 'dapfforwc-shortcode-fragment dapfforwc-shortcode-tag'));
+
+                        rows.forEach(function(row) {
+                            const config = parameterMap[row.key];
+
+                            if (!config) {
+                                return;
+                            }
+
+                            addStaticSpace(fragment);
+
+                            const attribute = document.createElement('span');
+                            attribute.className = 'dapfforwc-shortcode-attribute';
+                            attribute.setAttribute('data-row-id', row.id);
+
+                            attribute.appendChild(createFragmentSpan(row.key, 'dapfforwc-shortcode-attribute-key'));
+                            attribute.appendChild(createFragmentSpan('=', 'dapfforwc-shortcode-attribute-separator'));
+
+                            const valueButton = document.createElement('button');
+                            valueButton.type = 'button';
+                            valueButton.className = 'dapfforwc-shortcode-value';
+                            valueButton.setAttribute('data-shortcode-row-value', 'true');
+
+                            if (String(row.value || '') === '') {
+                                valueButton.classList.add('is-empty');
+                            }
+
+                            valueButton.appendChild(createFragmentSpan('"', 'dapfforwc-shortcode-quote'));
+                            valueButton.appendChild(createFragmentSpan(getRowValueDisplay(config, row.value), 'dapfforwc-shortcode-value-text'));
+                            valueButton.appendChild(createFragmentSpan('"', 'dapfforwc-shortcode-quote'));
+                            valueButton.addEventListener('click', function(event) {
+                                openEditor(row.id, event.currentTarget);
+                            });
+
+                            const removeButton = document.createElement('button');
+                            removeButton.type = 'button';
+                            removeButton.className = 'dapfforwc-shortcode-inline-remove';
+                            removeButton.setAttribute('aria-label', 'Remove parameter');
+                            removeButton.innerHTML = '&times;';
+                            removeButton.addEventListener('click', function() {
+                                removeRow(row.id);
+                                renderComposer();
+                            });
+
+                            attribute.appendChild(valueButton);
+                            attribute.appendChild(removeButton);
+                            fragment.appendChild(attribute);
+                        });
+
+                        fragment.appendChild(createFragmentSpan(']', 'dapfforwc-shortcode-fragment dapfforwc-shortcode-bracket'));
+                        addStaticSpace(fragment);
+
+                        const addButton = document.createElement('button');
+                        addButton.type = 'button';
+                        addButton.className = 'dapfforwc-shortcode-inline-add';
+                        addButton.setAttribute('aria-label', 'Add parameter');
+                        addButton.setAttribute('aria-haspopup', 'true');
+
+                        if (!getMenuKeys().length) {
+                            addButton.disabled = true;
+                        }
+
+                        const addIcon = document.createElement('span');
+                        addIcon.className = 'dashicons dashicons-plus-alt2';
+                        addButton.appendChild(addIcon);
+                        addButton.addEventListener('click', function(event) {
+                            if (addMenu.hidden) {
+                                openAddMenu(event.currentTarget);
+                            } else {
+                                closeAddMenu();
+                            }
+                        });
+
+                        fragment.appendChild(addButton);
+                        composer.appendChild(fragment);
+                        root.setAttribute('data-shortcode-value', getShortcodeString());
+                    }
+
+                    document.addEventListener('click', function(event) {
+                        if (!root.contains(event.target)) {
+                            closeAddMenu();
+                            closeEditor();
+                        }
+                    });
+
+                    document.addEventListener('keydown', function(event) {
+                        if (event.key === 'Escape') {
+                            closeAddMenu();
+                            closeEditor();
+                        }
+                    });
+
+                    copyButton.addEventListener('click', function(event) {
+                        copyShortcode(event, root.getAttribute('data-shortcode-value') || '[' + shortcodeTag + ']');
+                    });
+
+                    if (parameterMap.layout) {
+                        addRow('layout');
+                    } else {
+                        addRow(parameterKeys[0]);
+                    }
+                }
+
+                shortcodeBuilderRoots.forEach(function(root) {
+                    initShortcodeBuilder(root);
+                });
+            })();
         </script>
     </div>
     <?php
