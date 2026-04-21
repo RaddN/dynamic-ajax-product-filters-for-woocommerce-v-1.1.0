@@ -11,6 +11,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
     private $filter_params = null;
     private $rating_style = null;
     private $third_party_hooks_initialized = false;
+    private $dimension_product_ids = array();
 
     public static function get_instance()
     {
@@ -641,65 +642,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             // If both are selected, don't apply any filter (show all)
         }
 
-        // Apply dimension filters
-        if (isset($params['min_length']) || isset($params['max_length'])) {
-            $length_query = array('key' => '_length', 'type' => 'NUMERIC');
-            if (isset($params['min_length']) && isset($params['max_length'])) {
-                $length_query['value'] = array($params['min_length'], $params['max_length']);
-                $length_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_length'])) {
-                $length_query['value'] = $params['min_length'];
-                $length_query['compare'] = '>=';
-            } else {
-                $length_query['value'] = $params['max_length'];
-                $length_query['compare'] = '<=';
-            }
-            $meta_query[] = $length_query;
-        }
-
-        if (isset($params['min_width']) || isset($params['max_width'])) {
-            $width_query = array('key' => '_width', 'type' => 'NUMERIC');
-            if (isset($params['min_width']) && isset($params['max_width'])) {
-                $width_query['value'] = array($params['min_width'], $params['max_width']);
-                $width_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_width'])) {
-                $width_query['value'] = $params['min_width'];
-                $width_query['compare'] = '>=';
-            } else {
-                $width_query['value'] = $params['max_width'];
-                $width_query['compare'] = '<=';
-            }
-            $meta_query[] = $width_query;
-        }
-
-        if (isset($params['min_height']) || isset($params['max_height'])) {
-            $height_query = array('key' => '_height', 'type' => 'NUMERIC');
-            if (isset($params['min_height']) && isset($params['max_height'])) {
-                $height_query['value'] = array($params['min_height'], $params['max_height']);
-                $height_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_height'])) {
-                $height_query['value'] = $params['min_height'];
-                $height_query['compare'] = '>=';
-            } else {
-                $height_query['value'] = $params['max_height'];
-                $height_query['compare'] = '<=';
-            }
-            $meta_query[] = $height_query;
-        }
-
-        if (isset($params['min_weight']) || isset($params['max_weight'])) {
-            $weight_query = array('key' => '_weight', 'type' => 'NUMERIC');
-            if (isset($params['min_weight']) && isset($params['max_weight'])) {
-                $weight_query['value'] = array($params['min_weight'], $params['max_weight']);
-                $weight_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_weight'])) {
-                $weight_query['value'] = $params['min_weight'];
-                $weight_query['compare'] = '>=';
-            } else {
-                $weight_query['value'] = $params['max_weight'];
-                $weight_query['compare'] = '<=';
-            }
-            $meta_query[] = $weight_query;
+        // Match dimensions against the effective dimension rows for each
+        // product so variable parents only pass when a real variation satisfies
+        // the full requested range.
+        $dimension_filters = $this->get_dimension_filters($params);
+        if (!empty($dimension_filters)) {
+            $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
+            $post_in = $this->merge_post_in_lists($query->get('post__in'), $dimension_product_ids);
+            $query->set('post__in', !empty($post_in) ? $post_in : array(0));
         }
 
         // Apply custom meta filters
@@ -981,69 +931,13 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             // If both are selected, don't apply any filter (show all)
         }
 
-        // Apply dimension filters
-        // Length query
-        if (isset($params['min_length']) || isset($params['max_length'])) {
-            $length_query = array('key' => '_length', 'type' => 'NUMERIC');
-            if (isset($params['min_length']) && isset($params['max_length'])) {
-                $length_query['value'] = array($params['min_length'], $params['max_length']);
-                $length_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_length'])) {
-                $length_query['value'] = $params['min_length'];
-                $length_query['compare'] = '>=';
-            } else {
-                $length_query['value'] = $params['max_length'];
-                $length_query['compare'] = '<=';
-            }
-            $meta_query[] = $length_query;
-        }
-
-        // Width query
-        if (isset($params['min_width']) || isset($params['max_width'])) {
-            $width_query = array('key' => '_width', 'type' => 'NUMERIC');
-            if (isset($params['min_width']) && isset($params['max_width'])) {
-                $width_query['value'] = array($params['min_width'], $params['max_width']);
-                $width_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_width'])) {
-                $width_query['value'] = $params['min_width'];
-                $width_query['compare'] = '>=';
-            } else {
-                $width_query['value'] = $params['max_width'];
-                $width_query['compare'] = '<=';
-            }
-            $meta_query[] = $width_query;
-        }
-
-        // Height query
-        if (isset($params['min_height']) || isset($params['max_height'])) {
-            $height_query = array('key' => '_height', 'type' => 'NUMERIC');
-            if (isset($params['min_height']) && isset($params['max_height'])) {
-                $height_query['value'] = array($params['min_height'], $params['max_height']);
-                $height_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_height'])) {
-                $height_query['value'] = $params['min_height'];
-                $height_query['compare'] = '>=';
-            } else {
-                $height_query['value'] = $params['max_height'];
-                $height_query['compare'] = '<=';
-            }
-            $meta_query[] = $height_query;
-        }
-
-        // Weight query
-        if (isset($params['min_weight']) || isset($params['max_weight'])) {
-            $weight_query = array('key' => '_weight', 'type' => 'NUMERIC');
-            if (isset($params['min_weight']) && isset($params['max_weight'])) {
-                $weight_query['value'] = array($params['min_weight'], $params['max_weight']);
-                $weight_query['compare'] = 'BETWEEN';
-            } elseif (isset($params['min_weight'])) {
-                $weight_query['value'] = $params['min_weight'];
-                $weight_query['compare'] = '>=';
-            } else {
-                $weight_query['value'] = $params['max_weight'];
-                $weight_query['compare'] = '<=';
-            }
-            $meta_query[] = $weight_query;
+        // Match dimensions against effective variation dimensions so shortcode,
+        // REST, and third-party grid queries stay aligned with archive behavior.
+        $dimension_filters = $this->get_dimension_filters($params);
+        if (!empty($dimension_filters)) {
+            $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
+            $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $dimension_product_ids);
+            $args['post__in'] = !empty($post_in) ? $post_in : array(0);
         }
 
         // Apply custom meta filters
@@ -1145,6 +1039,48 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         return $this->sanitize_id_list($ids);
+    }
+
+    private function get_dimension_filters($params): array
+    {
+        if (function_exists('dapfforwc_normalize_dimension_filters')) {
+            return dapfforwc_normalize_dimension_filters(is_array($params) ? $params : array());
+        }
+
+        return array();
+    }
+
+    private function get_product_ids_by_dimensions(array $dimension_filters): array
+    {
+        if (empty($dimension_filters)) {
+            return array();
+        }
+
+        $cache_key = md5(wp_json_encode($dimension_filters));
+        if (isset($this->dimension_product_ids[$cache_key])) {
+            return $this->dimension_product_ids[$cache_key];
+        }
+
+        $product_data = function_exists('dapfforwc_get_woocommerce_product_details')
+            ? dapfforwc_get_woocommerce_product_details()
+            : array();
+        $product_details = is_array($product_data['products'] ?? null) ? $product_data['products'] : array();
+        $product_ids = array();
+
+        foreach ($product_details as $product) {
+            if (!is_array($product)) {
+                continue;
+            }
+
+            if (
+                function_exists('dapfforwc_product_matches_dimension_filters')
+                && dapfforwc_product_matches_dimension_filters($product, $dimension_filters)
+            ) {
+                $product_ids[] = intval($product['ID'] ?? 0);
+            }
+        }
+
+        return $this->dimension_product_ids[$cache_key] = $this->sanitize_id_list($product_ids);
     }
 
 
@@ -1353,6 +1289,14 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             } elseif (!empty($sale_product_ids)) {
                 $where_clauses[] = "{$posts_table}.ID NOT IN (" . implode(',', $sale_product_ids) . ')';
             }
+        }
+
+        $dimension_filters = $this->get_dimension_filters($params);
+        if (!empty($dimension_filters)) {
+            $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
+            $where_clauses[] = !empty($dimension_product_ids)
+                ? "{$posts_table}.ID IN (" . implode(',', $dimension_product_ids) . ')'
+                : '1=0';
         }
 
         // Discount filter: enforce minimum percentage off via SQL so third-party queries can't drop it.

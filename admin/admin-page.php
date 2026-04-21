@@ -813,6 +813,9 @@ function dapfforwc_admin_page_content()
                         <form method="post" action="options.php">
                             <?php
                             settings_fields('dapfforwc_advance_settings');
+                            if (function_exists('dapfforwc_render_advance_settings_preserved_hidden_fields')) {
+                                dapfforwc_render_advance_settings_preserved_hidden_fields();
+                            }
                             do_settings_sections('dapfforwc-advance-settings');
                             submit_button();
                             ?>

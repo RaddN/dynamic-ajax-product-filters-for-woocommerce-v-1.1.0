@@ -1113,33 +1113,11 @@ function dapfforwc_product_filter_shortcode($atts)
     }
 
     $products_id_by_dimensions = [];
-    $dimension_filters = [];
-    foreach (['length', 'width', 'height', 'weight'] as $dimension) {
-        $min_key = 'min_' . $dimension;
-        $max_key = 'max_' . $dimension;
-
-        $min = isset($default_filter[$min_key]) && $default_filter[$min_key] !== '' ? floatval($default_filter[$min_key]) : null;
-        $max = isset($default_filter[$max_key]) && $default_filter[$max_key] !== '' ? floatval($default_filter[$max_key]) : null;
-
-        if ($min !== null || $max !== null) {
-            $dimension_filters[$dimension] = ['min' => $min, 'max' => $max];
-        }
-    }
+    $dimension_filters = dapfforwc_normalize_dimension_filters($default_filter);
 
     if (!empty($dimension_filters)) {
         foreach ($product_details as $product) {
-            $matches = true;
-
-            foreach ($dimension_filters as $dimension => $range) {
-                $value = isset($product[$dimension]) && $product[$dimension] !== '' ? floatval($product[$dimension]) : null;
-
-                if ($value === null || ($range['min'] !== null && $value < $range['min']) || ($range['max'] !== null && $value > $range['max'])) {
-                    $matches = false;
-                    break;
-                }
-            }
-
-            if ($matches) {
+            if (dapfforwc_product_matches_dimension_filters($product, $dimension_filters)) {
                 $products_id_by_dimensions[] = $product['ID'];
             }
         }
@@ -3335,6 +3313,109 @@ function dapfforwc_normalize_decimal_string($value)
     return $value;
 }
 
+function dapfforwc_normalize_dimension_filters($source)
+{
+    $dimension_filters = array();
+
+    foreach (array('length', 'width', 'height', 'weight') as $dimension) {
+        $min_key = 'min_' . $dimension;
+        $max_key = 'max_' . $dimension;
+        $min = isset($source[$min_key]) && $source[$min_key] !== '' ? floatval($source[$min_key]) : null;
+        $max = isset($source[$max_key]) && $source[$max_key] !== '' ? floatval($source[$max_key]) : null;
+
+        if ($min !== null || $max !== null) {
+            $dimension_filters[$dimension] = array(
+                'min' => $min,
+                'max' => $max,
+            );
+        }
+    }
+
+    return $dimension_filters;
+}
+
+function dapfforwc_get_product_dimension_rows(array $product)
+{
+    $rows = array();
+
+    if (!empty($product['dimension_rows']) && is_array($product['dimension_rows'])) {
+        foreach ($product['dimension_rows'] as $row) {
+            if (!is_array($row)) {
+                continue;
+            }
+
+            $rows[] = array(
+                'length' => dapfforwc_normalize_decimal_string($row['length'] ?? ''),
+                'width' => dapfforwc_normalize_decimal_string($row['width'] ?? ''),
+                'height' => dapfforwc_normalize_decimal_string($row['height'] ?? ''),
+                'weight' => dapfforwc_normalize_decimal_string($row['weight'] ?? ''),
+            );
+        }
+    }
+
+    if (empty($rows)) {
+        $rows[] = array(
+            'length' => dapfforwc_normalize_decimal_string($product['length'] ?? ''),
+            'width' => dapfforwc_normalize_decimal_string($product['width'] ?? ''),
+            'height' => dapfforwc_normalize_decimal_string($product['height'] ?? ''),
+            'weight' => dapfforwc_normalize_decimal_string($product['weight'] ?? ''),
+        );
+    }
+
+    $unique_rows = array();
+    $seen_rows = array();
+
+    foreach ($rows as $row) {
+        $row_key = md5(wp_json_encode($row));
+        if (isset($seen_rows[$row_key])) {
+            continue;
+        }
+
+        $seen_rows[$row_key] = true;
+        $unique_rows[] = $row;
+    }
+
+    return $unique_rows;
+}
+
+function dapfforwc_dimension_row_matches_filters(array $dimension_row, array $dimension_filters)
+{
+    foreach ($dimension_filters as $dimension => $range) {
+        $value = $dimension_row[$dimension] ?? '';
+
+        if ($value === '' || !is_numeric($value)) {
+            return false;
+        }
+
+        $value = floatval($value);
+
+        if ($range['min'] !== null && $value < $range['min']) {
+            return false;
+        }
+
+        if ($range['max'] !== null && $value > $range['max']) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+function dapfforwc_product_matches_dimension_filters(array $product, array $dimension_filters)
+{
+    if (empty($dimension_filters)) {
+        return true;
+    }
+
+    foreach (dapfforwc_get_product_dimension_rows($product) as $dimension_row) {
+        if (dapfforwc_dimension_row_matches_filters($dimension_row, $dimension_filters)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
 {
     global $wpdb;
@@ -3925,6 +4006,55 @@ function dapfforwc_build_woocommerce_product_details_data()
         $variation_lookup[intval($variation_row['product_id'])] = $variation_row;
     }
 
+    $variation_dimension_lookup = [];
+    $variation_dimension_query = $wpdb->prepare(
+        "
+        SELECT v.post_parent AS product_id,
+               COALESCE(NULLIF(v_length.meta_value, ''), NULLIF(parent_length.meta_value, ''), '') AS length,
+               COALESCE(NULLIF(v_width.meta_value, ''), NULLIF(parent_width.meta_value, ''), '') AS width,
+               COALESCE(NULLIF(v_height.meta_value, ''), NULLIF(parent_height.meta_value, ''), '') AS height,
+               COALESCE(NULLIF(v_weight.meta_value, ''), NULLIF(parent_weight.meta_value, ''), '') AS weight
+        FROM {$wpdb->prefix}posts v
+        LEFT JOIN {$wpdb->prefix}postmeta v_length ON v.ID = v_length.post_id AND v_length.meta_key = '_length'
+        LEFT JOIN {$wpdb->prefix}postmeta v_width ON v.ID = v_width.post_id AND v_width.meta_key = '_width'
+        LEFT JOIN {$wpdb->prefix}postmeta v_height ON v.ID = v_height.post_id AND v_height.meta_key = '_height'
+        LEFT JOIN {$wpdb->prefix}postmeta v_weight ON v.ID = v_weight.post_id AND v_weight.meta_key = '_weight'
+        LEFT JOIN {$wpdb->prefix}postmeta parent_length ON v.post_parent = parent_length.post_id AND parent_length.meta_key = '_length'
+        LEFT JOIN {$wpdb->prefix}postmeta parent_width ON v.post_parent = parent_width.post_id AND parent_width.meta_key = '_width'
+        LEFT JOIN {$wpdb->prefix}postmeta parent_height ON v.post_parent = parent_height.post_id AND parent_height.meta_key = '_height'
+        LEFT JOIN {$wpdb->prefix}postmeta parent_weight ON v.post_parent = parent_weight.post_id AND parent_weight.meta_key = '_weight'
+        WHERE v.post_parent IN ($placeholders)
+          AND v.post_type = 'product_variation'
+          AND v.post_status = 'publish'
+        ",
+        $product_ids
+    );
+    $variation_dimension_results = $wpdb->get_results($variation_dimension_query, ARRAY_A);
+    foreach ($variation_dimension_results as $dimension_row) {
+        $product_id = intval($dimension_row['product_id']);
+        $effective_dimensions = array(
+            'length' => dapfforwc_normalize_decimal_string($dimension_row['length']),
+            'width' => dapfforwc_normalize_decimal_string($dimension_row['width']),
+            'height' => dapfforwc_normalize_decimal_string($dimension_row['height']),
+            'weight' => dapfforwc_normalize_decimal_string($dimension_row['weight']),
+        );
+
+        if (
+            $effective_dimensions['length'] === ''
+            && $effective_dimensions['width'] === ''
+            && $effective_dimensions['height'] === ''
+            && $effective_dimensions['weight'] === ''
+        ) {
+            continue;
+        }
+
+        $row_key = md5(wp_json_encode($effective_dimensions));
+        $variation_dimension_lookup[$product_id][$row_key] = $effective_dimensions;
+    }
+    foreach ($variation_dimension_lookup as $product_id => $dimension_rows) {
+        $variation_dimension_lookup[$product_id] = array_values($dimension_rows);
+    }
+
     $category_lookup = [];
     $brand_lookup = [];
     $taxonomy_query = $wpdb->prepare(
@@ -4049,6 +4179,15 @@ function dapfforwc_build_woocommerce_product_details_data()
 
         $thumbnail_id = !empty($row['thumbnail_id']) ? intval($row['thumbnail_id']) : 0;
         $thumbnail = ($thumbnail_id > 0 && isset($thumbnail_lookup[$thumbnail_id])) ? $thumbnail_lookup[$thumbnail_id] : '';
+        $parent_dimension_row = array(
+            'length' => dapfforwc_normalize_decimal_string($row['length']),
+            'width' => dapfforwc_normalize_decimal_string($row['width']),
+            'height' => dapfforwc_normalize_decimal_string($row['height']),
+            'weight' => dapfforwc_normalize_decimal_string($row['weight']),
+        );
+        $dimension_rows = !empty($variation_dimension_lookup[$product_id])
+            ? $variation_dimension_lookup[$product_id]
+            : array($parent_dimension_row);
 
         $products[$product_id] = [
             'ID' => $product_id,
@@ -4072,6 +4211,7 @@ function dapfforwc_build_woocommerce_product_details_data()
             'width' => $row['width'] ?: '',
             'height' => $row['height'] ?: '',
             'weight' => $row['weight'] ?: '',
+            'dimension_rows' => $dimension_rows,
             'custom_meta' => $custom_meta_lookup[$product_id] ?? [],
             'thumbnail' => $thumbnail,
         ];
@@ -4088,7 +4228,7 @@ function dapfforwc_get_woocommerce_product_details()
         return $cached_result;
     }
 
-    $cache_key = 'dapfforwc_product_details_cache_v2';
+    $cache_key = 'dapfforwc_product_details_cache_v3';
     $cached = get_transient($cache_key);
     if ($cached !== false && is_array($cached)) {
         return $cached_result = dapfforwc_apply_product_details_filters($cached);

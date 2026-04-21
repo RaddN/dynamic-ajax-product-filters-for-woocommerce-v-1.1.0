@@ -840,12 +840,12 @@ if (!defined('ABSPATH')) {
 
                                         <label class="<?php echo $dapfforwc_sub_option === $key ? 'active ' : '';
                                                         echo esc_attr($key);
-                                                        echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") ? ' pro-only' : ''; ?>">
+                                                        echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "image_value" || $key === "button_check") ? ' pro-only' : ''; ?>">
                                             <span class="active" style="display:none;">
                                             </span>
-                                            <input <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") {
+                                            <input <?php if ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "image_value" || $key === "button_check") {
                                                         echo 'disabled';
-                                                    } ?> type="radio" class="optionselect" name="<?php echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "button_check") ? '_pro' : 'dapfforwc_style_options'; ?>[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
+                                                    } ?> type="radio" class="optionselect" name="<?php echo ($key === "dynamic-rating" || $key === "input-price-range" || $key === "color_circle" || $key === "color_value" || $key === "image_value" || $key === "button_check") ? '_pro' : 'dapfforwc_style_options'; ?>[<?php echo esc_attr($dapfforwc_attribute_name); ?>][sub_option]" value="<?php echo esc_attr($key); ?>" <?php checked($dapfforwc_sub_option, $key); ?>>
                                             <img src="<?php echo esc_url(plugins_url('../assets/images/' . $key . '.png', __FILE__)); ?>" alt="<?php echo esc_attr($label); ?>">
                                             <!-- <div class="plugincy_title"> -->
                                             <?php
@@ -1597,7 +1597,7 @@ if (!defined('ABSPATH')) {
         const isPremium = !!data.isPremium;
         const imageBase = data.imageBase || '';
         const uploadPlaceholder = data.uploadPlaceholder || '';
-        const proOnlyKeys = new Set(['dynamic-rating', 'input-price-range', 'color_circle', 'color_value', 'button_check']);
+        const proOnlyKeys = new Set(['dynamic-rating', 'input-price-range', 'color_circle', 'color_value', 'image_value', 'button_check']);
 
         let currentAttribute = data.selectedAttribute || container.dataset.selectedAttribute || '';
         if (!currentAttribute && data.attributeNames && data.attributeNames.length) {

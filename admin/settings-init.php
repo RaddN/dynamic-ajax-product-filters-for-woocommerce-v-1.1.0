@@ -18,6 +18,7 @@ function dapfforwc_settings_init()
         'show_author' => "",
         'show_status' => "",
         'show_onsale' => "",
+        'show_featured' => "",
         'show_dimension' => "",
         'show_sku' => "",
         'show_discount' => "",
@@ -93,6 +94,10 @@ function dapfforwc_settings_init()
         'show_onsale' => [
             'label' => esc_html__('Show Sale Status', 'dynamic-ajax-product-filters-for-woocommerce'),
             'description' => esc_html__('Enable this option to show on sale filter.', 'dynamic-ajax-product-filters-for-woocommerce')
+        ],
+        'show_featured' => [
+            'label' => esc_html__('Show Featured Products', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'description' => esc_html__('Enable this option to show featured product filter.', 'dynamic-ajax-product-filters-for-woocommerce')
         ],
         'show_dimension' => [
             'label' => esc_html__('Show Dimensions', 'dynamic-ajax-product-filters-for-woocommerce'),
@@ -256,6 +261,7 @@ function dapfforwc_settings_init()
     add_settings_field('pagination_via_ajax', esc_html__('Pagination via AJAX', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_pagination_via_ajax_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('sorting_via_ajax', esc_html__('Product Sorting via AJAX', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_sorting_via_ajax_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('remove_outofStock', esc_html__('Remove out of stock product', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_remove_outofStock_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
+    add_settings_field('product_exclusion_rules', esc_html__('Exclude Products From Results', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_product_exclusion_rules_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('allow_data_share', esc_html__('Contribute to Plugincy', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_allow_data_share_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('sidebar_on_top', esc_html__('Sidebar Top (Mobile only)', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_side_bar_top_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('mobile_breakpoint', esc_html__('Mobile Breakpoint', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_mobile_breakpoint_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');

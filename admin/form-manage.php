@@ -6,9 +6,10 @@ if (!defined('ABSPATH')) {
 function dapfforwc_render_checkbox($key, $settings = "dapfforwc_options")
 {
     global $$settings;
+    $is_pro_only = $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" || $key === "show_featured";
 ?>
-    <label class="switch <?php echo esc_attr($key); echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? ' pro-only' : ''; ?>">
-        <input <?php echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php $key === "use_anchor" || $key === "show_custom_fields" || $key === "show_custom_taxonomies" ? '' : checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
+    <label class="switch <?php echo esc_attr($key); echo $is_pro_only ? ' pro-only' : ''; ?>">
+        <input <?php echo $is_pro_only ? ' disabled' : ''; ?> type='checkbox' name='<?php echo $is_pro_only ? '_pro' : esc_attr($settings); ?>[<?php echo esc_attr($key); ?>]' <?php $is_pro_only ? '' : checked(isset($$settings[$key]) && $$settings[$key] === "on"); ?>>
         <span class="slider round"></span>
         <span class="switch-on">On</span>
         <span class="switch-off">Off</span>
@@ -187,6 +188,231 @@ function dapfforwc_render_form_manage_popup_assets()
             margin-top: 10px;
         }
 
+        .dapfforwc-brand-settings-promo {
+            display: grid;
+            gap: 16px;
+        }
+
+        .dapfforwc-brand-settings-promo-intro {
+            margin: 0;
+            padding: 14px 16px;
+            border: 1px solid #bfdbfe;
+            border-radius: 14px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .dapfforwc-brand-settings-promo-preview {
+            display: grid;
+            gap: 12px;
+        }
+
+        .dapfforwc-brand-settings-promo-card {
+            padding: 16px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 14px;
+            background: #fff;
+        }
+
+        .dapfforwc-brand-settings-promo-card.is-disabled {
+            background: #f8fafc;
+        }
+
+        .dapfforwc-brand-settings-promo-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .dapfforwc-brand-settings-promo-card-title {
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.4;
+        }
+
+        .dapfforwc-brand-settings-promo-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4px 10px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            color: #334155;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .dapfforwc-brand-settings-promo-card p,
+        .dapfforwc-brand-settings-promo-helper {
+            margin: 8px 0 0;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        .dapfforwc-brand-settings-promo-selection {
+            display: grid;
+            gap: 10px;
+            padding: 16px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafc;
+        }
+
+        .dapfforwc-brand-settings-promo-selection-label {
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .dapfforwc-brand-settings-promo-field {
+            min-height: 64px;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 12px;
+            border: 1px dashed #cbd5e1;
+            border-radius: 12px;
+            background: #fff;
+        }
+
+        .dapfforwc-brand-settings-promo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid #bfdbfe;
+            border-radius: 999px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-weight: 500;
+        }
+
+        .dapfforwc-dimension-settings-promo {
+            display: grid;
+            gap: 18px;
+        }
+
+        .dapfforwc-dimension-settings-promo-intro {
+            margin: 0;
+            padding: 14px 16px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: #1e3a8a;
+            line-height: 1.6;
+        }
+
+        .dapfforwc-dimension-settings-promo-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .dapfforwc-dimension-settings-promo-item {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto auto;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, opacity 0.2s ease;
+        }
+
+        .dapfforwc-dimension-settings-promo-item.is-disabled {
+            opacity: 0.8;
+        }
+
+        .dapfforwc-dimension-settings-promo-main {
+            min-width: 0;
+        }
+
+        .dapfforwc-dimension-settings-promo-handle {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            color: #94a3b8;
+        }
+
+        .dapfforwc-dimension-settings-promo-title {
+            display: block;
+            font-weight: 600;
+            color: #0f172a;
+            line-height: 1.4;
+        }
+
+        .dapfforwc-dimension-settings-promo-text {
+            display: block;
+            margin-top: 3px;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        .dapfforwc-dimension-settings-promo-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .dapfforwc-dimension-settings-promo-arrow {
+            width: 34px;
+            height: 34px;
+            min-height: 34px;
+            padding: 0;
+            border: 1px solid #dbe3ec;
+            border-radius: 8px;
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+
+        .dapfforwc-dimension-settings-promo-arrow[disabled] {
+            border-color: #dbe3ec;
+            background: #f8fafc;
+            color: #94a3b8;
+        }
+
+        .dapfforwc-dimension-settings-promo-visibility {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .dapfforwc-dimension-settings-promo-visibility .switch {
+            margin-right: 0;
+            opacity: 0.86;
+        }
+
+        .dapfforwc-dimension-settings-promo-note {
+            margin: 0;
+            padding: 16px 18px;
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 782px) {
+            .dapfforwc-dimension-settings-promo-item {
+                grid-template-columns: auto minmax(0, 1fr);
+                align-items: start;
+            }
+
+            .dapfforwc-dimension-settings-promo-actions,
+            .dapfforwc-dimension-settings-promo-visibility {
+                grid-column: 2;
+            }
+
+            .dapfforwc-dimension-settings-promo-visibility {
+                justify-content: flex-start;
+            }
+        }
+
         .dapfforwc-popup-setting-grid {
             display: grid;
             gap: 18px;
@@ -241,6 +467,8 @@ function dapfforwc_render_form_manage_popup_assets()
         .dapfforwc-form-manage-popup-footer {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
+            gap: 10px;
             margin-top: 20px;
             padding-top: 16px;
             border-top: 1px solid #e2e8f0;
@@ -343,7 +571,7 @@ function dapfforwc_render_form_manage_popup_assets()
     <?php
 }
 
-function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $description, $render_callback)
+function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $description, $render_callback, $footer_callback = null)
 {
     dapfforwc_render_form_manage_popup_assets();
     ?>
@@ -377,11 +605,51 @@ function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $d
                 ?>
             </div>
             <div class="dapfforwc-form-manage-popup-footer">
-                <button type="submit" class="button button-primary"><?php esc_html_e('Save Changes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                <?php
+                if (is_callable($footer_callback)) {
+                    call_user_func($footer_callback, $popup_id);
+                } else {
+                    ?>
+                    <button type="submit" class="button button-primary"><?php esc_html_e('Save Changes', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+                    <?php
+                }
+                ?>
             </div>
         </div>
     </div>
     <?php
+}
+
+function dapfforwc_render_hidden_advance_field($field_name, $value)
+{
+    if (is_array($value)) {
+        foreach ($value as $key => $sub_value) {
+            $next_field_name = is_int($key)
+                ? $field_name . '[]'
+                : $field_name . '[' . sanitize_key((string) $key) . ']';
+
+            dapfforwc_render_hidden_advance_field($next_field_name, $sub_value);
+        }
+
+        return;
+    }
+
+    printf(
+        '<input type="hidden" name="%1$s" value="%2$s">',
+        esc_attr($field_name),
+        esc_attr((string) $value)
+    );
+}
+
+function dapfforwc_render_advance_settings_preserved_hidden_fields()
+{
+    global $dapfforwc_advance_settings;
+
+    if (!is_array($dapfforwc_advance_settings) || !array_key_exists('exclude_attributes', $dapfforwc_advance_settings)) {
+        return;
+    }
+
+    dapfforwc_render_hidden_advance_field('dapfforwc_advance_options[exclude_attributes]', $dapfforwc_advance_settings['exclude_attributes']);
 }
 
 function dapfforwc_render_form_manage_pro_notice($message)
@@ -464,6 +732,112 @@ function dapfforwc_form_manage_custom_taxonomy_settings_render()
     dapfforwc_render_custom_taxonomy_popup_fallback();
 }
 
+function dapfforwc_form_manage_brand_settings_render()
+{
+    ?>
+    <div class="dapfforwc-brand-settings-promo">
+        <p class="dapfforwc-brand-settings-promo-intro">
+            <?php esc_html_e('Auto-detect and manual brand taxonomy mapping are available in the Pro version. Upgrade when you want to control which product taxonomies behave as brand sources for filters and product queries.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+        </p>
+
+        <div class="dapfforwc-brand-settings-promo-preview">
+            <div class="dapfforwc-brand-settings-promo-card is-disabled" aria-hidden="true">
+                <div class="dapfforwc-brand-settings-promo-card-header">
+                    <span class="dapfforwc-brand-settings-promo-card-title"><?php esc_html_e('Auto-detect available brand taxonomies', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                    <span class="dapfforwc-brand-settings-promo-badge"><?php esc_html_e('Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                </div>
+                <p><?php esc_html_e('Use detected WooCommerce and third-party brand taxonomies automatically.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+
+            <div class="dapfforwc-brand-settings-promo-card is-disabled" aria-hidden="true">
+                <div class="dapfforwc-brand-settings-promo-card-header">
+                    <span class="dapfforwc-brand-settings-promo-card-title"><?php esc_html_e('Manually choose brand taxonomies', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                    <span class="dapfforwc-brand-settings-promo-badge"><?php esc_html_e('Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                </div>
+                <p><?php esc_html_e('Map a custom product taxonomy to the brand filter when your store keeps brand data outside the default brand taxonomies.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+        </div>
+
+        <div class="dapfforwc-brand-settings-promo-selection">
+            <span class="dapfforwc-brand-settings-promo-selection-label"><?php esc_html_e('Selected Brand Taxonomies', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+            <div class="dapfforwc-brand-settings-promo-field" aria-hidden="true">
+                <span class="dapfforwc-brand-settings-promo-pill"><?php esc_html_e('Custom brand mapping preview', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+            </div>
+            <p class="dapfforwc-brand-settings-promo-helper"><?php esc_html_e('Want to filter by custom brand taxonomies? Get the Pro version to unlock brand filter settings.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+        </div>
+    </div>
+    <?php
+}
+
+function dapfforwc_form_manage_brand_settings_footer($popup_id = '')
+{
+    $upgrade_url = 'https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/';
+    ?>
+    <button type="button" class="button" data-popup-close="true"><?php esc_html_e('Maybe Later', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
+    <a href="<?php echo esc_url($upgrade_url); ?>" target="_blank" rel="noopener noreferrer" class="button button-primary"><?php esc_html_e('Get Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></a>
+    <?php
+}
+
+function dapfforwc_form_manage_dimension_settings_render()
+{
+    $preview_dimensions = array(
+        array(
+            'label' => __('Length', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'enabled' => true,
+        ),
+        array(
+            'label' => __('Width', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'enabled' => true,
+        ),
+        array(
+            'label' => __('Height', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'enabled' => false,
+        ),
+        array(
+            'label' => __('Weight', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'enabled' => true,
+        ),
+    );
+    ?>
+    <div class="dapfforwc-dimension-settings-promo">
+        <p class="dapfforwc-dimension-settings-promo-intro">
+            <?php esc_html_e('Choose which dimensions should be visible and arrange their display order in the Pro version. The free version keeps the default dimension output.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+        </p>
+
+        <div class="dapfforwc-dimension-settings-promo-list" aria-hidden="true">
+            <?php foreach ($preview_dimensions as $index => $dimension) : ?>
+                <div class="dapfforwc-dimension-settings-promo-item is-disabled">
+                    <span class="dashicons dashicons-menu-alt2 dapfforwc-dimension-settings-promo-handle" aria-hidden="true"></span>
+
+                    <div class="dapfforwc-dimension-settings-promo-main">
+                        <div>
+                            <span class="dapfforwc-dimension-settings-promo-title"><?php echo esc_html($dimension['label']); ?></span>
+                            <span class="dapfforwc-dimension-settings-promo-text"><?php esc_html_e('Preview dimension visibility and ordering controls.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                        </div>
+                    </div>
+
+                    <div class="dapfforwc-dimension-settings-promo-actions">
+                        <button type="button" class="button button-secondary dapfforwc-dimension-settings-promo-arrow" disabled aria-label="<?php esc_attr_e('Move dimension preview up', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">&#8593;</button>
+                        <button type="button" class="button button-secondary dapfforwc-dimension-settings-promo-arrow" disabled aria-label="<?php esc_attr_e('Move dimension preview down', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">&#8595;</button>
+                    </div>
+
+                    <div class="dapfforwc-dimension-settings-promo-visibility">
+                        <label class="switch">
+                            <input type="checkbox" disabled <?php checked(!empty($dimension['enabled'])); ?>>
+                            <span class="slider round"></span>
+                            <span class="switch-on"><?php esc_html_e('On', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                            <span class="switch-off"><?php esc_html_e('Off', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                        </label>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+
+        <p class="dapfforwc-dimension-settings-promo-note"><?php esc_html_e('Want to choose which dimensions are visible and reorder them? Get the Pro version to unlock dimension filter settings.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+    </div>
+    <?php
+}
+
 function dapfforwc_show_categories_render()
 {
     dapfforwc_render_checkbox('show_categories');
@@ -520,7 +894,21 @@ function dapfforwc_show_search_render()
 }
 function dapfforwc_show_brand_render()
 {
-    dapfforwc_render_checkbox('show_brand');
+    ?>
+    <div class="dapfforwc-form-manage-setting">
+        <?php dapfforwc_render_checkbox('show_brand'); ?>
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-brand-settings-popup',
+            __('Open brand filter settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Brand Filter Settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Choose how brand taxonomies are mapped to brand filters in the Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_form_manage_brand_settings_render',
+            'dapfforwc_form_manage_brand_settings_footer'
+        );
+        ?>
+    </div>
+    <?php
 }
 function dapfforwc_show_author_render()
 {
@@ -534,9 +922,27 @@ function dapfforwc_show_onsale_render()
 {
     dapfforwc_render_checkbox('show_onsale');
 }
+function dapfforwc_show_featured_render()
+{
+    dapfforwc_render_checkbox('show_featured');
+}
 function dapfforwc_show_dimension_render()
 {
-    dapfforwc_render_checkbox('show_dimension');
+    ?>
+    <div class="dapfforwc-form-manage-setting">
+        <?php dapfforwc_render_checkbox('show_dimension'); ?>
+        <?php
+        dapfforwc_render_form_manage_popup(
+            'dapfforwc-dimension-settings-popup',
+            __('Open dimension filter settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Dimension Filter Settings', 'dynamic-ajax-product-filters-for-woocommerce'),
+            __('Preview dimension visibility and ordering controls available in the Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            'dapfforwc_form_manage_dimension_settings_render',
+            'dapfforwc_form_manage_brand_settings_footer'
+        );
+        ?>
+    </div>
+    <?php
 }
 function dapfforwc_show_sku_render()
 {

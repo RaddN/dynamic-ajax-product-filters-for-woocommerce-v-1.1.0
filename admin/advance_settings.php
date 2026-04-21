@@ -247,6 +247,76 @@ function dapfforwc_remove_outofStock_render()
 {
     dapfforwc_render_advance_checkbox('remove_outofStock', esc_html__('Enable this option to remove out-of-stock products from the filter results.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
+function dapfforwc_product_exclusion_rules_render()
+{
+?>
+        <div class="dapfforwcpro-product-exclusion-settings dapfforwcpro-product-exclusion-settings-locked pro-only">
+            <style>
+                .dapfforwcpro-product-exclusion-settings {
+                    max-width: 920px;
+                }
+
+                .dapfforwcpro-product-exclusion-trigger {
+                    display: inline-flex !important;
+                    align-items: center;
+                    gap: 8px;
+                    justify-content: flex-start;
+                    min-height: 36px !important;
+                    width: auto;
+                    height: auto;
+                    padding: 4px 12px !important;
+                    border-radius: 4px !important;
+                }
+
+                .dapfforwcpro-product-exclusion-trigger[disabled] {
+                    cursor: not-allowed;
+                    opacity: 1;
+                }
+
+                .dapfforwcpro-product-exclusion-trigger .dashicons {
+                    width: 16px;
+                    height: 16px;
+                    font-size: 16px;
+                }
+
+                .dapfforwcpro-product-exclusion-count,
+                .dapfforwcpro-product-exclusion-pro-badge {
+                    border-radius: 999px;
+                    display: inline-flex;
+                    font-size: 12px;
+                    font-weight: 600;
+                    justify-content: center;
+                    line-height: 1;
+                    min-width: 22px;
+                    padding: 4px 8px;
+                }
+
+                .dapfforwcpro-product-exclusion-count {
+                    background: #2271b1;
+                    color: #fff;
+                }
+
+                .dapfforwcpro-product-exclusion-pro-badge {
+                    text-transform: uppercase;
+                }
+
+                .dapfforwcpro-product-exclusion-help {
+                    margin: 8px 0 0;
+                    max-width: 760px;
+                }
+            </style>
+            <button type="button" class="button button-secondary dapfforwcpro-product-exclusion-trigger" disabled aria-disabled="true">
+                <span class="dashicons dashicons-filter" aria-hidden="true"></span>
+                <span><?php esc_html_e('Manage exclusions', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+                <span class="dapfforwcpro-product-exclusion-count" data-product-exclusion-count>0</span>
+                <span class="dapfforwcpro-product-exclusion-pro-badge"><?php esc_html_e('Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
+            </button>
+            <p class="description dapfforwcpro-product-exclusion-help">
+                <?php esc_html_e('Activate a premium license to exclude products from filter results.', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+            </p>
+        </div>
+<?php
+}
 function dapfforwc_wait_cursor_on_filtering_render()
 {
     dapfforwc_render_advance_checkbox('wait_cursor_on_filtering', esc_html__('Show the browser wait cursor while filters are loading new products.', 'dynamic-ajax-product-filters-for-woocommerce'));
