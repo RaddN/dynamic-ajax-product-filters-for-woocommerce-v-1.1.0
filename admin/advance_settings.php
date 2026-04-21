@@ -337,6 +337,10 @@ function dapfforwc_sorting_via_ajax_render()
 {
     dapfforwc_render_advance_checkbox('sorting_via_ajax', esc_html__('Apply WooCommerce product sorting with AJAX instead of a full page reload.', 'dynamic-ajax-product-filters-for-woocommerce'));
 }
+function dapfforwc_browser_history_step_navigation_render()
+{
+    dapfforwc_render_advance_checkbox('browser_history_step_navigation', esc_html__('Enable one-step browser back/forward navigation for URL-based filters by reloading the page for each history step.', 'dynamic-ajax-product-filters-for-woocommerce'));
+}
 function dapfforwc_allow_data_share_render()
 {
     dapfforwc_render_advance_checkbox('allow_data_share', esc_html__('We collect non-sensitive technical details from your website, like the PHP version and features usage, to help us troubleshoot issues faster, make informed development decisions, and build features that truly benefit you.', 'dynamic-ajax-product-filters-for-woocommerce') . " <a href='https://plugincy.com/usage-tracking/' target='_blank'>". esc_html__('Learn more…', 'dynamic-ajax-product-filters-for-woocommerce')."</a>");
@@ -367,8 +371,8 @@ function dapfforwc_render_advance_checkbox($key, $message = null)
     global $dapfforwc_allowed_tags;
     global $dapfforwc_advance_settings;
 ?>
-    <label class="switch <?php echo esc_attr($key); ?> <?php echo $key === 'wait_cursor_on_filtering' || $key === 'use_overlay' || $key === 'smart_auto_scroll' || $key === 'pagination_via_ajax' || $key === 'sorting_via_ajax' ? 'pro-only' : ''; ?>">
-        <input <?php echo $key === 'wait_cursor_on_filtering' || $key === 'use_overlay' || $key === 'smart_auto_scroll' || $key === 'pagination_via_ajax' || $key === 'sorting_via_ajax' ? 'disabled' : ''; ?> type='checkbox' name='dapfforwc_advance_options[<?php echo esc_attr($key); ?>]' <?php checked(isset($dapfforwc_advance_settings[$key]) && $dapfforwc_advance_settings[$key] === "on"); ?>>
+    <label class="switch <?php echo esc_attr($key); ?> <?php echo $key === 'wait_cursor_on_filtering' || $key === 'use_overlay' || $key === 'smart_auto_scroll' || $key === 'pagination_via_ajax' || $key === 'sorting_via_ajax' || $key === 'browser_history_step_navigation' ? 'pro-only' : ''; ?>">
+        <input <?php echo $key === 'wait_cursor_on_filtering' || $key === 'use_overlay' || $key === 'smart_auto_scroll' || $key === 'pagination_via_ajax' || $key === 'sorting_via_ajax' || $key === 'browser_history_step_navigation' ? 'disabled' : ''; ?> type='checkbox' name='dapfforwc_advance_options[<?php echo esc_attr($key); ?>]' <?php checked(isset($dapfforwc_advance_settings[$key]) && $dapfforwc_advance_settings[$key] === "on"); ?>>
         <span class="slider round"></span>
         <span class="switch-on">On</span>
         <span class="switch-off">Off</span>

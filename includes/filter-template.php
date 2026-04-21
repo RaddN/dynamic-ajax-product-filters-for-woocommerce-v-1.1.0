@@ -1345,6 +1345,46 @@ function dapfforwc_product_filter_shortcode($atts)
             $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? []
         );
 
+    $normalize_scalar_filter_value = static function ($value) use (&$normalize_scalar_filter_value) {
+        if (is_array($value)) {
+            foreach ($value as $item) {
+                $normalized_item = $normalize_scalar_filter_value($item);
+                if ($normalized_item !== '') {
+                    return $normalized_item;
+                }
+            }
+
+            return '';
+        }
+
+        return is_scalar($value) ? trim((string) $value) : '';
+    };
+
+    foreach (array(
+        'plugincy_search',
+        'min_price',
+        'max_price',
+        'default_min',
+        'default_max',
+        'min_length',
+        'max_length',
+        'min_width',
+        'max_width',
+        'min_height',
+        'max_height',
+        'min_weight',
+        'max_weight',
+        'sku',
+        'discount',
+        'date_filter',
+        'date_from',
+        'date_to',
+    ) as $scalar_filter_key) {
+        if (array_key_exists($scalar_filter_key, $default_filter)) {
+            $default_filter[$scalar_filter_key] = $normalize_scalar_filter_value($default_filter[$scalar_filter_key]);
+        }
+    }
+
     $ratings = isset($default_filter["rating[]"])
         ? array_map('intval', (array)$default_filter["rating[]"])
         : 0;
@@ -1894,8 +1934,27 @@ function dapfforwc_product_filter_shortcode($atts)
         ]
     );
 
-    
     $all_product_ids = array_map('intval', array_column($product_details, 'ID'));
+
+    $products_ids_without_dimensions = dapfforwc_getFilteredProductIds(
+        [
+            $products_id_by_cata,
+            $products_id_by_tag,
+            $products_id_by_brand,
+            $common_values,
+            $common_values_custom_meta,
+            $products_id_by_author,
+            $products_id_by_stock_status,
+            $products_id_by_sale_status,
+            $products_id_by_search,
+            $products_id_by_price,
+            $products_id_by_rating,
+            $products_id_by_sku,
+            $products_id_by_discount,
+            $products_id_by_date_filter,
+            $all_product_ids
+        ]
+    );
 
 
     $cat_op  = strtoupper($dapfforwc_styleoptions["operator"]["product-category"] ?? 'OR');
@@ -2149,6 +2208,12 @@ function dapfforwc_product_filter_shortcode($atts)
             "max" => $filteroptionsfromurl["default_max"],
         ];
     }
+
+    $dimension_bounds = dapfforwc_get_dimension_filter_bounds(
+        $product_details,
+        $products_ids_without_dimensions,
+        $dimension_filters
+    );
 
     $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval($dapfforwc_styleoptions["price"]["min_price"] ?? 0));
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
@@ -3007,7 +3072,7 @@ function dapfforwc_product_filter_shortcode($atts)
                     ...$filteroptionsfromurl,
                     ...$parsed_filters
                 ];
-                echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' && !is_shop()) ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false), $dapfforwc_allowed_tags);
+                echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' && !is_shop()) ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false, $dimension_bounds), $dapfforwc_allowed_tags);
                 echo '</form></div>';
                 if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
         </div>
