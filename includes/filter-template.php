@@ -488,6 +488,79 @@ function dapfforwc_get_product_filter_shortcode_builder_schema()
     );
 }
 
+function dapfforwc_get_single_filter_shortcode_builder_schema()
+{
+    $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
+    $attribute_options = array();
+
+    if (!empty($all_data['attributes']) && is_array($all_data['attributes'])) {
+        $attributes = $all_data['attributes'];
+
+        uasort($attributes, function ($first, $second) {
+            $first_label = isset($first['attribute_label']) ? (string) $first['attribute_label'] : '';
+            $second_label = isset($second['attribute_label']) ? (string) $second['attribute_label'] : '';
+
+            if ($first_label === '' && isset($first['attribute_name'])) {
+                $first_label = (string) $first['attribute_name'];
+            }
+
+            if ($second_label === '' && isset($second['attribute_name'])) {
+                $second_label = (string) $second['attribute_name'];
+            }
+
+            return strcasecmp($first_label, $second_label);
+        });
+
+        foreach ($attributes as $attribute_key => $attribute) {
+            $attribute_name = sanitize_key(is_string($attribute_key) ? $attribute_key : '');
+            if ($attribute_name === '' && !empty($attribute['attribute_name'])) {
+                $attribute_name = sanitize_key((string) $attribute['attribute_name']);
+            }
+
+            if ($attribute_name === '') {
+                continue;
+            }
+
+            $attribute_label = isset($attribute['attribute_label']) ? trim((string) $attribute['attribute_label']) : '';
+            if ($attribute_label === '') {
+                $attribute_label = ucwords(str_replace(array('-', '_'), ' ', $attribute_name));
+            }
+
+            $attribute_options[$attribute_name] = array(
+                'label' => $attribute_label,
+                'description' => sprintf(
+                    esc_html__('Attribute slug: %s', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    $attribute_name
+                ),
+            );
+        }
+    }
+
+    $default_attribute = '';
+    foreach ($attribute_options as $attribute_name => $option) {
+        $default_attribute = (string) $attribute_name;
+        break;
+    }
+
+    return array(
+        'shortcode_tag' => 'plugincy_filters_single',
+        'initial_rows' => array('name'),
+        'fixed_rows' => array('name'),
+        'hide_add_button' => true,
+        'parameters' => array(
+            'name' => array(
+                'label' => esc_html__('Attribute', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'description' => esc_html__('Search and choose which WooCommerce product attribute this single filter shortcode should render.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'type' => 'searchable_select',
+                'default' => $default_attribute,
+                'empty_state' => esc_html__('No WooCommerce attributes found yet.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'search_placeholder' => esc_html__('Search attributes...', 'dynamic-ajax-product-filters-for-woocommerce'),
+                'options' => $attribute_options,
+            ),
+        ),
+    );
+}
+
 
 function dapfforwc_product_filter_shortcode($atts)
 {

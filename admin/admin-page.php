@@ -931,6 +931,12 @@ function dapfforwc_admin_page_content()
                                 'shortcode_tag' => 'plugincy_filters',
                                 'parameters' => array(),
                             );
+                        $single_shortcode_builder_schema = function_exists('dapfforwc_get_single_filter_shortcode_builder_schema')
+                            ? dapfforwc_get_single_filter_shortcode_builder_schema()
+                            : array(
+                                'shortcode_tag' => 'plugincy_filters_single',
+                                'parameters' => array(),
+                            );
                         ?>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Displays the full filter form.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <div
@@ -953,14 +959,25 @@ function dapfforwc_admin_page_content()
                             <p class="plugincy-code-description" style="margin-bottom: 0;"><?php echo esc_html__('Click a value to edit it. Use + to add parameters and x to remove them.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         </div>
                         <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Shows a single filter button.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
-                        <div style="position: relative;">
-                            <code class="plugincy-code-box">[plugincy_filters_single name="attribute_selector"]</code>
-                            <button class="dapfforwc-copy-btn" onclick='copyToClipboard(event, `[plugincy_filters_single name="attribute_selector"]`)' title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
-                                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
-                                    <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
-                                </svg>
-                            </button>
+                        <div
+                            class="dapfforwc-shortcode-builder"
+                            data-shortcode-builder-root
+                            data-shortcode-builder="<?php echo esc_attr(wp_json_encode($single_shortcode_builder_schema)); ?>"
+                            data-shortcode-empty-value="<?php echo esc_attr__('select attribute', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"
+                            data-shortcode-save-label="<?php echo esc_attr__('Save', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"
+                            data-shortcode-cancel-label="<?php echo esc_attr__('Cancel', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                            <div class="dapfforwc-generated-shortcode" style="position: relative;">
+                                <div class="plugincy-code-box dapfforwc-shortcode-composer" data-shortcode-builder-inline aria-label="<?php echo esc_attr__('Single filter shortcode builder', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"></div>
+                                <button class="dapfforwc-copy-btn" type="button" data-shortcode-builder-copy title="<?php echo esc_attr__('Copy shortcode', 'dynamic-ajax-product-filters-for-woocommerce'); ?>">
+                                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="14" height="14">
+                                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor" />
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="dapfforwc-shortcode-popover dapfforwc-shortcode-parameter-popover" data-shortcode-builder-menu hidden></div>
+                            <div class="dapfforwc-shortcode-popover dapfforwc-shortcode-editor-popover" data-shortcode-builder-editor hidden></div>
                         </div>
+                        <p class="plugincy-code-description" style="margin-bottom: 10px;"><?php echo esc_html__('Click the attribute value to search and choose the attribute slug for this shortcode.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <p class="plugincy-code-description"><?php echo esc_html__('Displays selected filters.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                         <div style="position: relative;">
                             <code class="plugincy-code-box" style="margin-bottom: 10px;">[plugincy_filters_selected]</code>
@@ -2215,6 +2232,40 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                 line-height: 1.5;
             }
 
+            .dapfforwc-shortcode-editor-search {
+                padding: 4px 4px 8px;
+            }
+
+            .dapfforwc-shortcode-editor-search-input {
+                width: 100%;
+                min-height: 38px;
+                padding: 0 12px;
+                border: 1px solid #cbd5e1;
+                border-radius: 8px;
+                background: #ffffff;
+                color: #1e293b;
+                font-size: 13px;
+            }
+
+            .dapfforwc-shortcode-editor-options {
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
+            }
+
+            .dapfforwc-shortcode-editor-empty-state {
+                display: block;
+                padding: 10px 12px;
+                color: #64748b;
+                font-size: 12px;
+                line-height: 1.5;
+            }
+
+            .dapfforwc-shortcode-editor-empty-state[hidden],
+            .dapfforwc-shortcode-editor-option[hidden] {
+                display: none !important;
+            }
+
             .dapfforwc-shortcode-menu-option,
             .dapfforwc-shortcode-editor-option {
                 width: 100%;
@@ -2802,6 +2853,9 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     const shortcodeTag = schema.shortcode_tag || 'plugincy_filters';
                     const groupMap = schema.groups || {};
                     const groupOrder = Array.isArray(schema.group_order) ? schema.group_order : [];
+                    const fixedRowKeys = Array.isArray(schema.fixed_rows) ? schema.fixed_rows : [];
+                    const initialRows = Array.isArray(schema.initial_rows) ? schema.initial_rows : [];
+                    const hideAddButton = !!schema.hide_add_button;
                     const parameterMap = schema.parameters || {};
                     const parameterKeys = Object.keys(parameterMap);
 
@@ -2818,12 +2872,20 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     const cancelLabel = root.getAttribute('data-shortcode-cancel-label') || 'Cancel';
                     let rows = [];
 
+                    if (!composer || !editorPopover || !copyButton) {
+                        return;
+                    }
+
+                    function isFixedRow(key) {
+                        return fixedRowKeys.indexOf(key) !== -1;
+                    }
+
                     function getDefaultValue(config) {
                         if (Object.prototype.hasOwnProperty.call(config, 'default') && String(config.default) !== '') {
                             return String(config.default);
                         }
 
-                        if (config.type === 'select' && config.options) {
+                        if ((config.type === 'select' || config.type === 'searchable_select') && config.options) {
                             const optionKeys = Object.keys(config.options).filter(function(optionKey) {
                                 return optionKey !== '';
                             });
@@ -2849,7 +2911,31 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                         });
                     }
 
+                    function getOptionConfig(optionValue, config) {
+                        const rawOption = config && config.options ? config.options[optionValue] : null;
+
+                        if (rawOption && typeof rawOption === 'object') {
+                            return {
+                                label: rawOption.label || optionValue,
+                                badge: rawOption.badge || '',
+                                locked: !!rawOption.locked,
+                                description: rawOption.description || '',
+                            };
+                        }
+
+                        return {
+                            label: rawOption || optionValue,
+                            badge: '',
+                            locked: false,
+                            description: '',
+                        };
+                    }
+
                     function closeAddMenu() {
+                        if (!addMenu) {
+                            return;
+                        }
+
                         addMenu.hidden = true;
                         addMenu.innerHTML = '';
                     }
@@ -2906,26 +2992,6 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                         return normalizedValue;
                     }
 
-                    function getOptionConfig(optionValue, config) {
-                        const rawOption = config && config.options ? config.options[optionValue] : null;
-
-                        if (rawOption && typeof rawOption === 'object') {
-                            return {
-                                label: rawOption.label || optionValue,
-                                badge: rawOption.badge || '',
-                                locked: !!rawOption.locked,
-                                description: rawOption.description || '',
-                            };
-                        }
-
-                        return {
-                            label: rawOption || optionValue,
-                            badge: '',
-                            locked: false,
-                            description: '',
-                        };
-                    }
-
                     function setRowValue(rowId, value) {
                         rows = rows.map(function(row) {
                             if (row.id === rowId) {
@@ -2957,6 +3023,10 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     }
 
                     function openAddMenu(anchor) {
+                        if (!addMenu || hideAddButton) {
+                            return;
+                        }
+
                         const menuKeys = getMenuKeys();
                         closeEditor();
                         addMenu.innerHTML = '';
@@ -3145,6 +3215,10 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     }
 
                     function renderSelectEditor(row, config, anchor) {
+                        const searchable = config.type === 'searchable_select' || !!config.searchable;
+                        const optionKeys = Object.keys(config.options || {}).filter(function(optionValue) {
+                            return optionValue !== '';
+                        });
                         const header = document.createElement('div');
                         header.className = 'dapfforwc-shortcode-popover-header';
 
@@ -3168,13 +3242,40 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
 
                         editorPopover.appendChild(header);
 
-                        Object.keys(config.options || {}).filter(function(optionValue) {
-                            return optionValue !== '';
-                        }).forEach(function(optionValue) {
+                        let searchInput = null;
+                        if (searchable) {
+                            const searchWrapper = document.createElement('div');
+                            searchWrapper.className = 'dapfforwc-shortcode-editor-search';
+
+                            searchInput = document.createElement('input');
+                            searchInput.type = 'search';
+                            searchInput.className = 'dapfforwc-shortcode-editor-search-input';
+                            searchInput.placeholder = config.search_placeholder || 'Search options...';
+
+                            searchWrapper.appendChild(searchInput);
+                            editorPopover.appendChild(searchWrapper);
+                        }
+
+                        const optionsContainer = document.createElement('div');
+                        optionsContainer.className = 'dapfforwc-shortcode-editor-options';
+                        editorPopover.appendChild(optionsContainer);
+
+                        const emptyState = document.createElement('span');
+                        emptyState.className = 'dapfforwc-shortcode-editor-empty-state';
+                        emptyState.textContent = config.empty_state || 'No options available.';
+                        emptyState.hidden = true;
+                        editorPopover.appendChild(emptyState);
+
+                        const optionButtons = [];
+                        optionKeys.forEach(function(optionValue) {
                             const optionConfig = getOptionConfig(optionValue, config);
                             const optionButton = document.createElement('button');
                             optionButton.type = 'button';
                             optionButton.className = 'dapfforwc-shortcode-editor-option';
+                            optionButton.setAttribute(
+                                'data-search-text',
+                                [optionConfig.label, optionValue, optionConfig.description].join(' ').toLowerCase()
+                            );
 
                             if (optionConfig.locked) {
                                 optionButton.classList.add('is-locked');
@@ -3223,10 +3324,41 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                                 });
                             }
 
-                            editorPopover.appendChild(optionButton);
+                            optionButtons.push(optionButton);
+                            optionsContainer.appendChild(optionButton);
                         });
 
+                        function updateVisibleOptions(searchTerm) {
+                            const normalizedSearch = String(searchTerm || '').trim().toLowerCase();
+                            let visibleCount = 0;
+
+                            optionButtons.forEach(function(optionButton) {
+                                const searchText = optionButton.getAttribute('data-search-text') || '';
+                                const isVisible = normalizedSearch === '' || searchText.indexOf(normalizedSearch) !== -1;
+                                optionButton.hidden = !isVisible;
+
+                                if (isVisible) {
+                                    visibleCount += 1;
+                                }
+                            });
+
+                            emptyState.hidden = visibleCount > 0;
+                        }
+
+                        if (searchInput) {
+                            searchInput.addEventListener('input', function(event) {
+                                updateVisibleOptions(event.target.value);
+                            });
+                        }
+
+                        updateVisibleOptions('');
                         positionPopover(editorPopover, anchor);
+
+                        if (searchInput) {
+                            window.setTimeout(function() {
+                                searchInput.focus();
+                            }, 0);
+                        }
                     }
 
                     function openEditor(rowId, anchor) {
@@ -3240,7 +3372,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                         closeAddMenu();
                         editorPopover.innerHTML = '';
 
-                        if (config.type === 'select') {
+                        if (config.type === 'select' || config.type === 'searchable_select') {
                             renderSelectEditor(row, config, anchor);
                             return;
                         }
@@ -3319,46 +3451,54 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                                 openEditor(row.id, event.currentTarget);
                             });
 
-                            const removeButton = document.createElement('button');
-                            removeButton.type = 'button';
-                            removeButton.className = 'dapfforwc-shortcode-inline-remove';
-                            removeButton.setAttribute('aria-label', 'Remove parameter');
-                            removeButton.innerHTML = '&times;';
-                            removeButton.addEventListener('click', function() {
-                                removeRow(row.id);
-                                renderComposer();
-                            });
-
                             attribute.appendChild(valueButton);
-                            attribute.appendChild(removeButton);
+
+                            if (!isFixedRow(row.key)) {
+                                const removeButton = document.createElement('button');
+                                removeButton.type = 'button';
+                                removeButton.className = 'dapfforwc-shortcode-inline-remove';
+                                removeButton.setAttribute('aria-label', 'Remove parameter');
+                                removeButton.innerHTML = '&times;';
+                                removeButton.addEventListener('click', function() {
+                                    removeRow(row.id);
+                                    renderComposer();
+                                });
+
+                                attribute.appendChild(removeButton);
+                            }
+
                             fragment.appendChild(attribute);
                         });
 
                         fragment.appendChild(createFragmentSpan(']', 'dapfforwc-shortcode-fragment dapfforwc-shortcode-bracket'));
-                        addStaticSpace(fragment);
 
-                        const addButton = document.createElement('button');
-                        addButton.type = 'button';
-                        addButton.className = 'dapfforwc-shortcode-inline-add';
-                        addButton.setAttribute('aria-label', 'Add parameter');
-                        addButton.setAttribute('aria-haspopup', 'true');
+                        if (!hideAddButton) {
+                            addStaticSpace(fragment);
 
-                        if (!getMenuKeys().length) {
-                            addButton.disabled = true;
+                            const addButton = document.createElement('button');
+                            addButton.type = 'button';
+                            addButton.className = 'dapfforwc-shortcode-inline-add';
+                            addButton.setAttribute('aria-label', 'Add parameter');
+                            addButton.setAttribute('aria-haspopup', 'true');
+
+                            if (!getMenuKeys().length) {
+                                addButton.disabled = true;
+                            }
+
+                            const addIcon = document.createElement('span');
+                            addIcon.className = 'dashicons dashicons-plus-alt2';
+                            addButton.appendChild(addIcon);
+                            addButton.addEventListener('click', function(event) {
+                                if (addMenu && addMenu.hidden) {
+                                    openAddMenu(event.currentTarget);
+                                } else {
+                                    closeAddMenu();
+                                }
+                            });
+
+                            fragment.appendChild(addButton);
                         }
 
-                        const addIcon = document.createElement('span');
-                        addIcon.className = 'dashicons dashicons-plus-alt2';
-                        addButton.appendChild(addIcon);
-                        addButton.addEventListener('click', function(event) {
-                            if (addMenu.hidden) {
-                                openAddMenu(event.currentTarget);
-                            } else {
-                                closeAddMenu();
-                            }
-                        });
-
-                        fragment.appendChild(addButton);
                         composer.appendChild(fragment);
                         root.setAttribute('data-shortcode-value', getShortcodeString());
                     }
@@ -3381,10 +3521,18 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                         copyShortcode(event, root.getAttribute('data-shortcode-value') || '[' + shortcodeTag + ']');
                     });
 
-                    if (parameterMap.layout) {
-                        addRow('layout');
-                    } else {
-                        addRow(parameterKeys[0]);
+                    if (initialRows.length) {
+                        initialRows.forEach(function(key) {
+                            addRow(key);
+                        });
+                    }
+
+                    if (!rows.length) {
+                        if (parameterMap.layout) {
+                            addRow('layout');
+                        } else {
+                            addRow(parameterKeys[0]);
+                        }
                     }
                 }
 
