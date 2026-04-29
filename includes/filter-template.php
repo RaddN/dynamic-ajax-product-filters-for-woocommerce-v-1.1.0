@@ -4,6 +4,30 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+if (!function_exists('dapfforwc_array_intersect_values')) {
+    function dapfforwc_array_intersect_values($arrays)
+    {
+        if (!is_array($arrays) || empty($arrays)) {
+            return [];
+        }
+
+        $normalized = [];
+        foreach ($arrays as $array) {
+            if (!is_array($array)) {
+                return [];
+            }
+
+            $normalized[] = $array;
+        }
+
+        if (count($normalized) === 1) {
+            return array_values($normalized[0]);
+        }
+
+        return array_values(array_intersect(...$normalized));
+    }
+}
+
 if (!function_exists('dapfforwc_is_product_attribute')) {
     function dapfforwc_is_product_attribute()
     {
@@ -24,7 +48,7 @@ if (!function_exists('dapfforwc_is_product_attribute')) {
  * - Custom brand taxonomies
  *
  * @return bool True if on a brand archive page, false otherwise
- * @since 1.6.0
+ * @since 1.6.0.20
  */
 if (!function_exists('dapfforwc_is_product_brand')) {
     function dapfforwc_is_product_brand()
@@ -87,7 +111,7 @@ if (!function_exists('dapfforwc_is_product_brand')) {
  * Returns brand details if on brand archive, null otherwise
  *
  * @return array|null Array with term_id, name, slug, taxonomy or null
- * @since 1.6.0
+ * @since 1.6.0.20
  */
 if (!function_exists('dapfforwc_get_current_brand')) {
     function dapfforwc_get_current_brand()
@@ -171,7 +195,7 @@ if (!function_exists('dapfforwc_build_reverse_prefix_map')) {
  * Useful for filtering operations that need to know all brand-related taxonomies
  *
  * @return array Array of brand taxonomy names
- * @since 1.6.0
+ * @since 1.6.0.20
  */
 if (!function_exists('dapfforwc_get_brand_taxonomies')) {
     function dapfforwc_get_brand_taxonomies()
@@ -1655,7 +1679,7 @@ function dapfforwc_product_filter_shortcode($atts)
     }
     $all_data_objects["product-category[]"] = array_keys($matched_cata_with_ids);
     if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] ?? "IN") === 'AND') {
-        $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_intersect(...array_values($matched_cata_with_ids)));
+        $products_id_by_cata = dapfforwc_array_intersect_values(array_values($matched_cata_with_ids));
     } else {
         $products_id_by_cata = empty($matched_cata_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_cata_with_ids))));
     }
@@ -1676,7 +1700,7 @@ function dapfforwc_product_filter_shortcode($atts)
     }
     $all_data_objects["rplurand[]"] = array_keys($matched_brand_with_ids);
     if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["brand_operator"] ?? "IN") === 'AND') {
-        $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_intersect(...array_values($matched_brand_with_ids)));
+        $products_id_by_brand = dapfforwc_array_intersect_values(array_values($matched_brand_with_ids));
     } else {
         $products_id_by_brand = empty($matched_brand_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_brand_with_ids))));
     }
@@ -1746,7 +1770,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $all_data_objects["tag[]"] = array_keys($matched_tag_with_ids);
 
     if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["tag_operator"] ?? "IN") === 'AND') {
-        $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_intersect(...array_values($matched_tag_with_ids)));
+        $products_id_by_tag = dapfforwc_array_intersect_values(array_values($matched_tag_with_ids));
     } else {
         $products_id_by_tag = empty($matched_tag_with_ids) ? [] : array_values(array_unique(array_merge(...array_values($matched_tag_with_ids))));
     }
@@ -1806,7 +1830,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
     if (strtoupper($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["terms_operator"] ?? "IN") === 'AND') {
         foreach ($match_attributes_with_ids as $taxonomy => $products) {
-            $products_id_by_attributes[] = array_values(array_intersect(...$products));
+            $products_id_by_attributes[] = dapfforwc_array_intersect_values($products);
         }
     } else {
         foreach ($match_attributes_with_ids as $taxonomy => $products) {
@@ -1814,7 +1838,7 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    $common_values = empty($products_id_by_attributes) ? [] : array_intersect(...$products_id_by_attributes);
+    $common_values = dapfforwc_array_intersect_values($products_id_by_attributes);
 
     // filter by custom_meta
     // Match custom_meta
@@ -1872,7 +1896,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $products_id_by_custom_meta[] = array_values(array_unique(array_merge(...$products)));
     }
 
-    $common_values_custom_meta = empty($products_id_by_custom_meta) ? [] : array_intersect(...$products_id_by_custom_meta);
+    $common_values_custom_meta = dapfforwc_array_intersect_values($products_id_by_custom_meta);
 
 
     // echo json_encode(
@@ -1977,12 +2001,12 @@ function dapfforwc_product_filter_shortcode($atts)
     foreach ($match_attributes_with_ids as $taxonomy => $products) {
         $op = strtoupper($attribute_ops[$taxonomy] ?? ($dapfforwc_options["product_show_settings"][$dapfforwc_slug]["terms_operator"] ?? 'OR'));
         if ($op === 'AND') {
-            $products_id_by_attributes[$taxonomy] = array_values(array_intersect(...$products));
+            $products_id_by_attributes[$taxonomy] = dapfforwc_array_intersect_values($products);
         } else { // OR
             $products_id_by_attributes[$taxonomy] = array_values(array_unique(array_merge(...$products)));
         }
     }
-    $common_values = empty($products_id_by_attributes) ? [] : array_intersect(...array_values($products_id_by_attributes));
+    $common_values = dapfforwc_array_intersect_values(array_values($products_id_by_attributes));
     $cm_op = strtoupper($dapfforwc_styleoptions['operator']['custom_meta'] ?? 'OR');
 
     $products_for_categories = ($cat_op === 'OR')
@@ -2134,14 +2158,12 @@ function dapfforwc_product_filter_shortcode($atts)
     foreach ($match_custom_meta_with_ids as $taxonomy => $products) {
         $op = strtoupper($custom_meta_ops[$taxonomy] ?? 'OR'); // fallback
         if ($op === 'AND') {
-            $products_id_by_custom_meta[$taxonomy] = array_values(array_intersect(...$products));
+            $products_id_by_custom_meta[$taxonomy] = dapfforwc_array_intersect_values($products);
         } else { // OR
             $products_id_by_custom_meta[$taxonomy] = array_values(array_unique(array_merge(...$products)));
         }
     }
-    $common_values_custom_meta = empty($products_id_by_custom_meta)
-        ? []
-        : array_intersect(...array_values($products_id_by_custom_meta));
+    $common_values_custom_meta = dapfforwc_array_intersect_values(array_values($products_id_by_custom_meta));
 
     $products_for_custom_meta = [];
     foreach ($products_id_by_custom_meta as $taxonomy => $set) {
@@ -3066,12 +3088,14 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
                 echo '</div>';
                 wp_nonce_field('gm-product-filter-action', 'gm-product-filter-nonce');
-                $default_data_objects = [
-                    "min_price" => $min_price,
-                    "max_price" => $max_price,
-                    ...$filteroptionsfromurl,
-                    ...$parsed_filters
-                ];
+                $default_data_objects = array_merge(
+                    [
+                        "min_price" => $min_price,
+                        "max_price" => $max_price,
+                    ],
+                    is_array($filteroptionsfromurl ?? null) ? $filteroptionsfromurl : [],
+                    is_array($parsed_filters ?? null) ? $parsed_filters : []
+                );
                 echo wp_kses(dapfforwc_filter_form($updated_filters, !$make_default_selected || (isset($dapfforwc_advance_settings["default_value_selected"]) && $dapfforwc_advance_settings["default_value_selected"] === 'on' && !is_shop()) ? $all_data_objects : $default_data_objects, $use_anchor, $use_filters_word, $atts, $min_price, $max_price, $min_max_prices, '', false, false, $dimension_bounds), $dapfforwc_allowed_tags);
                 echo '</form></div>';
                 if ($atts['mobile_responsive'] === 'style_3' || $atts['mobile_responsive'] === 'style_4') { ?>
