@@ -48,7 +48,7 @@ if (!function_exists('dapfforwc_is_product_attribute')) {
  * - Custom brand taxonomies
  *
  * @return bool True if on a brand archive page, false otherwise
- * @since 1.6.0.20
+ * @since 1.6.0.23
  */
 if (!function_exists('dapfforwc_is_product_brand')) {
     function dapfforwc_is_product_brand()
@@ -111,7 +111,7 @@ if (!function_exists('dapfforwc_is_product_brand')) {
  * Returns brand details if on brand archive, null otherwise
  *
  * @return array|null Array with term_id, name, slug, taxonomy or null
- * @since 1.6.0.20
+ * @since 1.6.0.23
  */
 if (!function_exists('dapfforwc_get_current_brand')) {
     function dapfforwc_get_current_brand()
@@ -195,7 +195,7 @@ if (!function_exists('dapfforwc_build_reverse_prefix_map')) {
  * Useful for filtering operations that need to know all brand-related taxonomies
  *
  * @return array Array of brand taxonomy names
- * @since 1.6.0.20
+ * @since 1.6.0.23
  */
 if (!function_exists('dapfforwc_get_brand_taxonomies')) {
     function dapfforwc_get_brand_taxonomies()
@@ -1413,6 +1413,7 @@ function dapfforwc_product_filter_shortcode($atts)
         ? array_map('intval', (array)$default_filter["rating[]"])
         : 0;
 
+    $database_safe_mode = function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode();
 
     if (!empty($atts['use_custom_template_design']) && $atts['use_custom_template_design'] === "yes") {
         // Ensure it's an array
@@ -1434,9 +1435,9 @@ function dapfforwc_product_filter_shortcode($atts)
             update_option('dapfforwc_options', $dapfforwc_options);
         }
     }
-    $product_details = array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
+    $product_details = $database_safe_mode ? [] : array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
     $products_id_by_rating = [];
-    if (!empty($ratings)) {
+    if (!$database_safe_mode && !empty($ratings)) {
         // Collect products that have at least the minimum rating specified
         $min_rating = min($ratings);
         $products_id_by_rating = array_column(
@@ -1465,7 +1466,7 @@ function dapfforwc_product_filter_shortcode($atts)
         $search_filters = (array)$default_filter["plugincy_search[]"];
     }
 
-    if (!empty($search_filters)) {
+    if (!$database_safe_mode && !empty($search_filters)) {
         $search_string = trim(implode(' ', array_filter(array_map('sanitize_text_field', $search_filters))));
 
         if ($search_string !== '') {
@@ -1497,7 +1498,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
     // Filter products by price range
     $products_id_by_price = [];
-    if (!empty($default_filter["price[]"])) {
+    if (!$database_safe_mode && !empty($default_filter["price[]"])) {
         $price_ranges = (array)$default_filter["price[]"];
         foreach ($price_ranges as $range) {
             if (strpos($range, '-') !== false) {
@@ -1520,7 +1521,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $products_id_by_dimensions = [];
     $dimension_filters = dapfforwc_normalize_dimension_filters($default_filter);
 
-    if (!empty($dimension_filters)) {
+    if (!$database_safe_mode && !empty($dimension_filters)) {
         foreach ($product_details as $product) {
             if (dapfforwc_product_matches_dimension_filters($product, $dimension_filters)) {
                 $products_id_by_dimensions[] = $product['ID'];
@@ -1531,7 +1532,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $products_id_by_sku = [];
     $raw_sku_filter = $default_filter['sku'] ?? ($default_filter['sku[]'] ?? null);
 
-    if (!empty($raw_sku_filter)) {
+    if (!$database_safe_mode && !empty($raw_sku_filter)) {
         $sku_filters = is_array($raw_sku_filter) ? $raw_sku_filter : explode(',', $raw_sku_filter);
         $sku_filters = array_filter(array_map(static function ($sku) {
             return strtolower(trim($sku));
@@ -1553,7 +1554,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $products_id_by_discount = [];
     $raw_discount_filter = $default_filter['discount'] ?? ($default_filter['discount[]'][0] ?? null);
 
-    if ($raw_discount_filter !== null && $raw_discount_filter !== '') {
+    if (!$database_safe_mode && $raw_discount_filter !== null && $raw_discount_filter !== '') {
         $min_discount = floatval($raw_discount_filter);
 
         if ($min_discount > 0) {
@@ -1568,7 +1569,7 @@ function dapfforwc_product_filter_shortcode($atts)
     $products_id_by_date_filter = [];
     $date_filter_value = $default_filter['date_filter'] ?? ($default_filter['date_filter[]'][0] ?? null);
 
-    if (!empty($date_filter_value)) {
+    if (!$database_safe_mode && !empty($date_filter_value)) {
         $start = null;
         $end = null;
 
@@ -2007,7 +2008,11 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
     $common_values = dapfforwc_array_intersect_values(array_values($products_id_by_attributes));
-    $cm_op = strtoupper($dapfforwc_styleoptions['operator']['custom_meta'] ?? 'OR');
+    $custom_meta_operator_option = $dapfforwc_styleoptions['operator']['custom_meta'] ?? 'OR';
+    $cm_op = is_array($custom_meta_operator_option) ? 'OR' : strtoupper($custom_meta_operator_option);
+    $custom_meta_ops = is_array($custom_meta_operator_option)
+        ? $custom_meta_operator_option
+        : [];
 
     $products_for_categories = ($cat_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2222,7 +2227,9 @@ function dapfforwc_product_filter_shortcode($atts)
         $price_bounds_product_ids = !empty($products_ids_without_price) ? $products_ids_without_price : $all_product_ids;
     }
 
-    $min_max_prices = dapfforwc_get_min_max_price($product_details, $price_bounds_product_ids);
+    $min_max_prices = $database_safe_mode && function_exists('dapfforwc_get_database_mode_min_max_price')
+        ? dapfforwc_get_database_mode_min_max_price()
+        : dapfforwc_get_min_max_price($product_details, $price_bounds_product_ids);
 
     if ($has_active_price_filter && isset($filteroptionsfromurl["default_min"]) && isset($filteroptionsfromurl["default_max"]) && $filteroptionsfromurl["default_min"] <= $min_max_prices["min"] && $filteroptionsfromurl["default_max"] >= $min_max_prices["max"]) {
         $min_max_prices = [
@@ -2231,11 +2238,13 @@ function dapfforwc_product_filter_shortcode($atts)
         ];
     }
 
-    $dimension_bounds = dapfforwc_get_dimension_filter_bounds(
-        $product_details,
-        $products_ids_without_dimensions,
-        $dimension_filters
-    );
+    $dimension_bounds = $database_safe_mode && function_exists('dapfforwc_get_database_mode_dimension_bounds')
+        ? dapfforwc_get_database_mode_dimension_bounds()
+        : dapfforwc_get_dimension_filter_bounds(
+            $product_details,
+            $products_ids_without_dimensions,
+            $dimension_filters
+        );
 
     $all_data_objects["min_price"] = isset($default_filter["min_price"]) ? floatval($default_filter["min_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['min'])) : floatval($dapfforwc_styleoptions["price"]["min_price"] ?? 0));
     $all_data_objects["max_price"] = isset($default_filter["max_price"]) ? floatval($default_filter["max_price"]) : (isset($dapfforwc_styleoptions["price"]["auto_price"]) ? ceil(floatval($min_max_prices['max'])) : floatval($dapfforwc_styleoptions["price"]["max_price"] ?? 100000000000));
@@ -3533,6 +3542,26 @@ add_shortcode('plugincy_filters_selected', 'dapfforwc_product_filter_shortcode_s
 
 function dapfforwc_get_updated_filters($product_ids, $all_data = [], $context = [])
 {
+    if (
+        function_exists('dapfforwc_filter_data_uses_database_mode')
+        && dapfforwc_filter_data_uses_database_mode($all_data)
+        && function_exists('dapfforwc_get_lightweight_updated_filters')
+    ) {
+        return dapfforwc_get_lightweight_updated_filters($all_data);
+    }
+
+    if (
+        empty($product_ids)
+        && function_exists('dapfforwc_use_large_catalog_database_mode')
+        && dapfforwc_use_large_catalog_database_mode()
+        && function_exists('dapfforwc_get_lightweight_updated_filters')
+    ) {
+        if (empty($all_data) && function_exists('dapfforwc_get_woocommerce_filter_data_for_database_mode')) {
+            $all_data = dapfforwc_get_woocommerce_filter_data_for_database_mode();
+        }
+        return dapfforwc_get_lightweight_updated_filters($all_data);
+    }
+
     $ids_for_categories = $context['categories'] ?? $product_ids;
     $ids_for_tags       = $context['tags'] ?? $product_ids;
     $ids_for_brands     = $context['brands'] ?? $product_ids;
@@ -3909,19 +3938,544 @@ function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
     return $thumbnails;
 }
 
-function dapfforwc_get_woocommerce_attributes_with_terms()
+function dapfforwc_filter_data_uses_database_mode($data)
+{
+    return is_array($data) && !empty($data['_dapfforwc_database_mode']);
+}
+
+function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
+{
+    global $wpdb, $dapfforwc_styleoptions, $dapfforwc_options, $dapfforwc_advance_settings;
+
+    static $cached_result = null;
+
+    $args = is_array($args) ? $args : [];
+    $force = !empty($args['force']) || !empty($args['manual']);
+
+    if ($cached_result !== null && !$force) {
+        return $cached_result;
+    }
+
+    $cache_key = 'dapfforwc_filter_options_light_cache_v1';
+    $cached = get_transient($cache_key);
+    if (!$force && is_array($cached)) {
+        return $cached_result = $cached;
+    }
+
+    $data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+        'attributes' => [],
+        'categories' => [],
+        'tags' => [],
+        'brands' => [],
+        'authors' => [],
+        'custom_fields' => [],
+        'stock_status' => [],
+        'sale_status' => [],
+    ];
+
+    $data['_dapfforwc_database_mode'] = true;
+    $data['stock_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => [], 'count' => 0],
+        1 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => [], 'count' => 0],
+    ];
+
+    $data['sale_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => [], 'count' => 0],
+        1 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => [], 'count' => 0],
+    ];
+
+    $taxonomy_results = $wpdb->get_results(
+        "
+        SELECT t.term_id, t.name, t.slug, tt.taxonomy, tt.parent,
+               a.attribute_name, a.attribute_label,
+               COUNT(DISTINCT p.ID) AS product_count,
+               MAX(CASE WHEN tm.meta_key = 'order' THEN tm.meta_value END) AS menu_order
+        FROM {$wpdb->prefix}term_relationships AS tr
+        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = tt.term_id
+        INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
+        LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
+        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+        WHERE p.post_type = 'product'
+          AND p.post_status = 'publish'
+          AND (tt.taxonomy IN ('product_cat', 'product_tag', 'product_brand') OR a.attribute_name IS NOT NULL)
+        GROUP BY t.term_id, t.name, t.slug, tt.taxonomy, tt.parent, a.attribute_name, a.attribute_label
+        ORDER BY CAST(menu_order AS UNSIGNED), t.name
+        ",
+        ARRAY_A
+    );
+
+    foreach ((array) $taxonomy_results as $row) {
+        $term_id = (int) $row['term_id'];
+        $taxonomy = (string) $row['taxonomy'];
+        $count = (int) $row['product_count'];
+        $base = [
+            'name' => $row['name'],
+            'slug' => rawurldecode($row['slug']),
+            'products' => [],
+            'count' => $count,
+        ];
+
+        if ($taxonomy === 'product_cat') {
+            $base['parent'] = (int) $row['parent'];
+            $data['categories'][$term_id] = $base;
+        } elseif ($taxonomy === 'product_tag') {
+            $data['tags'][$term_id] = $base;
+        } elseif ($taxonomy === 'product_brand') {
+            $data['brands'][$term_id] = $base;
+        } elseif (!empty($row['attribute_name'])) {
+            $attr_name = sanitize_key($row['attribute_name']);
+            $data['attributes'][$attr_name] = $data['attributes'][$attr_name] ?? [
+                'attribute_label' => $row['attribute_label'],
+                'attribute_name' => $attr_name,
+                'terms' => [],
+            ];
+            $data['attributes'][$attr_name]['terms'][$term_id] = [
+                'term_id' => $term_id,
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'products' => [],
+                'count' => $count,
+            ];
+        }
+    }
+
+    foreach ($data['attributes'] as $attr_name => $attribute) {
+        $data['attributes'][$attr_name]['terms'] = array_values($attribute['terms']);
+    }
+
+    $authors_results = $wpdb->get_results(
+        "
+        SELECT p.post_author, u.display_name, u.user_login, COUNT(p.ID) AS product_count
+        FROM {$wpdb->prefix}posts p
+        INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+        WHERE p.post_type = 'product'
+          AND p.post_status = 'publish'
+          AND p.post_author > 0
+        GROUP BY p.post_author, u.display_name, u.user_login
+        ORDER BY u.display_name
+        ",
+        ARRAY_A
+    );
+
+    foreach ((array) $authors_results as $row) {
+        $author_id = (int) $row['post_author'];
+        $data['authors'][$author_id] = [
+            'name' => $row['display_name'],
+            'slug' => $row['user_login'],
+            'products' => [],
+            'count' => (int) $row['product_count'],
+        ];
+    }
+
+    $stock_results = $wpdb->get_results(
+        "
+        SELECT COALESCE(NULLIF(pm.meta_value, ''), 'instock') AS stock_status, COUNT(DISTINCT p.ID) AS product_count
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID AND pm.meta_key = '_stock_status'
+        WHERE p.post_type = 'product'
+          AND p.post_status = 'publish'
+        GROUP BY stock_status
+        ",
+        ARRAY_A
+    );
+
+    foreach ((array) $stock_results as $row) {
+        $status = (string) $row['stock_status'];
+        if ($status === 'instock') {
+            $data['stock_status'][0]['count'] = (int) $row['product_count'];
+        } elseif ($status === 'outofstock') {
+            $data['stock_status'][1]['count'] += (int) $row['product_count'];
+        }
+    }
+
+    $sale_counts = $wpdb->get_row(
+        "
+        SELECT
+            SUM(CASE WHEN (
+                (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
+                    AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
+                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
+                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
+                OR EXISTS (
+                    SELECT 1
+                    FROM {$wpdb->prefix}posts v
+                    INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                    INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                    WHERE v.post_parent = p.ID
+                      AND v.post_type = 'product_variation'
+                      AND v.post_status = 'publish'
+                      AND v_sale.meta_value IS NOT NULL
+                      AND v_sale.meta_value != ''
+                      AND v_sale.meta_value != '0'
+                      AND v_regular.meta_value IS NOT NULL
+                      AND v_regular.meta_value != ''
+                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                )
+            ) THEN 1 ELSE 0 END) AS onsale_count,
+            SUM(CASE WHEN (
+                (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
+                    AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
+                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
+                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
+                OR EXISTS (
+                    SELECT 1
+                    FROM {$wpdb->prefix}posts v
+                    INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                    INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                    WHERE v.post_parent = p.ID
+                      AND v.post_type = 'product_variation'
+                      AND v.post_status = 'publish'
+                      AND v_sale.meta_value IS NOT NULL
+                      AND v_sale.meta_value != ''
+                      AND v_sale.meta_value != '0'
+                      AND v_regular.meta_value IS NOT NULL
+                      AND v_regular.meta_value != ''
+                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                )
+            ) THEN 0 ELSE 1 END) AS notonsale_count
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
+        LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
+        WHERE p.post_type = 'product'
+          AND p.post_status = 'publish'
+        ",
+        ARRAY_A
+    );
+
+    if (is_array($sale_counts)) {
+        $data['sale_status'][0]['count'] = (int) ($sale_counts['onsale_count'] ?? 0);
+        $data['sale_status'][1]['count'] = (int) ($sale_counts['notonsale_count'] ?? 0);
+    }
+
+    $show_custom_fields = !empty($dapfforwc_options['show_custom_fields']) && $dapfforwc_options['show_custom_fields'] !== 'off';
+    if ($show_custom_fields) {
+        $exclude_custom_fields = [];
+        if (!empty($dapfforwc_advance_settings['exclude_custom_fields'])) {
+            $exclude_custom_fields = array_filter(array_map('sanitize_key', explode(',', (string) $dapfforwc_advance_settings['exclude_custom_fields'])));
+        }
+
+        $exclude_sql = '';
+        if (!empty($exclude_custom_fields)) {
+            $exclude_placeholders = implode(',', array_fill(0, count($exclude_custom_fields), '%s'));
+            $exclude_sql = $wpdb->prepare(" AND pm.meta_key NOT IN ($exclude_placeholders)", $exclude_custom_fields);
+        }
+
+        $limit = (int) apply_filters('dapfforwc_large_catalog_custom_field_terms_limit', 1000);
+        $limit = max(0, min(10000, $limit));
+
+        if ($limit > 0) {
+            $custom_fields_query = $wpdb->prepare(
+                "
+                SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
+                FROM {$wpdb->prefix}postmeta pm
+                INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+                WHERE p.post_type = 'product'
+                  AND p.post_status = 'publish'
+                  AND pm.meta_key NOT LIKE '\\_%'
+                  AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+                  AND pm.meta_value != ''
+                  AND pm.meta_value IS NOT NULL
+                  {$exclude_sql}
+                GROUP BY pm.meta_key, pm.meta_value
+                ORDER BY pm.meta_key, product_count DESC
+                LIMIT %d
+                ",
+                $limit
+            );
+
+            $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
+            foreach ((array) $custom_fields_results as $row) {
+                $meta_key = (string) $row['meta_key'];
+                $meta_value = (string) $row['meta_value'];
+                $value_slug = sanitize_title($meta_value);
+
+                if ($meta_key === '' || $value_slug === '') {
+                    continue;
+                }
+
+                $data['custom_fields'][$meta_key] = $data['custom_fields'][$meta_key] ?? [
+                    'label' => ucwords(str_replace(['_', '-'], ' ', $meta_key)),
+                    'name' => $meta_key,
+                    'terms' => [],
+                ];
+
+                $data['custom_fields'][$meta_key]['terms'][$value_slug] = [
+                    'name' => $meta_value,
+                    'slug' => $value_slug,
+                    'products' => [],
+                    'count' => (int) $row['product_count'],
+                ];
+            }
+
+            foreach ($data['custom_fields'] as $field_key => $field) {
+                $data['custom_fields'][$field_key]['terms'] = array_values($field['terms']);
+            }
+        }
+    }
+
+    set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
+
+    return $cached_result = $data;
+}
+
+function dapfforwc_get_database_mode_min_max_price()
+{
+    global $wpdb;
+
+    $bounds = $wpdb->get_row(
+        "
+        SELECT
+            MIN(CAST(pm.meta_value AS DECIMAL(20,6))) AS min_price,
+            MAX(CAST(pm.meta_value AS DECIMAL(20,6))) AS max_price
+        FROM {$wpdb->prefix}posts p
+        INNER JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID AND pm.meta_key = '_price'
+        WHERE p.post_type = 'product'
+          AND p.post_status = 'publish'
+          AND pm.meta_value != ''
+          AND CAST(pm.meta_value AS DECIMAL(20,6)) >= 0
+        ",
+        ARRAY_A
+    );
+
+    $min = isset($bounds['min_price']) && is_numeric($bounds['min_price']) ? floor((float) $bounds['min_price']) : null;
+    $max = isset($bounds['max_price']) && is_numeric($bounds['max_price']) ? ceil((float) $bounds['max_price']) : null;
+
+    return ['min' => $min, 'max' => $max];
+}
+
+function dapfforwc_get_database_mode_dimension_bounds()
+{
+    global $wpdb;
+
+    $bounds = [];
+    foreach (['length', 'width', 'height', 'weight'] as $dimension) {
+        $row = $wpdb->get_row(
+            $wpdb->prepare(
+                "
+                SELECT
+                    MIN(CAST(pm.meta_value AS DECIMAL(20,6))) AS min_value,
+                    MAX(CAST(pm.meta_value AS DECIMAL(20,6))) AS max_value
+                FROM {$wpdb->prefix}posts p
+                INNER JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID AND pm.meta_key = %s
+                WHERE p.post_type IN ('product', 'product_variation')
+                  AND p.post_status = 'publish'
+                  AND pm.meta_value != ''
+                  AND CAST(pm.meta_value AS DECIMAL(20,6)) >= 0
+                ",
+                '_' . $dimension
+            ),
+            ARRAY_A
+        );
+
+        $bounds[$dimension] = [
+            'min' => isset($row['min_value']) ? dapfforwc_format_dimension_bound_value($row['min_value']) : '',
+            'max' => isset($row['max_value']) ? dapfforwc_format_dimension_bound_value($row['max_value']) : '',
+        ];
+    }
+
+    return $bounds;
+}
+
+function dapfforwc_get_lightweight_updated_filters($all_data)
+{
+    $all_data = is_array($all_data) ? $all_data : [];
+
+    $map_terms = static function ($items, $taxonomy = '') {
+        $mapped = [];
+        foreach ((array) $items as $term_id => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $mapped[] = (object) [
+                'term_id' => (int) $term_id,
+                'name' => $item['name'] ?? '',
+                'slug' => $item['slug'] ?? '',
+                'parent' => isset($item['parent']) ? (int) $item['parent'] : 0,
+                'taxonomy' => $taxonomy,
+                'count' => (int) ($item['count'] ?? 0),
+            ];
+        }
+
+        return $mapped;
+    };
+
+    $attributes = [];
+    foreach ((array) ($all_data['attributes'] ?? []) as $attribute_name => $attribute) {
+        if (!is_array($attribute)) {
+            continue;
+        }
+
+        foreach ((array) ($attribute['terms'] ?? []) as $term) {
+            if (!is_array($term)) {
+                continue;
+            }
+
+            $attributes[$attribute_name][] = [
+                'term_id' => (int) ($term['term_id'] ?? 0),
+                'attribute_label' => (string) ($attribute['attribute_label'] ?? ''),
+                'name' => (string) ($term['name'] ?? ''),
+                'slug' => (string) ($term['slug'] ?? ''),
+                'count' => (int) ($term['count'] ?? 0),
+            ];
+        }
+    }
+
+    $custom_fields = [];
+    foreach ((array) ($all_data['custom_fields'] ?? []) as $field_name => $field) {
+        if (!is_array($field)) {
+            continue;
+        }
+
+        foreach ((array) ($field['terms'] ?? []) as $term) {
+            if (!is_array($term)) {
+                continue;
+            }
+
+            $custom_fields[$field_name][] = [
+                'field_name' => $field_name,
+                'field_label' => (string) ($field['label'] ?? $field_name),
+                'name' => (string) ($term['name'] ?? ''),
+                'slug' => (string) ($term['slug'] ?? ''),
+                'count' => (int) ($term['count'] ?? 0),
+            ];
+        }
+    }
+
+    return [
+        'categories' => $map_terms($all_data['categories'] ?? [], 'product_cat'),
+        'attributes' => $attributes,
+        'tags' => $map_terms($all_data['tags'] ?? [], 'product_tag'),
+        'brands' => $map_terms($all_data['brands'] ?? [], 'product_brand'),
+        'authors' => $map_terms($all_data['authors'] ?? [], ''),
+        'custom_fields' => $custom_fields,
+        'stock_status' => $map_terms($all_data['stock_status'] ?? [], 'stock_status'),
+        'sale_status' => $map_terms($all_data['sale_status'] ?? [], 'sale_status'),
+    ];
+}
+
+function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
 {
     global $wpdb;
     static $cached_result = null;
+    $args = is_array($args) ? $args : [];
+    $manual_build = !empty($args['force']) || !empty($args['manual']);
 
-    if ($cached_result !== null) {
+    if ($cached_result !== null && !$manual_build) {
         return $cached_result;
+    }
+
+    if (
+        function_exists('dapfforwc_use_large_catalog_database_mode')
+        && dapfforwc_use_large_catalog_database_mode()
+        && function_exists('dapfforwc_get_woocommerce_filter_data_for_database_mode')
+        && !apply_filters('dapfforwc_allow_full_cache_build_in_database_mode', false, $manual_build)
+    ) {
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'database_mode',
+                'Large catalogue database-safe mode is active. Full serialized filter cache generation is skipped.',
+                ['mode' => 'database_safe']
+            );
+        }
+
+        return $cached_result = dapfforwc_apply_attributes_with_terms_filters(
+            dapfforwc_get_woocommerce_filter_data_for_database_mode(['force' => $manual_build])
+        );
     }
 
     $cache_key = 'dapfforwc_attributes_cache_v2';
     $cached = get_transient($cache_key);
-    if ($cached !== false && is_array($cached)) {
+    if (!$manual_build && $cached !== false && is_array($cached)) {
         return $cached_result = dapfforwc_apply_attributes_with_terms_filters($cached);
+    }
+
+    if (
+        function_exists('dapfforwc_should_skip_automatic_filter_cache_build')
+        && dapfforwc_should_skip_automatic_filter_cache_build($manual_build)
+    ) {
+        if (function_exists('dapfforwc_update_filter_cache_status') && !function_exists('dapfforwc_is_filter_cache_background_build_active')) {
+            dapfforwc_update_filter_cache_status(
+                'queued',
+                'Automatic filter cache generation is queued to run in background batches.',
+                ['threshold' => function_exists('dapfforwc_get_large_catalog_threshold') ? dapfforwc_get_large_catalog_threshold() : 0]
+            );
+        }
+
+        if (function_exists('dapfforwc_get_woocommerce_filter_data_for_database_mode')) {
+            return $cached_result = dapfforwc_apply_attributes_with_terms_filters(
+                dapfforwc_get_woocommerce_filter_data_for_database_mode()
+            );
+        }
+
+        $empty_data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+            'attributes' => [],
+            'categories' => [],
+            'tags' => [],
+            'brands' => [],
+            'authors' => [],
+            'custom_fields' => [],
+            'stock_status' => [],
+            'sale_status' => [],
+        ];
+
+        return $cached_result = dapfforwc_apply_attributes_with_terms_filters($empty_data);
+    }
+
+    if (function_exists('dapfforwc_start_filter_cache_build') && !dapfforwc_start_filter_cache_build($manual_build)) {
+        $empty_data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+            'attributes' => [],
+            'categories' => [],
+            'tags' => [],
+            'brands' => [],
+            'authors' => [],
+            'custom_fields' => [],
+            'stock_status' => [],
+            'sale_status' => [],
+        ];
+
+        return $cached_result = dapfforwc_apply_attributes_with_terms_filters($empty_data);
+    }
+
+    if ($manual_build && function_exists('dapfforwc_build_woocommerce_attributes_with_terms_batched')) {
+        try {
+            $data = dapfforwc_build_woocommerce_attributes_with_terms_batched();
+            set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
+
+            if (function_exists('dapfforwc_finish_filter_cache_build')) {
+                dapfforwc_finish_filter_cache_build('complete', 'On-demand filter cache build completed successfully.');
+            }
+
+            return $cached_result = dapfforwc_apply_attributes_with_terms_filters($data);
+        } catch (Throwable $e) {
+            if (function_exists('dapfforwc_finish_filter_cache_build')) {
+                dapfforwc_finish_filter_cache_build(
+                        'failed',
+                        'On-demand filter cache build failed before completion.',
+                    [
+                        'error' => sanitize_text_field($e->getMessage()),
+                        'file' => sanitize_text_field($e->getFile()),
+                        'line' => (int) $e->getLine(),
+                    ]
+                );
+            }
+
+            $empty_data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+                'attributes' => [],
+                'categories' => [],
+                'tags' => [],
+                'brands' => [],
+                'authors' => [],
+                'custom_fields' => [],
+                'stock_status' => [],
+                'sale_status' => [],
+            ];
+
+            return $cached_result = dapfforwc_apply_attributes_with_terms_filters($empty_data);
+        }
     }
 
     $data = [
@@ -4328,12 +4882,1126 @@ function dapfforwc_get_woocommerce_attributes_with_terms()
     // Save to cache
     set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
 
+    if (function_exists('dapfforwc_finish_filter_cache_build')) {
+        dapfforwc_finish_filter_cache_build('complete', 'Automatic filter cache build completed successfully.');
+    }
+
     return $cached_result = dapfforwc_apply_attributes_with_terms_filters($data);
 }
 
-function dapfforwc_build_woocommerce_product_details_data()
+function dapfforwc_build_woocommerce_attributes_with_terms_batched()
+{
+    global $wpdb, $dapfforwc_styleoptions;
+
+    $batch_size = (int) apply_filters('dapfforwc_filter_cache_batch_size', 500);
+    $batch_size = max(100, min(2000, $batch_size));
+    $data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+        'attributes' => [],
+        'categories' => [],
+        'tags' => [],
+        'brands' => [],
+        'authors' => [],
+        'custom_fields' => [],
+        'stock_status' => [],
+        'sale_status' => [],
+    ];
+
+    $data['stock_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => []],
+    ];
+
+    $data['sale_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => []],
+    ];
+
+    $category_hierarchy = [];
+    $category_hierarchy_results = $wpdb->get_results(
+        "
+        SELECT t.term_id, t.name, t.slug, tt.parent, tm.meta_value AS menu_order
+        FROM {$wpdb->prefix}terms AS t
+        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON t.term_id = tt.term_id
+        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+        WHERE tt.taxonomy = 'product_cat'
+        ",
+        ARRAY_A
+    );
+
+    if (!empty($category_hierarchy_results)) {
+        foreach ($category_hierarchy_results as $row) {
+            $category_hierarchy[(int) $row['term_id']] = [
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'parent' => (int) $row['parent'],
+                'menu_order' => (isset($row['menu_order']) && $row['menu_order'] !== '' && is_numeric($row['menu_order']))
+                    ? (int) $row['menu_order']
+                    : 0,
+            ];
+        }
+    }
+
+    $last_id = 0;
+
+    do {
+        $product_ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "
+                SELECT ID
+                FROM {$wpdb->prefix}posts
+                WHERE post_type = 'product'
+                  AND post_status = 'publish'
+                  AND ID > %d
+                ORDER BY ID ASC
+                LIMIT %d
+                ",
+                $last_id,
+                $batch_size
+            )
+        );
+
+        $product_ids = array_values(array_filter(array_map('absint', $product_ids)));
+
+        if (empty($product_ids)) {
+            break;
+        }
+
+        $last_id = (int) end($product_ids);
+        $placeholders = implode(',', array_fill(0, count($product_ids), '%d'));
+
+        $term_query = $wpdb->prepare(
+            "
+            SELECT t.term_id, t.name, t.slug, tr.object_id, tt.taxonomy, a.attribute_name, a.attribute_label, tt.parent
+            FROM {$wpdb->prefix}term_relationships AS tr
+            INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = tt.term_id
+            LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
+            LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+            WHERE tr.object_id IN ($placeholders)
+              AND (tt.taxonomy IN ('product_cat', 'product_tag', 'product_brand') OR a.attribute_name IS NOT NULL)
+            ORDER BY CAST(tm.meta_value AS UNSIGNED), t.name
+            ",
+            $product_ids
+        );
+
+        $term_results = $wpdb->get_results($term_query, ARRAY_A);
+
+        foreach ($term_results as $row) {
+            $term_id = (int) $row['term_id'];
+            $product_id = (int) $row['object_id'];
+            $taxonomy = $row['taxonomy'];
+
+            if ($taxonomy === 'product_cat') {
+                $data['categories'][$term_id] = $data['categories'][$term_id] ?? [
+                    'name' => $row['name'],
+                    'slug' => rawurldecode($row['slug']),
+                    'parent' => (int) $row['parent'],
+                    'products' => [],
+                ];
+
+                if ($product_id > 0) {
+                    $data['categories'][$term_id]['products'][$product_id] = $product_id;
+                }
+            } elseif ($taxonomy === 'product_tag') {
+                $data['tags'][$term_id] = $data['tags'][$term_id] ?? [
+                    'name' => $row['name'],
+                    'slug' => rawurldecode($row['slug']),
+                    'products' => [],
+                ];
+
+                if ($product_id > 0) {
+                    $data['tags'][$term_id]['products'][$product_id] = $product_id;
+                }
+            } elseif ($taxonomy === 'product_brand') {
+                $data['brands'][$term_id] = $data['brands'][$term_id] ?? [
+                    'name' => $row['name'],
+                    'slug' => rawurldecode($row['slug']),
+                    'products' => [],
+                ];
+
+                if ($product_id > 0) {
+                    $data['brands'][$term_id]['products'][$product_id] = $product_id;
+                }
+            } elseif (!empty($row['attribute_name'])) {
+                $attr_name = $row['attribute_name'];
+                $data['attributes'][$attr_name] = $data['attributes'][$attr_name] ?? [
+                    'attribute_label' => $row['attribute_label'],
+                    'attribute_name' => $attr_name,
+                    'terms' => [],
+                ];
+
+                $data['attributes'][$attr_name]['terms'][$term_id] = $data['attributes'][$attr_name]['terms'][$term_id] ?? [
+                    'term_id' => $term_id,
+                    'name' => $row['name'],
+                    'slug' => rawurldecode($row['slug']),
+                    'products' => [],
+                ];
+
+                if ($product_id > 0) {
+                    $data['attributes'][$attr_name]['terms'][$term_id]['products'][$product_id] = $product_id;
+                }
+            }
+        }
+
+        $authors_query = $wpdb->prepare(
+            "
+            SELECT p.post_author, u.display_name, u.user_login, p.ID as product_id
+            FROM {$wpdb->prefix}posts p
+            INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+            WHERE p.ID IN ($placeholders)
+              AND p.post_author > 0
+            ORDER BY u.display_name
+            ",
+            $product_ids
+        );
+
+        $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
+
+        foreach ($authors_results as $row) {
+            $author_id = (int) $row['post_author'];
+            $product_id = (int) $row['product_id'];
+
+            $data['authors'][$author_id] = $data['authors'][$author_id] ?? [
+                'name' => $row['display_name'],
+                'slug' => $row['user_login'],
+                'products' => [],
+            ];
+
+            if ($product_id > 0) {
+                $data['authors'][$author_id]['products'][$product_id] = $product_id;
+            }
+        }
+
+        $stock_sale_query = $wpdb->prepare(
+            "
+            SELECT DISTINCT
+                p.ID as product_id,
+                COALESCE(p_type.meta_value,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM {$wpdb->prefix}posts v
+                        WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                    ) THEN 'variable' ELSE 'simple' END
+                ) as actual_product_type,
+                CASE
+                    WHEN COALESCE(p_type.meta_value,
+                        CASE WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                        ) THEN 'variable' ELSE 'simple' END
+                    ) = 'variable' THEN
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1 FROM {$wpdb->prefix}posts v
+                                INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                                INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                                WHERE v.post_parent = p.ID
+                                  AND v.post_type = 'product_variation'
+                                  AND v.post_status = 'publish'
+                                  AND v_sale.meta_value IS NOT NULL
+                                  AND v_sale.meta_value != ''
+                                  AND v_sale.meta_value != '0'
+                                  AND CAST(v_sale.meta_value AS DECIMAL(10,2)) > 0
+                                  AND v_regular.meta_value IS NOT NULL
+                                  AND v_regular.meta_value != ''
+                                  AND CAST(v_sale.meta_value AS DECIMAL(10,2)) < CAST(v_regular.meta_value AS DECIMAL(10,2))
+                            ) THEN 1
+                            ELSE 0
+                        END
+                    ELSE
+                        CASE
+                            WHEN p_sale.meta_value IS NOT NULL
+                              AND p_sale.meta_value != ''
+                              AND p_sale.meta_value != '0'
+                              AND CAST(p_sale.meta_value AS DECIMAL(10,2)) > 0
+                              AND p_regular.meta_value IS NOT NULL
+                              AND p_regular.meta_value != ''
+                              AND CAST(p_sale.meta_value AS DECIMAL(10,2)) < CAST(p_regular.meta_value AS DECIMAL(10,2))
+                            THEN 1
+                            ELSE 0
+                        END
+                END as is_on_sale,
+                CASE
+                    WHEN COALESCE(p_type.meta_value,
+                        CASE WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                        ) THEN 'variable' ELSE 'simple' END
+                    ) = 'variable' THEN
+                        CASE
+                            WHEN EXISTS (
+                                SELECT 1 FROM {$wpdb->prefix}posts v
+                                LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
+                                WHERE v.post_parent = p.ID
+                                  AND v.post_type = 'product_variation'
+                                  AND v.post_status = 'publish'
+                                  AND (v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL)
+                            ) THEN 'instock'
+                            ELSE 'outofstock'
+                        END
+                    ELSE COALESCE(p_stock.meta_value, 'instock')
+                END as final_stock_status
+            FROM {$wpdb->prefix}posts p
+            LEFT JOIN {$wpdb->prefix}postmeta p_stock ON p.ID = p_stock.post_id AND p_stock.meta_key = '_stock_status'
+            LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
+            LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
+            LEFT JOIN {$wpdb->prefix}postmeta p_type ON p.ID = p_type.post_id AND p_type.meta_key = '_product_type'
+            WHERE p.ID IN ($placeholders)
+            ",
+            $product_ids
+        );
+
+        $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
+
+        foreach ($stock_sale_results as $row) {
+            $product_id = (int) $row['product_id'];
+
+            if ($product_id <= 0) {
+                continue;
+            }
+
+            if ($row['final_stock_status'] === 'instock') {
+                $data['stock_status'][0]['products'][$product_id] = $product_id;
+            } else {
+                $data['stock_status'][1]['products'][$product_id] = $product_id;
+            }
+
+            if ((int) $row['is_on_sale'] === 1) {
+                $data['sale_status'][0]['products'][$product_id] = $product_id;
+            } else {
+                $data['sale_status'][1]['products'][$product_id] = $product_id;
+            }
+        }
+
+        $custom_fields_query = $wpdb->prepare(
+            "
+            SELECT pm.meta_key, pm.meta_value, pm.post_id
+            FROM {$wpdb->prefix}postmeta pm
+            WHERE pm.post_id IN ($placeholders)
+              AND pm.meta_key NOT LIKE '\\_%'
+              AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+              AND pm.meta_value != ''
+              AND pm.meta_value IS NOT NULL
+            ORDER BY pm.meta_key, pm.meta_value
+            ",
+            $product_ids
+        );
+
+        $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
+
+        foreach ($custom_fields_results as $row) {
+            $meta_key = $row['meta_key'];
+            $meta_value = $row['meta_value'];
+            $product_id = (int) $row['post_id'];
+            $value_slug = sanitize_title($meta_value);
+
+            if ($meta_key === '' || $value_slug === '' || $product_id <= 0) {
+                continue;
+            }
+
+            $data['custom_fields'][$meta_key] = $data['custom_fields'][$meta_key] ?? [
+                'label' => ucwords(str_replace(['_', '-'], ' ', $meta_key)),
+                'name' => $meta_key,
+                'terms' => [],
+            ];
+
+            $data['custom_fields'][$meta_key]['terms'][$value_slug] = $data['custom_fields'][$meta_key]['terms'][$value_slug] ?? [
+                'name' => $meta_value,
+                'slug' => $value_slug,
+                'products' => [],
+            ];
+
+            $data['custom_fields'][$meta_key]['terms'][$value_slug]['products'][$product_id] = $product_id;
+        }
+    } while (true);
+
+    if (!empty($data['categories'])) {
+        $category_product_sets = [];
+
+        foreach ($data['categories'] as $term_id => $category) {
+            $term_id = (int) $term_id;
+            $category_product_sets[$term_id] = is_array($category['products']) ? $category['products'] : [];
+            $parent_id = (int) ($category['parent'] ?? 0);
+            $visited = [];
+
+            while ($parent_id > 0 && isset($category_hierarchy[$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                if (!isset($data['categories'][$parent_id])) {
+                    $data['categories'][$parent_id] = [
+                        'name' => $category_hierarchy[$parent_id]['name'],
+                        'slug' => $category_hierarchy[$parent_id]['slug'],
+                        'parent' => $category_hierarchy[$parent_id]['parent'],
+                        'products' => [],
+                    ];
+                }
+
+                $category_product_sets[$parent_id] = $category_product_sets[$parent_id] ?? [];
+                $parent_id = (int) $category_hierarchy[$parent_id]['parent'];
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            if (empty($product_set)) {
+                continue;
+            }
+
+            $parent_id = (int) ($data['categories'][$term_id]['parent'] ?? 0);
+            $visited = [];
+
+            while ($parent_id > 0 && isset($data['categories'][$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                foreach ($product_set as $product_id) {
+                    $product_id = (int) $product_id;
+                    $category_product_sets[$parent_id][$product_id] = $product_id;
+                }
+
+                $parent_id = (int) ($data['categories'][$parent_id]['parent'] ?? 0);
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            $data['categories'][$term_id]['products'] = $product_set;
+        }
+
+        $category_names = [];
+        foreach ($data['categories'] as $term_id => $category) {
+            $category_names[(int) $term_id] = $category['name'] ?? '';
+        }
+
+        uksort($data['categories'], function ($a, $b) use ($category_hierarchy, $category_names) {
+            $a = (int) $a;
+            $b = (int) $b;
+            $order_a = isset($category_hierarchy[$a]['menu_order']) ? (int) $category_hierarchy[$a]['menu_order'] : 0;
+            $order_b = isset($category_hierarchy[$b]['menu_order']) ? (int) $category_hierarchy[$b]['menu_order'] : 0;
+
+            if ($order_a !== $order_b) {
+                return $order_a <=> $order_b;
+            }
+
+            $name_cmp = strcasecmp($category_names[$a] ?? '', $category_names[$b] ?? '');
+            if ($name_cmp !== 0) {
+                return $name_cmp;
+            }
+
+            return $a <=> $b;
+        });
+    }
+
+    foreach (['categories', 'tags', 'brands', 'authors', 'stock_status', 'sale_status'] as $group) {
+        foreach ($data[$group] as $key => $item) {
+            $products = is_array($item['products'] ?? null) ? $item['products'] : [];
+            $data[$group][$key]['products'] = array_values(array_map('intval', $products));
+        }
+    }
+
+    foreach ($data['attributes'] as $attr_key => $attr) {
+        foreach ($attr['terms'] as $term_key => $term) {
+            $products = is_array($term['products'] ?? null) ? $term['products'] : [];
+            $data['attributes'][$attr_key]['terms'][$term_key]['products'] = array_values(array_map('intval', $products));
+        }
+
+        $data['attributes'][$attr_key]['terms'] = array_values($data['attributes'][$attr_key]['terms']);
+    }
+
+    foreach ($data['custom_fields'] as $field_key => $field) {
+        foreach ($field['terms'] as $term_key => $term) {
+            $products = is_array($term['products'] ?? null) ? $term['products'] : [];
+            $data['custom_fields'][$field_key]['terms'][$term_key]['products'] = array_values(array_map('intval', $products));
+        }
+
+        $data['custom_fields'][$field_key]['terms'] = array_values($data['custom_fields'][$field_key]['terms']);
+    }
+
+    return $data;
+}
+
+function dapfforwc_get_filter_cache_batch_size($context = 'filter')
+{
+    $context = sanitize_key($context);
+    $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+
+    if ($product_count >= 50000) {
+        $batch_size = 25;
+    } elseif ($product_count >= 20000) {
+        $batch_size = 50;
+    } elseif ($product_count >= 10000) {
+        $batch_size = 75;
+    } elseif ($product_count >= 5000) {
+        $batch_size = 100;
+    } else {
+        $batch_size = 250;
+    }
+
+    if ($context === 'product_details') {
+        $batch_size = min($batch_size, 50);
+    }
+
+    /**
+     * Filters the number of products processed in each background cache batch.
+     *
+     * @param int    $batch_size    Batch size.
+     * @param string $context       Cache context.
+     * @param int    $product_count Published product count.
+     */
+    $batch_size = (int) apply_filters('dapfforwc_filter_cache_batch_size', $batch_size, $context, $product_count);
+    $batch_size = (int) apply_filters('dapfforwc_filter_cache_batch_size_' . $context, $batch_size, $product_count);
+
+    return max(10, min(1000, $batch_size));
+}
+
+function dapfforwc_get_filter_cache_skeleton_data()
+{
+    global $dapfforwc_styleoptions;
+
+    $data = function_exists('dapfforwc_get_filter_cache_empty_data') ? dapfforwc_get_filter_cache_empty_data() : [
+        'attributes' => [],
+        'categories' => [],
+        'tags' => [],
+        'brands' => [],
+        'authors' => [],
+        'custom_fields' => [],
+        'stock_status' => [],
+        'sale_status' => [],
+    ];
+
+    $data['stock_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => []],
+    ];
+
+    $data['sale_status'] = [
+        0 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["onsale"] ?? 'On Sale'), 'slug' => 'onsale', 'products' => []],
+        1 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => []],
+    ];
+
+    return $data;
+}
+
+function dapfforwc_get_filter_cache_category_hierarchy()
 {
     global $wpdb;
+
+    $category_hierarchy = [];
+    $category_hierarchy_results = $wpdb->get_results(
+        "
+        SELECT t.term_id, t.name, t.slug, tt.parent, tm.meta_value AS menu_order
+        FROM {$wpdb->prefix}terms AS t
+        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON t.term_id = tt.term_id
+        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+        WHERE tt.taxonomy = 'product_cat'
+        ",
+        ARRAY_A
+    );
+
+    if (!empty($category_hierarchy_results)) {
+        foreach ($category_hierarchy_results as $row) {
+            $category_hierarchy[(int) $row['term_id']] = [
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'parent' => (int) $row['parent'],
+                'menu_order' => (isset($row['menu_order']) && $row['menu_order'] !== '' && is_numeric($row['menu_order']))
+                    ? (int) $row['menu_order']
+                    : 0,
+            ];
+        }
+    }
+
+    return $category_hierarchy;
+}
+
+function dapfforwc_get_filter_cache_next_product_ids($last_id, $batch_size)
+{
+    global $wpdb;
+
+    $product_ids = $wpdb->get_col(
+        $wpdb->prepare(
+            "
+            SELECT ID
+            FROM {$wpdb->prefix}posts
+            WHERE post_type = 'product'
+              AND post_status = 'publish'
+              AND ID > %d
+            ORDER BY ID ASC
+            LIMIT %d
+            ",
+            (int) $last_id,
+            (int) $batch_size
+        )
+    );
+
+    return array_values(array_filter(array_map('absint', $product_ids)));
+}
+
+function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
+{
+    global $wpdb;
+
+    $product_ids = array_values(array_filter(array_map('absint', (array) $product_ids)));
+    if (empty($product_ids)) {
+        return;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($product_ids), '%d'));
+
+    $term_query = $wpdb->prepare(
+        "
+        SELECT t.term_id, t.name, t.slug, tr.object_id, tt.taxonomy, a.attribute_name, a.attribute_label, tt.parent
+        FROM {$wpdb->prefix}term_relationships AS tr
+        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+        INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = tt.term_id
+        LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
+        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+        WHERE tr.object_id IN ($placeholders)
+          AND (tt.taxonomy IN ('product_cat', 'product_tag', 'product_brand') OR a.attribute_name IS NOT NULL)
+        ORDER BY CAST(tm.meta_value AS UNSIGNED), t.name
+        ",
+        $product_ids
+    );
+
+    $term_results = $wpdb->get_results($term_query, ARRAY_A);
+
+    foreach ($term_results as $row) {
+        $term_id = (int) $row['term_id'];
+        $product_id = (int) $row['object_id'];
+        $taxonomy = $row['taxonomy'];
+
+        if ($taxonomy === 'product_cat') {
+            $data['categories'][$term_id] = $data['categories'][$term_id] ?? [
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'parent' => (int) $row['parent'],
+                'products' => [],
+            ];
+
+            if ($product_id > 0) {
+                $data['categories'][$term_id]['products'][$product_id] = $product_id;
+            }
+        } elseif ($taxonomy === 'product_tag') {
+            $data['tags'][$term_id] = $data['tags'][$term_id] ?? [
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'products' => [],
+            ];
+
+            if ($product_id > 0) {
+                $data['tags'][$term_id]['products'][$product_id] = $product_id;
+            }
+        } elseif ($taxonomy === 'product_brand') {
+            $data['brands'][$term_id] = $data['brands'][$term_id] ?? [
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'products' => [],
+            ];
+
+            if ($product_id > 0) {
+                $data['brands'][$term_id]['products'][$product_id] = $product_id;
+            }
+        } elseif (!empty($row['attribute_name'])) {
+            $attr_name = $row['attribute_name'];
+            $data['attributes'][$attr_name] = $data['attributes'][$attr_name] ?? [
+                'attribute_label' => $row['attribute_label'],
+                'attribute_name' => $attr_name,
+                'terms' => [],
+            ];
+
+            $data['attributes'][$attr_name]['terms'][$term_id] = $data['attributes'][$attr_name]['terms'][$term_id] ?? [
+                'term_id' => $term_id,
+                'name' => $row['name'],
+                'slug' => rawurldecode($row['slug']),
+                'products' => [],
+            ];
+
+            if ($product_id > 0) {
+                $data['attributes'][$attr_name]['terms'][$term_id]['products'][$product_id] = $product_id;
+            }
+        }
+    }
+
+    $authors_query = $wpdb->prepare(
+        "
+        SELECT p.post_author, u.display_name, u.user_login, p.ID as product_id
+        FROM {$wpdb->prefix}posts p
+        INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+        WHERE p.ID IN ($placeholders)
+          AND p.post_author > 0
+        ORDER BY u.display_name
+        ",
+        $product_ids
+    );
+
+    $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
+
+    foreach ($authors_results as $row) {
+        $author_id = (int) $row['post_author'];
+        $product_id = (int) $row['product_id'];
+
+        $data['authors'][$author_id] = $data['authors'][$author_id] ?? [
+            'name' => $row['display_name'],
+            'slug' => $row['user_login'],
+            'products' => [],
+        ];
+
+        if ($product_id > 0) {
+            $data['authors'][$author_id]['products'][$product_id] = $product_id;
+        }
+    }
+
+    $stock_sale_query = $wpdb->prepare(
+        "
+        SELECT DISTINCT
+            p.ID as product_id,
+            COALESCE(p_type.meta_value,
+                CASE WHEN EXISTS (
+                    SELECT 1 FROM {$wpdb->prefix}posts v
+                    WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                ) THEN 'variable' ELSE 'simple' END
+            ) as actual_product_type,
+            CASE
+                WHEN COALESCE(p_type.meta_value,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM {$wpdb->prefix}posts v
+                        WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                    ) THEN 'variable' ELSE 'simple' END
+                ) = 'variable' THEN
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                            INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                            WHERE v.post_parent = p.ID
+                              AND v.post_type = 'product_variation'
+                              AND v.post_status = 'publish'
+                              AND v_sale.meta_value IS NOT NULL
+                              AND v_sale.meta_value != ''
+                              AND v_sale.meta_value != '0'
+                              AND CAST(v_sale.meta_value AS DECIMAL(10,2)) > 0
+                              AND v_regular.meta_value IS NOT NULL
+                              AND v_regular.meta_value != ''
+                              AND CAST(v_sale.meta_value AS DECIMAL(10,2)) < CAST(v_regular.meta_value AS DECIMAL(10,2))
+                        ) THEN 1
+                        ELSE 0
+                    END
+                ELSE
+                    CASE
+                        WHEN p_sale.meta_value IS NOT NULL
+                          AND p_sale.meta_value != ''
+                          AND p_sale.meta_value != '0'
+                          AND CAST(p_sale.meta_value AS DECIMAL(10,2)) > 0
+                          AND p_regular.meta_value IS NOT NULL
+                          AND p_regular.meta_value != ''
+                          AND CAST(p_sale.meta_value AS DECIMAL(10,2)) < CAST(p_regular.meta_value AS DECIMAL(10,2))
+                        THEN 1
+                        ELSE 0
+                    END
+            END as is_on_sale,
+            CASE
+                WHEN COALESCE(p_type.meta_value,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM {$wpdb->prefix}posts v
+                        WHERE v.post_parent = p.ID AND v.post_type = 'product_variation' AND v.post_status = 'publish'
+                    ) THEN 'variable' ELSE 'simple' END
+                ) = 'variable' THEN
+                    CASE
+                        WHEN EXISTS (
+                            SELECT 1 FROM {$wpdb->prefix}posts v
+                            LEFT JOIN {$wpdb->prefix}postmeta v_stock ON v.ID = v_stock.post_id AND v_stock.meta_key = '_stock_status'
+                            WHERE v.post_parent = p.ID
+                              AND v.post_type = 'product_variation'
+                              AND v.post_status = 'publish'
+                              AND (v_stock.meta_value = 'instock' OR v_stock.meta_value IS NULL)
+                        ) THEN 'instock'
+                        ELSE 'outofstock'
+                    END
+                ELSE COALESCE(p_stock.meta_value, 'instock')
+            END as final_stock_status
+        FROM {$wpdb->prefix}posts p
+        LEFT JOIN {$wpdb->prefix}postmeta p_stock ON p.ID = p_stock.post_id AND p_stock.meta_key = '_stock_status'
+        LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
+        LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
+        LEFT JOIN {$wpdb->prefix}postmeta p_type ON p.ID = p_type.post_id AND p_type.meta_key = '_product_type'
+        WHERE p.ID IN ($placeholders)
+        ",
+        $product_ids
+    );
+
+    $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
+
+    foreach ($stock_sale_results as $row) {
+        $product_id = (int) $row['product_id'];
+
+        if ($product_id <= 0) {
+            continue;
+        }
+
+        if ($row['final_stock_status'] === 'instock') {
+            $data['stock_status'][0]['products'][$product_id] = $product_id;
+        } else {
+            $data['stock_status'][1]['products'][$product_id] = $product_id;
+        }
+
+        if ((int) $row['is_on_sale'] === 1) {
+            $data['sale_status'][0]['products'][$product_id] = $product_id;
+        } else {
+            $data['sale_status'][1]['products'][$product_id] = $product_id;
+        }
+    }
+
+    $custom_fields_query = $wpdb->prepare(
+        "
+        SELECT pm.meta_key, pm.meta_value, pm.post_id
+        FROM {$wpdb->prefix}postmeta pm
+        WHERE pm.post_id IN ($placeholders)
+          AND pm.meta_key NOT LIKE '\\_%'
+          AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+          AND pm.meta_value != ''
+          AND pm.meta_value IS NOT NULL
+        ORDER BY pm.meta_key, pm.meta_value
+        ",
+        $product_ids
+    );
+
+    $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
+
+    foreach ($custom_fields_results as $row) {
+        $meta_key = $row['meta_key'];
+        $meta_value = $row['meta_value'];
+        $product_id = (int) $row['post_id'];
+        $value_slug = sanitize_title($meta_value);
+
+        if ($meta_key === '' || $value_slug === '' || $product_id <= 0) {
+            continue;
+        }
+
+        $data['custom_fields'][$meta_key] = $data['custom_fields'][$meta_key] ?? [
+            'label' => ucwords(str_replace(['_', '-'], ' ', $meta_key)),
+            'name' => $meta_key,
+            'terms' => [],
+        ];
+
+        $data['custom_fields'][$meta_key]['terms'][$value_slug] = $data['custom_fields'][$meta_key]['terms'][$value_slug] ?? [
+            'name' => $meta_value,
+            'slug' => $value_slug,
+            'products' => [],
+        ];
+
+        $data['custom_fields'][$meta_key]['terms'][$value_slug]['products'][$product_id] = $product_id;
+    }
+}
+
+function dapfforwc_finalize_filter_cache_data($data)
+{
+    $data = is_array($data) ? $data : dapfforwc_get_filter_cache_skeleton_data();
+    $category_hierarchy = dapfforwc_get_filter_cache_category_hierarchy();
+
+    foreach (array_keys(dapfforwc_get_filter_cache_skeleton_data()) as $group) {
+        if (!isset($data[$group]) || !is_array($data[$group])) {
+            $data[$group] = [];
+        }
+    }
+
+    if (!empty($data['categories'])) {
+        $category_product_sets = [];
+
+        foreach ($data['categories'] as $term_id => $category) {
+            $term_id = (int) $term_id;
+            $category_product_sets[$term_id] = is_array($category['products'] ?? null) ? $category['products'] : [];
+            $parent_id = (int) ($category['parent'] ?? 0);
+            $visited = [];
+
+            while ($parent_id > 0 && isset($category_hierarchy[$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                if (!isset($data['categories'][$parent_id])) {
+                    $data['categories'][$parent_id] = [
+                        'name' => $category_hierarchy[$parent_id]['name'],
+                        'slug' => $category_hierarchy[$parent_id]['slug'],
+                        'parent' => $category_hierarchy[$parent_id]['parent'],
+                        'products' => [],
+                    ];
+                }
+
+                $category_product_sets[$parent_id] = $category_product_sets[$parent_id] ?? [];
+                $parent_id = (int) $category_hierarchy[$parent_id]['parent'];
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            if (empty($product_set)) {
+                continue;
+            }
+
+            $parent_id = (int) ($data['categories'][$term_id]['parent'] ?? 0);
+            $visited = [];
+
+            while ($parent_id > 0 && isset($data['categories'][$parent_id]) && !isset($visited[$parent_id])) {
+                $visited[$parent_id] = true;
+
+                foreach ($product_set as $product_id) {
+                    $product_id = (int) $product_id;
+                    $category_product_sets[$parent_id][$product_id] = $product_id;
+                }
+
+                $parent_id = (int) ($data['categories'][$parent_id]['parent'] ?? 0);
+            }
+        }
+
+        foreach ($category_product_sets as $term_id => $product_set) {
+            $data['categories'][$term_id]['products'] = $product_set;
+        }
+
+        $category_names = [];
+        foreach ($data['categories'] as $term_id => $category) {
+            $category_names[(int) $term_id] = $category['name'] ?? '';
+        }
+
+        uksort($data['categories'], function ($a, $b) use ($category_hierarchy, $category_names) {
+            $a = (int) $a;
+            $b = (int) $b;
+            $order_a = isset($category_hierarchy[$a]['menu_order']) ? (int) $category_hierarchy[$a]['menu_order'] : 0;
+            $order_b = isset($category_hierarchy[$b]['menu_order']) ? (int) $category_hierarchy[$b]['menu_order'] : 0;
+
+            if ($order_a !== $order_b) {
+                return $order_a <=> $order_b;
+            }
+
+            $name_cmp = strcasecmp($category_names[$a] ?? '', $category_names[$b] ?? '');
+            if ($name_cmp !== 0) {
+                return $name_cmp;
+            }
+
+            return $a <=> $b;
+        });
+    }
+
+    foreach (['categories', 'tags', 'brands', 'authors', 'stock_status', 'sale_status'] as $group) {
+        foreach ($data[$group] as $key => $item) {
+            $products = is_array($item['products'] ?? null) ? $item['products'] : [];
+            $data[$group][$key]['products'] = array_values(array_map('intval', $products));
+        }
+    }
+
+    foreach ($data['attributes'] as $attr_key => $attr) {
+        foreach (($attr['terms'] ?? []) as $term_key => $term) {
+            $products = is_array($term['products'] ?? null) ? $term['products'] : [];
+            $data['attributes'][$attr_key]['terms'][$term_key]['products'] = array_values(array_map('intval', $products));
+        }
+
+        $data['attributes'][$attr_key]['terms'] = array_values($data['attributes'][$attr_key]['terms'] ?? []);
+    }
+
+    foreach ($data['custom_fields'] as $field_key => $field) {
+        foreach (($field['terms'] ?? []) as $term_key => $term) {
+            $products = is_array($term['products'] ?? null) ? $term['products'] : [];
+            $data['custom_fields'][$field_key]['terms'][$term_key]['products'] = array_values(array_map('intval', $products));
+        }
+
+        $data['custom_fields'][$field_key]['terms'] = array_values($data['custom_fields'][$field_key]['terms'] ?? []);
+    }
+
+    return $data;
+}
+
+function dapfforwc_should_stop_background_cache_batch()
+{
+    if (
+        function_exists('dapfforwc_is_plugin_active_for_background_jobs')
+        && !dapfforwc_is_plugin_active_for_background_jobs()
+    ) {
+        if (function_exists('dapfforwc_cancel_filter_cache_background_jobs')) {
+            dapfforwc_cancel_filter_cache_background_jobs('deactivation');
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+function dapfforwc_mark_background_cache_needs_attention($state, $message, $extra = [])
+{
+    $state = is_array($state) ? $state : [];
+    $extra = is_array($extra) ? $extra : [];
+
+    $state['status'] = 'needs_attention';
+    $state['updated_at'] = time();
+    $state['message'] = sanitize_text_field($message);
+
+    foreach ($extra as $key => $value) {
+        $state[sanitize_key($key)] = is_scalar($value) ? sanitize_text_field((string) $value) : $value;
+    }
+
+    update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+    delete_option('dapfforwc_filter_cache_build_lock');
+
+    if (function_exists('dapfforwc_update_filter_cache_status')) {
+        dapfforwc_update_filter_cache_status(
+            'needs_attention',
+            $message,
+            array_merge(
+                [
+                    'background' => 1,
+                    'processed' => isset($state['processed']) ? (int) $state['processed'] : 0,
+                ],
+                $extra
+            )
+        );
+    }
+}
+
+function dapfforwc_process_filter_cache_batch($build_id = '')
+{
+    $build_id = is_scalar($build_id) ? sanitize_text_field((string) $build_id) : '';
+    $state = function_exists('dapfforwc_get_filter_cache_build_state') ? dapfforwc_get_filter_cache_build_state() : [];
+    $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+    $state_build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+
+    if (!in_array($status, ['queued', 'running'], true)) {
+        return;
+    }
+
+    if ($state_build_id !== '' && ($build_id === '' || $build_id !== $state_build_id)) {
+        return;
+    }
+
+    if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+        delete_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION);
+        delete_option('dapfforwc_filter_cache_build_lock');
+        $state['status'] = 'database_mode';
+        $state['updated_at'] = time();
+        $state['message'] = 'Background serialized cache build stopped because database-safe mode is active.';
+        update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'database_mode',
+                'Large catalogue database-safe mode is active. Full serialized cache generation was stopped.',
+                ['mode' => 'database_safe']
+            );
+        }
+        return;
+    }
+
+    if (dapfforwc_should_stop_background_cache_batch()) {
+        return;
+    }
+
+    try {
+        $data = get_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION, false);
+        if (!is_array($data)) {
+            $data = dapfforwc_get_filter_cache_skeleton_data();
+        }
+
+        $batch_size = dapfforwc_get_filter_cache_batch_size();
+        $last_id = isset($state['last_id']) ? (int) $state['last_id'] : 0;
+        $product_ids = dapfforwc_get_filter_cache_next_product_ids($last_id, $batch_size);
+
+        if (empty($product_ids)) {
+            if (dapfforwc_should_stop_background_cache_batch()) {
+                return;
+            }
+
+            $data = dapfforwc_finalize_filter_cache_data($data);
+            set_transient('dapfforwc_attributes_cache_v2', $data, 12 * HOUR_IN_SECONDS);
+            delete_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION);
+            delete_option('dapfforwc_filter_cache_build_lock');
+
+            $state['status'] = 'complete';
+            $state['completed_at'] = time();
+            $state['updated_at'] = time();
+            update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+
+            if (function_exists('dapfforwc_update_filter_cache_status')) {
+                dapfforwc_update_filter_cache_status(
+                    'complete',
+                    'Automatic filter cache rebuild completed successfully.',
+                    [
+                        'processed' => isset($state['processed']) ? (int) $state['processed'] : 0,
+                        'background' => 1,
+                    ]
+                );
+            }
+
+            return;
+        }
+
+        dapfforwc_merge_filter_cache_product_batch($data, $product_ids);
+
+        if (dapfforwc_should_stop_background_cache_batch()) {
+            return;
+        }
+
+        $state['status'] = 'running';
+        $state['last_id'] = (int) end($product_ids);
+        $state['processed'] = (int) ($state['processed'] ?? 0) + count($product_ids);
+        $state['updated_at'] = time();
+
+        update_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION, $data, false);
+        update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'running',
+                'Automatic filter cache rebuild is running in background batches.',
+                [
+                    'processed' => (int) $state['processed'],
+                    'background' => 1,
+                ]
+            );
+        }
+
+        if (dapfforwc_should_stop_background_cache_batch()) {
+            return;
+        }
+
+        if (function_exists('dapfforwc_schedule_filter_cache_batch')) {
+            $delay = function_exists('dapfforwc_get_background_cache_batch_delay') ? dapfforwc_get_background_cache_batch_delay('filter') : 15;
+            $scheduled = dapfforwc_schedule_filter_cache_batch($delay, $state_build_id, true);
+
+            if (!$scheduled) {
+                dapfforwc_mark_background_cache_needs_attention(
+                    $state,
+                    'Automatic filter cache rebuild could not schedule the next background batch. Please make sure WP-Cron or Action Scheduler is running on this site.',
+                    ['schedule_failed' => 1]
+                );
+            }
+        }
+    } catch (Throwable $e) {
+        $state['status'] = 'needs_attention';
+        $state['updated_at'] = time();
+        $state['error'] = sanitize_text_field($e->getMessage());
+        $state['file'] = sanitize_text_field($e->getFile());
+        $state['line'] = (int) $e->getLine();
+
+        update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+        delete_option('dapfforwc_filter_cache_build_lock');
+
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'needs_attention',
+                'Automatic filter cache rebuild stopped before completion. The site is protected from repeated retries; review the server/cache status before retrying.',
+                [
+                    'error' => sanitize_text_field($e->getMessage()),
+                    'file' => sanitize_text_field($e->getFile()),
+                    'line' => (int) $e->getLine(),
+                    'background' => 1,
+                ]
+            );
+        }
+    }
+}
+add_action(DAPFFORWC_FILTER_CACHE_BATCH_HOOK, 'dapfforwc_process_filter_cache_batch', 10, 1);
+
+function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit = 0)
+{
+    global $wpdb;
+
+    $where_extra = '';
+    $order_limit = '';
+
+    if ((int) $limit > 0) {
+        $where_extra = $wpdb->prepare(' AND p.ID > %d', (int) $last_id);
+        $order_limit = $wpdb->prepare(' ORDER BY p.ID ASC LIMIT %d', (int) $limit);
+    }
 
     $query = "
         SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
@@ -4379,7 +6047,9 @@ function dapfforwc_build_woocommerce_product_details_data()
         LEFT JOIN {$wpdb->prefix}terms pt ON pt.term_id = ptt.term_id
         WHERE p.post_type = 'product'
         AND p.post_status = 'publish'
+        {$where_extra}
         GROUP BY p.ID
+        {$order_limit}
     ";
 
     $results = $wpdb->get_results($query, ARRAY_A);
@@ -4650,18 +6320,158 @@ function dapfforwc_build_woocommerce_product_details_data()
     return ['products' => $products];
 }
 
-function dapfforwc_get_woocommerce_product_details()
+function dapfforwc_process_product_details_cache_batch($build_id = '')
+{
+    $build_id = is_scalar($build_id) ? sanitize_text_field((string) $build_id) : '';
+    $state = function_exists('dapfforwc_get_product_details_cache_build_state') ? dapfforwc_get_product_details_cache_build_state() : [];
+    $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+    $state_build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+
+    if (!in_array($status, ['queued', 'running'], true)) {
+        return;
+    }
+
+    if ($state_build_id !== '' && ($build_id === '' || $build_id !== $state_build_id)) {
+        return;
+    }
+
+    if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+        delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION);
+        $state['status'] = 'database_mode';
+        $state['updated_at'] = time();
+        $state['message'] = 'Background product-details cache build stopped because database-safe mode is active.';
+        update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+        return;
+    }
+
+    if (dapfforwc_should_stop_background_cache_batch()) {
+        return;
+    }
+
+    try {
+        $data = get_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION, false);
+        if (!is_array($data) || !isset($data['products']) || !is_array($data['products'])) {
+            $data = ['products' => []];
+        }
+
+        $batch_size = function_exists('dapfforwc_get_filter_cache_batch_size') ? dapfforwc_get_filter_cache_batch_size('product_details') : 50;
+        $last_id = isset($state['last_id']) ? (int) $state['last_id'] : 0;
+        $batch_data = dapfforwc_build_woocommerce_product_details_data($last_id, $batch_size);
+        $batch_products = isset($batch_data['products']) && is_array($batch_data['products']) ? $batch_data['products'] : [];
+
+        if (empty($batch_products)) {
+            if (dapfforwc_should_stop_background_cache_batch()) {
+                return;
+            }
+
+            set_transient('dapfforwc_product_details_cache_v3', $data, 12 * HOUR_IN_SECONDS);
+            delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION);
+
+            $state['status'] = 'complete';
+            $state['completed_at'] = time();
+            $state['updated_at'] = time();
+            update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+
+            return;
+        }
+
+        foreach ($batch_products as $product_id => $product) {
+            $data['products'][(int) $product_id] = $product;
+        }
+
+        if (dapfforwc_should_stop_background_cache_batch()) {
+            return;
+        }
+
+        $state['status'] = 'running';
+        $state['last_id'] = (int) max(array_map('intval', array_keys($batch_products)));
+        $state['processed'] = (int) ($state['processed'] ?? 0) + count($batch_products);
+        $state['updated_at'] = time();
+
+        update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION, $data, false);
+        update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+
+        if (dapfforwc_should_stop_background_cache_batch()) {
+            return;
+        }
+
+        if (function_exists('dapfforwc_schedule_product_details_cache_batch')) {
+            $delay = function_exists('dapfforwc_get_background_cache_batch_delay') ? dapfforwc_get_background_cache_batch_delay('product_details') : 15;
+            $scheduled = dapfforwc_schedule_product_details_cache_batch($delay, $state_build_id, true);
+
+            if (!$scheduled) {
+                $state['status'] = 'needs_attention';
+                $state['updated_at'] = time();
+                $state['message'] = 'Automatic product details cache rebuild could not schedule the next background batch.';
+                update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+
+                if (function_exists('dapfforwc_update_filter_cache_status')) {
+                    dapfforwc_update_filter_cache_status(
+                        'needs_attention',
+                        'Automatic product details cache rebuild could not schedule the next background batch. Please make sure WP-Cron or Action Scheduler is running on this site.',
+                        [
+                            'background' => 1,
+                            'processed' => isset($state['processed']) ? (int) $state['processed'] : 0,
+                            'schedule_failed' => 1,
+                        ]
+                    );
+                }
+            }
+        }
+    } catch (Throwable $e) {
+        $state['status'] = 'needs_attention';
+        $state['updated_at'] = time();
+        $state['error'] = sanitize_text_field($e->getMessage());
+        $state['file'] = sanitize_text_field($e->getFile());
+        $state['line'] = (int) $e->getLine();
+        update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'needs_attention',
+                'Automatic product details cache rebuild stopped before completion. The site is protected from repeated retries; review the server/cache status before retrying.',
+                [
+                    'error' => sanitize_text_field($e->getMessage()),
+                    'file' => sanitize_text_field($e->getFile()),
+                    'line' => (int) $e->getLine(),
+                    'background' => 1,
+                ]
+            );
+        }
+    }
+}
+add_action(DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, 'dapfforwc_process_product_details_cache_batch', 10, 1);
+
+function dapfforwc_get_woocommerce_product_details($args = [])
 {
     static $cached_result = null;
+    $args = is_array($args) ? $args : [];
+    $manual_build = !empty($args['force']) || !empty($args['manual']);
 
-    if ($cached_result !== null) {
+    if ($cached_result !== null && !$manual_build) {
         return $cached_result;
+    }
+
+    if (
+        function_exists('dapfforwc_use_large_catalog_database_mode')
+        && dapfforwc_use_large_catalog_database_mode()
+        && !apply_filters('dapfforwc_allow_full_product_details_cache_build_in_database_mode', false, $manual_build)
+    ) {
+        return $cached_result = dapfforwc_apply_product_details_filters(['products' => []]);
     }
 
     $cache_key = 'dapfforwc_product_details_cache_v3';
     $cached = get_transient($cache_key);
-    if ($cached !== false && is_array($cached)) {
+    if (!$manual_build && $cached !== false && is_array($cached)) {
         return $cached_result = dapfforwc_apply_product_details_filters($cached);
+    }
+
+    if (!$manual_build && function_exists('dapfforwc_is_large_catalog') && dapfforwc_is_large_catalog()) {
+        if (function_exists('dapfforwc_schedule_product_details_cache_rebuild')) {
+            dapfforwc_schedule_product_details_cache_rebuild('product_details_cache_miss');
+        }
+
+        return $cached_result = dapfforwc_apply_product_details_filters(['products' => []]);
     }
 
     $product_data = dapfforwc_build_woocommerce_product_details_data();

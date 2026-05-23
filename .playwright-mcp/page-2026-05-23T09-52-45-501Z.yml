@@ -1,0 +1,460 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Toolbar":
+      - menu:
+        - group [ref=e3]:
+          - menuitem "About WordPress" [ref=e4] [cursor=pointer]:
+            - generic [ref=e6]: About WordPress
+        - group [ref=e7]:
+          - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e8] [cursor=pointer]
+        - group [ref=e9]:
+          - menuitem "Live" [ref=e10] [cursor=pointer]
+        - group [ref=e11]:
+          - menuitem "Customize" [ref=e12] [cursor=pointer]
+        - group [ref=e13]:
+          - menuitem "7 updates available" [ref=e14] [cursor=pointer]:
+            - generic [ref=e16]: "7"
+            - generic [ref=e17]: 7 updates available
+        - group [ref=e18]:
+          - menuitem "0 Comments in moderation" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: "0"
+            - generic [ref=e22]: 0 Comments in moderation
+        - group [ref=e23]:
+          - menuitem "New" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]: New
+        - group [ref=e27]:
+          - menuitem " Product Filter" [ref=e28]:
+            - generic [ref=e29]: 
+            - text: Product Filter
+      - menu [ref=e30]:
+        - group [ref=e31]:
+          - menuitem "Howdy, admin" [ref=e32] [cursor=pointer]
+        - group [ref=e33]:
+          - menuitem "Search" [ref=e34]:
+            - generic [ref=e35]:
+              - textbox "Search" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]: Search
+  - link "Skip to content" [ref=e38] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=e39]:
+    - banner [ref=e40]:
+      - generic [ref=e45]:
+        - link "Dynamic AJAX Product Filters for WooCommerce" [ref=e51] [cursor=pointer]:
+          - /url: http://free-filter-plugin.local/
+        - navigation "Primary Site Navigation" [ref=e56]:
+          - list [ref=e58]:
+            - listitem [ref=e59]:
+              - link [ref=e60] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/230-2/
+            - listitem [ref=e61]:
+              - link [ref=e62] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/2085-2/
+            - listitem [ref=e63]:
+              - link "Cart" [ref=e64] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/cart/
+            - listitem [ref=e65]:
+              - link "Checkout" [ref=e66] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/checkout/
+            - listitem [ref=e67]:
+              - link "classic checkout" [ref=e68] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/classic-checkout/
+            - listitem [ref=e69]:
+              - 'link "Elementor #222" [ref=e70] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/elementor-222/
+            - listitem [ref=e71]:
+              - link "home" [ref=e72] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/
+            - listitem [ref=e73]:
+              - link "home 2" [ref=e74] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-2/
+            - listitem [ref=e75]:
+              - link "home 3" [ref=e76] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-3/
+            - listitem [ref=e77]:
+              - link "huski" [ref=e78] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/huski/
+            - listitem [ref=e79]:
+              - link "laptop" [ref=e80] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/laptop/
+            - listitem [ref=e81]:
+              - link "My account" [ref=e82] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/my-account/
+            - listitem [ref=e83]:
+              - link "Sample Page" [ref=e84] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/sample-page/
+            - listitem [ref=e85]:
+              - link "shop" [ref=e86] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/
+            - listitem [ref=e87]:
+              - link "test" [ref=e88] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/test/
+    - generic [ref=e90]:
+      - generic [ref=e99]:
+        - generic [ref=e688]:
+          - generic [ref=e689]:
+            - generic [ref=e690]: Search Product
+            - img [ref=e693] [cursor=pointer]
+          - generic [ref=e696]:
+            - searchbox "Search Product…" [ref=e697]: Babe
+            - button "Search" [ref=e698] [cursor=pointer]
+        - generic [ref=e699]:
+          - generic [ref=e700]:
+            - generic [ref=e701]: Rating Reset
+            - img [ref=e704] [cursor=pointer]
+          - generic [ref=e706]:
+            - generic [ref=e707] [cursor=pointer]:
+              - checkbox [ref=e708]
+              - generic [ref=e709]:
+                - img [ref=e710]
+                - img [ref=e712]
+                - img [ref=e714]
+                - img [ref=e716]
+                - img [ref=e718]
+            - generic [ref=e720] [cursor=pointer]:
+              - checkbox [ref=e721]
+              - generic [ref=e722]:
+                - img [ref=e723]
+                - img [ref=e725]
+                - img [ref=e727]
+                - img [ref=e729]
+            - generic [ref=e731] [cursor=pointer]:
+              - checkbox [ref=e732]
+              - generic [ref=e733]:
+                - img [ref=e734]
+                - img [ref=e736]
+                - img [ref=e738]
+            - generic [ref=e740] [cursor=pointer]:
+              - checkbox [ref=e741]
+              - generic [ref=e742]:
+                - img [ref=e743]
+                - img [ref=e745]
+            - generic [ref=e747] [cursor=pointer]:
+              - checkbox [ref=e748]
+              - img [ref=e750]
+        - generic [ref=e753]:
+          - generic [ref=e754]: Price Range
+          - img [ref=e757] [cursor=pointer]
+        - generic [ref=e760]:
+          - generic [ref=e761]: Category Reset
+          - generic [ref=e762]:
+            - generic "agagagag" [ref=e763]:
+              - img [ref=e764]
+            - img [ref=e767] [cursor=pointer]
+        - generic [ref=e770]:
+          - generic [ref=e771]: Authors
+          - img [ref=e774] [cursor=pointer]
+        - generic [ref=e777]:
+          - generic [ref=e778]: Stock Status
+          - img [ref=e781] [cursor=pointer]
+        - generic [ref=e783]:
+          - generic [ref=e784]:
+            - generic [ref=e785]: Sale Status
+            - img [ref=e788] [cursor=pointer]
+          - generic [ref=e791] [cursor=pointer]:
+            - checkbox "Not Sale" [ref=e792]
+            - generic [ref=e793]: Not Sale
+        - img [ref=e798] [cursor=pointer]
+        - img [ref=e804] [cursor=pointer]
+        - img [ref=e810] [cursor=pointer]
+        - generic [ref=e812]:
+          - generic [ref=e813]:
+            - generic [ref=e814]: Date Filter
+            - img [ref=e817] [cursor=pointer]
+          - combobox [ref=e821]:
+            - option "All Time" [selected]
+            - option "Today"
+            - option "This Week"
+            - option "This Month"
+            - option "This Year"
+      - main [ref=e374]:
+        - generic [ref=e375]:
+          - navigation "Breadcrumb" [ref=e376]:
+            - link "Home" [ref=e377] [cursor=pointer]:
+              - /url: http://free-filter-plugin.local
+            - text: / shop
+          - generic [ref=e378]:
+            - heading "shop" [level=1] [ref=e379]
+            - generic [ref=e380]:
+              - list [ref=e678]:
+                - listitem [ref=e822] [cursor=pointer]:
+                  - generic [ref=e823]: "Searched: Babe"
+                  - generic [ref=e824]: x
+              - list [ref=e385] [cursor=pointer]:
+                - listitem [ref=e386]: 1.5 kg
+                - listitem [ref=e387]: black
+                - listitem [ref=e388]: Olive
+                - listitem [ref=e389]: Sky
+                - listitem [ref=e390]: White
+                - listitem [ref=e391]: Yellow
+          - alert [ref=e392]: Showing all 4 results
+          - combobox "Shop order" [ref=e394]:
+            - option "Default sorting" [selected]
+            - option "Sort by popularity"
+            - option "Sort by average rating"
+            - option "Sort by latest"
+            - 'option "Sort by price: low to high"'
+            - 'option "Sort by price: high to low"'
+          - list [ref=e395]:
+            - listitem [ref=e825]:
+              - link "Placeholder" [ref=e827] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-bath-gel-500ml-gentle-cleansing-for-kids/
+                - img "Placeholder" [ref=e828]
+              - generic [ref=e829]:
+                - generic [ref=e830]: Body Care Products
+                - 'link "Babe Laboratorios: Pediatric Bath Gel (500ml) – Gentle Cleansing for Kids" [ref=e831] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-bath-gel-500ml-gentle-cleansing-for-kids/
+                  - 'heading "Babe Laboratorios: Pediatric Bath Gel (500ml) – Gentle Cleansing for Kids" [level=2] [ref=e832]'
+                - generic [ref=e835]: $3,050.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Bath Gel (500ml) - Gentle Cleansing for Kids”" [ref=e836] [cursor=pointer]': Add to cart
+            - listitem [ref=e838]:
+              - link "Placeholder" [ref=e840] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-emollient-cream-nurturing-care-for-delicate-skin-200ml/
+                - img "Placeholder" [ref=e841]
+              - generic [ref=e842]:
+                - generic [ref=e843]: Baby Care
+                - 'link "Babe Laboratorios: Pediatric Emollient Cream – Nurturing Care for Delicate Skin (200ml)" [ref=e844] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-emollient-cream-nurturing-care-for-delicate-skin-200ml/
+                  - 'heading "Babe Laboratorios: Pediatric Emollient Cream – Nurturing Care for Delicate Skin (200ml)" [level=2] [ref=e845]'
+                - generic [ref=e848]: $2,200.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Emollient Cream - Nurturing Care for Delicate Skin (200ml)”" [ref=e849] [cursor=pointer]': Add to cart
+            - listitem [ref=e851]:
+              - link "Placeholder" [ref=e853] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-milk-crust-cradle-cap-shampoo-200ml-gentle-care-for-scalp-health/
+                - img "Placeholder" [ref=e854]
+              - generic [ref=e855]:
+                - generic [ref=e856]: Body Care Products
+                - 'link "Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) – Gentle Care for Scalp Health" [ref=e857] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-milk-crust-cradle-cap-shampoo-200ml-gentle-care-for-scalp-health/
+                  - 'heading "Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) – Gentle Care for Scalp Health" [level=2] [ref=e858]'
+                - generic [ref=e861]: $1,500.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) - Gentle Care for Scalp Health”" [ref=e862] [cursor=pointer]': Add to cart
+            - listitem [ref=e864]:
+              - link "Placeholder" [ref=e866] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/laboratorios-babe-intimate-hygiene-gel-250ml-gentle-care-by-babe-laboratorios/
+                - img "Placeholder" [ref=e867]
+              - generic [ref=e868]:
+                - generic [ref=e869]: Skin Care Products
+                - 'link "Laboratorios Babe Intimate Hygiene Gel 250ml: Gentle Care by Babe Laboratorios" [ref=e870] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/laboratorios-babe-intimate-hygiene-gel-250ml-gentle-care-by-babe-laboratorios/
+                  - 'heading "Laboratorios Babe Intimate Hygiene Gel 250ml: Gentle Care by Babe Laboratorios" [level=2] [ref=e871]'
+                - generic [ref=e874]: $1,840.00
+                - 'button "Add to cart: “Laboratorios Babe Intimate Hygiene Gel 250ml: Gentle Care by Babe Laboratorios”" [ref=e875] [cursor=pointer]': Add to cart
+          - navigation "Product Pagination"
+    - contentinfo [ref=e550]:
+      - region "Footer Widget 1" [ref=e555]:
+        - paragraph [ref=e557]:
+          - link "Add Widget" [ref=e558] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/widgets.php
+      - paragraph [ref=e565]:
+        - text: Copyright © 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by
+        - link "Astra WordPress Theme" [ref=e566] [cursor=pointer]:
+          - /url: https://wpastra.com
+  - generic "Open Plugency Debugger" [ref=e567] [cursor=pointer]:
+    - img [ref=e568]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Performance"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Plugins
+            - list:
+              - listitem:
+                - generic: File
+                - strong: C:/Users/GM Team/Local Sites/free-filter-plugin/app/public/wp-content/plugins/woocommerce/templates/archive-product.php
+              - listitem:
+                - generic: Source
+                - strong: woocommerce
+              - listitem:
+                - generic: Matched rule
+                - strong: products/?$
+              - listitem:
+                - generic: Request
+                - strong: products
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Front-end
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/products/
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 40 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "178"
+              - listitem:
+                - generic: Total time
+                - strong: 0.1059s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0208s
+              - listitem:
+                - generic: Example
+                - strong: SELECT SQL_CALC_FOUND_ROWS wp_posts.ID FROM wp_posts WHERE 1=1 AND ( wp_posts.ID NOT IN ( SELECT object_id FROM wp_term_relationships WHERE ...
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: every_minute
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: action_scheduler_run_queue
+              - listitem:
+                - generic: Runs in
+                - strong: 45 seconds
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 09:53:02 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (100 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 09:52:05
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2158"
+              - listitem:
+                - generic: Styles
+                - strong: "25"
+              - listitem:
+                - generic: Scripts
+                - strong: "19"
+              - listitem:
+                - generic: Queries
+                - strong: "178"
+              - listitem:
+                - generic: Request entries
+                - strong: "86"
+    - paragraph
+  - button "Re-consent" [ref=e571] [cursor=pointer]:
+    - img "Re-consent" [ref=e572]
+  - generic [ref=e683] [cursor=pointer]:
+    - img [ref=e685]
+    - generic [ref=e687]: Scroll to Top
+  - status [ref=e573]

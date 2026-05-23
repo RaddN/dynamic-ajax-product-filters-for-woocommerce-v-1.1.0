@@ -1,0 +1,672 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Toolbar":
+      - menu:
+        - group [ref=e3]:
+          - menuitem "About WordPress" [ref=e4] [cursor=pointer]:
+            - generic [ref=e6]: About WordPress
+        - group [ref=e7]:
+          - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e8] [cursor=pointer]
+        - group [ref=e9]:
+          - menuitem "Live" [ref=e10] [cursor=pointer]
+        - group [ref=e11]:
+          - menuitem "Customize" [ref=e12] [cursor=pointer]
+        - group [ref=e13]:
+          - menuitem "7 updates available" [ref=e14] [cursor=pointer]:
+            - generic [ref=e16]: "7"
+            - generic [ref=e17]: 7 updates available
+        - group [ref=e18]:
+          - menuitem "0 Comments in moderation" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: "0"
+            - generic [ref=e22]: 0 Comments in moderation
+        - group [ref=e23]:
+          - menuitem "New" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]: New
+        - group [ref=e27]:
+          - menuitem " Product Filter" [ref=e28]:
+            - generic [ref=e29]: 
+            - text: Product Filter
+      - menu [ref=e30]:
+        - group [ref=e31]:
+          - menuitem "Howdy, admin" [ref=e32] [cursor=pointer]
+        - group [ref=e33]:
+          - menuitem "Search" [ref=e34]:
+            - generic [ref=e35]:
+              - textbox "Search" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]: Search
+  - link "Skip to content" [ref=e38] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=e39]:
+    - banner [ref=e40]:
+      - generic [ref=e45]:
+        - link "Dynamic AJAX Product Filters for WooCommerce" [ref=e51] [cursor=pointer]:
+          - /url: http://free-filter-plugin.local/
+        - navigation "Primary Site Navigation" [ref=e56]:
+          - list [ref=e58]:
+            - listitem [ref=e59]:
+              - link [ref=e60] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/230-2/
+            - listitem [ref=e61]:
+              - link [ref=e62] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/2085-2/
+            - listitem [ref=e63]:
+              - link "Cart" [ref=e64] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/cart/
+            - listitem [ref=e65]:
+              - link "Checkout" [ref=e66] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/checkout/
+            - listitem [ref=e67]:
+              - link "classic checkout" [ref=e68] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/classic-checkout/
+            - listitem [ref=e69]:
+              - 'link "Elementor #222" [ref=e70] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/elementor-222/
+            - listitem [ref=e71]:
+              - link "home" [ref=e72] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/
+            - listitem [ref=e73]:
+              - link "home 2" [ref=e74] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-2/
+            - listitem [ref=e75]:
+              - link "home 3" [ref=e76] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-3/
+            - listitem [ref=e77]:
+              - link "huski" [ref=e78] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/huski/
+            - listitem [ref=e79]:
+              - link "laptop" [ref=e80] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/laptop/
+            - listitem [ref=e81]:
+              - link "My account" [ref=e82] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/my-account/
+            - listitem [ref=e83]:
+              - link "Sample Page" [ref=e84] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/sample-page/
+            - listitem [ref=e85]:
+              - link "shop" [ref=e86] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/
+            - listitem [ref=e87]:
+              - link "test" [ref=e88] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/test/
+    - generic [ref=e90]:
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: Search Product
+            - img [ref=e105] [cursor=pointer]
+          - generic [ref=e108]:
+            - searchbox "Search Product…" [ref=e109]
+            - button "Search" [ref=e110] [cursor=pointer]
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: Rating Reset
+            - img [ref=e116] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic [ref=e119] [cursor=pointer]:
+              - checkbox [ref=e120]
+              - generic [ref=e121]:
+                - img [ref=e122]
+                - img [ref=e124]
+                - img [ref=e126]
+                - img [ref=e128]
+                - img [ref=e130]
+            - generic [ref=e132] [cursor=pointer]:
+              - checkbox [ref=e133]
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - img [ref=e137]
+                - img [ref=e139]
+                - img [ref=e141]
+            - generic [ref=e143] [cursor=pointer]:
+              - checkbox [ref=e144]
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - img [ref=e148]
+                - img [ref=e150]
+            - generic [ref=e152] [cursor=pointer]:
+              - checkbox [ref=e153]
+              - generic [ref=e154]:
+                - img [ref=e155]
+                - img [ref=e157]
+            - generic [ref=e159] [cursor=pointer]:
+              - checkbox [ref=e160]
+              - img [ref=e162]
+        - generic [ref=e165]:
+          - generic [ref=e166]: Price Range
+          - img [ref=e169] [cursor=pointer]
+        - generic [ref=e172]:
+          - generic [ref=e173]: Category Reset
+          - generic [ref=e174]:
+            - generic "agagagag" [ref=e175]:
+              - img [ref=e176]
+            - img [ref=e179] [cursor=pointer]
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e183]: Months
+            - img [ref=e186] [cursor=pointer]
+          - generic [ref=e188]:
+            - generic [ref=e189] [cursor=pointer]:
+              - checkbox "Apr 2026" [ref=e190]
+              - generic [ref=e191]: Apr 2026
+            - generic [ref=e192] [cursor=pointer]:
+              - checkbox "Feb 2026" [ref=e193]
+              - generic [ref=e194]: Feb 2026
+            - generic [ref=e195] [cursor=pointer]:
+              - checkbox "Jan 2024" [ref=e196]
+              - generic [ref=e197]: Jan 2024
+            - generic [ref=e198] [cursor=pointer]:
+              - checkbox "Jan 2026" [ref=e199]
+              - generic [ref=e200]: Jan 2026
+            - generic [ref=e201] [cursor=pointer]:
+              - checkbox "January 2025" [ref=e202]
+              - generic [ref=e203]: January 2025
+            - generic [ref=e204] [cursor=pointer]:
+              - checkbox "Jul 2026" [ref=e205]
+              - generic [ref=e206]: Jul 2026
+            - generic [ref=e207] [cursor=pointer]:
+              - checkbox "Jun 2026" [ref=e208]
+              - generic [ref=e209]: Jun 2026
+            - generic [ref=e210] [cursor=pointer]:
+              - checkbox "Mar 2026" [ref=e211]
+              - generic [ref=e212]: Mar 2026
+            - generic [ref=e213] [cursor=pointer]:
+              - checkbox "May 2026" [ref=e214]
+              - generic [ref=e215]: May 2026
+        - generic [ref=e216]:
+          - generic [ref=e217]:
+            - generic [ref=e218]: Material
+            - img [ref=e221] [cursor=pointer]
+          - generic [ref=e224] [cursor=pointer]:
+            - checkbox "Cord Fabric" [ref=e225]
+            - generic [ref=e226]: Cord Fabric
+        - generic [ref=e227]:
+          - generic [ref=e228]:
+            - generic [ref=e229]: Size
+            - img [ref=e232] [cursor=pointer]
+          - generic [ref=e234]:
+            - generic [ref=e235] [cursor=pointer]:
+              - checkbox "L" [ref=e236]
+              - generic [ref=e237]: L
+            - generic [ref=e238] [cursor=pointer]:
+              - checkbox "XL" [ref=e239]
+              - generic [ref=e240]: XL
+            - generic [ref=e241] [cursor=pointer]:
+              - checkbox "XXL" [ref=e242]
+              - generic [ref=e243]: XXL
+            - generic [ref=e244] [cursor=pointer]:
+              - checkbox "XXXL" [ref=e245]
+              - generic [ref=e246]: XXXL
+        - generic [ref=e247]:
+          - generic [ref=e248]:
+            - generic [ref=e249]: Men's Trend
+            - img [ref=e252] [cursor=pointer]
+          - generic [ref=e254]:
+            - generic [ref=e255] [cursor=pointer]:
+              - checkbox "Office" [ref=e256]
+              - generic [ref=e257]: Office
+            - generic [ref=e258] [cursor=pointer]:
+              - checkbox "Party" [ref=e259]
+              - generic [ref=e260]: Party
+        - generic [ref=e263]:
+          - generic "agagagag" [ref=e264]:
+            - img [ref=e265]
+          - img [ref=e268] [cursor=pointer]
+        - generic [ref=e272]:
+          - generic "agghhg" [ref=e273]:
+            - img [ref=e274]
+          - img [ref=e277] [cursor=pointer]
+        - generic [ref=e280]:
+          - generic [ref=e281]: Authors
+          - img [ref=e284] [cursor=pointer]
+        - generic [ref=e287]:
+          - generic [ref=e288]: Stock Status
+          - img [ref=e291] [cursor=pointer]
+        - generic [ref=e293]:
+          - generic [ref=e294]:
+            - generic [ref=e295]: Sale Status
+            - img [ref=e298] [cursor=pointer]
+          - generic [ref=e300]:
+            - generic [ref=e301] [cursor=pointer]:
+              - checkbox "Sale" [ref=e302]
+              - generic [ref=e303]: Sale
+            - generic [ref=e304] [cursor=pointer]:
+              - checkbox "Not Sale" [ref=e305]
+              - generic [ref=e306]: Not Sale
+        - img [ref=e311] [cursor=pointer]
+        - img [ref=e317] [cursor=pointer]
+        - img [ref=e323] [cursor=pointer]
+        - generic [ref=e325]:
+          - generic [ref=e326]:
+            - generic [ref=e327]: Date Filter
+            - img [ref=e330] [cursor=pointer]
+          - combobox [ref=e334]:
+            - option "All Time" [selected]
+            - option "Today"
+            - option "This Week"
+            - option "This Month"
+            - option "This Year"
+      - main [ref=e336]:
+        - generic [ref=e337]:
+          - navigation "Breadcrumb" [ref=e338]:
+            - link "Home" [ref=e339] [cursor=pointer]:
+              - /url: http://free-filter-plugin.local
+            - text: / shop
+          - generic [ref=e340]:
+            - heading "shop" [level=1] [ref=e341]
+            - generic [ref=e342]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - list
+              - list [ref=e347] [cursor=pointer]:
+                - listitem [ref=e348]: 1.5 kg
+                - listitem [ref=e349]: black
+                - listitem [ref=e350]: Olive
+                - listitem [ref=e351]: Sky
+                - listitem [ref=e352]: White
+                - listitem [ref=e353]: Yellow
+          - alert [ref=e354]: Showing 1–10 of 14 results
+          - combobox "Shop order" [ref=e356]:
+            - option "Default sorting" [selected]
+            - option "Sort by popularity"
+            - option "Sort by average rating"
+            - option "Sort by latest"
+            - 'option "Sort by price: low to high"'
+            - 'option "Sort by price: high to low"'
+          - list [ref=e357]:
+            - listitem [ref=e358]:
+              - link "Placeholder" [ref=e360] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                - img "Placeholder" [ref=e361]
+              - generic [ref=e362]:
+                - generic [ref=e363]: Health Care
+                - 'link "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [ref=e364] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - 'heading "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [level=2] [ref=e365]'
+                - generic [ref=e368]: $20.00
+                - 'link "Select options for “100% Pure Acacia Honey with Natural Honeycomb Langnese - 500g: Nature''s Golden Delight”" [ref=e369] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - text: Select options
+                - generic [ref=e370]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e371]:
+              - link "Beurer BY 52 Baby Bottle Warmer & Food Warmer – Portable 2-in-1 Heater with Keep Warm Function for Breast Milk, Formula, and Food – Compatible with AVENT & NUK Bottles, Featuring Lifter, LED Display, Safety Switch-Off, and Cap" [ref=e373] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-by-52-baby-bottle-warmer-food-warmer-portable-2-in-1-heater-with-keep-warm-function-for-breast-milk-formula-and-food-compatible-with-avent-nuk-bottles-featuring-lifte/
+                - img "Beurer BY 52 Baby Bottle Warmer & Food Warmer – Portable 2-in-1 Heater with Keep Warm Function for Breast Milk, Formula, and Food – Compatible with AVENT & NUK Bottles, Featuring Lifter, LED Display, Safety Switch-Off, and Cap" [ref=e374]
+              - generic [ref=e375]:
+                - generic [ref=e376]: Baby Accessories
+                - link "Beurer BY 52 Baby Bottle Warmer & Food Warmer – Portable 2-in-1 Heater with Keep Warm Function for Breast Milk, Formula, and Food – Compatible with AVENT & NUK Bottles, Featuring Lifter, LED Display, Safety Switch-Off, and Cap" [ref=e377] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-by-52-baby-bottle-warmer-food-warmer-portable-2-in-1-heater-with-keep-warm-function-for-breast-milk-formula-and-food-compatible-with-avent-nuk-bottles-featuring-lifte/
+                  - heading "Beurer BY 52 Baby Bottle Warmer & Food Warmer – Portable 2-in-1 Heater with Keep Warm Function for Breast Milk, Formula, and Food – Compatible with AVENT & NUK Bottles, Featuring Lifter, LED Display, Safety Switch-Off, and Cap" [level=2] [ref=e378]
+                - link "Read more about “Beurer BY 52 Baby Bottle Warmer & Food Warmer – Portable 2-in-1 Heater with Keep Warm Function for Breast Milk, Formula, and Food – Compatible with AVENT & NUK Bottles, Featuring Lifter, LED Display, Safety Switch-Off, and Cap”" [ref=e379] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-by-52-baby-bottle-warmer-food-warmer-portable-2-in-1-heater-with-keep-warm-function-for-breast-milk-formula-and-food-compatible-with-avent-nuk-bottles-featuring-lifte/
+                  - text: Read more
+            - listitem [ref=e381]:
+              - 'link "Beurer BY 76 Steam Steriliser: Advanced Home Sterilization System with PureSteam Technology" [ref=e383] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/products/beurer-by-76-steam-steriliser-advanced-home-sterilization-system-with-puresteam-technology/
+                - 'img "Beurer BY 76 Steam Steriliser: Advanced Home Sterilization System with PureSteam Technology" [ref=e384]'
+              - generic [ref=e385]:
+                - generic [ref=e386]: Baby Accessories
+                - 'link "Beurer BY 76 Steam Steriliser: Advanced Home Sterilization System with PureSteam Technology" [ref=e387] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/beurer-by-76-steam-steriliser-advanced-home-sterilization-system-with-puresteam-technology/
+                  - 'heading "Beurer BY 76 Steam Steriliser: Advanced Home Sterilization System with PureSteam Technology" [level=2] [ref=e388]'
+                - 'link "Read more about “Beurer BY 76 Steam Steriliser: Advanced Home Sterilization System with PureSteam Technology”" [ref=e389] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/beurer-by-76-steam-steriliser-advanced-home-sterilization-system-with-puresteam-technology/
+                  - text: Read more
+            - listitem [ref=e391]:
+              - link "Laptop HP Pavilion 15 Gaming Black" [ref=e393] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/divi-simplified-crop-top/
+                - img "Laptop HP Pavilion 15 Gaming Black" [ref=e394]
+              - generic [ref=e395]:
+                - generic [ref=e396]: Desktop
+                - link "Laptop HP Pavilion 15 Gaming Black" [ref=e397] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-simplified-crop-top/
+                  - heading "Laptop HP Pavilion 15 Gaming Black" [level=2] [ref=e398]
+                - generic [ref=e401]: $12.99
+                - link "Select options for “Laptop HP Pavilion 15 Gaming Black”" [ref=e402] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-simplified-crop-top/
+                  - text: Select options
+                - generic [ref=e403]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e404]:
+              - link "Laptop HP Pavilion 15-eg0029ur Blue" [ref=e406] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/dat-divi-engine-life-crop-top-3-tone/
+                - img "Laptop HP Pavilion 15-eg0029ur Blue" [ref=e407]
+              - generic [ref=e408]:
+                - generic [ref=e409]: Laptop
+                - link "Laptop HP Pavilion 15-eg0029ur Blue" [ref=e410] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/dat-divi-engine-life-crop-top-3-tone/
+                  - heading "Laptop HP Pavilion 15-eg0029ur Blue" [level=2] [ref=e411]
+                - generic [ref=e412]:
+                  - generic [ref=e414]: $12.99
+                  - text: –
+                  - generic [ref=e416]: $14.99
+                  - generic [ref=e417]: "Price range: $12.99 through $14.99"
+                - link "Select options for “Laptop HP Pavilion 15-eg0029ur Blue”" [ref=e418] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/dat-divi-engine-life-crop-top-3-tone/
+                  - text: Select options
+                - generic [ref=e419]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e420]:
+              - link "Laptop HP Pavilion Gaming 17 Dark Grey" [ref=e422] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/purple-divi-engine-text-zipper-hoodie/
+                - img "Laptop HP Pavilion Gaming 17 Dark Grey" [ref=e423]
+              - generic [ref=e424]:
+                - generic [ref=e425]: Laptop
+                - link "Laptop HP Pavilion Gaming 17 Dark Grey" [ref=e426] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/purple-divi-engine-text-zipper-hoodie/
+                  - heading "Laptop HP Pavilion Gaming 17 Dark Grey" [level=2] [ref=e427]
+                - generic [ref=e430]: $29.99
+                - link "Select options for “Laptop HP Pavilion Gaming 17 Dark Grey”" [ref=e431] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/purple-divi-engine-text-zipper-hoodie/
+                  - text: Select options
+                - generic [ref=e432]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e433]:
+              - generic [ref=e434]:
+                - link "Laptop HP Probook 455 G7 Silver" [ref=e435] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/woocommerce-gimme-the-money-zipper-hoodie/
+                  - img "Laptop HP Probook 455 G7 Silver" [ref=e436]
+                - generic [ref=e437] [cursor=pointer]: Sale!
+              - generic [ref=e438]:
+                - generic [ref=e439]: Laptop
+                - link "Laptop HP Probook 455 G7 Silver" [ref=e440] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/woocommerce-gimme-the-money-zipper-hoodie/
+                  - heading "Laptop HP Probook 455 G7 Silver" [level=2] [ref=e441]
+                - generic [ref=e443]:
+                  - text: sssss
+                  - generic [ref=e444]:
+                    - text: SSSSS Rated
+                    - strong [ref=e445]: "4.00"
+                    - text: out of 5
+                - generic [ref=e446]:
+                  - deletion [ref=e447]:
+                    - generic [ref=e449]: $29.99
+                  - generic [ref=e450]: "Original price was: $29.99."
+                  - insertion [ref=e451]:
+                    - generic [ref=e453]: $27.99
+                  - generic [ref=e454]: "Current price is: $27.99."
+                - link "Select options for “Laptop HP Probook 455 G7 Silver”" [ref=e455] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/woocommerce-gimme-the-money-zipper-hoodie/
+                  - text: Select options
+                - generic [ref=e456]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e457]:
+              - link "Laptop Lenovo IdeaPad Gaming" [ref=e459] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/divi-engine-logo-zipper-hoodie/
+                - img "Laptop Lenovo IdeaPad Gaming" [ref=e460]
+              - generic [ref=e461]:
+                - generic [ref=e462]: Laptop
+                - link "Laptop Lenovo IdeaPad Gaming" [ref=e463] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-engine-logo-zipper-hoodie/
+                  - heading "Laptop Lenovo IdeaPad Gaming" [level=2] [ref=e464]
+                - generic [ref=e467]: $29.99
+                - link "Select options for “Laptop Lenovo IdeaPad Gaming”" [ref=e468] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-engine-logo-zipper-hoodie/
+                  - text: Select options
+                - generic [ref=e469]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e470]:
+              - generic [ref=e471]:
+                - link "Laptop Lenovo Legion 5 15ARH05" [ref=e472] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-tee/
+                  - img "Laptop Lenovo Legion 5 15ARH05" [ref=e473]
+                - generic [ref=e474] [cursor=pointer]: Sale!
+              - generic [ref=e475]:
+                - generic [ref=e476]: Laptop
+                - link "Laptop Lenovo Legion 5 15ARH05" [ref=e477] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-tee/
+                  - heading "Laptop Lenovo Legion 5 15ARH05" [level=2] [ref=e478]
+                - generic [ref=e479]:
+                  - deletion [ref=e480]:
+                    - generic [ref=e482]: $14.99
+                  - generic [ref=e483]: "Original price was: $14.99."
+                  - insertion [ref=e484]:
+                    - generic [ref=e486]: $10.00
+                  - generic [ref=e487]: "Current price is: $10.00."
+                - link "Select options for “Laptop Lenovo Legion 5 15ARH05”" [ref=e488] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/divi-tee/
+                  - text: Select options
+                - generic [ref=e489]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e490]:
+              - link "Laptop Lenovo V15-ADA" [ref=e492] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/wordpress-tee/
+                - img "Laptop Lenovo V15-ADA" [ref=e493]
+              - generic [ref=e494]:
+                - generic [ref=e495]: Laptop
+                - link "Laptop Lenovo V15-ADA" [ref=e496] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/wordpress-tee/
+                  - heading "Laptop Lenovo V15-ADA" [level=2] [ref=e497]
+                - generic [ref=e499]:
+                  - text: sssss
+                  - generic [ref=e500]:
+                    - text: SSSSS Rated
+                    - strong [ref=e501]: "5.00"
+                    - text: out of 5
+                - generic [ref=e504]: $14.99
+                - link "Select options for “Laptop Lenovo V15-ADA”" [ref=e505] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/wordpress-tee/
+                  - text: Select options
+                - generic [ref=e506]: This product has multiple variants. The options may be chosen on the product page
+          - navigation "Product Pagination" [ref=e507]:
+            - list [ref=e508]:
+              - listitem [ref=e509]:
+                - generic "Page 1" [ref=e510]: "1"
+              - listitem [ref=e511]:
+                - link "Page 2" [ref=e512] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/?filters=1&price=0-50&mn_price=0&mx_price=50
+                  - text: "2"
+              - listitem [ref=e513]:
+                - link "→" [ref=e514] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/?filters=1&price=0-50&mn_price=0&mx_price=50
+    - contentinfo [ref=e515]:
+      - region "Footer Widget 1" [ref=e520]:
+        - paragraph [ref=e522]:
+          - link "Add Widget" [ref=e523] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/widgets.php
+      - paragraph [ref=e530]:
+        - text: Copyright © 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by
+        - link "Astra WordPress Theme" [ref=e531] [cursor=pointer]:
+          - /url: https://wpastra.com
+  - generic "Open Plugency Debugger" [ref=e532] [cursor=pointer]:
+    - img [ref=e533]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Performance"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Plugins
+            - list:
+              - listitem:
+                - generic: File
+                - strong: C:/Users/GM Team/Local Sites/free-filter-plugin/app/public/wp-content/plugins/woocommerce/templates/archive-product.php
+              - listitem:
+                - generic: Source
+                - strong: woocommerce
+              - listitem:
+                - generic: Matched rule
+                - strong: products/?$
+              - listitem:
+                - generic: Request
+                - strong: products
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Front-end
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/products/?filters=1&price=0-50&mn_price=0&mx_price=50
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 38 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "200"
+              - listitem:
+                - generic: Total time
+                - strong: 0.0954s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0083s
+              - listitem:
+                - generic: Example
+                - strong: SELECT SQL_CALC_FOUND_ROWS wp_posts.ID FROM wp_posts INNER JOIN wp_postmeta ON ( wp_posts.ID = wp_postmeta.post_id ) WHERE 1=1 AND ( wp_post...
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: every_minute
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: action_scheduler_run_queue
+              - listitem:
+                - generic: Runs in
+                - strong: 3 seconds
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 09:52:02 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (99 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 09:51:35
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2158"
+              - listitem:
+                - generic: Styles
+                - strong: "25"
+              - listitem:
+                - generic: Scripts
+                - strong: "19"
+              - listitem:
+                - generic: Queries
+                - strong: "200"
+              - listitem:
+                - generic: Request entries
+                - strong: "94"
+    - paragraph
+  - button "Re-consent" [ref=e536] [cursor=pointer]:
+    - img "Re-consent" [ref=e537]
+  - status [ref=e538]

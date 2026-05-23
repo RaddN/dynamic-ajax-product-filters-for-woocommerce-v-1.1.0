@@ -1,0 +1,683 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Toolbar":
+      - menu:
+        - group [ref=e3]:
+          - menuitem "About WordPress" [ref=e4] [cursor=pointer]:
+            - generic [ref=e6]: About WordPress
+        - group [ref=e7]:
+          - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e8] [cursor=pointer]
+        - group [ref=e9]:
+          - menuitem "Live" [ref=e10] [cursor=pointer]
+        - group [ref=e11]:
+          - menuitem "Customize" [ref=e12] [cursor=pointer]
+        - group [ref=e13]:
+          - menuitem "7 updates available" [ref=e14] [cursor=pointer]:
+            - generic [ref=e16]: "7"
+            - generic [ref=e17]: 7 updates available
+        - group [ref=e18]:
+          - menuitem "0 Comments in moderation" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: "0"
+            - generic [ref=e22]: 0 Comments in moderation
+        - group [ref=e23]:
+          - menuitem "New" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]: New
+        - group [ref=e27]:
+          - menuitem " Product Filter" [ref=e28]:
+            - generic [ref=e29]: 
+            - text: Product Filter
+      - menu [ref=e30]:
+        - group [ref=e31]:
+          - menuitem "Howdy, admin" [ref=e32] [cursor=pointer]
+        - group [ref=e33]:
+          - menuitem "Search" [ref=e34]:
+            - generic [ref=e35]:
+              - textbox "Search" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]: Search
+  - link "Skip to content" [ref=e38] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=e39]:
+    - banner [ref=e40]:
+      - generic [ref=e45]:
+        - link "Dynamic AJAX Product Filters for WooCommerce" [ref=e51] [cursor=pointer]:
+          - /url: http://free-filter-plugin.local/
+        - navigation "Primary Site Navigation" [ref=e56]:
+          - list [ref=e58]:
+            - listitem [ref=e59]:
+              - link [ref=e60] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/230-2/
+            - listitem [ref=e61]:
+              - link [ref=e62] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/2085-2/
+            - listitem [ref=e63]:
+              - link "Cart" [ref=e64] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/cart/
+            - listitem [ref=e65]:
+              - link "Checkout" [ref=e66] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/checkout/
+            - listitem [ref=e67]:
+              - link "classic checkout" [ref=e68] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/classic-checkout/
+            - listitem [ref=e69]:
+              - 'link "Elementor #222" [ref=e70] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/elementor-222/
+            - listitem [ref=e71]:
+              - link "home" [ref=e72] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/
+            - listitem [ref=e73]:
+              - link "home 2" [ref=e74] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-2/
+            - listitem [ref=e75]:
+              - link "home 3" [ref=e76] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-3/
+            - listitem [ref=e77]:
+              - link "huski" [ref=e78] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/huski/
+            - listitem [ref=e79]:
+              - link "laptop" [ref=e80] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/laptop/
+            - listitem [ref=e81]:
+              - link "My account" [ref=e82] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/my-account/
+            - listitem [ref=e83]:
+              - link "Sample Page" [ref=e84] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/sample-page/
+            - listitem [ref=e85]:
+              - link "shop" [ref=e86] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/
+            - listitem [ref=e87]:
+              - link "test" [ref=e88] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/test/
+    - generic [ref=e90]:
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - generic [ref=e102]: Search Product
+            - img [ref=e105] [cursor=pointer]
+          - generic [ref=e108]:
+            - searchbox "Search Product…" [ref=e109]
+            - button "Search" [ref=e110] [cursor=pointer]
+        - generic [ref=e111]:
+          - generic [ref=e112]:
+            - generic [ref=e113]: Rating Reset
+            - img [ref=e116] [cursor=pointer]
+          - generic [ref=e118]:
+            - generic [ref=e119] [cursor=pointer]:
+              - checkbox [ref=e120]
+              - generic [ref=e121]:
+                - img [ref=e122]
+                - img [ref=e124]
+                - img [ref=e126]
+                - img [ref=e128]
+                - img [ref=e130]
+            - generic [ref=e132] [cursor=pointer]:
+              - checkbox [ref=e133]
+              - generic [ref=e134]:
+                - img [ref=e135]
+                - img [ref=e137]
+                - img [ref=e139]
+                - img [ref=e141]
+            - generic [ref=e143] [cursor=pointer]:
+              - checkbox [ref=e144]
+              - generic [ref=e145]:
+                - img [ref=e146]
+                - img [ref=e148]
+                - img [ref=e150]
+            - generic [ref=e152] [cursor=pointer]:
+              - checkbox [ref=e153]
+              - generic [ref=e154]:
+                - img [ref=e155]
+                - img [ref=e157]
+            - generic [ref=e159] [cursor=pointer]:
+              - checkbox [ref=e160]
+              - img [ref=e162]
+        - generic [ref=e165]:
+          - generic [ref=e166]: Price Range
+          - img [ref=e169] [cursor=pointer]
+        - generic [ref=e172]:
+          - generic [ref=e173]: Category Reset
+          - generic [ref=e174]:
+            - generic "agagagag" [ref=e175]:
+              - img [ref=e176]
+            - img [ref=e179] [cursor=pointer]
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e183]: Material
+            - img [ref=e186] [cursor=pointer]
+          - generic [ref=e188]:
+            - generic [ref=e189] [cursor=pointer]:
+              - checkbox "Cord Fabric" [ref=e190]
+              - generic [ref=e191]: Cord Fabric
+            - generic [ref=e192] [cursor=pointer]:
+              - checkbox "Cotton" [ref=e193]
+              - generic [ref=e194]: Cotton
+            - generic [ref=e195] [cursor=pointer]:
+              - checkbox "Denim" [ref=e196]
+              - generic [ref=e197]: Denim
+            - generic [ref=e198] [cursor=pointer]:
+              - checkbox "Nylon" [ref=e199]
+              - generic [ref=e200]: Nylon
+            - generic [ref=e201] [cursor=pointer]:
+              - checkbox "Paly-Cotton" [ref=e202]
+              - generic [ref=e203]: Paly-Cotton
+        - generic [ref=e204]:
+          - generic [ref=e205]:
+            - generic [ref=e206]: Size
+            - img [ref=e209] [cursor=pointer]
+          - generic [ref=e211]:
+            - generic [ref=e212] [cursor=pointer]:
+              - checkbox "L" [ref=e213]
+              - generic [ref=e214]: L
+            - generic [ref=e215] [cursor=pointer]:
+              - checkbox "M" [ref=e216]
+              - generic [ref=e217]: M
+            - generic [ref=e218] [cursor=pointer]:
+              - checkbox "S" [ref=e219]
+              - generic [ref=e220]: S
+            - generic [ref=e221] [cursor=pointer]:
+              - checkbox "XL" [ref=e222]
+              - generic [ref=e223]: XL
+            - generic [ref=e224] [cursor=pointer]:
+              - checkbox "xs" [ref=e225]
+              - generic [ref=e226]: xs
+            - generic [ref=e227] [cursor=pointer]:
+              - checkbox "XXL" [ref=e228]
+              - generic [ref=e229]: XXL
+            - generic [ref=e230] [cursor=pointer]:
+              - checkbox "XXXL" [ref=e231]
+              - generic [ref=e232]: XXXL
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]: Men's Trend
+            - img [ref=e238] [cursor=pointer]
+          - generic [ref=e240]:
+            - generic [ref=e241] [cursor=pointer]:
+              - checkbox "Nautical" [ref=e242]
+              - generic [ref=e243]: Nautical
+            - generic [ref=e244] [cursor=pointer]:
+              - checkbox "Office" [ref=e245]
+              - generic [ref=e246]: Office
+            - generic [ref=e247] [cursor=pointer]:
+              - checkbox "Party" [ref=e248]
+              - generic [ref=e249]: Party
+            - generic [ref=e250] [cursor=pointer]:
+              - checkbox "Street Style" [ref=e251]
+              - generic [ref=e252]: Street Style
+        - generic [ref=e253]:
+          - generic [ref=e254]:
+            - generic [ref=e255]: test10
+            - img [ref=e258] [cursor=pointer]
+          - generic [ref=e261] [cursor=pointer]:
+            - checkbox "test" [ref=e262]
+            - generic [ref=e263]: test
+        - generic [ref=e264]:
+          - generic [ref=e265]:
+            - generic [ref=e266]: Months
+            - img [ref=e269] [cursor=pointer]
+          - generic [ref=e271]:
+            - generic [ref=e272] [cursor=pointer]:
+              - checkbox "Apr 2026" [ref=e273]
+              - generic [ref=e274]: Apr 2026
+            - generic [ref=e275] [cursor=pointer]:
+              - checkbox "Feb 2026" [ref=e276]
+              - generic [ref=e277]: Feb 2026
+            - generic [ref=e278] [cursor=pointer]:
+              - checkbox "Jan 2024" [ref=e279]
+              - generic [ref=e280]: Jan 2024
+            - generic [ref=e281] [cursor=pointer]:
+              - checkbox "Jan 2026" [ref=e282]
+              - generic [ref=e283]: Jan 2026
+            - generic [ref=e284] [cursor=pointer]:
+              - checkbox "January 2025" [ref=e285]
+              - generic [ref=e286]: January 2025
+            - generic [ref=e287] [cursor=pointer]:
+              - checkbox "Jul 2026" [ref=e288]
+              - generic [ref=e289]: Jul 2026
+            - generic [ref=e290] [cursor=pointer]:
+              - checkbox "Jun 2026" [ref=e291]
+              - generic [ref=e292]: Jun 2026
+            - generic [ref=e293] [cursor=pointer]:
+              - checkbox "Mar 2026" [ref=e294]
+              - generic [ref=e295]: Mar 2026
+            - generic [ref=e296] [cursor=pointer]:
+              - checkbox "May 2026" [ref=e297]
+              - generic [ref=e298]: May 2026
+        - generic [ref=e301]:
+          - generic "agagagag" [ref=e302]:
+            - img [ref=e303]
+          - img [ref=e306] [cursor=pointer]
+        - generic [ref=e310]:
+          - generic "agghhg" [ref=e311]:
+            - img [ref=e312]
+          - img [ref=e315] [cursor=pointer]
+        - generic [ref=e318]:
+          - generic [ref=e319]: Authors
+          - img [ref=e322] [cursor=pointer]
+        - generic [ref=e325]:
+          - generic [ref=e326]: Stock Status
+          - img [ref=e329] [cursor=pointer]
+        - generic [ref=e331]:
+          - generic [ref=e332]:
+            - generic [ref=e333]: Sale Status
+            - img [ref=e336] [cursor=pointer]
+          - generic [ref=e338]:
+            - generic [ref=e339] [cursor=pointer]:
+              - checkbox "Sale" [ref=e340]
+              - generic [ref=e341]: Sale
+            - generic [ref=e342] [cursor=pointer]:
+              - checkbox "Not Sale" [ref=e343]
+              - generic [ref=e344]: Not Sale
+        - img [ref=e349] [cursor=pointer]
+        - img [ref=e355] [cursor=pointer]
+        - img [ref=e361] [cursor=pointer]
+        - generic [ref=e363]:
+          - generic [ref=e364]:
+            - generic [ref=e365]: Date Filter
+            - img [ref=e368] [cursor=pointer]
+          - combobox [ref=e372]:
+            - option "All Time" [selected]
+            - option "Today"
+            - option "This Week"
+            - option "This Month"
+            - option "This Year"
+      - main [ref=e374]:
+        - generic [ref=e375]:
+          - navigation "Breadcrumb" [ref=e376]:
+            - link "Home" [ref=e377] [cursor=pointer]:
+              - /url: http://free-filter-plugin.local
+            - text: / shop
+          - generic [ref=e378]:
+            - heading "shop" [level=1] [ref=e379]
+            - generic [ref=e380]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - list
+              - list [ref=e385] [cursor=pointer]:
+                - listitem [ref=e386]: 1.5 kg
+                - listitem [ref=e387]: black
+                - listitem [ref=e388]: Olive
+                - listitem [ref=e389]: Sky
+                - listitem [ref=e390]: White
+                - listitem [ref=e391]: Yellow
+          - alert [ref=e392]: Showing 1–10 of 450 results
+          - combobox "Shop order" [ref=e394]:
+            - option "Default sorting" [selected]
+            - option "Sort by popularity"
+            - option "Sort by average rating"
+            - option "Sort by latest"
+            - 'option "Sort by price: low to high"'
+            - 'option "Sort by price: high to low"'
+          - list [ref=e395]:
+            - listitem [ref=e396]:
+              - link "Placeholder" [ref=e398] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                - img "Placeholder" [ref=e399]
+              - generic [ref=e400]:
+                - generic [ref=e401]: Diabetic Wellness
+                - link "1 Touch Prime Blood Glucose Test Monitor" [ref=e402] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                  - heading "1 Touch Prime Blood Glucose Test Monitor" [level=2] [ref=e403]
+                - link "Read more about “1 Touch Prime Blood Glucose Test Monitor”" [ref=e404] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                  - text: Read more
+            - listitem [ref=e406]:
+              - link "Placeholder" [ref=e408] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                - img "Placeholder" [ref=e409]
+              - generic [ref=e410]:
+                - generic [ref=e411]: Health Care
+                - 'link "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [ref=e412] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - 'heading "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [level=2] [ref=e413]'
+                - generic [ref=e416]: $20.00
+                - 'link "Select options for “100% Pure Acacia Honey with Natural Honeycomb Langnese - 500g: Nature''s Golden Delight”" [ref=e417] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - text: Select options
+                - generic [ref=e418]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e419]:
+              - link "Placeholder" [ref=e421] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/
+                - img "Placeholder" [ref=e422]
+              - generic [ref=e423]:
+                - generic [ref=e424]: Fingertip Oximeter
+                - 'link "302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking" [ref=e425] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/
+                  - 'heading "302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking" [level=2] [ref=e426]'
+                - generic [ref=e429]: $1,400.00
+                - 'button "Add to cart: “302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking”" [ref=e430] [cursor=pointer]': Add to cart
+            - listitem [ref=e432]:
+              - link "Placeholder" [ref=e434] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/
+                - img "Placeholder" [ref=e435]
+              - generic [ref=e436]:
+                - generic [ref=e437]: Digital Thermometers
+                - 'link "5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature" [ref=e438] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/
+                  - 'heading "5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature" [level=2] [ref=e439]'
+                - generic [ref=e442]: $11,800.00
+                - 'button "Add to cart: “5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature”" [ref=e443] [cursor=pointer]': Add to cart
+            - listitem [ref=e445]:
+              - link "Placeholder" [ref=e447] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/
+                - img "Placeholder" [ref=e448]
+              - generic [ref=e449]:
+                - generic [ref=e450]: Diabetic Wellness
+                - link "Accu Test Elite- Blood Glucose Monitoring System" [ref=e451] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/
+                  - heading "Accu Test Elite- Blood Glucose Monitoring System" [level=2] [ref=e452]
+                - generic [ref=e455]: $1,400.00
+                - 'button "Add to cart: “Accu Test Elite- Blood Glucose Monitoring System”" [ref=e456] [cursor=pointer]': Add to cart
+            - listitem [ref=e458]:
+              - generic [ref=e459]:
+                - link "Placeholder" [ref=e460] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/
+                  - img "Placeholder" [ref=e461]
+                - generic [ref=e462] [cursor=pointer]: Sale!
+              - generic [ref=e463]:
+                - generic [ref=e464]: Diabetic Wellness
+                - link "Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin" [ref=e465] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/
+                  - heading "Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin" [level=2] [ref=e466]
+                - generic [ref=e467]:
+                  - deletion [ref=e468]:
+                    - generic [ref=e470]: $7,000.00
+                  - generic [ref=e471]: "Original price was: $7,000.00."
+                  - insertion [ref=e472]:
+                    - generic [ref=e474]: $6,100.00
+                  - generic [ref=e475]: "Current price is: $6,100.00."
+                - 'button "Add to cart: “Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin”" [ref=e476] [cursor=pointer]': Add to cart
+            - listitem [ref=e478]:
+              - link "Placeholder" [ref=e480] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/
+                - img "Placeholder" [ref=e481]
+              - generic [ref=e482]:
+                - generic [ref=e483]: Diabetic Wellness
+                - 'link "Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions" [ref=e484] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions" [level=2] [ref=e485]'
+                - generic [ref=e488]: $499.00
+                - 'button "Add to cart: “Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions”" [ref=e489] [cursor=pointer]': Add to cart
+            - listitem [ref=e491]:
+              - link "Placeholder" [ref=e493] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/
+                - img "Placeholder" [ref=e494]
+              - generic [ref=e495]:
+                - generic [ref=e496]: Diabetic Wellness
+                - 'link "Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions" [ref=e497] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions" [level=2] [ref=e498]'
+                - generic [ref=e501]: $2,500.00
+                - 'button "Add to cart: “Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions”" [ref=e502] [cursor=pointer]': Add to cart
+            - listitem [ref=e504]:
+              - link "Placeholder" [ref=e506] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/
+                - img "Placeholder" [ref=e507]
+              - generic [ref=e508]:
+                - generic [ref=e509]: Uncategorized
+                - 'link "Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions" [ref=e510] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions" [level=2] [ref=e511]'
+                - generic [ref=e514]: $1,400.00
+                - 'button "Add to cart: “Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions”" [ref=e515] [cursor=pointer]': Add to cart
+            - listitem [ref=e517]:
+              - link "Placeholder" [ref=e519] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/
+                - img "Placeholder" [ref=e520]
+              - generic [ref=e521]:
+                - generic [ref=e522]: Diabetic Wellness
+                - 'link "Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions" [ref=e523] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/
+                  - 'heading "Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions" [level=2] [ref=e524]'
+                - generic [ref=e527]: $1,400.00
+                - 'button "Add to cart: “Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions”" [ref=e528] [cursor=pointer]': Add to cart
+          - navigation "Product Pagination" [ref=e530]:
+            - list [ref=e531]:
+              - listitem [ref=e532]:
+                - generic "Page 1" [ref=e533]: "1"
+              - listitem [ref=e534]:
+                - link "Page 2" [ref=e535] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/
+                  - text: "2"
+              - listitem [ref=e536]:
+                - link "Page 3" [ref=e537] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/3/
+                  - text: "3"
+              - listitem [ref=e538]:
+                - link "Page 4" [ref=e539] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/4/
+                  - text: "4"
+              - listitem [ref=e540]:
+                - generic [ref=e541]: …
+              - listitem [ref=e542]:
+                - link "Page 43" [ref=e543] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/43/
+                  - text: "43"
+              - listitem [ref=e544]:
+                - link "Page 44" [ref=e545] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/44/
+                  - text: "44"
+              - listitem [ref=e546]:
+                - link "Page 45" [ref=e547] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/45/
+                  - text: "45"
+              - listitem [ref=e548]:
+                - link "→" [ref=e549] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/
+    - contentinfo [ref=e550]:
+      - region "Footer Widget 1" [ref=e555]:
+        - paragraph [ref=e557]:
+          - link "Add Widget" [ref=e558] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/widgets.php
+      - paragraph [ref=e565]:
+        - text: Copyright © 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by
+        - link "Astra WordPress Theme" [ref=e566] [cursor=pointer]:
+          - /url: https://wpastra.com
+  - generic "Open Plugency Debugger" [ref=e567] [cursor=pointer]:
+    - img [ref=e568]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Performance"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Plugins
+            - list:
+              - listitem:
+                - generic: File
+                - strong: C:/Users/GM Team/Local Sites/free-filter-plugin/app/public/wp-content/plugins/woocommerce/templates/archive-product.php
+              - listitem:
+                - generic: Source
+                - strong: woocommerce
+              - listitem:
+                - generic: Matched rule
+                - strong: products/?$
+              - listitem:
+                - generic: Request
+                - strong: products
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Front-end
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/products/
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 40 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "180"
+              - listitem:
+                - generic: Total time
+                - strong: 0.1366s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0187s
+              - listitem:
+                - generic: Example
+                - strong: SELECT post_id, meta_value FROM wp_postmeta WHERE meta_key = '_wp_attached_file' AND meta_value = ''
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: every_minute
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: action_scheduler_run_queue
+              - listitem:
+                - generic: Runs in
+                - strong: 1 second
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 10:02:02 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (100 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 10:01:17
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2158"
+              - listitem:
+                - generic: Styles
+                - strong: "25"
+              - listitem:
+                - generic: Scripts
+                - strong: "19"
+              - listitem:
+                - generic: Queries
+                - strong: "180"
+              - listitem:
+                - generic: Request entries
+                - strong: "86"
+    - paragraph
+  - button "Re-consent" [ref=e571] [cursor=pointer]:
+    - img "Re-consent" [ref=e572]
+  - status [ref=e573]

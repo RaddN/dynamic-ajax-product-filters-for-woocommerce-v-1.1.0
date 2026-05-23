@@ -3,7 +3,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.6.0.20
+ * Version:     1.6.0.23
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -22,12 +22,40 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.6.0.20');
+define('DAPFFORWC_VERSION', '1.6.0.23');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
 if (!defined('DAPFFORWC_PLUGIN_BASE_NAME')) {
     define('DAPFFORWC_PLUGIN_BASE_NAME', plugin_basename(__FILE__));
+}
+
+if (!defined('DAPFFORWC_FILTER_CACHE_BATCH_HOOK')) {
+    define('DAPFFORWC_FILTER_CACHE_BATCH_HOOK', 'dapfforwc_process_filter_cache_batch');
+}
+
+if (!defined('DAPFFORWC_FILTER_CACHE_QUEUE_GROUP')) {
+    define('DAPFFORWC_FILTER_CACHE_QUEUE_GROUP', 'dapfforwc-filter-cache');
+}
+
+if (!defined('DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION')) {
+    define('DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION', 'dapfforwc_filter_cache_build_state');
+}
+
+if (!defined('DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION')) {
+    define('DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION', 'dapfforwc_filter_cache_build_data');
+}
+
+if (!defined('DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK')) {
+    define('DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK', 'dapfforwc_process_product_details_cache_batch');
+}
+
+if (!defined('DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION')) {
+    define('DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION', 'dapfforwc_product_details_cache_build_state');
+}
+
+if (!defined('DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION')) {
+    define('DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION', 'dapfforwc_product_details_cache_build_data');
 }
 
 // Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
@@ -85,42 +113,714 @@ $dapfforwc_seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options
 
 
 
-if (!function_exists('dapfforwc_check_seo_settings')) {
-    function dapfforwc_check_seo_settings()
+if (!function_exists('dapfforwc_get_filter_cache_empty_data')) {
+    function dapfforwc_get_filter_cache_empty_data()
     {
-        global $dapfforwc_seo_permalinks_options;
+        return [
+            'attributes' => [],
+            'categories' => [],
+            'tags' => [],
+            'brands' => [],
+            'authors' => [],
+            'custom_fields' => [],
+            'stock_status' => [],
+            'sale_status' => [],
+        ];
+    }
+}
 
-        // Get all attributes and custom fields for default prefix options
-        $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-        $all_attributes = $all_data['attributes'] ?? [];
-        $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
-        $custom_fields = $all_data['custom_fields'] ?? [];
-        $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+if (!function_exists('dapfforwc_get_published_product_count')) {
+    function dapfforwc_get_published_product_count()
+    {
+        global $wpdb;
+        static $count = null;
 
+        if ($count !== null) {
+            return $count;
+        }
+
+        $count = (int) $wpdb->get_var(
+            "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish'"
+        );
+
+        return $count;
+    }
+}
+
+if (!function_exists('dapfforwc_get_large_catalog_threshold')) {
+    function dapfforwc_get_large_catalog_threshold()
+    {
+        /**
+         * Filters the product count where automatic filter cache generation moves to background batches.
+         *
+         * @param int $threshold Published product count threshold.
+         */
+        return (int) apply_filters('dapfforwc_large_catalog_product_threshold', 5000);
+    }
+}
+
+if (!function_exists('dapfforwc_is_large_catalog')) {
+    function dapfforwc_is_large_catalog()
+    {
+        $threshold = dapfforwc_get_large_catalog_threshold();
+
+        return $threshold > 0 && dapfforwc_get_published_product_count() >= $threshold;
+    }
+}
+
+if (!function_exists('dapfforwc_use_large_catalog_database_mode')) {
+    function dapfforwc_use_large_catalog_database_mode()
+    {
+        /**
+         * Filters whether large catalogues should use the database-safe runtime path.
+         *
+         * When enabled, the plugin does not build or load serialized full-catalog
+         * product/term caches. Filter data is read as aggregate rows and product
+         * filtering stays in the WooCommerce/WP query layer.
+         *
+         * @param bool $enabled Whether database-safe mode is enabled.
+         * @param int  $count   Published product count.
+         */
+        return (bool) apply_filters(
+            'dapfforwc_use_large_catalog_database_mode',
+            dapfforwc_is_large_catalog(),
+            dapfforwc_get_published_product_count()
+        );
+    }
+}
+
+if (!function_exists('dapfforwc_update_filter_cache_status')) {
+    function dapfforwc_update_filter_cache_status($status, $message = '', $extra = [])
+    {
+        $payload = wp_parse_args(
+            is_array($extra) ? $extra : [],
+            [
+                'status' => sanitize_key($status),
+                'message' => sanitize_text_field($message),
+                'product_count' => function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0,
+                'updated_at' => time(),
+            ]
+        );
+
+        update_option('dapfforwc_filter_cache_status', $payload, false);
+    }
+}
+
+if (!function_exists('dapfforwc_is_filter_cache_build_locked')) {
+    function dapfforwc_is_filter_cache_build_locked()
+    {
+        $lock = get_option('dapfforwc_filter_cache_build_lock', []);
+        if (!is_array($lock) || empty($lock['started_at'])) {
+            return false;
+        }
+
+        $started_at = (int) $lock['started_at'];
+
+        return $started_at > 0 && (time() - $started_at) < (30 * MINUTE_IN_SECONDS);
+    }
+}
+
+if (!function_exists('dapfforwc_start_filter_cache_build')) {
+    function dapfforwc_start_filter_cache_build($manual = false)
+    {
+        if (!$manual && dapfforwc_is_filter_cache_build_locked()) {
+            return false;
+        }
+
+        update_option(
+            'dapfforwc_filter_cache_build_lock',
+            [
+                'started_at' => time(),
+                'manual' => $manual ? 1 : 0,
+            ],
+            false
+        );
+
+        dapfforwc_update_filter_cache_status(
+            'running',
+            $manual ? 'Manual filter cache build is running.' : 'Automatic filter cache build is running.',
+            ['manual' => $manual ? 1 : 0]
+        );
+
+        if (!has_action('shutdown', 'dapfforwc_filter_cache_shutdown_guard')) {
+            add_action('shutdown', 'dapfforwc_filter_cache_shutdown_guard');
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('dapfforwc_finish_filter_cache_build')) {
+    function dapfforwc_finish_filter_cache_build($status, $message = '', $extra = [])
+    {
+        delete_option('dapfforwc_filter_cache_build_lock');
+        dapfforwc_update_filter_cache_status($status, $message, $extra);
+    }
+}
+
+if (!function_exists('dapfforwc_filter_cache_shutdown_guard')) {
+    function dapfforwc_filter_cache_shutdown_guard()
+    {
+        if (!dapfforwc_is_filter_cache_build_locked()) {
+            return;
+        }
+
+        $error = error_get_last();
+        $fatal_types = [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR];
+
+        if (is_array($error) && in_array((int) $error['type'], $fatal_types, true)) {
+            dapfforwc_finish_filter_cache_build(
+                'failed',
+                'Filter cache build stopped before completion. Automatic retry is paused to prevent repeated fatal errors.',
+                [
+                    'error' => sanitize_text_field($error['message'] ?? ''),
+                    'file' => sanitize_text_field($error['file'] ?? ''),
+                    'line' => isset($error['line']) ? (int) $error['line'] : 0,
+                ]
+            );
+        }
+    }
+}
+
+if (!function_exists('dapfforwc_get_filter_cache_build_timeout')) {
+    function dapfforwc_get_filter_cache_build_timeout()
+    {
+        /**
+         * Filters how long a background filter-cache build may stay active before a new build can replace it.
+         *
+         * @param int $timeout Timeout in seconds.
+         */
+        return (int) apply_filters('dapfforwc_filter_cache_build_timeout', 6 * HOUR_IN_SECONDS);
+    }
+}
+
+if (!function_exists('dapfforwc_get_filter_cache_stale_after')) {
+    function dapfforwc_get_filter_cache_stale_after()
+    {
+        /**
+         * Filters how long a background cache run may show no progress before it needs attention.
+         *
+         * @param int $stale_after Stale threshold in seconds.
+         */
+        return max(5 * MINUTE_IN_SECONDS, (int) apply_filters('dapfforwc_filter_cache_stale_after', 30 * MINUTE_IN_SECONDS));
+    }
+}
+
+if (!function_exists('dapfforwc_get_background_cache_batch_delay')) {
+    function dapfforwc_get_background_cache_batch_delay($context = 'filter')
+    {
+        $context = sanitize_key($context);
+        $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+
+        if ($product_count >= 20000) {
+            $delay = 15;
+        } elseif ($product_count >= 5000) {
+            $delay = 10;
+        } else {
+            $delay = 3;
+        }
+
+        /**
+         * Filters the delay before the next background cache batch is scheduled.
+         *
+         * A positive delay prevents Action Scheduler from processing every generated
+         * batch inside one web request, which is the main 504 risk on large stores.
+         *
+         * @param int    $delay         Delay in seconds.
+         * @param string $context       Cache context.
+         * @param int    $product_count Published product count.
+         */
+        $delay = (int) apply_filters('dapfforwc_background_cache_batch_delay', $delay, $context, $product_count);
+
+        return max(1, min(300, $delay));
+    }
+}
+
+if (!function_exists('dapfforwc_get_filter_cache_paused_statuses')) {
+    function dapfforwc_get_filter_cache_paused_statuses()
+    {
+        return ['failed', 'needs_attention', 'paused'];
+    }
+}
+
+if (!function_exists('dapfforwc_is_filter_cache_rebuild_paused')) {
+    function dapfforwc_is_filter_cache_rebuild_paused($state = null)
+    {
+        $state = is_array($state) ? $state : dapfforwc_get_filter_cache_build_state();
+        $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+
+        return in_array($status, dapfforwc_get_filter_cache_paused_statuses(), true);
+    }
+}
+
+if (!function_exists('dapfforwc_is_background_cache_state_stale')) {
+    function dapfforwc_is_background_cache_state_stale($state)
+    {
+        if (!is_array($state)) {
+            return false;
+        }
+
+        $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+        if (!in_array($status, ['queued', 'running'], true)) {
+            return false;
+        }
+
+        $updated_at = isset($state['updated_at']) ? (int) $state['updated_at'] : 0;
+        if ($updated_at <= 0) {
+            return false;
+        }
+
+        return (time() - $updated_at) > dapfforwc_get_filter_cache_stale_after();
+    }
+}
+
+if (!function_exists('dapfforwc_get_filter_cache_build_state')) {
+    function dapfforwc_get_filter_cache_build_state()
+    {
+        $state = get_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, []);
+
+        return is_array($state) ? $state : [];
+    }
+}
+
+if (!function_exists('dapfforwc_is_filter_cache_background_build_active')) {
+    function dapfforwc_is_filter_cache_background_build_active($state = null)
+    {
+        $state = is_array($state) ? $state : dapfforwc_get_filter_cache_build_state();
+        $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+
+        if (!in_array($status, ['queued', 'running'], true)) {
+            return false;
+        }
+
+        $updated_at = isset($state['updated_at']) ? (int) $state['updated_at'] : 0;
+        $started_at = isset($state['started_at']) ? (int) $state['started_at'] : $updated_at;
+        $last_seen = max($updated_at, $started_at);
+
+        if ($last_seen <= 0) {
+            return false;
+        }
+
+        return (time() - $last_seen) < dapfforwc_get_filter_cache_build_timeout();
+    }
+}
+
+if (!function_exists('dapfforwc_get_cache_batch_args')) {
+    function dapfforwc_get_cache_batch_args($build_id)
+    {
+        $build_id = is_scalar($build_id) ? sanitize_text_field((string) $build_id) : '';
+
+        return $build_id !== '' ? [$build_id] : [];
+    }
+}
+
+if (!function_exists('dapfforwc_is_plugin_active_for_background_jobs')) {
+    function dapfforwc_is_plugin_active_for_background_jobs()
+    {
+        global $wpdb;
+
+        $plugin_file = defined('DAPFFORWC_PLUGIN_BASE_NAME') ? DAPFFORWC_PLUGIN_BASE_NAME : plugin_basename(__FILE__);
+
+        if (is_multisite() && isset($wpdb->sitemeta)) {
+            $site_id = function_exists('get_current_network_id') ? (int) get_current_network_id() : 1;
+            $network_plugins = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT meta_value FROM {$wpdb->sitemeta} WHERE site_id = %d AND meta_key = %s LIMIT 1",
+                    $site_id,
+                    'active_sitewide_plugins'
+                )
+            );
+            $network_plugins = maybe_unserialize($network_plugins);
+
+            if (is_array($network_plugins) && isset($network_plugins[$plugin_file])) {
+                return true;
+            }
+        }
+
+        $active_plugins = $wpdb->get_var(
+            $wpdb->prepare(
+                "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
+                'active_plugins'
+            )
+        );
+        $active_plugins = maybe_unserialize($active_plugins);
+
+        return is_array($active_plugins) && in_array($plugin_file, $active_plugins, true);
+    }
+}
+
+if (!function_exists('dapfforwc_schedule_filter_cache_batch')) {
+    function dapfforwc_schedule_filter_cache_batch($delay = 0, $build_id = '', $force = false)
+    {
+        $delay = max(0, (int) $delay);
+        $build_id = is_scalar($build_id) ? sanitize_text_field((string) $build_id) : '';
+
+        if ($force && !dapfforwc_is_plugin_active_for_background_jobs()) {
+            return false;
+        }
+
+        if ($build_id === '') {
+            $state = dapfforwc_get_filter_cache_build_state();
+            $build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+        }
+
+        $args = dapfforwc_get_cache_batch_args($build_id);
+
+        if (!$force && function_exists('as_next_scheduled_action') && as_next_scheduled_action(DAPFFORWC_FILTER_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP)) {
+            return true;
+        }
+
+        if (function_exists('as_enqueue_async_action') && $delay === 0) {
+            return (bool) as_enqueue_async_action(DAPFFORWC_FILTER_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP);
+        }
+
+        if (function_exists('as_schedule_single_action')) {
+            return (bool) as_schedule_single_action(time() + $delay, DAPFFORWC_FILTER_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP);
+        }
+
+        if ($force || !wp_next_scheduled(DAPFFORWC_FILTER_CACHE_BATCH_HOOK, $args)) {
+            return (bool) wp_schedule_single_event(time() + $delay, DAPFFORWC_FILTER_CACHE_BATCH_HOOK, $args);
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('dapfforwc_schedule_filter_cache_rebuild')) {
+    function dapfforwc_schedule_filter_cache_rebuild($reason = 'automatic', $force = false)
+    {
+        if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+            dapfforwc_update_filter_cache_status(
+                'database_mode',
+                'Large catalogue detected. Full serialized filter cache rebuild is skipped because database-safe automatic mode is active.',
+                [
+                    'reason' => sanitize_key($reason),
+                    'mode' => 'database_safe',
+                ]
+            );
+            return false;
+        }
+
+        $state = dapfforwc_get_filter_cache_build_state();
+
+        if (!$force && dapfforwc_is_filter_cache_rebuild_paused($state)) {
+            dapfforwc_update_filter_cache_status(
+                'needs_attention',
+                'Automatic filter cache rebuild is paused after a failed or stalled background run. Review the cache status in plugin settings before retrying.',
+                [
+                    'reason' => sanitize_key($reason),
+                    'paused' => 1,
+                ]
+            );
+            return false;
+        }
+
+        if (!$force && dapfforwc_is_filter_cache_background_build_active($state)) {
+            $build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+            dapfforwc_schedule_filter_cache_batch(dapfforwc_get_background_cache_batch_delay('filter'), $build_id);
+            return true;
+        }
+
+        if ($force) {
+            delete_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION);
+        }
+
+        $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+        $build_id = function_exists('wp_generate_uuid4') ? wp_generate_uuid4() : md5(uniqid('dapfforwc', true));
+
+        $state = [
+            'build_id' => $build_id,
+            'status' => 'queued',
+            'reason' => sanitize_key($reason),
+            'last_id' => 0,
+            'processed' => 0,
+            'product_count' => $product_count,
+            'started_at' => time(),
+            'updated_at' => time(),
+        ];
+
+        update_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION, $state, false);
+        dapfforwc_update_filter_cache_status(
+            'queued',
+            'Automatic filter cache rebuild is queued and will run in background batches.',
+            [
+                'processed' => 0,
+                'reason' => sanitize_key($reason),
+            ]
+        );
+
+        return dapfforwc_schedule_filter_cache_batch(dapfforwc_get_background_cache_batch_delay('filter'), $build_id);
+    }
+}
+
+if (!function_exists('dapfforwc_get_product_details_cache_build_state')) {
+    function dapfforwc_get_product_details_cache_build_state()
+    {
+        $state = get_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, []);
+
+        return is_array($state) ? $state : [];
+    }
+}
+
+if (!function_exists('dapfforwc_is_product_details_cache_background_build_active')) {
+    function dapfforwc_is_product_details_cache_background_build_active($state = null)
+    {
+        $state = is_array($state) ? $state : dapfforwc_get_product_details_cache_build_state();
+        $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+
+        if (!in_array($status, ['queued', 'running'], true)) {
+            return false;
+        }
+
+        $updated_at = isset($state['updated_at']) ? (int) $state['updated_at'] : 0;
+        $started_at = isset($state['started_at']) ? (int) $state['started_at'] : $updated_at;
+        $last_seen = max($updated_at, $started_at);
+
+        if ($last_seen <= 0) {
+            return false;
+        }
+
+        return (time() - $last_seen) < dapfforwc_get_filter_cache_build_timeout();
+    }
+}
+
+if (!function_exists('dapfforwc_schedule_product_details_cache_batch')) {
+    function dapfforwc_schedule_product_details_cache_batch($delay = 0, $build_id = '', $force = false)
+    {
+        $delay = max(0, (int) $delay);
+        $build_id = is_scalar($build_id) ? sanitize_text_field((string) $build_id) : '';
+
+        if ($force && !dapfforwc_is_plugin_active_for_background_jobs()) {
+            return false;
+        }
+
+        if ($build_id === '') {
+            $state = dapfforwc_get_product_details_cache_build_state();
+            $build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+        }
+
+        $args = dapfforwc_get_cache_batch_args($build_id);
+
+        if (!$force && function_exists('as_next_scheduled_action') && as_next_scheduled_action(DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP)) {
+            return true;
+        }
+
+        if (function_exists('as_enqueue_async_action') && $delay === 0) {
+            return (bool) as_enqueue_async_action(DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP);
+        }
+
+        if (function_exists('as_schedule_single_action')) {
+            return (bool) as_schedule_single_action(time() + $delay, DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, $args, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP);
+        }
+
+        if ($force || !wp_next_scheduled(DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, $args)) {
+            return (bool) wp_schedule_single_event(time() + $delay, DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK, $args);
+        }
+
+        return true;
+    }
+}
+
+if (!function_exists('dapfforwc_schedule_product_details_cache_rebuild')) {
+    function dapfforwc_schedule_product_details_cache_rebuild($reason = 'automatic', $force = false)
+    {
+        if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+            return false;
+        }
+
+        $state = dapfforwc_get_product_details_cache_build_state();
+
+        if (!$force && dapfforwc_is_filter_cache_rebuild_paused(dapfforwc_get_filter_cache_build_state())) {
+            return false;
+        }
+
+        if (!$force && dapfforwc_is_product_details_cache_background_build_active($state)) {
+            $build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+            dapfforwc_schedule_product_details_cache_batch(dapfforwc_get_background_cache_batch_delay('product_details'), $build_id);
+            return true;
+        }
+
+        if ($force) {
+            delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION);
+        }
+
+        $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+        $build_id = function_exists('wp_generate_uuid4') ? wp_generate_uuid4() : md5(uniqid('dapfforwc-product-details', true));
+        $state = [
+            'build_id' => $build_id,
+            'status' => 'queued',
+            'reason' => sanitize_key($reason),
+            'last_id' => 0,
+            'processed' => 0,
+            'product_count' => $product_count,
+            'started_at' => time(),
+            'updated_at' => time(),
+        ];
+
+        update_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION, $state, false);
+
+        return dapfforwc_schedule_product_details_cache_batch(dapfforwc_get_background_cache_batch_delay('product_details'), $build_id);
+    }
+}
+
+if (!function_exists('dapfforwc_unschedule_cache_batch_hook')) {
+    function dapfforwc_unschedule_cache_batch_hook($hook)
+    {
+        $hook = sanitize_key($hook);
+
+        if ($hook === '') {
+            return;
+        }
+
+        if (function_exists('as_unschedule_all_actions')) {
+            as_unschedule_all_actions($hook, null, DAPFFORWC_FILTER_CACHE_QUEUE_GROUP);
+        }
+
+        if (function_exists('wp_unschedule_hook')) {
+            wp_unschedule_hook($hook);
+            return;
+        }
+
+        if (function_exists('_get_cron_array')) {
+            $cron = _get_cron_array();
+            if (is_array($cron)) {
+                foreach ($cron as $timestamp => $events) {
+                    if (empty($events[$hook]) || !is_array($events[$hook])) {
+                        continue;
+                    }
+
+                    foreach ($events[$hook] as $event) {
+                        $args = isset($event['args']) && is_array($event['args']) ? $event['args'] : [];
+                        wp_unschedule_event((int) $timestamp, $hook, $args);
+                    }
+                }
+            }
+            return;
+        }
+
+        while ($timestamp = wp_next_scheduled($hook)) {
+            wp_unschedule_event($timestamp, $hook);
+        }
+    }
+}
+
+if (!function_exists('dapfforwc_unschedule_filter_cache_background_jobs')) {
+    function dapfforwc_unschedule_filter_cache_background_jobs()
+    {
+        dapfforwc_unschedule_cache_batch_hook(DAPFFORWC_FILTER_CACHE_BATCH_HOOK);
+        dapfforwc_unschedule_cache_batch_hook(DAPFFORWC_PRODUCT_DETAILS_CACHE_BATCH_HOOK);
+    }
+}
+
+if (!function_exists('dapfforwc_cancel_filter_cache_background_jobs')) {
+    function dapfforwc_cancel_filter_cache_background_jobs($reason = 'cancelled')
+    {
+        $filter_state = dapfforwc_get_filter_cache_build_state();
+        $details_state = dapfforwc_get_product_details_cache_build_state();
+        $product_count = 0;
+
+        if (isset($filter_state['product_count'])) {
+            $product_count = (int) $filter_state['product_count'];
+        } elseif (isset($details_state['product_count'])) {
+            $product_count = (int) $details_state['product_count'];
+        }
+
+        dapfforwc_unschedule_filter_cache_background_jobs();
+
+        delete_option('dapfforwc_filter_cache_build_lock');
+        delete_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION);
+        delete_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION);
+        delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION);
+        delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION);
+
+        update_option(
+            'dapfforwc_filter_cache_status',
+            [
+                'status' => 'cancelled',
+                'message' => 'Background filter cache build was cancelled because the plugin was deactivated.',
+                'product_count' => $product_count,
+                'reason' => sanitize_key($reason),
+                'updated_at' => time(),
+            ],
+            false
+        );
+    }
+}
+
+if (!function_exists('dapfforwc_should_skip_automatic_filter_cache_build')) {
+    function dapfforwc_should_skip_automatic_filter_cache_build($manual = false)
+    {
+        if ($manual) {
+            return false;
+        }
+
+        if (dapfforwc_is_filter_cache_rebuild_paused()) {
+            return true;
+        }
+
+        if (dapfforwc_is_filter_cache_build_locked() || dapfforwc_is_filter_cache_background_build_active()) {
+            $state = dapfforwc_get_filter_cache_build_state();
+            $build_id = isset($state['build_id']) ? sanitize_text_field((string) $state['build_id']) : '';
+            dapfforwc_schedule_filter_cache_batch(dapfforwc_get_background_cache_batch_delay('filter'), $build_id);
+            return true;
+        }
+
+        if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+            dapfforwc_update_filter_cache_status(
+                'database_mode',
+                'Large catalogue detected. Full serialized filter caches are skipped and filter data is loaded through the database-safe automatic mode.',
+                ['mode' => 'database_safe']
+            );
+            return true;
+        }
+
+        if (dapfforwc_is_large_catalog()) {
+            dapfforwc_schedule_filter_cache_rebuild('cache_miss');
+            return true;
+        }
+
+        return false;
+    }
+}
+
+if (!function_exists('dapfforwc_get_registered_attribute_prefix_options')) {
+    function dapfforwc_get_registered_attribute_prefix_options($exclude_attributes = [])
+    {
+        $exclude_attributes = is_array($exclude_attributes) ? array_map('sanitize_key', $exclude_attributes) : [];
         $attributes = [];
-        foreach ($all_attributes as $attribute) {
-            if (in_array($attribute['attribute_name'], $exclude_attributes)) {
-                continue;
+
+        if (function_exists('wc_get_attribute_taxonomies')) {
+            $attribute_taxonomies = wc_get_attribute_taxonomies();
+            if (is_array($attribute_taxonomies)) {
+                foreach ($attribute_taxonomies as $attribute) {
+                    $attribute_name = isset($attribute->attribute_name) ? sanitize_key($attribute->attribute_name) : '';
+                    if ($attribute_name === '' || in_array($attribute_name, $exclude_attributes, true)) {
+                        continue;
+                    }
+
+                    $attributes[] = (object) [
+                        'attribute_name' => $attribute_name,
+                        'attribute_label' => isset($attribute->attribute_label) ? $attribute->attribute_label : $attribute_name,
+                    ];
+                }
             }
-            $attributes[] = (object) [
-                'attribute_name' => $attribute['attribute_name'],
-                'attribute_label' => $attribute['attribute_label'],
-            ];
         }
 
-        $all_custom_fields = [];
-        foreach ($custom_fields as $custom_field) {
-            if (in_array($custom_field['name'], $exclude_custom_fields)) {
-                continue;
-            }
-            $all_custom_fields[] = (object) [
-                'attribute_name' => $custom_field['name'],
-                'attribute_label' => $custom_field['label'],
-            ];
-        }
+        return $attributes;
+    }
+}
 
-        // Define default SEO permalink options
-        $default_seo_permalinks_options = [
+if (!function_exists('dapfforwc_get_seo_permalink_default_options')) {
+    function dapfforwc_get_seo_permalink_default_options($advance_options = [])
+    {
+        $advance_options = is_array($advance_options) ? $advance_options : [];
+        $exclude_attributes = isset($advance_options['exclude_attributes']) && $advance_options['exclude_attributes'] !== ''
+            ? array_filter(array_map('trim', explode(',', (string) $advance_options['exclude_attributes'])))
+            : [];
+
+        $attributes = dapfforwc_get_registered_attribute_prefix_options($exclude_attributes);
+
+        return [
             'use_attribute_type_in_permalinks' => "on",
             'dapfforwc_permalinks_prefix_options' => [
                 "product-category" => 'cata',
@@ -135,10 +835,7 @@ if (!function_exists('dapfforwc_check_seo_settings')) {
                     'material' => 'material',
                     'style' => 'style',
                 ],
-                'custom' => !empty($all_custom_fields) ? array_reduce($all_custom_fields, function ($carry, $attr) {
-                    $carry[$attr->attribute_name] = $attr->attribute_name;
-                    return $carry;
-                }, []) : [],
+                'custom' => [],
                 'price' => 'price',
                 'rating' => 'rating',
                 'brand' => 'brand',
@@ -166,6 +863,16 @@ if (!function_exists('dapfforwc_check_seo_settings')) {
             'use_filters_word_in_permalinks' => '',
             'use_anchor' => 0,
         ];
+    }
+}
+
+if (!function_exists('dapfforwc_check_seo_settings')) {
+    function dapfforwc_check_seo_settings()
+    {
+        global $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings;
+
+        // Define default SEO permalink options
+        $default_seo_permalinks_options = dapfforwc_get_seo_permalink_default_options($dapfforwc_advance_settings);
 
         // Merge with existing options and check for missing keys
         if (!empty($dapfforwc_seo_permalinks_options)) {
@@ -1677,7 +2384,7 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.6.0.20', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.6.0.23', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
     $dapfforwc_localized_data = array(
         'dapfforwc_options' => $dapfforwc_options,
@@ -1698,9 +2405,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.6.0.20');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.20');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.20', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.6.0.23');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.23');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.23', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -1753,11 +2460,11 @@ function dapfforwc_admin_scripts($hook)
         'dapfforwc-admin-menu-style',
         plugin_dir_url(__FILE__) . 'assets/css/admin-menu.min.css',
         [],
-        '1.6.0.20',
+        '1.6.0.23',
         'all'
     );
 
-    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.6.0.20', true);
+    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.6.0.23', true);
     
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
@@ -1771,13 +2478,13 @@ function dapfforwc_admin_scripts($hook)
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.6.0.20', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.6.0.23', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], $dapfforwc_media_uploader_version, true);
 
 
-    wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.20');
-    wp_enqueue_script('pluginy-select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.20', true);
+    wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.23');
+    wp_enqueue_script('pluginy-select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.23', true);
 
 
     $inline_script = 'document.addEventListener("DOMContentLoaded", function () {
@@ -2098,7 +2805,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.6.0.20');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.6.0.23');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -2352,7 +3059,7 @@ function dapfforwc_editor_script()
         'plugincy-custom-editor',
         plugin_dir_url(__FILE__) . 'includes/blocks/editor.js',
         array('wp-blocks', 'wp-element', 'wp-edit-post', 'wp-dom-ready', 'wp-plugins'),
-        '1.6.0.20',
+        '1.6.0.23',
         true
     );
 }
@@ -2400,7 +3107,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.6.0.20",
+            "1.6.0.23",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -2942,7 +3649,10 @@ register_activation_hook(__FILE__, 'dapfforwc_activate');
  */
 function dapfforwc_deactivate()
 {
-    // Clean up if needed
+    if (function_exists('dapfforwc_cancel_filter_cache_background_jobs')) {
+        dapfforwc_cancel_filter_cache_background_jobs('deactivation');
+    }
+
     flush_rewrite_rules();
 }
 register_deactivation_hook(__FILE__, 'dapfforwc_deactivate');
@@ -3240,10 +3950,15 @@ add_action('wp_enqueue_scripts', function () {
 });
 
 // Function to clear all cache files
-function dapfforwc_clear_woocommerce_caches()
+function dapfforwc_clear_woocommerce_caches($context = null, $schedule_rebuild = true)
 {
+    if (function_exists('dapfforwc_unschedule_filter_cache_background_jobs')) {
+        dapfforwc_unschedule_filter_cache_background_jobs();
+    }
+
     $transients = array(
         'dapfforwc_attributes_cache_v2',
+        'dapfforwc_filter_options_light_cache_v1',
         'dapfforwc_product_details_cache_v1',
         'dapfforwc_product_details_cache_v2',
         'dapfforwc_product_details_cache_v3',
@@ -3265,10 +3980,105 @@ function dapfforwc_clear_woocommerce_caches()
             wp_delete_file($cache_file);
         }
     }
+
+    delete_option('dapfforwc_filter_cache_build_lock');
+    delete_option(DAPFFORWC_FILTER_CACHE_BUILD_DATA_OPTION);
+    delete_option(DAPFFORWC_FILTER_CACHE_BUILD_STATE_OPTION);
+    delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION);
+    delete_option(DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_STATE_OPTION);
+
+    if (function_exists('dapfforwc_update_filter_cache_status')) {
+        dapfforwc_update_filter_cache_status('cleared', 'Filter cache was cleared.');
+    }
+
+    if ($schedule_rebuild && function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+        if (function_exists('dapfforwc_update_filter_cache_status')) {
+            dapfforwc_update_filter_cache_status(
+                'database_mode',
+                'Large catalogue detected. The plugin is using database-safe automatic filter data and will not build full-catalog serialized caches.',
+                ['mode' => 'database_safe']
+            );
+        }
+
+        return;
+    }
+
+    if ($schedule_rebuild && function_exists('dapfforwc_schedule_filter_cache_rebuild')) {
+        dapfforwc_schedule_filter_cache_rebuild('cache_clear', true);
+        if (function_exists('dapfforwc_schedule_product_details_cache_rebuild')) {
+            dapfforwc_schedule_product_details_cache_rebuild('cache_clear', true);
+        }
+    }
 }
 
 
 register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
+
+function dapfforwc_large_catalog_cache_notice()
+{
+    if (!is_admin() || wp_doing_ajax() || !current_user_can('manage_options')) {
+        return;
+    }
+
+    if (!function_exists('dapfforwc_is_large_catalog') || !dapfforwc_is_large_catalog()) {
+        return;
+    }
+
+    $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+    $threshold = function_exists('dapfforwc_get_large_catalog_threshold') ? dapfforwc_get_large_catalog_threshold() : 0;
+
+    if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
+        ?>
+        <div class="notice notice-info">
+            <p>
+                <?php
+                printf(
+                    /* translators: 1: product count, 2: threshold */
+                    esc_html__('Dynamic AJAX Product Filters detected %1$d published products. This catalogue is above the %2$d product threshold, so the plugin is using database-safe automatic mode instead of building full-catalog serialized caches.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                    (int) $product_count,
+                    (int) $threshold
+                );
+                ?>
+            </p>
+        </div>
+        <?php
+        return;
+    }
+
+    $cache = get_transient('dapfforwc_attributes_cache_v2');
+    if (is_array($cache)) {
+        return;
+    }
+
+    $state = function_exists('dapfforwc_get_filter_cache_build_state') ? dapfforwc_get_filter_cache_build_state() : [];
+    $status = isset($state['status']) ? sanitize_key($state['status']) : '';
+    $processed = isset($state['processed']) ? (int) $state['processed'] : 0;
+
+    if (!function_exists('dapfforwc_is_filter_cache_background_build_active') || !dapfforwc_is_filter_cache_background_build_active($state)) {
+        dapfforwc_schedule_filter_cache_rebuild('admin_notice');
+    }
+    ?>
+    <div class="notice notice-info">
+        <p>
+            <?php
+            printf(
+                /* translators: 1: product count, 2: threshold, 3: processed product count */
+                esc_html__('Dynamic AJAX Product Filters detected %1$d published products. The filter cache is being generated automatically in background batches because the catalogue is above the %2$d product synchronous-build threshold. Processed so far: %3$d products.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                (int) $product_count,
+                (int) $threshold,
+                (int) $processed
+            );
+            ?>
+            <?php
+            if ($status === 'failed') {
+                esc_html_e('The previous background run failed and a new run has been queued automatically.', 'dynamic-ajax-product-filters-for-woocommerce');
+            }
+            ?>
+        </p>
+    </div>
+    <?php
+}
+add_action('admin_notices', 'dapfforwc_large_catalog_cache_notice');
 
 
 

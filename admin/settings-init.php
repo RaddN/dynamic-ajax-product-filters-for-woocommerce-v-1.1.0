@@ -6,7 +6,7 @@ if (!defined('ABSPATH')) {
 }
 function dapfforwc_settings_init()
 {
-    $dapfforwc_options = get_option('dapfforwc_options') ?: [
+    $default_dapfforwc_options = [
         'show_categories' => "on",
         'show_attributes' => "on",
         'show_tags' => "on",
@@ -35,7 +35,13 @@ function dapfforwc_settings_init()
         'pagination_selector' => '.woocommerce-pagination',
         'filters_word_in_permalinks' => 'filters',
     ];
-    update_option('dapfforwc_options', $dapfforwc_options);
+    $dapfforwc_options = get_option('dapfforwc_options', false);
+    if ($dapfforwc_options === false || !is_array($dapfforwc_options)) {
+        $dapfforwc_options = $default_dapfforwc_options;
+        add_option('dapfforwc_options', $dapfforwc_options);
+    } else {
+        $dapfforwc_options = wp_parse_args($dapfforwc_options, $default_dapfforwc_options);
+    }
 
     register_setting(
         'dapfforwc_options_group',
@@ -144,13 +150,19 @@ function dapfforwc_settings_init()
     // custom code template
     // add_settings_field('custom_template_code', esc_html__('product custom template code', 'dynamic-ajax-product-filters-for-woocommerce'), 'dapfforwc_custom_template_code_render', 'dapfforwc-admin', 'dapfforwc_section');
 
-    $default_style = get_option('dapfforwc_style_options') ?: [
+    $default_style_options = [
         'price' => ['type' => 'price', 'sub_option' => 'price', 'auto_price' => "on"],
         'rating' => ['type' => 'rating', 'sub_option' => 'rating'],
         'brands' => ['type' => 'brands', 'sub_option' => 'image'],
         'max_height' => ['product-category' => '400', "tag" => '400'],
     ];
-    update_option('dapfforwc_style_options', $default_style);
+    $default_style = get_option('dapfforwc_style_options', false);
+    if ($default_style === false || !is_array($default_style)) {
+        $default_style = $default_style_options;
+        add_option('dapfforwc_style_options', $default_style);
+    } else {
+        $default_style = wp_parse_args($default_style, $default_style_options);
+    }
     // form style register
     register_setting(
         'dapfforwc_style_options_group',
@@ -169,7 +181,7 @@ function dapfforwc_settings_init()
     );
 
     //   advance settings register
-    $Advance_options = get_option('dapfforwc_advance_options') ?: [
+    $default_advance_options = [
         'product_selector' => 'ul.products',
         'pagination_selector' => '.woocommerce-pagination',
         'sorting_selector' => 'form.woocommerce-ordering select',
@@ -191,7 +203,13 @@ function dapfforwc_settings_init()
         'no_products_text' => 'No products were found matching your selection.',
         'select2_placeholder' => 'Select Options',
     ];
-    update_option('dapfforwc_advance_options', $Advance_options);
+    $Advance_options = get_option('dapfforwc_advance_options', false);
+    if ($Advance_options === false || !is_array($Advance_options)) {
+        $Advance_options = $default_advance_options;
+        add_option('dapfforwc_advance_options', $Advance_options);
+    } else {
+        $Advance_options = wp_parse_args($Advance_options, $default_advance_options);
+    }
     register_setting(
         'dapfforwc_advance_settings',
         'dapfforwc_advance_options',
@@ -268,31 +286,10 @@ function dapfforwc_settings_init()
     add_settings_field('mobile_breakpoint', esc_html__('Mobile Breakpoint', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_mobile_breakpoint_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
     add_settings_field('default_value_selected', esc_html__('Make Default Options Selected', 'dynamic-ajax-product-filters-for-woocommerce'), "dapfforwc_default_value_selected_render", 'dapfforwc-advance-settings', 'dapfforwc_advance_settings_section');
 
-    $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
-    $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
     $exclude_attributes = isset($Advance_options['exclude_attributes']) ? explode(',', $Advance_options['exclude_attributes']) : [];
-    $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
-    $exclude_custom_fields = isset($Advance_options['exclude_custom_fields']) ? explode(',', $Advance_options['exclude_custom_fields']) : [];
-    $attributes = [];
-    foreach ($all_attributes as $attribute) {
-        if (in_array($attribute['attribute_name'], $exclude_attributes)) {
-            continue;
-        }
-        $attributes[] = (object) [
-            'attribute_name' => $attribute['attribute_name'],
-            'attribute_label' => $attribute['attribute_label'],
-        ];
-    }
-    $all_custom_fields = [];
-    foreach ($custom_fields as $custom_field) {
-        if (in_array($custom_field['name'], $exclude_custom_fields)) {
-            continue;
-        }
-        $all_custom_fields[] = (object) [
-            'attribute_name' => $custom_field['name'],
-            'attribute_label' => $custom_field['label'],
-        ];
-    }
+    $attributes = function_exists('dapfforwc_get_registered_attribute_prefix_options')
+        ? dapfforwc_get_registered_attribute_prefix_options($exclude_attributes)
+        : [];
 
     register_setting(
         'dapfforwc_template_options_group',
@@ -302,58 +299,66 @@ function dapfforwc_settings_init()
 
     global $template_options;
 
-    update_option('dapfforwc_template_options', $template_options);
+    if (get_option('dapfforwc_template_options', false) === false) {
+        add_option('dapfforwc_template_options', $template_options);
+    }
 
     // seo-permalinks settings register
-    $seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options') ?: [
-        'use_attribute_type_in_permalinks' => "on",
-        'dapfforwc_permalinks_prefix_options' => [
-            "product-category" => 'cata',
-            'tag' => 'tags',
-            'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
-                $carry[$attr->attribute_name] = $attr->attribute_name;
-                return $carry;
-            }, []) : [
-                'color' => 'color',
-                'size' => 'size',
-                'brand' => 'brand',
-                'material' => 'material',
-                'style' => 'style',
-            ],
-            'custom' => !empty($all_custom_fields) ? array_reduce($all_custom_fields, function ($carry, $attr) {
-                $carry[$attr->attribute_name] = $attr->attribute_name;
-                return $carry;
-            }, []) : [],
-            'price' => 'price',
-            'rating' => 'rating',
-            'brand' => 'brand',
-            'author' => 'author',
-            'stock_status' => 'stockStatus',
-            'sale_status' => 'saleStatus',
-            'sale_status' => 'saleStatus',
-            'width' => 'width',
-            'min_width' => 'min_width',
-            'max_width' => 'max_width',
-            'length' => 'length',
-            'height' => 'height',
-            'min_height' => 'min_height',
-            'max_height' => 'max_height',
-            'weight' => 'weight',
-            'min_weight' => 'min_weight',
-            'max_weight' => 'max_weight',
-            'sku' => 'sku',
-            'discount' => 'discount',
-            'date_filter' => 'date',
-            'pagination' => 'paged',
-            'plugincy_search' => 'title',
-            'orderby' => 'orderby',
-        ],
-        'filters_word_in_permalinks' => 'filters',
-        'use_filters_word_in_permalinks' => '',
-        'use_anchor' => 0,
-    ];
+    $default_seo_permalinks_options = (
+        function_exists('dapfforwc_get_seo_permalink_default_options')
+            ? dapfforwc_get_seo_permalink_default_options($Advance_options)
+            : [
+                'use_attribute_type_in_permalinks' => "on",
+                'dapfforwc_permalinks_prefix_options' => [
+                    "product-category" => 'cata',
+                    'tag' => 'tags',
+                    'attribute' => !empty($attributes) ? array_reduce($attributes, function ($carry, $attr) {
+                        $carry[$attr->attribute_name] = $attr->attribute_name;
+                        return $carry;
+                    }, []) : [
+                        'color' => 'color',
+                        'size' => 'size',
+                        'brand' => 'brand',
+                        'material' => 'material',
+                        'style' => 'style',
+                    ],
+                    'custom' => [],
+                    'price' => 'price',
+                    'rating' => 'rating',
+                    'brand' => 'brand',
+                    'author' => 'author',
+                    'stock_status' => 'stockStatus',
+                    'sale_status' => 'saleStatus',
+                    'width' => 'width',
+                    'min_width' => 'min_width',
+                    'max_width' => 'max_width',
+                    'length' => 'length',
+                    'height' => 'height',
+                    'min_height' => 'min_height',
+                    'max_height' => 'max_height',
+                    'weight' => 'weight',
+                    'min_weight' => 'min_weight',
+                    'max_weight' => 'max_weight',
+                    'sku' => 'sku',
+                    'discount' => 'discount',
+                    'date_filter' => 'date',
+                    'pagination' => 'paged',
+                    'plugincy_search' => 'title',
+                    'orderby' => 'orderby',
+                ],
+                'filters_word_in_permalinks' => 'filters',
+                'use_filters_word_in_permalinks' => '',
+                'use_anchor' => 0,
+            ]
+    );
+    $seo_permalinks_options = get_option('dapfforwc_seo_permalinks_options', false);
+    if ($seo_permalinks_options === false || !is_array($seo_permalinks_options)) {
+        $seo_permalinks_options = $default_seo_permalinks_options;
+        add_option('dapfforwc_seo_permalinks_options', $seo_permalinks_options);
+    } else {
+        $seo_permalinks_options = wp_parse_args($seo_permalinks_options, $default_seo_permalinks_options);
+    }
 
-    update_option('dapfforwc_seo_permalinks_options', $seo_permalinks_options);
     register_setting(
         'dapfforwc_seo_permalinks_settings',
         'dapfforwc_seo_permalinks_options',

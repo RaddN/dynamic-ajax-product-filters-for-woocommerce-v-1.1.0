@@ -347,7 +347,7 @@ function dapfforwc_admin_page_content()
                     <p class="tagline"><?php echo esc_html__('Transform your store with lightning-fast, user-friendly product filtering', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                 </div>
                 <div class="version-badge">
-                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.6.0.20</span>
+                    <span><?php echo esc_html__('Version', 'dynamic-ajax-product-filters-for-woocommerce'); ?> 1.6.0.23</span>
                 </div>
             </div>
 
@@ -822,8 +822,31 @@ function dapfforwc_admin_page_content()
                         </form>
 
                         <h2><?php echo esc_html__('Cache Management', 'dynamic-ajax-product-filters-for-woocommerce'); ?></h2>
+                        <?php
+                        $dapfforwc_cache_status = get_option('dapfforwc_filter_cache_status', []);
+                        $dapfforwc_cache_status_text = is_array($dapfforwc_cache_status) && !empty($dapfforwc_cache_status['message'])
+                            ? sanitize_text_field($dapfforwc_cache_status['message'])
+                            : '';
+                        $dapfforwc_cache_product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
+                        $dapfforwc_database_safe_mode = function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode();
+                        ?>
                         <table class="form-table" role="presentation">
                             <tbody>
+                                <?php if ($dapfforwc_cache_status_text !== '') : ?>
+                                    <tr>
+                                        <th scope="row"><?php echo esc_html__('Cache Status', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
+                                        <td>
+                                            <p class="description">
+                                                <?php echo esc_html($dapfforwc_cache_status_text); ?>
+                                                <?php
+                                                if (!empty($dapfforwc_cache_status['updated_at'])) {
+                                                    echo ' ' . esc_html(sprintf(__('Last updated: %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) $dapfforwc_cache_status['updated_at'])));
+                                                }
+                                                ?>
+                                            </p>
+                                        </td>
+                                    </tr>
+                                <?php endif; ?>
                                 <tr>
                                     <th scope="row"><?php echo esc_html__('Clear Cache', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
                                     <td>
@@ -834,6 +857,36 @@ function dapfforwc_admin_page_content()
                                             <button type="submit" name="dapfforwc_clear_cache_button" id="dapfforwc_clear_cache_button" class="button button-primary">
                                                 <span class="dashicons dashicons-update" style="vertical-align: middle; margin-right: 5px;"></span>
                                                 <?php echo esc_html__('Clear Cache', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row"><?php echo esc_html__('Refresh Filter Cache', 'dynamic-ajax-product-filters-for-woocommerce'); ?></th>
+                                    <td>
+                                        <p class="description" style="margin-bottom: 10px;">
+                                            <?php
+                                            if ($dapfforwc_database_safe_mode) {
+                                                printf(
+                                                    /* translators: %d: published product count */
+                                                    esc_html__('Current published products: %d. This store is using database-safe automatic mode, so full-catalog serialized caches are not built. Refresh clears cached filter metadata and keeps the large-catalog safe path active.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                                    (int) $dapfforwc_cache_product_count
+                                                );
+                                            } else {
+                                                printf(
+                                                    /* translators: %d: published product count */
+                                                    esc_html__('Queues an automatic background refresh for filter counts and product detail caches. Current published products: %d. Large catalogues switch to database-safe automatic mode instead of full-catalog serialized caches.', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                                    (int) $dapfforwc_cache_product_count
+                                                );
+                                            }
+                                            ?>
+                                        </p>
+                                        <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
+                                            <?php wp_nonce_field('dapfforwc_build_filter_cache_nonce', 'dapfforwc_build_filter_cache_nonce'); ?>
+                                            <input type="hidden" name="action" value="dapfforwc_build_filter_cache">
+                                            <button type="submit" name="dapfforwc_build_filter_cache_button" id="dapfforwc_build_filter_cache_button" class="button button-secondary">
+                                                <span class="dashicons dashicons-database" style="vertical-align: middle; margin-right: 5px;"></span>
+                                                <?php echo esc_html__('Refresh Filter Cache', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                                             </button>
                                         </form>
                                     </td>
@@ -3853,6 +3906,48 @@ add_action('admin_post_dapfforwc_clear_cache', 'dapfforwc_handle_clear_cache');
 
 
 /**
+ * Queue an automatic filter cache refresh.
+ */
+function dapfforwc_handle_build_filter_cache()
+{
+    if (!isset($_POST['action']) || $_POST['action'] !== 'dapfforwc_build_filter_cache') {
+        return;
+    }
+
+    if (
+        !isset($_POST['dapfforwc_build_filter_cache_nonce']) ||
+        !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['dapfforwc_build_filter_cache_nonce'])), 'dapfforwc_build_filter_cache_nonce')
+    ) {
+        wp_die(esc_html__('Security check failed.', 'dynamic-ajax-product-filters-for-woocommerce'));
+    }
+
+    if (!current_user_can('manage_options')) {
+        wp_die(esc_html__('You do not have sufficient permissions to perform this action.', 'dynamic-ajax-product-filters-for-woocommerce'));
+    }
+
+    if (function_exists('dapfforwc_clear_woocommerce_caches')) {
+        dapfforwc_clear_woocommerce_caches();
+    }
+
+    $status = get_option('dapfforwc_filter_cache_status', []);
+    $status_key = is_array($status) && isset($status['status']) ? sanitize_key($status['status']) : '';
+    $success = in_array($status_key, ['queued', 'running', 'complete', 'database_mode'], true);
+
+    $result_arg = $success ? ($status_key === 'database_mode' ? 'database-mode-active' : 'cache-refresh-queued') : 'cache-build-failed';
+    $redirect_url = add_query_arg(array(
+        'page' => 'dapfforwc-admin',
+        'tab' => 'advance_settings',
+        $result_arg => 'true',
+        '_wpnonce' => esc_js(wp_create_nonce('dapfforwc_tab_nonce')),
+    ), admin_url('admin.php'));
+
+    wp_redirect($redirect_url);
+    exit;
+}
+add_action('admin_post_dapfforwc_build_filter_cache', 'dapfforwc_handle_build_filter_cache');
+
+
+/**
  * Display admin notice for cache clearing
  */
 function dapfforwc_cache_clear_notice()
@@ -3864,6 +3959,30 @@ function dapfforwc_cache_clear_notice()
     ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('Cache cleared successfully! WooCommerce and object caches have been flushed.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+        <?php
+        }
+
+        if (isset($_GET['cache-refresh-queued']) && $_GET['cache-refresh-queued'] == 'true') {
+        ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php esc_html_e('Filter cache refresh queued. The cache will rebuild automatically in background batches.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+        <?php
+        }
+
+        if (isset($_GET['database-mode-active']) && $_GET['database-mode-active'] == 'true') {
+        ?>
+            <div class="notice notice-success is-dismissible">
+                <p><?php esc_html_e('Large-catalog database-safe mode is active. Filter metadata was refreshed without building full-catalog serialized caches.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
+            </div>
+        <?php
+        }
+
+        if (isset($_GET['cache-build-failed']) && $_GET['cache-build-failed'] == 'true') {
+        ?>
+            <div class="notice notice-error is-dismissible">
+                <p><?php esc_html_e('Filter cache refresh could not be queued. Please check the debug log.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
             </div>
     <?php
         }

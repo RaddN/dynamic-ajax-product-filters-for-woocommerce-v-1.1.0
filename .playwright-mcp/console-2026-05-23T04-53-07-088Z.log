@@ -1,0 +1,284 @@
+[    2448ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  346639ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  381768ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  387896ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  394324ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  413151ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  426678ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  470751ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  485590ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  513938ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[  528043ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[  531720ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[  531765ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512508:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512508:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512508:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512508:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512508:9307:9)
+[  599395ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[  599967ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[  600013ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512578:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512578:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512578:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512578:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512578:9307:9)
+[  646145ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[  646774ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[  646837ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512628:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512628:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512628:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512628:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512628:9307:9)
+[  694399ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[  694878ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[  694932ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512677:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512677:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512677:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512677:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512677:9307:9)
+[  700844ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[  701176ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[  701230ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512683:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512683:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512683:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512683:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779512683:9307:9)
+[ 1271536ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1284815ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1298487ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1312510ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1327314ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1356684ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1409706ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1461071ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1500437ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 1544757ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1545608ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1545670ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513526:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513526:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513526:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513526:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513526:9307:9)
+[ 1551858ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1552459ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1552519ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513533:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513533:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513533:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513533:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513533:9307:9)
+[ 1560326ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1561111ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1561158ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513542:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513542:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513542:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513542:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513542:9307:9)
+[ 1569381ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1570007ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1570060ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513551:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513551:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513551:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513551:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513551:9307:9)
+[ 1648469ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1649062ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1649121ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513630:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513630:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513630:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513630:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513630:9307:9)
+[ 1789478ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1790205ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1790256ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513771:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513771:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513771:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513771:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513771:9307:9)
+[ 1919574ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1920237ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1920290ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513901:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513901:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513901:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513901:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513901:9307:9)
+[ 1926989ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1927551ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1927602ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513909:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513909:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513909:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513909:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513909:9307:9)
+[ 1981032ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 1981781ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 1981845ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513960:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513960:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513960:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513960:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779513960:9307:9)
+[ 2342589ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2352633ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2396941ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2413135ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2425575ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2439671ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2495605ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2528174ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2535514ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2536440ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2536491ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514517:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514517:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514517:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514517:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514517:9307:9)
+[ 2543470ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2544099ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2544151ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514525:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514525:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514525:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514525:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514525:9307:9)
+[ 2551182ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2551796ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2551845ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514533:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514533:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514533:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514533:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514533:9307:9)
+[ 2559282ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2559888ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2559946ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514541:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514541:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514541:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514541:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514541:9307:9)
+[ 2719483ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2720171ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2720222ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514701:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514701:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514701:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514701:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514701:9307:9)
+[ 2727389ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2727943ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2728011ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514709:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514709:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514709:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514709:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514709:9307:9)
+[ 2735424ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2736116ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2736168ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514717:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514717:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514717:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514717:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514717:9307:9)
+[ 2858728ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2859322ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2859380ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514840:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514840:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514840:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514840:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514840:9307:9)
+[ 2866090ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2866444ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2866487ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514848:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514848:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514848:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514848:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514848:9307:9)
+[ 2873093ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 2873647ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 2873693ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514855:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514855:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514855:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514855:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779514855:9307:9)
+[ 2981556ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 2992519ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 3006161ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 3018016ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 3030616ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1:1
+[ 3059452ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 3060245ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 3060280ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515042:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515042:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515042:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515042:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515042:9307:9)
+[ 3066420ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 3066892ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 3066921ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515049:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515049:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515049:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515049:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515049:9307:9)
+[ 3073843ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 3074413ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 3074453ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515055:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515055:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515055:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515055:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515055:9307:9)
+[ 3080878ms] [LOG] JQMIGRATE: Migrate is installed, version 3.4.1 @ http://free-filter-plugin.local/wp-admin/load-scripts.php?c=0&load%5Bchunk_0%5D=wp-hooks,jquery-core,jquery-migrate,utils,underscore,wp-codemirror&ver=7.0:6
+[ 3081365ms] [WARNING] `woocommerce_shared_settings` filter in Blocks is deprecated. See https://github.com/woocommerce/woocommerce-gutenberg-products-block/blob/trunk/docs/contributors/block-assets.md @ deprecated-shared-settings-error-js-after:1
+[ 3081393ms] TypeError: url.toLowerCase is not a function
+    at mapUrlToPlugin (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515063:8606:31)
+    at add (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515063:8618:32)
+    at Array.forEach (<anonymous>)
+    at buildPluginAssets (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515063:8626:41)
+    at renderPluginConflictUI (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515063:8734:28)
+    at HTMLDocument.init (http://free-filter-plugin.local/wp-content/plugins/plugency-dev-help/assets/js/script.js?ver=1779515063:9307:9)

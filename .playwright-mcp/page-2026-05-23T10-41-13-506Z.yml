@@ -1,0 +1,498 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Toolbar":
+      - menu:
+        - group [ref=e3]:
+          - menuitem "About WordPress" [ref=e4] [cursor=pointer]:
+            - generic [ref=e6]: About WordPress
+        - group [ref=e7]:
+          - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e8] [cursor=pointer]
+        - group [ref=e9]:
+          - menuitem "Live" [ref=e10] [cursor=pointer]
+        - group [ref=e11]:
+          - menuitem "Customize" [ref=e12] [cursor=pointer]
+        - group [ref=e13]:
+          - menuitem "7 updates available" [ref=e14] [cursor=pointer]:
+            - generic [ref=e16]: "7"
+            - generic [ref=e17]: 7 updates available
+        - group [ref=e18]:
+          - menuitem "0 Comments in moderation" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: "0"
+            - generic [ref=e22]: 0 Comments in moderation
+        - group [ref=e23]:
+          - menuitem "New" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]: New
+        - group [ref=e27]:
+          - menuitem " Product Filter" [ref=e28]:
+            - generic [ref=e29]: 
+            - text: Product Filter
+      - menu [ref=e30]:
+        - group [ref=e31]:
+          - menuitem "Howdy, admin" [ref=e32] [cursor=pointer]
+        - group [ref=e33]:
+          - menuitem "Search" [ref=e34]:
+            - generic [ref=e35]:
+              - textbox "Search" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]: Search
+  - link "Skip to content" [ref=e38] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=e39]:
+    - banner [ref=e40]:
+      - generic [ref=e45]:
+        - link "Dynamic AJAX Product Filters for WooCommerce" [ref=e51] [cursor=pointer]:
+          - /url: http://free-filter-plugin.local/
+        - navigation "Primary Site Navigation" [ref=e56]:
+          - list [ref=e58]:
+            - listitem [ref=e59]:
+              - link [ref=e60] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/230-2/
+            - listitem [ref=e61]:
+              - link [ref=e62] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/2085-2/
+            - listitem [ref=e63]:
+              - link "Cart" [ref=e64] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/cart/
+            - listitem [ref=e65]:
+              - link "Checkout" [ref=e66] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/checkout/
+            - listitem [ref=e67]:
+              - link "classic checkout" [ref=e68] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/classic-checkout/
+            - listitem [ref=e69]:
+              - 'link "Elementor #222" [ref=e70] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/elementor-222/
+            - listitem [ref=e71]:
+              - link "home" [ref=e72] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/
+            - listitem [ref=e73]:
+              - link "home 2" [ref=e74] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-2/
+            - listitem [ref=e75]:
+              - link "home 3" [ref=e76] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-3/
+            - listitem [ref=e77]:
+              - link "huski" [ref=e78] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/huski/
+            - listitem [ref=e79]:
+              - link "laptop" [ref=e80] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/laptop/
+            - listitem [ref=e81]:
+              - link "My account" [ref=e82] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/my-account/
+            - listitem [ref=e83]:
+              - link "Sample Page" [ref=e84] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/sample-page/
+            - listitem [ref=e85]:
+              - link "shop" [ref=e86] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/
+            - listitem [ref=e87]:
+              - link "test" [ref=e88] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/test/
+    - generic [ref=e90]:
+      - generic [ref=e101]:
+        - generic [ref=e102]: Category Reset
+        - generic [ref=e103]:
+          - generic "agagagag" [ref=e104]:
+            - img [ref=e105]
+          - img [ref=e108] [cursor=pointer]
+      - main [ref=e111]:
+        - generic [ref=e112]:
+          - navigation "Breadcrumb" [ref=e113]:
+            - link "Home" [ref=e114] [cursor=pointer]:
+              - /url: http://free-filter-plugin.local
+            - text: / shop
+          - generic [ref=e115]:
+            - heading "shop" [level=1] [ref=e116]
+            - generic [ref=e117]:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - generic:
+                        - list
+              - list [ref=e122] [cursor=pointer]:
+                - listitem [ref=e123]: 1.5 kg
+                - listitem [ref=e124]: black
+                - listitem [ref=e125]: Olive
+                - listitem [ref=e126]: Sky
+                - listitem [ref=e127]: White
+                - listitem [ref=e128]: Yellow
+          - alert [ref=e129]: Showing 1–10 of 450 results
+          - combobox "Shop order" [ref=e131]:
+            - option "Default sorting" [selected]
+            - option "Sort by popularity"
+            - option "Sort by average rating"
+            - option "Sort by latest"
+            - 'option "Sort by price: low to high"'
+            - 'option "Sort by price: high to low"'
+          - list [ref=e132]:
+            - listitem [ref=e133]:
+              - link "Placeholder" [ref=e135] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                - img "Placeholder" [ref=e136]
+              - generic [ref=e137]:
+                - generic [ref=e138]: Diabetic Wellness
+                - link "1 Touch Prime Blood Glucose Test Monitor" [ref=e139] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                  - heading "1 Touch Prime Blood Glucose Test Monitor" [level=2] [ref=e140]
+                - link "Read more about “1 Touch Prime Blood Glucose Test Monitor”" [ref=e141] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/1-touch-prime-blood-glucose-test-monitor/
+                  - text: Read more
+            - listitem [ref=e143]:
+              - link "Placeholder" [ref=e145] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                - img "Placeholder" [ref=e146]
+              - generic [ref=e147]:
+                - generic [ref=e148]: Health Care
+                - 'link "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [ref=e149] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - 'heading "100% Pure Acacia Honey with Natural Honeycomb Langnese – 500g: Nature’s Golden Delight" [level=2] [ref=e150]'
+                - generic [ref=e153]: $20.00
+                - 'link "Select options for “100% Pure Acacia Honey with Natural Honeycomb Langnese - 500g: Nature''s Golden Delight”" [ref=e154] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/100-pure-acacia-honey-with-natural-honeycomb-langnese-500g-natures-golden-delight/
+                  - text: Select options
+                - generic [ref=e155]: This product has multiple variants. The options may be chosen on the product page
+            - listitem [ref=e156]:
+              - link "Placeholder" [ref=e158] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/
+                - img "Placeholder" [ref=e159]
+              - generic [ref=e160]:
+                - generic [ref=e161]: Fingertip Oximeter
+                - 'link "302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking" [ref=e162] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/302a-fingertip-pulse-oximeter-oxygen-saturation-monitor-for-reliable-health-tracking/
+                  - 'heading "302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking" [level=2] [ref=e163]'
+                - generic [ref=e166]: $1,400.00
+                - 'button "Add to cart: “302A Fingertip Pulse Oximeter: Oxygen Saturation Monitor for Reliable Health Tracking”" [ref=e167] [cursor=pointer]': Add to cart
+            - listitem [ref=e169]:
+              - link "Placeholder" [ref=e171] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/
+                - img "Placeholder" [ref=e172]
+              - generic [ref=e173]:
+                - generic [ref=e174]: Digital Thermometers
+                - 'link "5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature" [ref=e175] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/5-in-1-intelligent-smart-health-monitoring-device-blood-pressure-oxygen-temperature/
+                  - 'heading "5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature" [level=2] [ref=e176]'
+                - generic [ref=e179]: $11,800.00
+                - 'button "Add to cart: “5-in-1 Intelligent Smart Health Monitoring Device: Blood Pressure, Oxygen, Temperature”" [ref=e180] [cursor=pointer]': Add to cart
+            - listitem [ref=e182]:
+              - link "Placeholder" [ref=e184] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/
+                - img "Placeholder" [ref=e185]
+              - generic [ref=e186]:
+                - generic [ref=e187]: Diabetic Wellness
+                - link "Accu Test Elite- Blood Glucose Monitoring System" [ref=e188] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-test-elite-blood-glucose-monitoring-system/
+                  - heading "Accu Test Elite- Blood Glucose Monitoring System" [level=2] [ref=e189]
+                - generic [ref=e192]: $1,400.00
+                - 'button "Add to cart: “Accu Test Elite- Blood Glucose Monitoring System”" [ref=e193] [cursor=pointer]': Add to cart
+            - listitem [ref=e195]:
+              - generic [ref=e196]:
+                - link "Placeholder" [ref=e197] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/
+                  - img "Placeholder" [ref=e198]
+                - generic [ref=e199] [cursor=pointer]: Sale!
+              - generic [ref=e200]:
+                - generic [ref=e201]: Diabetic Wellness
+                - link "Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin" [ref=e202] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/accu-answer-4-in-1-multi-functional-monitor-glucose-cholesterol-uric-acid-haemoglobin/
+                  - heading "Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin" [level=2] [ref=e203]
+                - generic [ref=e204]:
+                  - deletion [ref=e205]:
+                    - generic [ref=e207]: $7,000.00
+                  - generic [ref=e208]: "Original price was: $7,000.00."
+                  - insertion [ref=e209]:
+                    - generic [ref=e211]: $6,100.00
+                  - generic [ref=e212]: "Current price is: $6,100.00."
+                - 'button "Add to cart: “Accu-Answer 4 in 1 Multi-functional Monitor – Glucose, Cholesterol, Uric Acid, Haemoglobin”" [ref=e213] [cursor=pointer]': Add to cart
+            - listitem [ref=e215]:
+              - link "Placeholder" [ref=e217] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/
+                - img "Placeholder" [ref=e218]
+              - generic [ref=e219]:
+                - generic [ref=e220]: Diabetic Wellness
+                - 'link "Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions" [ref=e221] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-blood-glucose-test-strip-25pcs-reliable-glucose-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions" [level=2] [ref=e222]'
+                - generic [ref=e225]: $499.00
+                - 'button "Add to cart: “Accu-Answer iSaw Blood Glucose Test Strip (25pcs): Reliable Glucose Monitoring Solutions”" [ref=e226] [cursor=pointer]': Add to cart
+            - listitem [ref=e228]:
+              - link "Placeholder" [ref=e230] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/
+                - img "Placeholder" [ref=e231]
+              - generic [ref=e232]:
+                - generic [ref=e233]: Diabetic Wellness
+                - 'link "Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions" [ref=e234] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-cholesterol-test-strip-25pcs-reliable-cholesterol-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions" [level=2] [ref=e235]'
+                - generic [ref=e238]: $2,500.00
+                - 'button "Add to cart: “Accu-Answer iSaw Cholesterol Test Strip (25pcs): Reliable Cholesterol Monitoring Solutions”" [ref=e239] [cursor=pointer]': Add to cart
+            - listitem [ref=e241]:
+              - link "Placeholder" [ref=e243] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/
+                - img "Placeholder" [ref=e244]
+              - generic [ref=e245]:
+                - generic [ref=e246]: Uncategorized
+                - 'link "Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions" [ref=e247] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-isaw-hemoglobin-test-strip-25pcs-reliable-hemoglobin-monitoring-solutions/
+                  - 'heading "Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions" [level=2] [ref=e248]'
+                - generic [ref=e251]: $1,400.00
+                - 'button "Add to cart: “Accu-Answer iSaw Hemoglobin Test Strip (25pcs): Reliable Hemoglobin Monitoring Solutions”" [ref=e252] [cursor=pointer]': Add to cart
+            - listitem [ref=e254]:
+              - link "Placeholder" [ref=e256] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/
+                - img "Placeholder" [ref=e257]
+              - generic [ref=e258]:
+                - generic [ref=e259]: Diabetic Wellness
+                - 'link "Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions" [ref=e260] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/accu-answer-uric-acid-test-kit-25pcs-reliable-uric-acid-monitoring-solutions/
+                  - 'heading "Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions" [level=2] [ref=e261]'
+                - generic [ref=e264]: $1,400.00
+                - 'button "Add to cart: “Accu-Answer Uric Acid Test Kit (25pcs): Reliable Uric Acid Monitoring Solutions”" [ref=e265] [cursor=pointer]': Add to cart
+          - navigation "Product Pagination" [ref=e267]:
+            - list [ref=e268]:
+              - listitem [ref=e269]:
+                - generic "Page 1" [ref=e270]: "1"
+              - listitem [ref=e271]:
+                - link "Page 2" [ref=e272] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/
+                  - text: "2"
+              - listitem [ref=e273]:
+                - link "Page 3" [ref=e274] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/3/
+                  - text: "3"
+              - listitem [ref=e275]:
+                - link "Page 4" [ref=e276] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/4/
+                  - text: "4"
+              - listitem [ref=e277]:
+                - generic [ref=e278]: …
+              - listitem [ref=e279]:
+                - link "Page 43" [ref=e280] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/43/
+                  - text: "43"
+              - listitem [ref=e281]:
+                - link "Page 44" [ref=e282] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/44/
+                  - text: "44"
+              - listitem [ref=e283]:
+                - link "Page 45" [ref=e284] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/45/
+                  - text: "45"
+              - listitem [ref=e285]:
+                - link "→" [ref=e286] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/page/2/
+    - contentinfo [ref=e287]:
+      - region "Footer Widget 1" [ref=e292]:
+        - paragraph [ref=e294]:
+          - link "Add Widget" [ref=e295] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/widgets.php
+      - paragraph [ref=e302]:
+        - text: Copyright © 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by
+        - link "Astra WordPress Theme" [ref=e303] [cursor=pointer]:
+          - /url: https://wpastra.com
+  - generic "Open Plugency Debugger" [ref=e304] [cursor=pointer]:
+    - img [ref=e305]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Performance"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Plugins
+            - list:
+              - listitem:
+                - generic: File
+                - strong: C:/Users/GM Team/Local Sites/free-filter-plugin/app/public/wp-content/plugins/woocommerce/templates/archive-product.php
+              - listitem:
+                - generic: Source
+                - strong: woocommerce
+              - listitem:
+                - generic: Matched rule
+                - strong: products/?$
+              - listitem:
+                - generic: Request
+                - strong: products
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Front-end
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/products/
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 40 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "168"
+              - listitem:
+                - generic: Total time
+                - strong: 0.1103s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0192s
+              - listitem:
+                - generic: Example
+                - strong: SELECT SQL_CALC_FOUND_ROWS wp_posts.ID FROM wp_posts WHERE 1=1 AND ( wp_posts.ID NOT IN ( SELECT object_id FROM wp_term_relationships WHERE ...
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: every_minute
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: action_scheduler_run_queue
+              - listitem:
+                - generic: Runs in
+                - strong: 1 second
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 10:41:02 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (102 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 10:38:24
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2158"
+              - listitem:
+                - generic: Styles
+                - strong: "25"
+              - listitem:
+                - generic: Scripts
+                - strong: "19"
+              - listitem:
+                - generic: Queries
+                - strong: "168"
+              - listitem:
+                - generic: Request entries
+                - strong: "86"
+    - paragraph
+  - button "Re-consent" [ref=e308] [cursor=pointer]:
+    - img "Re-consent" [ref=e309]
+  - status [ref=e310]

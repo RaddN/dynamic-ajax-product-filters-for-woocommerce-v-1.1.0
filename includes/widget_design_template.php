@@ -8,6 +8,10 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     global $dapfforwc_styleoptions, $post, $dapfforwc_options, $dapfforwc_advance_settings;
     $dapfforwc_product_count = [];
 
+    $filter_enabled = static function ($option_key) use ($dapfforwc_options) {
+        return isset($dapfforwc_options[$option_key]) && $dapfforwc_options[$option_key] === 'on';
+    };
+
 
     $search_icon = '<svg fill="#fff" xmlns="http://www.w3.org/2000/svg" viewBox="-100.62 53.746 16 16" xml:space="preserve" width="16" height="16"><path d="M-88.721 64.079h-.71l-.27-.27c.89-.98 1.42-2.31 1.42-3.73 0-3.2-2.58-5.78-5.78-5.78s-5.78 2.58-5.78 5.78 2.58 5.78 5.78 5.78c1.42 0 2.749-.53 3.73-1.42l.27.27v.71l4.439 4.439 1.33-1.33zm-5.33 0c-2.22 0-4-1.78-4-4s1.78-4 4-4 4 1.78 4 4c-.011 2.231-1.78 4-4 4"/></svg>';
     $question_icon = '<svg width="16" height="16" viewBox="0 0 20.48 20.48" xmlns="http://www.w3.org/2000/svg"><path d="M10.24 0C4.585 0 0 4.585 0 10.24s4.585 10.24 10.24 10.24 10.24-4.584 10.24-10.24C20.48 4.585 15.896 0 10.24 0m0 19.22c-4.94 0-8.96-4.04-8.96-8.98s4.02-8.96 8.96-8.96 8.96 4.02 8.96 8.96-4.019 8.98-8.96 8.98m-.941-3.211h1.61v-1.625h-1.61zm.922-11.539q-1.407 0-2.317.758c-.607.505-.902 1.517-.887 2.356l.024.047H8.51c0-.5.167-1.219.5-1.477q.5-.387 1.211-.387.82 0 1.261.445.441.446.441 1.273 0 .696-.327 1.188-.329.492-1.102 1.406-.798.719-.985 1.156-.187.438-.195 1.57h1.539q0-.711.09-1.047t.511-.758q.906-.874 1.458-1.711.55-.836.55-1.844 0-1.407-.852-2.191-.852-.786-2.391-.785"/></svg>';
@@ -229,24 +233,24 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $search_filter_tooltip_settings = $get_tooltip_settings('search');
     $search_layout_settings = $get_layout_settings('search');
 
-    // echo json_encode($dapfforwc_styleoptions);
-
-    $formOutPut .= '<div id="search_text" class="plugincy-filter-group search_text ' . (isset($dapfforwc_styleoptions['css_class']['search']) ? $dapfforwc_styleoptions['css_class']['search'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_search']) && !empty($dapfforwc_options['show_search']) ? 'block' : 'none !important') . ';">';
-    $formOutPut .= $render_title_bar(((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["search"]) && $dapfforwc_styleoptions["widget_title"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')), $minimizable, $search_filter_search_settings, $search_filter_tooltip_settings, "search");
-    $search_container_class = '';
-    $formOutPut .= '<div class="items">';
-    $formOutPut .= $render_layout_start($search_layout_settings, $sub_option);
-    $formOutPut .= '<div class="search-container' . $search_container_class . '">';
-    $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="search" id="plugincy-search-field" class="search-field" placeholder="' . ((isset($dapfforwc_styleoptions["placeholder"]) && isset($dapfforwc_styleoptions["placeholder"]["search"]) && $dapfforwc_styleoptions["placeholder"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["placeholder"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')) . '&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["plugincy_search"] ?? '') . '" name="plugincy_search"/>';
-    if ($sub_option === "icon_search") {
-        $formOutPut .= ' <button class="plugincy-search-submit">' . $search_icon . '</button>';
-    } else {
-        $formOutPut .= ' <button class="plugincy-search-submit">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["search"]) && $dapfforwc_styleoptions["btntext"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["search"]) : esc_html__('Search', 'dynamic-ajax-product-filters-for-woocommerce')) . '</button>';
+    if ($filter_enabled('show_search')) {
+        $formOutPut .= '<div id="search_text" class="plugincy-filter-group search_text ' . (isset($dapfforwc_styleoptions['css_class']['search']) ? $dapfforwc_styleoptions['css_class']['search'] : '') . '">';
+        $formOutPut .= $render_title_bar(((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["search"]) && $dapfforwc_styleoptions["widget_title"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')), $minimizable, $search_filter_search_settings, $search_filter_tooltip_settings, "search");
+        $search_container_class = '';
+        $formOutPut .= '<div class="items">';
+        $formOutPut .= $render_layout_start($search_layout_settings, $sub_option);
+        $formOutPut .= '<div class="search-container' . $search_container_class . '">';
+        $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="search" id="plugincy-search-field" class="search-field" placeholder="' . ((isset($dapfforwc_styleoptions["placeholder"]) && isset($dapfforwc_styleoptions["placeholder"]["search"]) && $dapfforwc_styleoptions["placeholder"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["placeholder"]["search"]) : esc_html__('Search Product', 'dynamic-ajax-product-filters-for-woocommerce')) . '&hellip;" value="' . ($search_txt !== '' ? $search_txt : $default_filter["plugincy_search"] ?? '') . '" name="plugincy_search"/>';
+        if ($sub_option === "icon_search") {
+            $formOutPut .= ' <button class="plugincy-search-submit">' . $search_icon . '</button>';
+        } else {
+            $formOutPut .= ' <button class="plugincy-search-submit">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["search"]) && $dapfforwc_styleoptions["btntext"]["search"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["search"]) : esc_html__('Search', 'dynamic-ajax-product-filters-for-woocommerce')) . '</button>';
+        }
+        $formOutPut .= '</div>';
+        $formOutPut .= $render_layout_end($search_layout_settings, $sub_option);
+        $formOutPut .= '</div>';
+        $formOutPut .= '</div>';
     }
-    $formOutPut .= '</div>';
-    $formOutPut .= $render_layout_end($search_layout_settings, $sub_option);
-    $formOutPut .= '</div>';
-    $formOutPut .= '</div>';
     // search ends
 
     // Initialize variables with default values
@@ -286,43 +290,47 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     ?>
       
 <?php
-    $formOutPut .= '<div id="plugincy_rating" class="plugincy-filter-group rating ' . (isset($dapfforwc_styleoptions['css_class']['rating']) ? $dapfforwc_styleoptions['css_class']['rating'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_rating']) && !empty($dapfforwc_options['show_rating']) ? 'block' : 'none !important') . ';">';
-    $rating_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["rating"]) && $dapfforwc_styleoptions["widget_title"]["rating"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["rating"]) : esc_html__('Rating', 'dynamic-ajax-product-filters-for-woocommerce');
-    if ($show_apply_reset_on === "separate") {
-        $rating_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
+    if ($filter_enabled('show_rating')) {
+        $formOutPut .= '<div id="plugincy_rating" class="plugincy-filter-group rating ' . (isset($dapfforwc_styleoptions['css_class']['rating']) ? $dapfforwc_styleoptions['css_class']['rating'] : '') . '">';
+        $rating_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["rating"]) && $dapfforwc_styleoptions["widget_title"]["rating"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["rating"]) : esc_html__('Rating', 'dynamic-ajax-product-filters-for-woocommerce');
+        if ($show_apply_reset_on === "separate") {
+            $rating_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
+        }
+        $formOutPut .= $render_title_bar($rating_title_content, $minimizable_rating, $rating_search_settings, $rating_tooltip_settings, "rating");
+        $formOutPut .= '<div class="items rating ' . ($sub_option_rating === "dynamic-rating"  ? "rating" : esc_attr($sub_option_rating)) . '">';
+        $formOutPut .= $render_search_container($rating_search_settings, $sub_option_rating, 'rating');
+        $formOutPut .= $render_layout_start($rating_layout_settings, $sub_option_rating);
+        if ($sub_option_rating) {
+            $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = isset($default_filter['rating[]']) ? $default_filter['rating[]'] : [], $dapfforwc_styleoptions, "", "", "", "", 0, null, [], $disable_unselected);
+        } else {
+            $formOutPut .= "Choose style from product filters->form style -> rating";
+        }
+        $formOutPut .= $render_layout_end($rating_layout_settings, $sub_option_rating);
+        $formOutPut .= $render_search_after_terms($rating_search_settings, $sub_option_rating, 'rating');
+        $formOutPut .= '</div></div>';
     }
-    $formOutPut .= $render_title_bar($rating_title_content, $minimizable_rating, $rating_search_settings, $rating_tooltip_settings, "rating");
-    $formOutPut .= '<div class="items rating ' . ($sub_option_rating === "dynamic-rating"  ? "rating" : esc_attr($sub_option_rating)) . '">';
-    $formOutPut .= $render_search_container($rating_search_settings, $sub_option_rating, 'rating');
-    $formOutPut .= $render_layout_start($rating_layout_settings, $sub_option_rating);
-    if ($sub_option_rating) {
-        $formOutPut .=  dapfforwc_render_filter_option($sub_option_rating, "", "", $checked = isset($default_filter['rating[]']) ? $default_filter['rating[]'] : [], $dapfforwc_styleoptions, "", "", "", "", 0, null, [], $disable_unselected);
-    } else {
-        $formOutPut .= "Choose style from product filters->form style -> rating";
-    }
-    $formOutPut .= $render_layout_end($rating_layout_settings, $sub_option_rating);
-    $formOutPut .= $render_search_after_terms($rating_search_settings, $sub_option_rating, 'rating');
-    $formOutPut .= '</div></div>';
 ?>
 
    <?php
     $price_search_settings = $get_terms_search_settings('price');
     $price_tooltip_settings = $get_tooltip_settings('price');
-    $formOutPut .= '<div id="price-range" class="plugincy-filter-group price-range ' . (isset($dapfforwc_styleoptions['css_class']['price']) ? $dapfforwc_styleoptions['css_class']['price'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_price_range']) && !empty($dapfforwc_options['show_price_range']) ? 'block' : 'none !important') . ';">';
-    $price_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["price"]) && $dapfforwc_styleoptions["widget_title"]["price"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["price"]) : esc_html__('Price Range', 'dynamic-ajax-product-filters-for-woocommerce');
-    $formOutPut .= $render_title_bar($price_title_content, $minimizable_price, $price_search_settings, $price_tooltip_settings, "price");
-    $formOutPut .= '<div class="items ' . ($sub_option !== "slider" ? $sub_option : '') . '">';
-    $formOutPut .= $render_search_container($price_search_settings, $sub_option, 'price');
-    $formOutPut .= $render_layout_start($price_layout_settings, $sub_option);
-    if ($sub_option) {
-        $formOutPut .=  dapfforwc_render_filter_option($sub_option, "", "", "", $dapfforwc_styleoptions, "", "", "", "", $min_price, $max_price, $min_max_prices, $disable_unselected);
-    } else {
-        $formOutPut .= "Choose style from product filters->form style -> price";
-    }
-    $formOutPut .= $render_layout_end($price_layout_settings, $sub_option);
-    $formOutPut .= $render_search_after_terms($price_search_settings, $sub_option, 'price');
+    if ($filter_enabled('show_price_range')) {
+        $formOutPut .= '<div id="price-range" class="plugincy-filter-group price-range ' . (isset($dapfforwc_styleoptions['css_class']['price']) ? $dapfforwc_styleoptions['css_class']['price'] : '') . '">';
+        $price_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["price"]) && $dapfforwc_styleoptions["widget_title"]["price"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["price"]) : esc_html__('Price Range', 'dynamic-ajax-product-filters-for-woocommerce');
+        $formOutPut .= $render_title_bar($price_title_content, $minimizable_price, $price_search_settings, $price_tooltip_settings, "price");
+        $formOutPut .= '<div class="items ' . ($sub_option !== "slider" ? $sub_option : '') . '">';
+        $formOutPut .= $render_search_container($price_search_settings, $sub_option, 'price');
+        $formOutPut .= $render_layout_start($price_layout_settings, $sub_option);
+        if ($sub_option) {
+            $formOutPut .=  dapfforwc_render_filter_option($sub_option, "", "", "", $dapfforwc_styleoptions, "", "", "", "", $min_price, $max_price, $min_max_prices, $disable_unselected);
+        } else {
+            $formOutPut .= "Choose style from product filters->form style -> price";
+        }
+        $formOutPut .= $render_layout_end($price_layout_settings, $sub_option);
+        $formOutPut .= $render_search_after_terms($price_search_settings, $sub_option, 'price');
 
-    $formOutPut .= '</div></div>';
+        $formOutPut .= '</div></div>';
+    }
     // Fetch global options and style configurations
 
     $sub_option = '';
@@ -355,9 +363,12 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $category_tooltip_settings = $get_tooltip_settings('product-category');
     $category_layout_settings = $get_layout_settings('product-category');
 
-    // include/exclude categories
-    $include_exclude_categories = isset($dapfforwc_styleoptions['terms']['product-category']) ? $dapfforwc_styleoptions['terms']['product-category'] : [];
-    $include_or_exclude_categories_option = $dapfforwc_styleoptions['include_exclude']['product-category'] ?? 'none';
+    if ($filter_enabled('show_categories')) {
+        $updated_filters["categories"] = isset($updated_filters["categories"]) && is_array($updated_filters["categories"]) ? $updated_filters["categories"] : [];
+
+        // include/exclude categories
+        $include_exclude_categories = isset($dapfforwc_styleoptions['terms']['product-category']) ? $dapfforwc_styleoptions['terms']['product-category'] : [];
+        $include_or_exclude_categories_option = $dapfforwc_styleoptions['include_exclude']['product-category'] ?? 'none';
 
     // Filter categories based on include/exclude settings
     if (!empty($include_exclude_categories) && $include_or_exclude_categories_option === 'include') {
@@ -386,7 +397,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
 
     // Render categories based on hierarchical mode
     if ($hierarchical !== 'enable_separate' && !empty($updated_filters["categories"])) {
-        $formOutPut .= '<div id="product-category" class="plugincy-filter-group category ' . (isset($dapfforwc_styleoptions['css_class']['product-category']) ? $dapfforwc_styleoptions['css_class']['product-category'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_categories']) && !empty($dapfforwc_options['show_categories']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="product-category" class="plugincy-filter-group category ' . (isset($dapfforwc_styleoptions['css_class']['product-category']) ? $dapfforwc_styleoptions['css_class']['product-category'] : '') . '">';
         $category_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["product-category"]) && $dapfforwc_styleoptions["widget_title"]["product-category"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["product-category"]) : esc_html__('Category', 'dynamic-ajax-product-filters-for-woocommerce');
         if ($singlevaluecataSelect === "yes" && $show_apply_reset_on === "separate") {
             $category_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -493,7 +504,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             }
         }
 
-        $formOutPut .= '<div id="product-category" class="plugincy-filter-group category" style="display: ' . (isset($dapfforwc_options['show_categories']) && !empty($dapfforwc_options['show_categories']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="product-category" class="plugincy-filter-group category">';
         $category_title_content = (isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["product-category"]) && $dapfforwc_styleoptions["widget_title"]["product-category"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["product-category"]) : esc_html__('Category', 'dynamic-ajax-product-filters-for-woocommerce');
         if ($singlevaluecataSelect === "yes" && $show_apply_reset_on === "separate") {
             $category_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -537,7 +548,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $child_categories = dapfforwc_get_child_categories($child_category, $parent_category->term_id) ?: [];
 
             if (!empty($child_categories)) {
-                $formOutPut .= '<div id="category-with-child" class="plugincy-filter-group category with-child" style="display: ' . (isset($dapfforwc_options['show_categories']) && !empty($dapfforwc_options['show_categories']) ? 'block' : 'none !important') . ';">';
+                $formOutPut .= '<div id="category-with-child" class="plugincy-filter-group category with-child">';
                 $child_title_content = esc_html($parent_category->name);
                 if ($singlevaluecataSelect === "yes" && $show_apply_reset_on === "separate") {
                     $child_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -592,6 +603,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $formOutPut .= '</div></div>';
         }
     }
+    }
     ?>
 <?php
     // category ends
@@ -601,7 +613,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $attributes = isset($updated_filters['attributes']) && is_array($updated_filters['attributes']) ? $updated_filters["attributes"] : [];
     $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
 
-    if ($attributes) {
+    if ($filter_enabled('show_attributes') && $attributes) {
         foreach ($attributes as $attribute_name => $attribute_terms) {
             if (in_array($attribute_name, $exclude_attributes)) {
                 continue;
@@ -638,7 +650,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             }
 
             if ($terms) {
-                $formOutPut .= '<div id="' . esc_attr($attribute_name) . '" class="plugincy-filter-group ' . esc_attr($attribute_name) . ' ' . (isset($dapfforwc_styleoptions['css_class'][$attribute_name]) ? $dapfforwc_styleoptions['css_class'][$attribute_name] : '') . '" style="display: ' . (isset($dapfforwc_options['show_attributes']) && !empty($dapfforwc_options['show_attributes']) ? 'block' : 'none !important') . ';">';
+                $formOutPut .= '<div id="' . esc_attr($attribute_name) . '" class="plugincy-filter-group ' . esc_attr($attribute_name) . ' ' . (isset($dapfforwc_styleoptions['css_class'][$attribute_name]) ? $dapfforwc_styleoptions['css_class'][$attribute_name] : '') . '">';
                 $attribute_default_title = '';
                 $first_term = is_array($terms) ? reset($terms) : null;
                 if (is_object($first_term) && !empty($first_term->attribute_label)) {
@@ -703,7 +715,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             return !in_array($tag_slug, $include_exclude_tags);
         });
     }
-    if (!empty($tags)) {
+    if ($filter_enabled('show_tags') && !empty($tags)) {
         $selected_tags = !empty($default_filter) && isset($default_filter["tag[]"]) ? $default_filter["tag[]"] : [];
         $sub_option = isset($dapfforwc_styleoptions["tag"]["sub_option"]) ? $dapfforwc_styleoptions["tag"]["sub_option"] : ""; // Fetch the sub_option value
         $minimizable = isset($dapfforwc_styleoptions["tag"]["minimize"]["type"]) ? $dapfforwc_styleoptions["tag"]["minimize"]["type"] : "arrow";
@@ -712,7 +724,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $tag_search_settings = $get_terms_search_settings('tag');
         $tag_tooltip_settings = $get_tooltip_settings('tag');
         $tag_layout_settings = $get_layout_settings('tag');
-        $formOutPut .= '<div id="tag" class="plugincy-filter-group tag ' . (isset($dapfforwc_styleoptions['css_class']['tag']) ? $dapfforwc_styleoptions['css_class']['tag'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_tags']) && !empty($dapfforwc_options['show_tags']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="tag" class="plugincy-filter-group tag ' . (isset($dapfforwc_styleoptions['css_class']['tag']) ? $dapfforwc_styleoptions['css_class']['tag'] : '') . '">';
         $tag_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["tag"]) && $dapfforwc_styleoptions["widget_title"]["tag"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["tag"]) : esc_html__('Tags', 'dynamic-ajax-product-filters-for-woocommerce'));
         if ($singlevalueSelect === "yes" && $show_apply_reset_on === "separate") {
             $tag_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -778,14 +790,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     }
     $brands_search_settings = $get_terms_search_settings('brands');
     $brands_tooltip_settings = $get_tooltip_settings('brands');
-    if (!empty($brands)) {
+    if ($filter_enabled('show_brand') && !empty($brands)) {
         $selected_brands = !empty($default_filter) && isset($default_filter["rplurand[]"]) ? $default_filter["rplurand[]"] : (isset($default_filter["brand[]"]) ? $default_filter["brand[]"] : []);
         $sub_option = isset($dapfforwc_styleoptions["brands"]["sub_option"]) ? $dapfforwc_styleoptions["brands"]["sub_option"] : ""; // Fetch the sub_option value
         $minimizable = isset($dapfforwc_styleoptions["brands"]["minimize"]["type"]) ? $dapfforwc_styleoptions["brands"]["minimize"]["type"] : "arrow";
         $show_count = isset($dapfforwc_styleoptions["brands"]["show_product_count"]) ? $dapfforwc_styleoptions["brands"]["show_product_count"] : "";
         $singlevalueSelect = isset($dapfforwc_styleoptions["brands"]["single_selection"]) ? $dapfforwc_styleoptions["brands"]["single_selection"] : "";
         $brands_layout_settings = $get_layout_settings('brands');
-        $formOutPut .= '<div id="brands" class="plugincy-filter-group brands ' . (isset($dapfforwc_styleoptions['css_class']['brands']) ? $dapfforwc_styleoptions['css_class']['brands'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_brand']) && !empty($dapfforwc_options['show_brand']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="brands" class="plugincy-filter-group brands ' . (isset($dapfforwc_styleoptions['css_class']['brands']) ? $dapfforwc_styleoptions['css_class']['brands'] : '') . '">';
         $brands_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["brands"]) && $dapfforwc_styleoptions["widget_title"]["brands"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["brands"]) : esc_html__('Brands', 'dynamic-ajax-product-filters-for-woocommerce'));
         if ($singlevalueSelect === "yes" && $show_apply_reset_on === "separate") {
             $brands_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -837,14 +849,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     }
     $authors_search_settings = $get_terms_search_settings('authors');
     $authors_tooltip_settings = $get_tooltip_settings('authors');
-    if (!empty($authors)) {
+    if ($filter_enabled('show_author') && !empty($authors)) {
         $selected_authors = !empty($default_filter) && isset($default_filter["rpluthor[]"]) ? $default_filter["rpluthor[]"] : (isset($default_filter["author[]"]) ? $default_filter["author[]"] : []);
         $sub_option = isset($dapfforwc_styleoptions["authors"]["sub_option"]) ? $dapfforwc_styleoptions["authors"]["sub_option"] : ""; // Fetch the sub_option value
         $minimizable = isset($dapfforwc_styleoptions["authors"]["minimize"]["type"]) ? $dapfforwc_styleoptions["authors"]["minimize"]["type"] : "arrow";
         $show_count = isset($dapfforwc_styleoptions["authors"]["show_product_count"]) ? $dapfforwc_styleoptions["authors"]["show_product_count"] : "";
         $singlevalueSelect = isset($dapfforwc_styleoptions["authors"]["single_selection"]) ? $dapfforwc_styleoptions["authors"]["single_selection"] : "";
         $authors_layout_settings = $get_layout_settings('authors');
-        $formOutPut .= '<div id="authors" class="plugincy-filter-group authors ' . (isset($dapfforwc_styleoptions['css_class']['authors']) ? $dapfforwc_styleoptions['css_class']['authors'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_author']) && !empty($dapfforwc_options['show_author']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="authors" class="plugincy-filter-group authors ' . (isset($dapfforwc_styleoptions['css_class']['authors']) ? $dapfforwc_styleoptions['css_class']['authors'] : '') . '">';
         $authors_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["authors"]) && $dapfforwc_styleoptions["widget_title"]["authors"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["authors"]) : esc_html__('Authors', 'dynamic-ajax-product-filters-for-woocommerce'));
         if ($singlevalueSelect === "yes" && $show_apply_reset_on === "separate") {
             $authors_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -901,14 +913,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     }
     $status_search_settings = $get_terms_search_settings('status');
     $status_tooltip_settings = $get_tooltip_settings('status');
-    if (!empty($status)) {
+    if ($filter_enabled('show_status') && !empty($status)) {
         $selected_status = !empty($default_filter) && isset($default_filter["rplutock_status[]"]) ? $default_filter["rplutock_status[]"] : (isset($default_filter["stock_status[]"]) ? $default_filter["stock_status[]"] : []);
         $sub_option = isset($dapfforwc_styleoptions["status"]["sub_option"]) ? $dapfforwc_styleoptions["status"]["sub_option"] : ""; // Fetch the sub_option value
         $minimizable = isset($dapfforwc_styleoptions["status"]["minimize"]["type"]) ? $dapfforwc_styleoptions["status"]["minimize"]["type"] : "arrow";
         $show_count = isset($dapfforwc_styleoptions["status"]["show_product_count"]) ? $dapfforwc_styleoptions["status"]["show_product_count"] : "";
         $singlevalueSelect = isset($dapfforwc_styleoptions["status"]["single_selection"]) ? $dapfforwc_styleoptions["status"]["single_selection"] : "";
         $status_layout_settings = $get_layout_settings('status');
-        $formOutPut .= '<div id="status" class="plugincy-filter-group status ' . (isset($dapfforwc_styleoptions['css_class']['status']) ? $dapfforwc_styleoptions['css_class']['status'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_status']) && !empty($dapfforwc_options['show_status']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="status" class="plugincy-filter-group status ' . (isset($dapfforwc_styleoptions['css_class']['status']) ? $dapfforwc_styleoptions['css_class']['status'] : '') . '">';
         $status_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["status"]) && $dapfforwc_styleoptions["widget_title"]["status"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["status"]) : esc_html__('Stock Status', 'dynamic-ajax-product-filters-for-woocommerce'));
         if ($singlevalueSelect === "yes" && $show_apply_reset_on === "separate") {
             $status_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -973,14 +985,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     }
     $sale_status_search_settings = $get_terms_search_settings('sale_status');
     $sale_status_tooltip_settings = $get_tooltip_settings('sale_status');
-    if (!empty($sale_status)) {
+    if ($filter_enabled('show_onsale') && !empty($sale_status)) {
         $selected_sale_status = !empty($default_filter) && isset($default_filter["rpn_sale[]"]) ? $default_filter["rpn_sale[]"] : (isset($default_filter["sale_status[]"]) ? $default_filter["sale_status[]"] : []);
         $sub_option = isset($dapfforwc_styleoptions["sale_status"]["sub_option"]) ? $dapfforwc_styleoptions["sale_status"]["sub_option"] : ""; // Fetch the sub_option value
         $minimizable = isset($dapfforwc_styleoptions["sale_status"]["minimize"]["type"]) ? $dapfforwc_styleoptions["sale_status"]["minimize"]["type"] : "arrow";
         $show_count = isset($dapfforwc_styleoptions["sale_status"]["show_product_count"]) ? $dapfforwc_styleoptions["sale_status"]["show_product_count"] : "";
         $singlevalueSelect = isset($dapfforwc_styleoptions["sale_status"]["single_selection"]) ? $dapfforwc_styleoptions["sale_status"]["single_selection"] : "";
         $sale_layout_settings = $get_layout_settings('sale_status');
-        $formOutPut .= '<div id="sale_status" class="plugincy-filter-group sale_status ' . (isset($dapfforwc_styleoptions['css_class']['sale_status']) ? $dapfforwc_styleoptions['css_class']['sale_status'] : '') . '" style="display: ' . (isset($dapfforwc_options['show_onsale']) && !empty($dapfforwc_options['show_onsale']) ? 'block' : 'none !important') . ';">';
+        $formOutPut .= '<div id="sale_status" class="plugincy-filter-group sale_status ' . (isset($dapfforwc_styleoptions['css_class']['sale_status']) ? $dapfforwc_styleoptions['css_class']['sale_status'] : '') . '">';
         $sale_status_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["sale_status"]) && $dapfforwc_styleoptions["widget_title"]["sale_status"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["sale_status"]) : esc_html__('Sale Status', 'dynamic-ajax-product-filters-for-woocommerce'));
         if ($singlevalueSelect === "yes" && $show_apply_reset_on === "separate") {
             $sale_status_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
@@ -1052,11 +1064,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     };
 
 
-    // Check if any dimension is enabled
-    $show_any_dimension = false;
-    if (isset($dapfforwc_options["show_dimension"]) && !empty($dapfforwc_options["show_dimension"])) {
-        $show_any_dimension = true;
-    }
+    $show_any_dimension = $filter_enabled('show_dimension');
 
     if ($show_any_dimension) {
         // Get common settings from the first dimension (or you can make this configurable)
@@ -1066,7 +1074,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $dimensions_tooltip_settings = $get_tooltip_settings('dimensions');
         $dimensions_layout_settings = $get_layout_settings('dimensions');
 
-        $formOutPut .= '<div id="dimensions" class="plugincy-filter-group dimensions" style="display: block;">';
+        $formOutPut .= '<div id="dimensions" class="plugincy-filter-group dimensions">';
         $dimensions_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["dimensions"]) && $dapfforwc_styleoptions["widget_title"]["dimensions"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["dimensions"]) : esc_html__('Dimensions', 'dynamic-ajax-product-filters-for-woocommerce'));
         $formOutPut .= $render_title_bar($dimensions_title_content, $minimizable, $dimensions_search_settings, $dimensions_tooltip_settings, 'dimensions');
         $formOutPut .= '<div class="items ' . esc_attr($sub_option) . '">';
@@ -1141,14 +1149,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // SKU Filter
     $sub_option = isset($dapfforwc_styleoptions["sku"]["sub_option"]) ? $dapfforwc_styleoptions["sku"]["sub_option"] : "input";
     $minimizable = isset($dapfforwc_styleoptions["sku"]["minimize"]["type"]) ? $dapfforwc_styleoptions["sku"]["minimize"]["type"] : "arrow";
-    $show_sku = isset($dapfforwc_options["show_sku"]) ? $dapfforwc_options["show_sku"] : false;
+    $show_sku = $filter_enabled('show_sku');
     $sku_placeholder = isset($dapfforwc_styleoptions["placeholder"]["sku"]) ? $dapfforwc_styleoptions["placeholder"]["sku"] : esc_html__('Enter SKU...', 'dynamic-ajax-product-filters-for-woocommerce');
     $sku_search_settings = $get_terms_search_settings('sku');
     $sku_tooltip_settings = $get_tooltip_settings('sku');
     $sku_layout_settings = $get_layout_settings('sku');
 
     if (!empty($show_sku)) {
-        $formOutPut .= '<div id="sku" class="plugincy-filter-group sku" style="display: block;">';
+        $formOutPut .= '<div id="sku" class="plugincy-filter-group sku">';
         $sku_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["sku"]) && $dapfforwc_styleoptions["widget_title"]["sku"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["sku"]) : esc_html__('SKU', 'dynamic-ajax-product-filters-for-woocommerce'));
         $formOutPut .= $render_title_bar($sku_title_content, $minimizable, $sku_search_settings, $sku_tooltip_settings, 'sku');
         $formOutPut .= '<div class="items sku-container">';
@@ -1170,14 +1178,14 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // Discount Filter
     $sub_option = isset($dapfforwc_styleoptions["discount"]["sub_option"]) ? $dapfforwc_styleoptions["discount"]["sub_option"] : "input";
     $minimizable = isset($dapfforwc_styleoptions["discount"]["minimize"]["type"]) ? $dapfforwc_styleoptions["discount"]["minimize"]["type"] : "arrow";
-    $show_discount = isset($dapfforwc_options["show_discount"]) ? $dapfforwc_options["show_discount"] : false;
+    $show_discount = $filter_enabled('show_discount');
     $discount_placeholder = isset($dapfforwc_styleoptions["placeholder"]["discount"]) ? $dapfforwc_styleoptions["placeholder"]["discount"] : esc_html__('Min. % off', 'dynamic-ajax-product-filters-for-woocommerce');
     $discount_search_settings = $get_terms_search_settings('discount');
     $discount_tooltip_settings = $get_tooltip_settings('discount');
     $discount_layout_settings = $get_layout_settings('discount');
 
     if (!empty($show_discount)) {
-        $formOutPut .= '<div id="discount" class="plugincy-filter-group discount" style="display: block;">';
+        $formOutPut .= '<div id="discount" class="plugincy-filter-group discount">';
         $discount_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["discount"]) && $dapfforwc_styleoptions["widget_title"]["discount"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["discount"]) : esc_html__('Minimum Discount (%)', 'dynamic-ajax-product-filters-for-woocommerce'));
         $formOutPut .= $render_title_bar($discount_title_content, $minimizable, $discount_search_settings, $discount_tooltip_settings, 'discount');
         $formOutPut .= '<div class="items discount-container">';
@@ -1202,13 +1210,13 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     // Date Filter
     $sub_option = isset($dapfforwc_styleoptions["date_filter"]["sub_option"]) ? $dapfforwc_styleoptions["date_filter"]["sub_option"] : "select";
     $minimizable = isset($dapfforwc_styleoptions["date_filter"]["minimize"]["type"]) ? $dapfforwc_styleoptions["date_filter"]["minimize"]["type"] : "arrow";
-    $show_date_filter = isset($dapfforwc_options["show_date_filter"]) ? $dapfforwc_options["show_date_filter"] : false;
+    $show_date_filter = $filter_enabled('show_date_filter');
     $date_filter_search_settings = $get_terms_search_settings('date_filter');
     $date_filter_tooltip_settings = $get_tooltip_settings('date_filter');
     $date_filter_layout_settings = $get_layout_settings('date_filter');
 
     if (!empty($show_date_filter)) {
-        $formOutPut .= '<div id="date_filter" class="plugincy-filter-group date_filter" style="display: block;">';
+        $formOutPut .= '<div id="date_filter" class="plugincy-filter-group date_filter">';
         $date_filter_title_content = ((isset($dapfforwc_styleoptions["widget_title"]) && isset($dapfforwc_styleoptions["widget_title"]["date_filter"]) && $dapfforwc_styleoptions["widget_title"]["date_filter"] !== "") ? esc_html($dapfforwc_styleoptions["widget_title"]["date_filter"]) : esc_html__('Date Filter', 'dynamic-ajax-product-filters-for-woocommerce'));
         $formOutPut .= $render_title_bar($date_filter_title_content, $minimizable, $date_filter_search_settings, $date_filter_tooltip_settings, 'date_filter');
         $formOutPut .= '<div class="items date-filter-container">';

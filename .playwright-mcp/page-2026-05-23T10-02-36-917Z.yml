@@ -1,0 +1,566 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - navigation "Toolbar":
+      - menu:
+        - group [ref=e3]:
+          - menuitem "About WordPress" [ref=e4] [cursor=pointer]:
+            - generic [ref=e6]: About WordPress
+        - group [ref=e7]:
+          - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e8] [cursor=pointer]
+        - group [ref=e9]:
+          - menuitem "Live" [ref=e10] [cursor=pointer]
+        - group [ref=e11]:
+          - menuitem "Customize" [ref=e12] [cursor=pointer]
+        - group [ref=e13]:
+          - menuitem "7 updates available" [ref=e14] [cursor=pointer]:
+            - generic [ref=e16]: "7"
+            - generic [ref=e17]: 7 updates available
+        - group [ref=e18]:
+          - menuitem "0 Comments in moderation" [ref=e19] [cursor=pointer]:
+            - generic [ref=e21]: "0"
+            - generic [ref=e22]: 0 Comments in moderation
+        - group [ref=e23]:
+          - menuitem "New" [ref=e24] [cursor=pointer]:
+            - generic [ref=e26]: New
+        - group [ref=e27]:
+          - menuitem " Product Filter" [ref=e28]:
+            - generic [ref=e29]: 
+            - text: Product Filter
+      - menu [ref=e30]:
+        - group [ref=e31]:
+          - menuitem "Howdy, admin" [ref=e32] [cursor=pointer]
+        - group [ref=e33]:
+          - menuitem "Search" [ref=e34]:
+            - generic [ref=e35]:
+              - textbox "Search" [ref=e36] [cursor=pointer]
+              - generic [ref=e37]: Search
+  - link "Skip to content" [ref=e38] [cursor=pointer]:
+    - /url: "#content"
+  - generic [ref=e39]:
+    - banner [ref=e40]:
+      - generic [ref=e45]:
+        - link "Dynamic AJAX Product Filters for WooCommerce" [ref=e51] [cursor=pointer]:
+          - /url: http://free-filter-plugin.local/
+        - navigation "Primary Site Navigation" [ref=e56]:
+          - list [ref=e58]:
+            - listitem [ref=e59]:
+              - link [ref=e60] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/230-2/
+            - listitem [ref=e61]:
+              - link [ref=e62] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/2085-2/
+            - listitem [ref=e63]:
+              - link "Cart" [ref=e64] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/cart/
+            - listitem [ref=e65]:
+              - link "Checkout" [ref=e66] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/checkout/
+            - listitem [ref=e67]:
+              - link "classic checkout" [ref=e68] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/classic-checkout/
+            - listitem [ref=e69]:
+              - 'link "Elementor #222" [ref=e70] [cursor=pointer]':
+                - /url: http://free-filter-plugin.local/elementor-222/
+            - listitem [ref=e71]:
+              - link "home" [ref=e72] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/
+            - listitem [ref=e73]:
+              - link "home 2" [ref=e74] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-2/
+            - listitem [ref=e75]:
+              - link "home 3" [ref=e76] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/home-3/
+            - listitem [ref=e77]:
+              - link "huski" [ref=e78] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/huski/
+            - listitem [ref=e79]:
+              - link "laptop" [ref=e80] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/laptop/
+            - listitem [ref=e81]:
+              - link "My account" [ref=e82] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/my-account/
+            - listitem [ref=e83]:
+              - link "Sample Page" [ref=e84] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/sample-page/
+            - listitem [ref=e85]:
+              - link "shop" [ref=e86] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/
+            - listitem [ref=e87]:
+              - link "test" [ref=e88] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/test/
+    - generic [ref=e90]:
+      - generic [ref=e99]:
+        - generic [ref=e574]:
+          - generic [ref=e575]:
+            - generic [ref=e576]: Search Product
+            - img [ref=e579] [cursor=pointer]
+          - generic [ref=e582]:
+            - searchbox "Search Product…" [ref=e583]
+            - button "Search" [ref=e584] [cursor=pointer]
+        - generic [ref=e585]:
+          - generic [ref=e586]:
+            - generic [ref=e587]: Rating Reset
+            - img [ref=e590] [cursor=pointer]
+          - generic [ref=e592]:
+            - generic [ref=e593] [cursor=pointer]:
+              - checkbox [ref=e594]
+              - generic [ref=e595]:
+                - img [ref=e596]
+                - img [ref=e598]
+                - img [ref=e600]
+                - img [ref=e602]
+                - img [ref=e604]
+            - generic [ref=e606] [cursor=pointer]:
+              - checkbox [ref=e607]
+              - generic [ref=e608]:
+                - img [ref=e609]
+                - img [ref=e611]
+                - img [ref=e613]
+                - img [ref=e615]
+            - generic [ref=e617] [cursor=pointer]:
+              - checkbox [ref=e618]
+              - generic [ref=e619]:
+                - img [ref=e620]
+                - img [ref=e622]
+                - img [ref=e624]
+            - generic [ref=e626] [cursor=pointer]:
+              - checkbox [ref=e627]
+              - generic [ref=e628]:
+                - img [ref=e629]
+                - img [ref=e631]
+            - generic [ref=e633] [cursor=pointer]:
+              - checkbox [ref=e634]
+              - img [ref=e636]
+        - generic [ref=e639]:
+          - generic [ref=e640]: Price Range
+          - img [ref=e643] [cursor=pointer]
+        - generic [ref=e646]:
+          - generic [ref=e647]: Category Reset
+          - generic [ref=e648]:
+            - generic "agagagag" [ref=e649]:
+              - img [ref=e650]
+            - img [ref=e653] [cursor=pointer]
+        - generic [ref=e657]:
+          - generic "agagagag" [ref=e658]:
+            - img [ref=e659]
+          - img [ref=e662] [cursor=pointer]
+        - generic [ref=e665]:
+          - generic [ref=e666]: Authors
+          - img [ref=e669] [cursor=pointer]
+        - generic [ref=e672]:
+          - generic [ref=e673]: Stock Status
+          - img [ref=e676] [cursor=pointer]
+        - generic [ref=e678]:
+          - generic [ref=e679]:
+            - generic [ref=e680]: Sale Status
+            - img [ref=e683] [cursor=pointer]
+          - generic [ref=e685]:
+            - generic [ref=e686] [cursor=pointer]:
+              - checkbox "Sale" [ref=e687]
+              - generic [ref=e688]: Sale
+            - generic [ref=e689] [cursor=pointer]:
+              - checkbox "Not Sale" [ref=e690]
+              - generic [ref=e691]: Not Sale
+        - img [ref=e696] [cursor=pointer]
+        - img [ref=e702] [cursor=pointer]
+        - img [ref=e708] [cursor=pointer]
+        - generic [ref=e710]:
+          - generic [ref=e711]:
+            - generic [ref=e712]: Date Filter
+            - img [ref=e715] [cursor=pointer]
+          - combobox [ref=e719]:
+            - option "All Time" [selected]
+            - option "Today"
+            - option "This Week"
+            - option "This Month"
+            - option "This Year"
+      - main [ref=e374]:
+        - generic [ref=e375]:
+          - navigation "Breadcrumb" [ref=e376]:
+            - link "Home" [ref=e377] [cursor=pointer]:
+              - /url: http://free-filter-plugin.local
+            - text: / shop
+          - generic [ref=e378]:
+            - heading "shop" [level=1] [ref=e379]
+            - generic [ref=e380]:
+              - list [ref=e725]:
+                - listitem [ref=e726] [cursor=pointer]:
+                  - generic [ref=e727]: beauty care
+                  - generic [ref=e728]: x
+              - list [ref=e385] [cursor=pointer]:
+                - listitem [ref=e386]: 1.5 kg
+                - listitem [ref=e387]: black
+                - listitem [ref=e388]: Olive
+                - listitem [ref=e389]: Sky
+                - listitem [ref=e390]: White
+                - listitem [ref=e391]: Yellow
+          - alert [ref=e392]: Showing 1–10 of 73 results
+          - combobox "Shop order" [ref=e394]:
+            - option "Default sorting" [selected]
+            - option "Sort by popularity"
+            - option "Sort by average rating"
+            - option "Sort by latest"
+            - 'option "Sort by price: low to high"'
+            - 'option "Sort by price: high to low"'
+          - list [ref=e395]:
+            - listitem [ref=e729]:
+              - link "Placeholder" [ref=e731] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-bath-gel-500ml-gentle-cleansing-for-kids/
+                - img "Placeholder" [ref=e732]
+              - generic [ref=e733]:
+                - generic [ref=e734]: Body Care Products
+                - 'link "Babe Laboratorios: Pediatric Bath Gel (500ml) – Gentle Cleansing for Kids" [ref=e735] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-bath-gel-500ml-gentle-cleansing-for-kids/
+                  - 'heading "Babe Laboratorios: Pediatric Bath Gel (500ml) – Gentle Cleansing for Kids" [level=2] [ref=e736]'
+                - generic [ref=e739]: $3,050.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Bath Gel (500ml) - Gentle Cleansing for Kids”" [ref=e740] [cursor=pointer]': Add to cart
+            - listitem [ref=e742]:
+              - link "Placeholder" [ref=e744] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-emollient-cream-nurturing-care-for-delicate-skin-200ml/
+                - img "Placeholder" [ref=e745]
+              - generic [ref=e746]:
+                - generic [ref=e747]: Baby Care
+                - 'link "Babe Laboratorios: Pediatric Emollient Cream – Nurturing Care for Delicate Skin (200ml)" [ref=e748] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-emollient-cream-nurturing-care-for-delicate-skin-200ml/
+                  - 'heading "Babe Laboratorios: Pediatric Emollient Cream – Nurturing Care for Delicate Skin (200ml)" [level=2] [ref=e749]'
+                - generic [ref=e752]: $2,200.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Emollient Cream - Nurturing Care for Delicate Skin (200ml)”" [ref=e753] [cursor=pointer]': Add to cart
+            - listitem [ref=e755]:
+              - link "Placeholder" [ref=e757] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-milk-crust-cradle-cap-shampoo-200ml-gentle-care-for-scalp-health/
+                - img "Placeholder" [ref=e758]
+              - generic [ref=e759]:
+                - generic [ref=e760]: Body Care Products
+                - 'link "Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) – Gentle Care for Scalp Health" [ref=e761] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/babe-laboratorios-pediatric-milk-crust-cradle-cap-shampoo-200ml-gentle-care-for-scalp-health/
+                  - 'heading "Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) – Gentle Care for Scalp Health" [level=2] [ref=e762]'
+                - generic [ref=e765]: $1,500.00
+                - 'button "Add to cart: “Babe Laboratorios: Pediatric Milk Crust Cradle Cap Shampoo (200ml) - Gentle Care for Scalp Health”" [ref=e766] [cursor=pointer]': Add to cart
+            - listitem [ref=e768]:
+              - link "Beurer BS 49 Illuminated Vanity Mirror – Rotatable, Normal and 5x Magnification, Battery-Operated LED Cosmetic Mirror for Perfect Makeup and Shaving [Energy Class A++]" [ref=e770] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-bs-49-illuminated-vanity-mirror-rotatable-normal-and-5x-magnification-battery-operated-led-cosmetic-mirror-for-perfect-makeup-and-shaving-energy-class-a/
+                - img "Beurer BS 49 Illuminated Vanity Mirror – Rotatable, Normal and 5x Magnification, Battery-Operated LED Cosmetic Mirror for Perfect Makeup and Shaving [Energy Class A++]" [ref=e771]
+              - generic [ref=e772]:
+                - generic [ref=e773]: Beauty Care
+                - link "Beurer BS 49 Illuminated Vanity Mirror – Rotatable, Normal and 5x Magnification, Battery-Operated LED Cosmetic Mirror for Perfect Makeup and Shaving [Energy Class A++]" [ref=e774] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-bs-49-illuminated-vanity-mirror-rotatable-normal-and-5x-magnification-battery-operated-led-cosmetic-mirror-for-perfect-makeup-and-shaving-energy-class-a/
+                  - heading "Beurer BS 49 Illuminated Vanity Mirror – Rotatable, Normal and 5x Magnification, Battery-Operated LED Cosmetic Mirror for Perfect Makeup and Shaving [Energy Class A++]" [level=2] [ref=e775]
+                - generic [ref=e778]: $1,200.00
+                - 'button "Add to cart: “Beurer BS 49 Illuminated Vanity Mirror – Rotatable, Normal and 5x Magnification, Battery-Operated LED Cosmetic Mirror for Perfect Makeup and Shaving [Energy Class A++]”" [ref=e779] [cursor=pointer]': Add to cart
+            - listitem [ref=e781]:
+              - link "Placeholder" [ref=e783] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-bs-55-illuminated-cosmetic-mirror-led-makeup-mirror-with-pivoting-design-touch-sensor-on-off-normal-magnification-view-x7-chrome-finishes-for-precision-grooming/
+                - img "Placeholder" [ref=e784]
+              - generic [ref=e785]:
+                - generic [ref=e786]: Beauty Care
+                - link "Beurer BS 55 Illuminated Cosmetic Mirror – LED Makeup Mirror with Pivoting Design, Touch Sensor On/Off, Normal & Magnification View (x7), Chrome Finishes for Precision Grooming" [ref=e787] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-bs-55-illuminated-cosmetic-mirror-led-makeup-mirror-with-pivoting-design-touch-sensor-on-off-normal-magnification-view-x7-chrome-finishes-for-precision-grooming/
+                  - heading "Beurer BS 55 Illuminated Cosmetic Mirror – LED Makeup Mirror with Pivoting Design, Touch Sensor On/Off, Normal & Magnification View (x7), Chrome Finishes for Precision Grooming" [level=2] [ref=e788]
+                - generic [ref=e791]: $2,350.00
+                - 'button "Add to cart: “Beurer BS 55 Illuminated Cosmetic Mirror - LED Makeup Mirror with Pivoting Design, Touch Sensor On/Off, Normal & Magnification View (x7), Chrome Finishes for Precision Grooming”" [ref=e792] [cursor=pointer]': Add to cart
+            - listitem [ref=e794]:
+              - link "Placeholder" [ref=e796] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-bs-69-illuminated-cosmetic-mirror-stylish-vanity-mirror-with-adjustable-led-lights-for-precision-makeup-application/
+                - img "Placeholder" [ref=e797]
+              - generic [ref=e798]:
+                - generic [ref=e799]: Beauty Care
+                - link "Beurer BS 69 Illuminated Cosmetic Mirror – Stylish Vanity Mirror with Adjustable LED Lights for Precision Makeup Application" [ref=e800] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-bs-69-illuminated-cosmetic-mirror-stylish-vanity-mirror-with-adjustable-led-lights-for-precision-makeup-application/
+                  - heading "Beurer BS 69 Illuminated Cosmetic Mirror – Stylish Vanity Mirror with Adjustable LED Lights for Precision Makeup Application" [level=2] [ref=e801]
+                - generic [ref=e804]: $4,000.00
+                - 'button "Add to cart: “Beurer BS 69 Illuminated Cosmetic Mirror - Stylish Vanity Mirror with Adjustable LED Lights for Precision Makeup Application”" [ref=e805] [cursor=pointer]': Add to cart
+            - listitem [ref=e807]:
+              - link "Placeholder" [ref=e809] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-bs-99-illuminated-cosmetic-mirror-led-makeup-mirror-with-touch-sensor-pivoting-design-and-magnification-view-for-precision-grooming/
+                - img "Placeholder" [ref=e810]
+              - generic [ref=e811]:
+                - generic [ref=e812]: Beauty Care
+                - link "Beurer BS 99 Illuminated Cosmetic Mirror – LED Makeup Mirror with Touch Sensor, Pivoting Design, and Magnification View for Precision Grooming" [ref=e813] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-bs-99-illuminated-cosmetic-mirror-led-makeup-mirror-with-touch-sensor-pivoting-design-and-magnification-view-for-precision-grooming/
+                  - heading "Beurer BS 99 Illuminated Cosmetic Mirror – LED Makeup Mirror with Touch Sensor, Pivoting Design, and Magnification View for Precision Grooming" [level=2] [ref=e814]
+                - generic [ref=e817]: $6,200.00
+                - 'button "Add to cart: “Beurer BS 99 Illuminated Cosmetic Mirror - LED Makeup Mirror with Touch Sensor, Pivoting Design, and Magnification View for Precision Grooming”" [ref=e818] [cursor=pointer]': Add to cart
+            - listitem [ref=e820]:
+              - link "Placeholder" [ref=e822] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-bs59-illuminated-cosmetics-mirror-battery-operated-vanity-mirror-with-led-lights-for-perfect-makeup-application/
+                - img "Placeholder" [ref=e823]
+              - generic [ref=e824]:
+                - generic [ref=e825]: Beauty Care
+                - link "Beurer BS59 Illuminated Cosmetics Mirror – Battery Operated Vanity Mirror with LED Lights for Perfect Makeup Application" [ref=e826] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/beurer-bs59-illuminated-cosmetics-mirror-battery-operated-vanity-mirror-with-led-lights-for-perfect-makeup-application/
+                  - heading "Beurer BS59 Illuminated Cosmetics Mirror – Battery Operated Vanity Mirror with LED Lights for Perfect Makeup Application" [level=2] [ref=e827]
+                - generic [ref=e830]: $2,600.00
+                - 'button "Add to cart: “Beurer BS59 Illuminated Cosmetics Mirror - Battery Operated Vanity Mirror with LED Lights for Perfect Makeup Application”" [ref=e831] [cursor=pointer]': Add to cart
+            - listitem [ref=e833]:
+              - link "Placeholder" [ref=e835] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-cm50-cellulite-massager-roller-and-vibration-massager-for-circulation-boost-collagen-production-and-improved-skin-elasticity-2-intensity-settings/
+                - img "Placeholder" [ref=e836]
+              - generic [ref=e837]:
+                - generic [ref=e838]: Beauty Care
+                - 'link "Beurer CM50 Cellulite Massager: Roller and Vibration Massager for Circulation Boost, Collagen Production, and Improved Skin Elasticity – 2 Intensity Settings" [ref=e839] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/beurer-cm50-cellulite-massager-roller-and-vibration-massager-for-circulation-boost-collagen-production-and-improved-skin-elasticity-2-intensity-settings/
+                  - 'heading "Beurer CM50 Cellulite Massager: Roller and Vibration Massager for Circulation Boost, Collagen Production, and Improved Skin Elasticity – 2 Intensity Settings" [level=2] [ref=e840]'
+                - generic [ref=e843]: $3,200.00
+                - 'button "Add to cart: “Beurer CM50 Cellulite Massager: Roller and Vibration Massager for Circulation Boost, Collagen Production, and Improved Skin Elasticity - 2 Intensity Settings”" [ref=e844] [cursor=pointer]': Add to cart
+            - listitem [ref=e846]:
+              - link "Placeholder" [ref=e848] [cursor=pointer]:
+                - /url: http://free-filter-plugin.local/products/beurer-fb20-foot-bubble-spa-vibration-bubble-massage-infrared-light-reflexology-zone-3-pedicure-attachments-removable-splash-guard-water-tempering-relax-and-rejuvenate-your-feet/
+                - img "Placeholder" [ref=e849]
+              - generic [ref=e850]:
+                - generic [ref=e851]: Beauty Care
+                - 'link "Beurer FB20 Foot Bubble Spa: Vibration, Bubble Massage, Infrared Light, Reflexology Zone, 3 Pedicure Attachments, Removable Splash Guard, Water Tempering – Relax and Rejuvenate Your Feet" [ref=e852] [cursor=pointer]':
+                  - /url: http://free-filter-plugin.local/products/beurer-fb20-foot-bubble-spa-vibration-bubble-massage-infrared-light-reflexology-zone-3-pedicure-attachments-removable-splash-guard-water-tempering-relax-and-rejuvenate-your-feet/
+                  - 'heading "Beurer FB20 Foot Bubble Spa: Vibration, Bubble Massage, Infrared Light, Reflexology Zone, 3 Pedicure Attachments, Removable Splash Guard, Water Tempering – Relax and Rejuvenate Your Feet" [level=2] [ref=e853]'
+                - generic [ref=e856]: $3,800.00
+                - 'button "Add to cart: “Beurer FB20 Foot Bubble Spa: Vibration, Bubble Massage, Infrared Light, Reflexology Zone, 3 Pedicure Attachments, Removable Splash Guard, Water Tempering - Relax and Rejuvenate Your Feet”" [ref=e857] [cursor=pointer]': Add to cart
+          - navigation "Product Pagination" [ref=e530]:
+            - list [ref=e859]:
+              - listitem [ref=e860]:
+                - generic "Page 1" [ref=e861]: "1"
+              - listitem [ref=e862]:
+                - link "Page 2" [ref=e863] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=2
+                  - text: "2"
+              - listitem [ref=e864]:
+                - link "Page 3" [ref=e865] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=3
+                  - text: "3"
+              - listitem [ref=e866]:
+                - link "Page 4" [ref=e867] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=4
+                  - text: "4"
+              - listitem [ref=e868]:
+                - generic [ref=e869]: …
+              - listitem [ref=e870]:
+                - link "Page 6" [ref=e871] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=6
+                  - text: "6"
+              - listitem [ref=e872]:
+                - link "Page 7" [ref=e873] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=7
+                  - text: "7"
+              - listitem [ref=e874]:
+                - link "Page 8" [ref=e875] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=8
+                  - text: "8"
+              - listitem [ref=e876]:
+                - link "→" [ref=e877] [cursor=pointer]:
+                  - /url: http://free-filter-plugin.local/products/?filters=1&cata=beauty-care&rpage=2
+    - contentinfo [ref=e550]:
+      - region "Footer Widget 1" [ref=e555]:
+        - paragraph [ref=e557]:
+          - link "Add Widget" [ref=e558] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/widgets.php
+      - paragraph [ref=e565]:
+        - text: Copyright © 2026 Dynamic AJAX Product Filters for WooCommerce | Powered by
+        - link "Astra WordPress Theme" [ref=e566] [cursor=pointer]:
+          - /url: https://wpastra.com
+  - generic "Open Plugency Debugger" [ref=e567] [cursor=pointer]:
+    - img [ref=e568]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Performance"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Plugins
+            - list:
+              - listitem:
+                - generic: File
+                - strong: C:/Users/GM Team/Local Sites/free-filter-plugin/app/public/wp-content/plugins/woocommerce/templates/archive-product.php
+              - listitem:
+                - generic: Source
+                - strong: woocommerce
+              - listitem:
+                - generic: Matched rule
+                - strong: products/?$
+              - listitem:
+                - generic: Request
+                - strong: products
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Front-end
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/products/
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 40 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "180"
+              - listitem:
+                - generic: Total time
+                - strong: 0.1366s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0187s
+              - listitem:
+                - generic: Example
+                - strong: SELECT post_id, meta_value FROM wp_postmeta WHERE meta_key = '_wp_attached_file' AND meta_value = ''
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: every_minute
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: action_scheduler_run_queue
+              - listitem:
+                - generic: Runs in
+                - strong: 1 second
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 10:02:02 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (100 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 10:01:17
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2158"
+              - listitem:
+                - generic: Styles
+                - strong: "25"
+              - listitem:
+                - generic: Scripts
+                - strong: "19"
+              - listitem:
+                - generic: Queries
+                - strong: "180"
+              - listitem:
+                - generic: Request entries
+                - strong: "86"
+    - paragraph
+  - button "Re-consent" [ref=e571] [cursor=pointer]:
+    - img "Re-consent" [ref=e572]
+  - generic [ref=e878] [cursor=pointer]:
+    - img [ref=e880]
+    - generic [ref=e882]: Scroll to Top
+  - status [ref=e573]

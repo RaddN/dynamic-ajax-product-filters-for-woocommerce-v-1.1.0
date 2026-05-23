@@ -626,7 +626,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply sale status filter (supports on sale and not on sale)
         $sale_filter = $this->get_sale_filter_flags($params);
-        if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
+        if (!$this->use_database_safe_mode() && ($sale_filter['onsale'] || $sale_filter['notonsale'])) {
             $sale_product_ids = $this->get_on_sale_product_filter_ids();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
@@ -646,7 +646,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // product so variable parents only pass when a real variation satisfies
         // the full requested range.
         $dimension_filters = $this->get_dimension_filters($params);
-        if (!empty($dimension_filters)) {
+        if (!$this->use_database_safe_mode() && !empty($dimension_filters)) {
             $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
             $post_in = $this->merge_post_in_lists($query->get('post__in'), $dimension_product_ids);
             $query->set('post__in', !empty($post_in) ? $post_in : array(0));
@@ -680,7 +680,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Apply discount filter
-        if (isset($params['discount']) && $params['discount'] > 0) {
+        if (!$this->use_database_safe_mode() && isset($params['discount']) && $params['discount'] > 0) {
             $discount_products = $this->get_products_with_discount($params['discount']);
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($query->get('post__in'), $discount_products);
@@ -915,7 +915,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         // Apply sale status filter (supports on sale and not on sale)
         $sale_filter = $this->get_sale_filter_flags($params);
-        if ($sale_filter['onsale'] || $sale_filter['notonsale']) {
+        if (!$this->use_database_safe_mode() && ($sale_filter['onsale'] || $sale_filter['notonsale'])) {
             $sale_product_ids = $this->get_on_sale_product_filter_ids();
 
             if ($sale_filter['onsale'] && !$sale_filter['notonsale']) {
@@ -934,7 +934,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // Match dimensions against effective variation dimensions so shortcode,
         // REST, and third-party grid queries stay aligned with archive behavior.
         $dimension_filters = $this->get_dimension_filters($params);
-        if (!empty($dimension_filters)) {
+        if (!$this->use_database_safe_mode() && !empty($dimension_filters)) {
             $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
             $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $dimension_product_ids);
             $args['post__in'] = !empty($post_in) ? $post_in : array(0);
@@ -968,7 +968,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         // Apply discount filter
-        if (isset($params['discount']) && $params['discount'] > 0) {
+        if (!$this->use_database_safe_mode() && isset($params['discount']) && $params['discount'] > 0) {
             $discount_products = $this->get_products_with_discount($params['discount']);
             if (!empty($discount_products)) {
                 $post_in = $this->merge_post_in_lists($args['post__in'] ?? array(), $discount_products);
@@ -1050,9 +1050,82 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return array();
     }
 
+    private function use_database_safe_mode(): bool
+    {
+        return function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode();
+    }
+
+    private function get_dimension_sql_condition(string $product_expression, array $dimension_filters, string $alias_prefix = ''): string
+    {
+        global $wpdb;
+
+        if (empty($dimension_filters)) {
+            return '';
+        }
+
+        $meta_aliases = array();
+        $parent_conditions = array();
+        $variation_conditions = array();
+
+        foreach ($dimension_filters as $dimension => $range) {
+            $dimension = sanitize_key($dimension);
+            if (!in_array($dimension, array('length', 'width', 'height', 'weight'), true)) {
+                continue;
+            }
+
+            $parent_alias = $alias_prefix . 'p_' . $dimension;
+            $variation_alias = $alias_prefix . 'v_' . $dimension;
+            $fallback_alias = $alias_prefix . 'vp_' . $dimension;
+            $meta_key = '_' . $dimension;
+
+            $meta_aliases[] = "LEFT JOIN {$wpdb->postmeta} {$parent_alias} ON {$parent_alias}.post_id = {$product_expression} AND {$parent_alias}.meta_key = '{$meta_key}'";
+
+            $parent_value = "CAST({$parent_alias}.meta_value AS DECIMAL(20,6))";
+            $variation_value = "CAST(COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) AS DECIMAL(20,6))";
+
+            if (isset($range['min']) && $range['min'] !== null) {
+                $parent_conditions[] = $wpdb->prepare("{$parent_alias}.meta_value != '' AND {$parent_value} >= %f", (float) $range['min']);
+                $variation_conditions[] = $wpdb->prepare("COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) != '' AND {$variation_value} >= %f", (float) $range['min']);
+            }
+
+            if (isset($range['max']) && $range['max'] !== null) {
+                $parent_conditions[] = $wpdb->prepare("{$parent_alias}.meta_value != '' AND {$parent_value} <= %f", (float) $range['max']);
+                $variation_conditions[] = $wpdb->prepare("COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) != '' AND {$variation_value} <= %f", (float) $range['max']);
+            }
+        }
+
+        if (empty($parent_conditions) && empty($variation_conditions)) {
+            return '';
+        }
+
+        $parent_exists = 'EXISTS (SELECT 1 FROM ' . $wpdb->posts . ' dp ' . implode(' ', $meta_aliases) . " WHERE dp.ID = {$product_expression} AND " . implode(' AND ', $parent_conditions) . ')';
+
+        $variation_joins = array();
+        foreach (array_keys($dimension_filters) as $dimension) {
+            $dimension = sanitize_key($dimension);
+            if (!in_array($dimension, array('length', 'width', 'height', 'weight'), true)) {
+                continue;
+            }
+
+            $variation_alias = $alias_prefix . 'v_' . $dimension;
+            $fallback_alias = $alias_prefix . 'vp_' . $dimension;
+            $meta_key = '_' . $dimension;
+            $variation_joins[] = "LEFT JOIN {$wpdb->postmeta} {$variation_alias} ON {$variation_alias}.post_id = dv.ID AND {$variation_alias}.meta_key = '{$meta_key}'";
+            $variation_joins[] = "LEFT JOIN {$wpdb->postmeta} {$fallback_alias} ON {$fallback_alias}.post_id = {$product_expression} AND {$fallback_alias}.meta_key = '{$meta_key}'";
+        }
+
+        $variation_exists = 'EXISTS (SELECT 1 FROM ' . $wpdb->posts . ' dv ' . implode(' ', $variation_joins) . " WHERE dv.post_parent = {$product_expression} AND dv.post_type = 'product_variation' AND dv.post_status = 'publish' AND " . implode(' AND ', $variation_conditions) . ')';
+
+        return '(' . $parent_exists . ' OR ' . $variation_exists . ')';
+    }
+
     private function get_product_ids_by_dimensions(array $dimension_filters): array
     {
         if (empty($dimension_filters)) {
+            return array();
+        }
+
+        if ($this->use_database_safe_mode()) {
             return array();
         }
 
@@ -1280,23 +1353,57 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         // and third-party loops can't drop variable parent products.
         $sale_filter = $this->get_sale_filter_flags($params);
         if ($sale_filter['onsale'] xor $sale_filter['notonsale']) {
-            $sale_product_ids = $this->get_on_sale_product_filter_ids();
+            if ($this->use_database_safe_mode()) {
+                $sale_exists = '(' .
+                    "EXISTS (" .
+                        "SELECT 1 FROM {$wpdb->postmeta} rp " .
+                        "JOIN {$wpdb->postmeta} sp ON sp.post_id = rp.post_id AND sp.meta_key = '_sale_price' " .
+                        "WHERE rp.post_id = {$posts_table}.ID " .
+                        "AND rp.meta_key = '_regular_price' " .
+                        "AND rp.meta_value <> '' AND sp.meta_value <> '' AND sp.meta_value <> '0' " .
+                        "AND CAST(sp.meta_value AS DECIMAL(20,6)) > 0 " .
+                        "AND CAST(sp.meta_value AS DECIMAL(20,6)) < CAST(rp.meta_value AS DECIMAL(20,6))" .
+                    ")" .
+                    " OR EXISTS (" .
+                        "SELECT 1 FROM {$wpdb->posts} v " .
+                        "JOIN {$wpdb->postmeta} vrp ON vrp.post_id = v.ID AND vrp.meta_key = '_regular_price' " .
+                        "JOIN {$wpdb->postmeta} vsp ON vsp.post_id = v.ID AND vsp.meta_key = '_sale_price' " .
+                        "WHERE v.post_parent = {$posts_table}.ID " .
+                        "AND v.post_type = 'product_variation' " .
+                        "AND v.post_status = 'publish' " .
+                        "AND vrp.meta_value <> '' AND vsp.meta_value <> '' AND vsp.meta_value <> '0' " .
+                        "AND CAST(vsp.meta_value AS DECIMAL(20,6)) > 0 " .
+                        "AND CAST(vsp.meta_value AS DECIMAL(20,6)) < CAST(vrp.meta_value AS DECIMAL(20,6))" .
+                    ")" .
+                ')';
 
-            if ($sale_filter['onsale']) {
-                $where_clauses[] = !empty($sale_product_ids)
-                    ? "{$posts_table}.ID IN (" . implode(',', $sale_product_ids) . ')'
-                    : '1=0';
-            } elseif (!empty($sale_product_ids)) {
-                $where_clauses[] = "{$posts_table}.ID NOT IN (" . implode(',', $sale_product_ids) . ')';
+                $where_clauses[] = $sale_filter['onsale'] ? $sale_exists : "NOT {$sale_exists}";
+            } else {
+                $sale_product_ids = $this->get_on_sale_product_filter_ids();
+
+                if ($sale_filter['onsale']) {
+                    $where_clauses[] = !empty($sale_product_ids)
+                        ? "{$posts_table}.ID IN (" . implode(',', $sale_product_ids) . ')'
+                        : '1=0';
+                } elseif (!empty($sale_product_ids)) {
+                    $where_clauses[] = "{$posts_table}.ID NOT IN (" . implode(',', $sale_product_ids) . ')';
+                }
             }
         }
 
         $dimension_filters = $this->get_dimension_filters($params);
         if (!empty($dimension_filters)) {
-            $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
-            $where_clauses[] = !empty($dimension_product_ids)
-                ? "{$posts_table}.ID IN (" . implode(',', $dimension_product_ids) . ')'
-                : '1=0';
+            if ($this->use_database_safe_mode()) {
+                $dimension_clause = $this->get_dimension_sql_condition("{$posts_table}.ID", $dimension_filters, 'dapff_dim_');
+                if ($dimension_clause !== '') {
+                    $where_clauses[] = $dimension_clause;
+                }
+            } else {
+                $dimension_product_ids = $this->get_product_ids_by_dimensions($dimension_filters);
+                $where_clauses[] = !empty($dimension_product_ids)
+                    ? "{$posts_table}.ID IN (" . implode(',', $dimension_product_ids) . ')'
+                    : '1=0';
+            }
         }
 
         // Discount filter: enforce minimum percentage off via SQL so third-party queries can't drop it.

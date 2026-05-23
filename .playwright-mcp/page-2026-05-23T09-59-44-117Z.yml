@@ -1,0 +1,1248 @@
+- generic [ref=e2]:
+  - navigation "Main menu":
+    - link "Skip to main content" [ref=e3] [cursor=pointer]:
+      - /url: "#wpbody-content"
+    - link "Skip to toolbar" [ref=e4] [cursor=pointer]:
+      - /url: "#wp-toolbar"
+    - list [ref=e7]:
+      - listitem [ref=e8]:
+        - link "Dashboard" [ref=e9] [cursor=pointer]:
+          - /url: index.php
+          - generic [ref=e10]: 
+          - generic [ref=e11]: Dashboard
+        - list [ref=e12]:
+          - listitem [ref=e13]: Dashboard
+          - listitem [ref=e14]:
+            - link "Home" [ref=e15] [cursor=pointer]:
+              - /url: index.php
+          - listitem [ref=e16]:
+            - link "Updates 7" [ref=e17] [cursor=pointer]:
+              - /url: update-core.php
+              - text: Updates
+              - generic [ref=e18]: "7"
+      - listitem [ref=e19]:
+        - link "Elementor" [ref=e20] [cursor=pointer]:
+          - /url: admin.php?page=elementor-home
+          - generic [ref=e22]: Elementor
+        - list [ref=e23]:
+          - listitem [ref=e24]: Elementor
+          - listitem [ref=e25]:
+            - link "Home" [ref=e26] [cursor=pointer]:
+              - /url: admin.php?page=elementor-home
+          - listitem [ref=e27]:
+            - link "Editor" [ref=e28] [cursor=pointer]:
+              - /url: admin.php?page=elementor
+          - listitem [ref=e29]:
+            - link "Upgrade" [ref=e30] [cursor=pointer]:
+              - /url: admin.php?page=elementor-one-upgrade
+      - listitem [ref=e31]
+      - listitem [ref=e33]:
+        - link "Posts" [ref=e34] [cursor=pointer]:
+          - /url: edit.php
+          - generic [ref=e35]: 
+          - generic [ref=e36]: Posts
+        - list [ref=e37]:
+          - listitem [ref=e38]: Posts
+          - listitem [ref=e39]:
+            - link "All Posts" [ref=e40] [cursor=pointer]:
+              - /url: edit.php
+          - listitem [ref=e41]:
+            - link "Add Post" [ref=e42] [cursor=pointer]:
+              - /url: post-new.php
+          - listitem [ref=e43]:
+            - link "Categories" [ref=e44] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=category
+          - listitem [ref=e45]:
+            - link "Tags" [ref=e46] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=post_tag
+      - listitem [ref=e47]:
+        - link "Media" [ref=e48] [cursor=pointer]:
+          - /url: upload.php
+          - generic [ref=e49]: 
+          - generic [ref=e50]: Media
+        - list [ref=e51]:
+          - listitem [ref=e52]: Media
+          - listitem [ref=e53]:
+            - link "Library" [ref=e54] [cursor=pointer]:
+              - /url: upload.php
+          - listitem [ref=e55]:
+            - link "Add Media File" [ref=e56] [cursor=pointer]:
+              - /url: media-new.php
+          - listitem [ref=e57]:
+            - link "Gallery Category" [ref=e58] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=gallery_categories&post_type=attachment
+      - listitem [ref=e59]:
+        - link "Pages" [ref=e60] [cursor=pointer]:
+          - /url: edit.php?post_type=page
+          - generic [ref=e61]: 
+          - generic [ref=e62]: Pages
+        - list [ref=e63]:
+          - listitem [ref=e64]: Pages
+          - listitem [ref=e65]:
+            - link "All Pages" [ref=e66] [cursor=pointer]:
+              - /url: edit.php?post_type=page
+          - listitem [ref=e67]:
+            - link "Add Page" [ref=e68] [cursor=pointer]:
+              - /url: post-new.php?post_type=page
+      - listitem [ref=e69]:
+        - link "Comments" [ref=e70] [cursor=pointer]:
+          - /url: edit-comments.php
+          - generic [ref=e71]: 
+          - generic [ref=e72]: Comments
+      - listitem [ref=e73]:
+        - link "Themehigh" [ref=e74] [cursor=pointer]:
+          - /url: admin.php?page=th_extra_product_options_pro
+          - generic [ref=e76]: Themehigh
+        - list [ref=e77]:
+          - listitem [ref=e78]: Themehigh
+          - listitem [ref=e79]:
+            - link "Extra Product Option" [ref=e80] [cursor=pointer]:
+              - /url: admin.php?page=th_extra_product_options_pro
+          - listitem [ref=e81]:
+            - link "Free Plugins" [ref=e82] [cursor=pointer]:
+              - /url: admin.php?page=themehigh-free-plugins
+          - listitem [ref=e83]:
+            - link "Premium Plugins (opens in a new tab)" [ref=e84] [cursor=pointer]:
+              - /url: https://www.themehigh.com/plugins/
+              - img [ref=e85]
+              - text: Premium Plugins
+              - generic [ref=e87]: (opens in a new tab)
+      - listitem [ref=e88]
+      - listitem [ref=e90]:
+        - link "WooCommerce" [ref=e91] [cursor=pointer]:
+          - /url: admin.php?page=wc-admin
+          - generic [ref=e93]: WooCommerce
+        - list [ref=e94]:
+          - listitem [ref=e95]: WooCommerce
+          - listitem [ref=e96]:
+            - link "Home 3" [ref=e97] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin
+              - text: Home
+              - generic [ref=e98]: "3"
+          - listitem [ref=e99]:
+            - link "Orders" [ref=e100] [cursor=pointer]:
+              - /url: admin.php?page=wc-orders
+          - listitem [ref=e101]:
+            - link "Customers" [ref=e102] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/customers
+          - listitem [ref=e103]:
+            - link "Coupons" [ref=e104] [cursor=pointer]:
+              - /url: admin.php?page=coupons-moved
+          - listitem [ref=e105]:
+            - link "Reports" [ref=e106] [cursor=pointer]:
+              - /url: admin.php?page=wc-reports
+          - listitem [ref=e107]:
+            - link "Settings" [ref=e108] [cursor=pointer]:
+              - /url: admin.php?page=wc-settings
+          - listitem [ref=e109]:
+            - link "Status" [ref=e110] [cursor=pointer]:
+              - /url: admin.php?page=wc-status
+          - listitem [ref=e111]:
+            - link "Extensions" [ref=e112] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/extensions
+      - listitem [ref=e113]:
+        - link "Products" [ref=e114] [cursor=pointer]:
+          - /url: edit.php?post_type=product
+          - generic [ref=e115]: 
+          - generic [ref=e116]: Products
+        - list [ref=e117]:
+          - listitem [ref=e118]: Products
+          - listitem [ref=e119]:
+            - link "All Products" [ref=e120] [cursor=pointer]:
+              - /url: edit.php?post_type=product
+          - listitem [ref=e121]:
+            - link "Add new product" [ref=e122] [cursor=pointer]:
+              - /url: post-new.php?post_type=product
+          - listitem [ref=e123]:
+            - link "Brands" [ref=e124] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=product_brand&post_type=product
+          - listitem [ref=e125]:
+            - link "Categories" [ref=e126] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=product_cat&post_type=product
+          - listitem [ref=e127]:
+            - link "Tags" [ref=e128] [cursor=pointer]:
+              - /url: edit-tags.php?taxonomy=product_tag&post_type=product
+          - listitem [ref=e129]:
+            - link "Attributes" [ref=e130] [cursor=pointer]:
+              - /url: edit.php?post_type=product&page=product_attributes
+          - listitem [ref=e131]:
+            - link "Reviews" [ref=e132] [cursor=pointer]:
+              - /url: edit.php?post_type=product&page=product-reviews
+          - listitem [ref=e133]:
+            - link "Extra Product Option" [ref=e134] [cursor=pointer]:
+              - /url: edit.php?post_type=product&page=th_extra_product_options_pro_redirect
+      - listitem [ref=e135]:
+        - link "Product Filters" [ref=e136] [cursor=pointer]:
+          - /url: admin.php?page=dapfforwc-admin
+          - generic [ref=e137]: 
+          - generic [ref=e138]: Product Filters
+        - list [ref=e139]:
+          - listitem [ref=e140]: Product Filters
+          - listitem [ref=e141]:
+            - link "Product Filters" [ref=e142] [cursor=pointer]:
+              - /url: admin.php?page=dapfforwc-admin
+          - listitem [ref=e143]:
+            - link "Our Plugins" [ref=e144] [cursor=pointer]:
+              - /url: admin.php?page=plugincy-plugins
+          - listitem [ref=e145]:
+            - link "⭐ Get Pro↗" [ref=e146] [cursor=pointer]:
+              - /url: https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce
+      - listitem [ref=e147]:
+        - link "Payments" [ref=e148] [cursor=pointer]:
+          - /url: admin.php?page=wc-settings&tab=checkout&from=PAYMENTS_MENU_ITEM
+          - generic [ref=e150]: Payments
+      - listitem [ref=e151]:
+        - link "Analytics" [ref=e152] [cursor=pointer]:
+          - /url: admin.php?page=wc-admin&path=/analytics/overview
+          - generic [ref=e153]: 
+          - generic [ref=e154]: Analytics
+        - list [ref=e155]:
+          - listitem [ref=e156]: Analytics
+          - listitem [ref=e157]:
+            - link "Overview" [ref=e158] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/overview
+          - listitem [ref=e159]:
+            - link "Products" [ref=e160] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/products
+          - listitem [ref=e161]:
+            - link "Revenue" [ref=e162] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/revenue
+          - listitem [ref=e163]:
+            - link "Orders" [ref=e164] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/orders
+          - listitem [ref=e165]:
+            - link "Variations" [ref=e166] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/variations
+          - listitem [ref=e167]:
+            - link "Categories" [ref=e168] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/categories
+          - listitem [ref=e169]:
+            - link "Coupons" [ref=e170] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/coupons
+          - listitem [ref=e171]:
+            - link "Taxes" [ref=e172] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/taxes
+          - listitem [ref=e173]:
+            - link "Downloads" [ref=e174] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/downloads
+          - listitem [ref=e175]:
+            - link "Stock" [ref=e176] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/stock
+          - listitem [ref=e177]:
+            - link "Settings" [ref=e178] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/analytics/settings
+      - listitem [ref=e179]:
+        - link "Marketing" [ref=e180] [cursor=pointer]:
+          - /url: admin.php?page=wc-admin&path=/marketing
+          - generic [ref=e181]: 
+          - generic [ref=e182]: Marketing
+        - list [ref=e183]:
+          - listitem [ref=e184]: Marketing
+          - listitem [ref=e185]:
+            - link "Overview" [ref=e186] [cursor=pointer]:
+              - /url: admin.php?page=wc-admin&path=/marketing
+          - listitem [ref=e187]:
+            - link "Coupons" [ref=e188] [cursor=pointer]:
+              - /url: edit.php?post_type=shop_coupon
+      - text:  
+      - listitem [ref=e189]
+      - listitem [ref=e191]:
+        - link "Astra" [ref=e192] [cursor=pointer]:
+          - /url: admin.php?page=astra
+          - generic [ref=e194]: Astra
+        - list [ref=e195]:
+          - listitem [ref=e196]: Astra
+          - listitem [ref=e197]:
+            - link "Dashboard" [ref=e198] [cursor=pointer]:
+              - /url: admin.php?page=astra
+          - listitem [ref=e199]:
+            - link "Customize" [ref=e200] [cursor=pointer]:
+              - /url: customize.php
+          - listitem [ref=e201]:
+            - link "Site Builder" [ref=e202] [cursor=pointer]:
+              - /url: admin.php?page=theme-builder-free
+          - listitem [ref=e203]:
+            - link "WooCommerce" [ref=e204] [cursor=pointer]:
+              - /url: admin.php?page=astra&path=woocommerce
+          - listitem [ref=e205]:
+            - link "Learn 6" [ref=e206] [cursor=pointer]:
+              - /url: admin.php?page=astra&path=learn
+              - text: Learn
+              - generic [ref=e207]: "6"
+      - listitem [ref=e208]:
+        - link "Appearance" [ref=e209] [cursor=pointer]:
+          - /url: themes.php
+          - generic [ref=e210]: 
+          - generic [ref=e211]: Appearance
+        - list [ref=e212]:
+          - listitem [ref=e213]: Appearance
+          - listitem [ref=e214]:
+            - link "Themes 1" [ref=e215] [cursor=pointer]:
+              - /url: themes.php
+              - text: Themes
+              - generic [ref=e216]: "1"
+          - listitem [ref=e217]:
+            - link "Design" [ref=e218] [cursor=pointer]:
+              - /url: site-editor.php
+          - listitem [ref=e219]:
+            - link "Customize" [ref=e220] [cursor=pointer]:
+              - /url: customize.php?return=%2Fwp-admin%2Fadmin.php%3Fpage%3Ddapfforwc-admin%26tab%3Dadvance_settings%26cache-refresh-queued%3Dtrue%26_wpnonce%3D316d43d128
+          - listitem [ref=e221]:
+            - link "Widgets" [ref=e222] [cursor=pointer]:
+              - /url: widgets.php
+          - listitem [ref=e223]:
+            - link "Fonts" [ref=e224] [cursor=pointer]:
+              - /url: font-library.php
+          - listitem [ref=e225]:
+            - link "Menus" [ref=e226] [cursor=pointer]:
+              - /url: nav-menus.php
+          - listitem [ref=e227]:
+            - link "Theme File Editor" [ref=e228] [cursor=pointer]:
+              - /url: theme-editor.php
+      - listitem [ref=e229]:
+        - link "Plugins 5" [ref=e230] [cursor=pointer]:
+          - /url: plugins.php
+          - generic [ref=e231]: 
+          - generic [ref=e232]:
+            - text: Plugins
+            - generic [ref=e233]: "5"
+        - list [ref=e234]:
+          - listitem [ref=e235]:
+            - text: Plugins
+            - generic [ref=e236]: "5"
+          - listitem [ref=e237]:
+            - link "Installed Plugins" [ref=e238] [cursor=pointer]:
+              - /url: plugins.php
+          - listitem [ref=e239]:
+            - link "Add Plugin" [ref=e240] [cursor=pointer]:
+              - /url: plugin-install.php
+          - listitem [ref=e241]:
+            - link "Plugin File Editor" [ref=e242] [cursor=pointer]:
+              - /url: plugin-editor.php
+      - listitem [ref=e243]:
+        - link "Users" [ref=e244] [cursor=pointer]:
+          - /url: users.php
+          - generic [ref=e245]: 
+          - generic [ref=e246]: Users
+        - list [ref=e247]:
+          - listitem [ref=e248]: Users
+          - listitem [ref=e249]:
+            - link "All Users" [ref=e250] [cursor=pointer]:
+              - /url: users.php
+          - listitem [ref=e251]:
+            - link "Add User" [ref=e252] [cursor=pointer]:
+              - /url: user-new.php
+          - listitem [ref=e253]:
+            - link "Profile" [ref=e254] [cursor=pointer]:
+              - /url: profile.php
+      - listitem [ref=e255]:
+        - link "Tools" [ref=e256] [cursor=pointer]:
+          - /url: tools.php
+          - generic [ref=e257]: 
+          - generic [ref=e258]: Tools
+        - list [ref=e259]:
+          - listitem [ref=e260]: Tools
+          - listitem [ref=e261]:
+            - link "Available Tools" [ref=e262] [cursor=pointer]:
+              - /url: tools.php
+          - listitem [ref=e263]:
+            - link "Import" [ref=e264] [cursor=pointer]:
+              - /url: import.php
+          - listitem [ref=e265]:
+            - link "Export" [ref=e266] [cursor=pointer]:
+              - /url: export.php
+          - listitem [ref=e267]:
+            - link "Site Health 2" [ref=e268] [cursor=pointer]:
+              - /url: site-health.php
+              - text: Site Health
+              - generic [ref=e269]: "2"
+          - listitem [ref=e270]:
+            - link "Export Personal Data" [ref=e271] [cursor=pointer]:
+              - /url: export-personal-data.php
+          - listitem [ref=e272]:
+            - link "Erase Personal Data" [ref=e273] [cursor=pointer]:
+              - /url: erase-personal-data.php
+          - listitem [ref=e274]:
+            - link "Scheduled Actions" [ref=e275] [cursor=pointer]:
+              - /url: tools.php?page=action-scheduler
+      - listitem [ref=e276]:
+        - link "Settings" [ref=e277] [cursor=pointer]:
+          - /url: options-general.php
+          - generic [ref=e278]: 
+          - generic [ref=e279]: Settings
+        - list [ref=e280]:
+          - listitem [ref=e281]: Settings
+          - listitem [ref=e282]:
+            - link "General" [ref=e283] [cursor=pointer]:
+              - /url: options-general.php
+          - listitem [ref=e284]:
+            - link "Connectors" [ref=e285] [cursor=pointer]:
+              - /url: options-connectors.php
+          - listitem [ref=e286]:
+            - link "Writing" [ref=e287] [cursor=pointer]:
+              - /url: options-writing.php
+          - listitem [ref=e288]:
+            - link "Reading" [ref=e289] [cursor=pointer]:
+              - /url: options-reading.php
+          - listitem [ref=e290]:
+            - link "Discussion" [ref=e291] [cursor=pointer]:
+              - /url: options-discussion.php
+          - listitem [ref=e292]:
+            - link "Media" [ref=e293] [cursor=pointer]:
+              - /url: options-media.php
+          - listitem [ref=e294]:
+            - link "Permalinks" [ref=e295] [cursor=pointer]:
+              - /url: options-permalink.php
+          - listitem [ref=e296]:
+            - link "Privacy" [ref=e297] [cursor=pointer]:
+              - /url: options-privacy.php
+      - listitem [ref=e298]
+      - listitem [ref=e300]:
+        - link "UpdraftPlus" [ref=e301] [cursor=pointer]:
+          - /url: options-general.php?page=updraftplus
+          - generic [ref=e303]: UpdraftPlus
+      - listitem [ref=e304]:
+        - link "CookieAdmin" [ref=e305] [cursor=pointer]:
+          - /url: admin.php?page=cookieadmin
+          - generic [ref=e307]: CookieAdmin
+        - list [ref=e308]:
+          - listitem [ref=e309]: CookieAdmin
+          - listitem [ref=e310]:
+            - link "Dashboard" [ref=e311] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin
+          - listitem [ref=e312]:
+            - link "Consent Form" [ref=e313] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin-consent
+          - listitem [ref=e314]:
+            - link "Settings" [ref=e315] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin-settings
+          - listitem [ref=e316]:
+            - link "Scan Cookies" [ref=e317] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin-scan-cookies
+          - listitem [ref=e318]:
+            - link "Consent Logs" [ref=e319] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin-consent-logs
+          - listitem [ref=e320]:
+            - link "License" [ref=e321] [cursor=pointer]:
+              - /url: admin.php?page=cookieadmin-license
+      - listitem [ref=e322]:
+        - link "Divi Essential" [ref=e323] [cursor=pointer]:
+          - /url: admin.php?page=dnxte-essential
+          - generic [ref=e325]: Divi Essential
+        - list [ref=e326]:
+          - listitem [ref=e327]: Divi Essential
+          - listitem [ref=e328]:
+            - link "Dashboard" [ref=e329] [cursor=pointer]:
+              - /url: admin.php?page=dnxte-essential
+          - listitem [ref=e330]:
+            - link "License" [ref=e331] [cursor=pointer]:
+              - /url: admin.php?page=divi-next-essential-license
+      - listitem [ref=e332]:
+        - button "Expand Main menu" [ref=e333] [cursor=pointer]
+  - generic [ref=e335]:
+    - generic [ref=e336]:
+      - navigation "Toolbar":
+        - menu:
+          - group [ref=e337]:
+            - menuitem "About WordPress" [ref=e338] [cursor=pointer]:
+              - generic [ref=e340]: About WordPress
+          - group [ref=e341]:
+            - menuitem "Dynamic AJAX Product Filters for WooComm…" [ref=e342] [cursor=pointer]
+          - group [ref=e343]:
+            - menuitem "Live" [ref=e344] [cursor=pointer]
+          - group [ref=e345]:
+            - menuitem "7 updates available" [ref=e346] [cursor=pointer]:
+              - generic [ref=e348]: "7"
+              - generic [ref=e349]: 7 updates available
+          - group [ref=e350]:
+            - menuitem "Ctrl+K Open command palette" [ref=e351] [cursor=pointer]:
+              - generic [ref=e353]:
+                - text: Ctrl+K
+                - generic [ref=e354]: Open command palette
+          - group [ref=e355]:
+            - menuitem "0 Comments in moderation" [ref=e356] [cursor=pointer]:
+              - generic [ref=e358]: "0"
+              - generic [ref=e359]: 0 Comments in moderation
+          - group [ref=e360]:
+            - menuitem "New" [ref=e361] [cursor=pointer]:
+              - generic [ref=e363]: New
+          - group [ref=e364]:
+            - menuitem " Product Filter" [ref=e365]:
+              - generic [ref=e366]: 
+              - text: Product Filter
+          - group [ref=e367]:
+            - menuitem "UpdraftPlus" [ref=e368]
+        - menu [ref=e369]:
+          - group [ref=e370]:
+            - menuitem [ref=e371] [cursor=pointer]:
+              - img [ref=e373]
+          - group [ref=e376]:
+            - menuitem "Howdy, admin" [ref=e377] [cursor=pointer]
+    - main [ref=e378]:
+      - generic [ref=e380]:
+        - generic [ref=e381]:
+          - generic [ref=e382]:
+            - generic [ref=e384]: 
+            - generic [ref=e385]:
+              - generic [ref=e386]: Dynamic AJAX Product Filters for WooCommerce
+              - paragraph [ref=e387]: Transform your store with lightning-fast, user-friendly product filtering
+            - generic [ref=e388]: Version 1.6.0.23
+          - generic [ref=e389]:
+            - generic [ref=e390]:
+              - heading "Quick Start Guide:" [level=3] [ref=e391]
+              - generic [ref=e392]:
+                - generic [ref=e393]:
+                  - generic [ref=e394]: "1"
+                  - generic [ref=e395]:
+                    - heading "Configure Filters" [level=4] [ref=e396]
+                    - paragraph [ref=e397]: Set up your product attributes, categories, and price ranges
+                - generic [ref=e398]:
+                  - generic [ref=e399]: "2"
+                  - generic [ref=e400]:
+                    - heading "Customize Appearance" [level=4] [ref=e401]
+                    - paragraph [ref=e402]: Choose colors, layouts, and animations that match your theme
+                - generic [ref=e403]:
+                  - generic [ref=e404]: "3"
+                  - generic [ref=e405]:
+                    - heading "Deploy & Monitor" [level=4] [ref=e406]
+                    - paragraph [ref=e407]: Add filters to your shop pages and track performance improvements
+            - generic [ref=e408]:
+              - generic [ref=e409]:
+                - link " Get Pro" [ref=e410] [cursor=pointer]:
+                  - /url: https://plugincy.com/dynamic-ajax-product-filters-for-woocommerce/
+                  - generic [ref=e411]: 
+                  - text: Get Pro
+                - link " View Demo" [ref=e412] [cursor=pointer]:
+                  - /url: https://plugincy.com/product-filters-for-woocommerce/
+                  - generic [ref=e413]: 
+                  - text: View Demo
+                - link " View Documentation" [ref=e414] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/
+                  - generic [ref=e415]: 
+                  - text: View Documentation
+                - link " Get Support" [ref=e416] [cursor=pointer]:
+                  - /url: https://www.plugincy.com/support/
+                  - generic [ref=e417]: 
+                  - text: Get Support
+              - generic [ref=e418]:
+                - generic [ref=e419]:
+                  - generic [ref=e420]: 
+                  - generic [ref=e421]: 24/7 Premium Support
+                - generic [ref=e422]:
+                  - generic [ref=e423]: 
+                  - generic [ref=e424]: Regular Updates
+                - generic [ref=e425]:
+                  - generic [ref=e426]: 
+                  - generic [ref=e427]: Money Back Guarantee
+        - heading "Manage WooCommerce Product Filters" [level=1] [ref=e428]:
+          - generic [ref=e429]:
+            - img [ref=e431]
+            - text: Manage WooCommerce Product Filters
+        - generic [ref=e434]:
+          - paragraph [ref=e435]: Filter cache refresh queued. The cache will rebuild automatically in background batches.
+          - button "Dismiss this notice." [ref=e436] [cursor=pointer]:
+            - generic [ref=e437]: Dismiss this notice.
+        - paragraph [ref=e439]:
+          - text: The license of
+          - strong [ref=e440]: WooCommerce Extra Product Options Pro
+          - text: is not activated.
+          - link "Click here" [ref=e441] [cursor=pointer]:
+            - /url: http://free-filter-plugin.local/wp-admin/admin.php?page=th_extra_product_options_pro&tab=license_settings
+          - text: to activate the license.
+        - generic [ref=e442]:
+          - generic [ref=e443]:
+            - heading " Form Manage  Form Style  Form Template  SEO & Permalinks Setup  Advance Settings  Plugin License" [level=2] [ref=e444]:
+              - link " Form Manage" [ref=e445] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=form_manage&_wpnonce=316d43d128"
+                - generic [ref=e446]: 
+                - generic [ref=e447]: Form Manage
+              - link " Form Style" [ref=e448] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=form_style&_wpnonce=316d43d128"
+                - generic [ref=e449]: 
+                - generic [ref=e450]: Form Style
+              - link " Form Template" [ref=e451] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=form_template&_wpnonce=316d43d128"
+                - generic [ref=e452]: 
+                - generic [ref=e453]: Form Template
+              - link " SEO & Permalinks Setup" [ref=e454] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=316d43d128"
+                - generic [ref=e455]: 
+                - generic [ref=e456]: SEO & Permalinks Setup
+              - link " Advance Settings" [ref=e457] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=advance_settings&_wpnonce=316d43d128"
+                - generic [ref=e458]: 
+                - generic [ref=e459]: Advance Settings
+              - link " Plugin License" [ref=e460] [cursor=pointer]:
+                - /url: "?page=dapfforwc-admin&tab=license_settings&_wpnonce=316d43d128"
+                - generic [ref=e461]: 
+                - generic [ref=e462]: Plugin License
+            - generic [ref=e463]:
+              - generic [ref=e464]:
+                - heading "Advanced Settings" [level=2] [ref=e465]:
+                  - paragraph [ref=e466]: Advanced Settings
+                - paragraph [ref=e467]: You can handle advanced settings for your product filters here.
+                - text: Product Selector
+                - textbox ".products" [ref=e468]: ul.products
+                - paragraph [ref=e469]: Enter the CSS selector for the product container. Default is .products.
+                - text: Pagination Selector
+                - generic [ref=e470]:
+                  - textbox ".woocommerce-pagination" [ref=e471]: .page-numbers
+                  - button "Manage advanced pagination settings" [ref=e472] [cursor=pointer]:
+                    - generic [ref=e473]: 
+                    - generic [ref=e474]: Manage advanced pagination settings
+                  - text: 
+                - paragraph [ref=e475]: Enter the CSS selector for the pagination container. Default is .woocommerce-pagination.
+                - text: Sorting Selector
+                - textbox "form.woocommerce-ordering select" [ref=e476]
+                - paragraph [ref=e477]: Enter the CSS selector for the WooCommerce sorting dropdown. Default is form.woocommerce-ordering select.
+                - text: Result Count Selector
+                - textbox ".woocommerce-result-count" [ref=e478]
+                - paragraph [ref=e479]: Enter the CSS selector for the result count wrapper. Default is .woocommerce-result-count.
+                - text: Product Shortcode Selector
+                - textbox "products" [ref=e480]
+                - paragraph [ref=e481]: Enter the selector for the products shortcode. Default is products
+                - text: Wait Cursor on Filtering
+                - generic [ref=e482]:
+                  - checkbox "Off" [disabled] [ref=e483]
+                  - generic [ref=e485]: "Off"
+                - paragraph [ref=e486]: Show the browser wait cursor while filters are loading new products.
+                - text: Use Overlay
+                - generic [ref=e487]:
+                  - checkbox "Off" [disabled] [ref=e488]
+                  - generic [ref=e490]: "Off"
+                - paragraph [ref=e491]: Display a page overlay during AJAX filtering requests.
+                - text: Smart Auto Scroll
+                - generic [ref=e492]:
+                  - checkbox "Off" [disabled] [ref=e493]
+                  - generic [ref=e495]: "Off"
+                - paragraph [ref=e496]: Automatically scroll to the product grid after AJAX updates and enable scroll-based pagination helpers.
+                - text: Pagination via AJAX
+                - generic [ref=e497]:
+                  - checkbox "Off" [disabled] [ref=e498]
+                  - generic [ref=e500]: "Off"
+                - paragraph [ref=e501]: Load pagination links through AJAX instead of a full page reload.
+                - text: Product Sorting via AJAX
+                - generic [ref=e502]:
+                  - checkbox "Off" [disabled] [ref=e503]
+                  - generic [ref=e505]: "Off"
+                - paragraph [ref=e506]: Apply WooCommerce product sorting with AJAX instead of a full page reload.
+                - text: Browser History Step Navigation
+                - generic [ref=e507]:
+                  - checkbox "Off" [disabled] [ref=e508]
+                  - generic [ref=e510]: "Off"
+                - paragraph [ref=e511]: Enable one-step browser back/forward navigation for URL-based filters by reloading the page for each history step.
+                - text: Remove out of stock product
+                - generic [ref=e512] [cursor=pointer]:
+                  - checkbox "Off" [ref=e513]
+                  - generic [ref=e515]: "Off"
+                - paragraph [ref=e516]: Enable this option to remove out-of-stock products from the filter results.
+                - text: Exclude Products From Results
+                - generic [ref=e517]:
+                  - button "Manage exclusions 0 Pro" [disabled] [ref=e518]:
+                    - generic [ref=e519]: 
+                    - generic [ref=e520]: Manage exclusions
+                    - generic [ref=e521]: "0"
+                    - generic [ref=e522]: Pro
+                  - paragraph [ref=e523]: Activate a premium license to exclude products from filter results.
+                - text: Contribute to Plugincy
+                - generic [ref=e524] [cursor=pointer]:
+                  - checkbox "On" [checked] [ref=e525]
+                  - generic [ref=e527]: "On"
+                - paragraph [ref=e528]:
+                  - text: We collect non-sensitive technical details from your website, like the PHP version and features usage, to help us troubleshoot issues faster, make informed development decisions, and build features that truly benefit you.
+                  - link "Learn more…" [ref=e529] [cursor=pointer]:
+                    - /url: https://plugincy.com/usage-tracking/
+                - text: Sidebar Top (Mobile only)
+                - generic [ref=e530] [cursor=pointer]:
+                  - checkbox "On" [checked] [ref=e531]
+                  - generic [ref=e533]: "On"
+                - paragraph [ref=e534]: For mobile move the sidebar to top position.
+                - text: Mobile Breakpoint
+                - spinbutton [ref=e535]: "768"
+                - paragraph [ref=e536]: Set the maximum viewport width (in pixels) where mobile-specific filter behavior should apply.
+                - text: Make Default Options Selected
+                - generic [ref=e537] [cursor=pointer]:
+                  - checkbox "Off" [ref=e538]
+                  - generic [ref=e540]: "Off"
+                - paragraph [ref=e541]: Make default value from shortcode & pages selected/checked
+                - paragraph [ref=e542]:
+                  - button "Save Changes" [ref=e543] [cursor=pointer]
+              - heading "Cache Management" [level=2] [ref=e544]
+              - text: Cache Status
+              - paragraph [ref=e545]: "Automatic filter cache rebuild is queued and will run in background batches. Last updated: May 23, 2026 9:58 am"
+              - text: Clear Cache
+              - paragraph [ref=e546]: Clear WooCommerce and object caches to ensure filters work properly after configuration changes.
+              - button " Clear Cache" [ref=e548] [cursor=pointer]:
+                - generic [ref=e549]: 
+                - text: Clear Cache
+              - text: Refresh Filter Cache
+              - paragraph [ref=e550]: "Queues an automatic background refresh for filter counts and product detail caches. Current published products: 450. Large catalogues switch to database-safe automatic mode instead of full-catalog serialized caches."
+              - button " Refresh Filter Cache" [ref=e552] [cursor=pointer]:
+                - generic [ref=e553]: 
+                - text: Refresh Filter Cache
+              - generic [ref=e554]:
+                - text: Pro Features only
+                - heading "Import & Export Settings" [level=2] [ref=e555]
+                - text: Import Settings
+                - generic [ref=e556]:
+                  - button "Choose File" [ref=e557] [cursor=pointer]
+                  - button "Import" [ref=e558] [cursor=pointer]
+                - text: Export Settings
+                - button "Export" [ref=e560] [cursor=pointer]
+                - generic [ref=e561]:
+                  - heading "Reset Settings" [level=2] [ref=e562]
+                  - paragraph [ref=e563]: Click the button below to reset all plugin settings to their default values. This action cannot be undone.
+                  - button "Reset All Settings" [ref=e565] [cursor=pointer]
+          - generic [ref=e566]:
+            - generic [ref=e567]:
+              - generic [ref=e568]:
+                - img [ref=e570]
+                - heading "Shortcodes for Displaying Filters" [level=3] [ref=e574]
+              - generic [ref=e575]:
+                - paragraph [ref=e576]: Displays the full filter form.
+                - generic [ref=e577]:
+                  - generic [ref=e578]:
+                    - generic "Shortcode builder" [ref=e579]:
+                      - generic [ref=e580]: "["
+                      - generic [ref=e581]: plugincy_filters
+                      - generic [ref=e582]:
+                        - generic [ref=e583]: layout
+                        - generic [ref=e584]: =
+                        - button "\" sidebar \"" [ref=e585] [cursor=pointer]:
+                          - generic [ref=e586]: "\""
+                          - generic [ref=e587]: sidebar
+                          - generic [ref=e588]: "\""
+                        - button "Remove parameter" [ref=e589] [cursor=pointer]: ×
+                      - generic [ref=e590]: "]"
+                      - button "Add parameter" [ref=e591] [cursor=pointer]:
+                        - generic [ref=e592]: 
+                    - button "Copy shortcode" [ref=e593] [cursor=pointer]:
+                      - img [ref=e594]
+                  - paragraph [ref=e596]: Click a value to edit it. Use + to add parameters and x to remove them.
+                - paragraph [ref=e597]: Shows a single filter button.
+                - generic [ref=e599]:
+                  - generic "Single filter shortcode builder" [ref=e600]:
+                    - generic [ref=e601]: "["
+                    - generic [ref=e602]: plugincy_filters_single
+                    - generic [ref=e603]:
+                      - generic [ref=e604]: name
+                      - generic [ref=e605]: =
+                      - button "\" select attribute \"" [ref=e606] [cursor=pointer]:
+                        - generic [ref=e607]: "\""
+                        - generic [ref=e608]: select attribute
+                        - generic [ref=e609]: "\""
+                    - generic [ref=e610]: "]"
+                  - button "Copy shortcode" [ref=e611] [cursor=pointer]:
+                    - img [ref=e612]
+                - paragraph [ref=e614]: Click the attribute value to search and choose the attribute slug for this shortcode.
+                - paragraph [ref=e615]: Displays selected filters.
+                - generic [ref=e616]:
+                  - code [ref=e617]: "[plugincy_filters_selected]"
+                  - button "Copy shortcode" [ref=e618] [cursor=pointer]:
+                    - img [ref=e619]
+                - link "Learn more about using shortcodes" [ref=e621] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/
+                - generic [ref=e622]:
+                  - generic [ref=e623]: 
+                  - paragraph [ref=e624]:
+                    - text: "Tips: Instead of shortcodes, we recommend using our Elementor widget & Gutenberg block for easier management."
+                    - text: Dynamic Ajax Filter (Block/Widget)
+            - generic [ref=e625]:
+              - generic [ref=e626]:
+                - img [ref=e628]
+                - heading "Filters Not Working?" [level=3] [ref=e630]
+              - generic [ref=e631]:
+                - generic [ref=e632]:
+                  - img [ref=e633]
+                  - text: Filters not updating? If you are using a cache plugin, clear the cache. If the issue still persists, go to the Advanced Settings tab and click "Clear Cache".
+                - generic [ref=e635]:
+                  - img [ref=e636]
+                  - text: Filters not responding? Adjust the selectors in the Advanced Settings to match your theme.
+                  - link "View docs" [ref=e638] [cursor=pointer]:
+                    - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/filters-setup/managing-selectors-in-product-filters/
+                - generic [ref=e639]:
+                  - img [ref=e640]
+                  - text: Filters behaving unexpectedly? Temporarily deactivate other filter plugins to check for conflicts.
+                - generic [ref=e642]:
+                  - img [ref=e643]
+                  - text: Still facing issues? Reach out to Plugincy Support as we’re always here to help.
+                  - link "Plugincy Support" [ref=e645] [cursor=pointer]:
+                    - /url: https://plugincy.com/support/
+            - generic [ref=e646]:
+              - generic [ref=e647]:
+                - generic [ref=e649]: 
+                - heading "Frequently Asked Questions" [level=3] [ref=e650]
+              - generic [ref=e651]:
+                - button " Will this plugin work with my theme?" [ref=e653] [cursor=pointer]:
+                  - generic [ref=e654]: 
+                  - text: Will this plugin work with my theme?
+                - button " Do the filters support pretty/SEO URLs?" [ref=e656] [cursor=pointer]:
+                  - generic [ref=e657]: 
+                  - text: Do the filters support pretty/SEO URLs?
+                - button " How to reorder filter widget?" [ref=e659] [cursor=pointer]:
+                  - generic [ref=e660]: 
+                  - text: How to reorder filter widget?
+                - button " How can I speed up filtering?" [ref=e662] [cursor=pointer]:
+                  - generic [ref=e663]: 
+                  - text: How can I speed up filtering?
+        - generic [ref=e664]:
+          - generic [ref=e665]:
+            - generic [ref=e666]:
+              - img [ref=e667]
+              - generic [ref=e669]:
+                - heading "Video Tutorials & Documentation" [level=2] [ref=e670]
+                - paragraph [ref=e671]: Step-by-step guides to master location-based inventory management
+            - generic [ref=e673]:
+              - generic [ref=e674]: "14"
+              - generic [ref=e675]: Tutorials
+          - generic [ref=e676]:
+            - generic [ref=e677]:
+              - generic [ref=e678]:
+                - iframe [ref=e679]
+                - generic [ref=e680]: Beginner
+              - generic [ref=e681]:
+                - heading "Full tutorial" [level=3] [ref=e682]
+                - paragraph [ref=e683]: Learn how to install the plugin and configure basic settings. This tutorial covers the initial setup process and activation.
+                - link "Read Full Documentation" [ref=e685] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/getting-started/installation-procedure/
+                - generic [ref=e686]:
+                  - generic [ref=e687]:
+                    - img [ref=e688]
+                    - text: Topics Covered
+                  - generic [ref=e690]:
+                    - generic [ref=e691]: Full overview
+                    - generic [ref=e692]: Initial Setup
+                    - generic [ref=e693]: Basic Configuration
+                    - generic [ref=e694]: Filter display
+            - generic [ref=e695]:
+              - generic [ref=e696]:
+                - iframe [ref=e697]
+                - generic [ref=e698]: Beginner
+              - generic [ref=e699]:
+                - heading "Add product filter in any pages with elementor" [level=3] [ref=e700]
+                - paragraph [ref=e701]: Learn how to add product filters to any page using Elementor.
+                - link "Read Full Documentation" [ref=e703] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-elementor-with-dynamic-ajax-product-filter-for-woocommerce/
+                - generic [ref=e704]:
+                  - generic [ref=e705]:
+                    - img [ref=e706]
+                    - text: Topics Covered
+                  - generic [ref=e708]:
+                    - generic [ref=e709]: Elementor Integration
+                    - generic [ref=e710]: Filter Widget
+                    - generic [ref=e711]: Page Customization
+                - generic [ref=e712]:
+                  - generic [ref=e713]:
+                    - img [ref=e714]
+                    - text: Related Shortcode
+                  - generic [ref=e716]:
+                    - code [ref=e717]: "[plugincy_filters layout=\"sidebar\"]"
+                    - button "Copy shortcode" [ref=e718] [cursor=pointer]:
+                      - img [ref=e719]
+            - generic [ref=e721]:
+              - generic [ref=e722]:
+                - iframe [ref=e723]
+                - generic [ref=e724]: Beginner
+              - generic [ref=e725]:
+                - heading "Add Dynamic AJAX Product Filters to WooCommerce Sidebar (Widget & Elementor Method)" [level=3] [ref=e726]
+                - paragraph [ref=e727]: This step-by-step guide shows how to quickly enable product filtering without page reloads, improving user experience, navigation, and conversions for your WooCommerce store.
+                - link "Read Full Documentation" [ref=e729] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-widgets-with-dynamic-ajax-product-filter-for-woocommerce/
+                - generic [ref=e730]:
+                  - generic [ref=e731]:
+                    - img [ref=e732]
+                    - text: Topics Covered
+                  - generic [ref=e734]:
+                    - generic [ref=e735]: Filter display
+                    - generic [ref=e736]: with widget
+                    - generic [ref=e737]: with Elementor
+            - generic [ref=e738]:
+              - generic [ref=e739]:
+                - iframe [ref=e740]
+                - generic [ref=e741]: Beginner
+              - generic [ref=e742]:
+                - heading "Display WooCommerce Product Filters with Gutenberg Block Editor | Widget & Page Editor" [level=3] [ref=e743]
+                - paragraph [ref=e744]: "In this tutorial, you’ll learn how to display Dynamic AJAX Product Filters using the Gutenberg (Block) Editor in WooCommerce. We’ll cover both methods: -Using the Widget (Block-based Widgets screen) -Using the Page Editor (Gutenberg blocks) This allows you to easily add product filters to shop pages, archive pages, or custom layouts without any coding."
+                - link "Read Full Documentation" [ref=e746] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-filters-using-block-editor-gutenberg-with-dynamic-ajax-product-filter-for-woocommerce/
+                - generic [ref=e747]:
+                  - generic [ref=e748]:
+                    - img [ref=e749]
+                    - text: Topics Covered
+                  - generic [ref=e751]:
+                    - generic [ref=e752]: Filter display
+                    - generic [ref=e753]: with Gutenberg
+                    - generic [ref=e754]: with Block Editor
+            - generic [ref=e755]:
+              - generic [ref=e756]:
+                - iframe [ref=e757]
+                - generic [ref=e758]: Beginner
+              - generic [ref=e759]:
+                - heading "Display Dynamic Ajax Product Filter on other page builder (using shortcode method)" [level=3] [ref=e760]
+                - paragraph [ref=e761]: In this tutorial, you’ll learn how to display Dynamic AJAX Product Filters in Divi using the shortcode method for WooCommerce. If you’re using the Divi theme or Divi Builder, this video will show you how to easily insert product filters anywhere on your site without coding. Using shortcodes ensures full compatibility and flexible placement within Divi layouts.
+                - link "Read Full Documentation" [ref=e763] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/using-shortcodes-for-dynamic-ajax-product-filters/
+                - generic [ref=e764]:
+                  - generic [ref=e765]:
+                    - img [ref=e766]
+                    - text: Topics Covered
+                  - generic [ref=e768]:
+                    - generic [ref=e769]: Filter display
+                    - generic [ref=e770]: with Divi
+                    - generic [ref=e771]: with Shortcode
+            - generic [ref=e772]:
+              - generic [ref=e773]:
+                - iframe [ref=e774]
+                - generic [ref=e775]: Beginner
+              - generic [ref=e776]:
+                - heading "Mobile Responsive Configuration for Dynamic AJAX Product Filters" [level=3] [ref=e777]
+                - paragraph [ref=e778]: Learn how to configure mobile-responsive filters using Dynamic AJAX Product Filters for WooCommerce to ensure a smooth shopping experience on all devices. This tutorial focuses on optimizing filters for mobile users without compromising performance or design.
+                - link "Read Full Documentation" [ref=e780] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/responsive-design-guidelines-for-dynamic-ajax-product-filters/
+                - generic [ref=e781]:
+                  - generic [ref=e782]:
+                    - img [ref=e783]
+                    - text: Topics Covered
+                  - generic [ref=e785]:
+                    - generic [ref=e786]: Mobile Responsive
+                    - generic [ref=e787]: with widget
+                    - generic [ref=e788]: with Elementor
+                    - generic [ref=e789]: With Shortcode
+            - generic [ref=e790]:
+              - generic [ref=e791]:
+                - iframe [ref=e792]
+                - generic [ref=e793]: Beginner
+              - generic [ref=e794]:
+                - heading "Display chips or active widget on Widget, Elementor, Gutenburg & with Shortcode" [level=3] [ref=e795]
+                - paragraph [ref=e796]: In this tutorial, you’ll learn how to display active filter chips (selected filters) using Dynamic AJAX Product Filters for WooCommerce across multiple builders and methods. We’ll show you how to display the active filters widget.
+                - link "Read Full Documentation" [ref=e798] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-chips-widget-for-currently-selected-values/
+                - generic [ref=e799]:
+                  - generic [ref=e800]:
+                    - img [ref=e801]
+                    - text: Topics Covered
+                  - generic [ref=e803]:
+                    - generic [ref=e804]: Display active widget
+                    - generic [ref=e805]: with Widgets
+                    - generic [ref=e806]: with Elementor
+                    - generic [ref=e807]: with Shortcode
+            - generic [ref=e808]:
+              - generic [ref=e809]:
+                - iframe [ref=e810]
+                - generic [ref=e811]: Beginner
+              - generic [ref=e812]:
+                - heading "Display single button style filter widget on Elementor, Gutenburg & with shortcode" [level=3] [ref=e813]
+                - paragraph [ref=e814]: In this tutorial, you’ll learn how to display a Single Button Style Product Filter using Dynamic AJAX Product Filters for WooCommerce with multiple methods. We’ll show how to add and use the single button filter with Widget, Elementor, Gutenberg Shortcode. Single button style filters are perfect for minimal UI designs, mobile-friendly layouts, and stores that want a clean, distraction-free filtering experience.
+                - link "Read Full Documentation" [ref=e816] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/display-filter-widgets/displaying-single-filter-using-button-style-widget/
+                - generic [ref=e817]:
+                  - generic [ref=e818]:
+                    - img [ref=e819]
+                    - text: Topics Covered
+                  - generic [ref=e821]:
+                    - generic [ref=e822]: Display single button style filter
+                    - generic [ref=e823]: with Widgets
+                    - generic [ref=e824]: with Elementor
+                    - generic [ref=e825]: with Shortcode
+            - generic [ref=e826]:
+              - generic [ref=e827]:
+                - iframe [ref=e828]
+                - generic [ref=e829]: Intermediate
+              - generic [ref=e830]:
+                - heading "How to reorder/rearrange filter widget with elementor & gutenburg." [level=3] [ref=e831]
+                - paragraph [ref=e832]: Learn how to reorder and rearrange filter widgets using Elementor and Gutenberg.
+                - generic [ref=e833]:
+                  - generic [ref=e834]:
+                    - img [ref=e835]
+                    - text: Topics Covered
+                  - generic [ref=e837]:
+                    - generic [ref=e838]: Elementor
+                    - generic [ref=e839]: Gutenberg
+                    - generic [ref=e840]: Widget Management
+                    - generic [ref=e841]: Drag-and-Drop
+            - generic [ref=e842]:
+              - generic [ref=e843]:
+                - iframe [ref=e844]
+                - generic [ref=e845]: Intermediate
+              - generic [ref=e846]:
+                - heading "Terms Ordering in WooCommerce" [level=3] [ref=e847]
+                - paragraph [ref=e848]: Learn how to order filter terms.
+                - generic [ref=e849]:
+                  - generic [ref=e850]:
+                    - img [ref=e851]
+                    - text: Topics Covered
+                  - generic [ref=e853]:
+                    - generic [ref=e854]: Ordering Terms
+                    - generic [ref=e855]: Custom Sorting
+                    - generic [ref=e856]: Filter Management
+            - generic [ref=e857]:
+              - generic [ref=e858]:
+                - iframe [ref=e859]
+                - generic [ref=e860]: Intermediate
+              - generic [ref=e861]:
+                - heading "How to Remove a Filter with global settings, Exclude Attribute & Custom Fields" [level=3] [ref=e862]
+                - paragraph [ref=e863]: Learn how to remove a filter widget from the global settings, exclude attributes, and manage custom fields.
+                - link "Read Full Documentation" [ref=e865] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/form-manage/form-management-for-dynamic-ajax-product-filters/
+                - generic [ref=e866]:
+                  - generic [ref=e867]:
+                    - img [ref=e868]
+                    - text: Topics Covered
+                  - generic [ref=e870]:
+                    - generic [ref=e871]: Widget Removal
+                    - generic [ref=e872]: Global Settings
+                    - generic [ref=e873]: Attribute Exclusion
+                    - generic [ref=e874]: Custom Fields
+            - generic [ref=e875]:
+              - generic [ref=e876]:
+                - iframe [ref=e877]
+                - generic [ref=e878]: Intermediate
+              - generic [ref=e879]:
+                - heading "Best Seo configuration with dynamic ajax product filter" [level=3] [ref=e880]
+                - paragraph [ref=e881]: Learn how to configure SEO settings for the Dynamic Ajax Product Filter plugin.
+                - link "Read Full Documentation" [ref=e883] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/seo/seo-and-filter-url-configuration-for-dynamic-ajax-product-filter/
+                - generic [ref=e884]:
+                  - generic [ref=e885]:
+                    - img [ref=e886]
+                    - text: Topics Covered
+                  - generic [ref=e888]:
+                    - generic [ref=e889]: SEO Configuration
+                    - generic [ref=e890]: Meta Tags
+                    - generic [ref=e891]: URL Structure
+                    - generic [ref=e892]: Robots.txt
+            - generic [ref=e893]:
+              - generic [ref=e894]:
+                - iframe [ref=e895]
+                - generic [ref=e896]: Intermediate
+              - generic [ref=e897]:
+                - heading "Text Management in Dynamic AJAX Product Filters | Customize Filter Titles, Labels, and Placeholders" [level=3] [ref=e898]
+                - paragraph [ref=e899]: Learn how to customize filter titles, labels, and placeholders in Dynamic AJAX Product Filters.
+                - generic [ref=e900]:
+                  - generic [ref=e901]:
+                    - img [ref=e902]
+                    - text: Topics Covered
+                  - generic [ref=e904]:
+                    - generic [ref=e905]: Text Customization
+                    - generic [ref=e906]: Filter Titles
+                    - generic [ref=e907]: Labels
+                    - generic [ref=e908]: Placeholders
+            - generic [ref=e909]:
+              - generic [ref=e910]:
+                - iframe [ref=e911]
+                - generic [ref=e912]: Intermediate
+              - generic [ref=e913]:
+                - heading "How to Debug & Fix Dynamic AJAX Product Filter Issues in WooCommerce (Cache Clean Included)" [level=3] [ref=e914]
+                - paragraph [ref=e915]: Learn how to debug and fix issues in Dynamic AJAX Product Filters.
+                - link "Read Full Documentation" [ref=e917] [cursor=pointer]:
+                  - /url: https://plugincy.com/documentations/dynamic-ajax-product-filters-for-woocommerce/troubleshooting_and_debugging/managing-selectors-in-product-filters/
+                - generic [ref=e918]:
+                  - generic [ref=e919]:
+                    - img [ref=e920]
+                    - text: Topics Covered
+                  - generic [ref=e922]:
+                    - generic [ref=e923]: Debugging
+                    - generic [ref=e924]: Fixing Issues
+                    - generic [ref=e925]: Cache Cleaning
+  - generic "Open Plugency Debugger" [ref=e926] [cursor=pointer]:
+    - img [ref=e927]
+  - generic "Plugency Developer Debugger":
+    - generic:
+      - generic:
+        - button "Select element to inspect":
+          - img
+        - generic:
+          - heading "Developer Debugger" [level=2]
+          - paragraph: Focused snapshot of this request. Visible to administrators only.
+      - generic:
+        - button:
+          - img
+        - button:
+          - img
+        - button "Filter view":
+          - img
+        - button:
+          - img
+    - tablist:
+      - tab "Summary" [selected]
+      - tab "PHP Files"
+      - tab "Assets"
+      - tab "Requests"
+      - tab "Context"
+      - tab "Database"
+      - tab "API Requests"
+      - tab "Hooks"
+      - tab "Logs"
+    - generic:
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - heading "Runtime" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WordPress
+                - strong: "7.0"
+              - listitem:
+                - generic: Theme
+                - strong: Astra 4.12.4
+              - listitem:
+                - generic: Site
+                - strong: http://free-filter-plugin.local
+              - listitem:
+                - generic: Multisite
+                - strong: "No"
+          - generic:
+            - generic:
+              - heading "Template" [level=3]
+              - generic: Other
+            - list:
+              - listitem:
+                - generic: File
+                - strong: Not detected
+              - listitem:
+                - generic: Source
+                - strong: Other
+              - listitem:
+                - generic: Matched rule
+                - strong: Not detected
+              - listitem:
+                - generic: Request
+                - strong: Not set
+              - listitem:
+                - generic: Main query
+                - strong: "Yes"
+          - generic:
+            - generic:
+              - heading "Request" [level=3]
+              - generic:
+                - generic: Admin
+                - generic:
+                  - button "Request actions menu":
+                    - img
+            - list:
+              - listitem:
+                - generic: URL
+                - strong: http://free-filter-plugin.local/wp-admin/admin.php?page=dapfforwc-admin&tab=advance_settings&cache-refresh-queued=true&_wpnonce=316d43d128
+              - listitem:
+                - generic: Method
+                - strong: GET
+              - listitem:
+                - generic: User
+                - strong: admin
+              - listitem:
+                - generic: Roles
+                - strong: administrator
+            - generic:
+              - generic: Replay results will appear here.
+            - paragraph
+          - generic:
+            - generic:
+              - heading "PHP" [level=3]
+              - generic: Runtime
+            - list:
+              - listitem:
+                - generic: PHP
+                - strong: 8.2.27
+              - listitem:
+                - generic: SAPI
+                - strong: cgi-fcgi
+              - listitem:
+                - generic: Memory limit
+                - strong: 256M
+              - listitem:
+                - generic: Max execution
+                - strong: 1200s
+              - listitem:
+                - generic: Peak usage
+                - strong: 26 MB
+          - generic:
+            - generic:
+              - heading "Database" [level=3]
+              - generic: Logging on
+            - list:
+              - listitem:
+                - generic: Total queries
+                - strong: "167"
+              - listitem:
+                - generic: Total time
+                - strong: 0.0458s
+              - listitem:
+                - generic: Slowest
+                - strong: 0.0043s
+              - listitem:
+                - generic: Example
+                - strong: SELECT COUNT(*) FROM wp_comments LEFT JOIN wp_posts AS wp_posts_to_exclude_reviews ON comment_post_ID = wp_posts_to_exclude_reviews.ID WHERE...
+          - generic:
+            - generic:
+              - heading "Plugins" [level=3]
+              - generic: Stack
+            - list:
+              - listitem:
+                - generic: Active
+                - strong: "9"
+              - listitem:
+                - generic: MU
+                - strong: "0"
+              - listitem:
+                - generic: Examples
+                - strong: CookieAdmin Pro, CookieAdmin - Cookie Consent Banner, Divi Essential
+          - generic:
+            - generic:
+              - heading "Cron" [level=3]
+              - generic: hourly
+            - list:
+              - listitem:
+                - generic: Next hook
+                - strong: dapfforwcpropro_hourly_event_license_check
+              - listitem:
+                - generic: Runs in
+                - strong: 3 seconds
+              - listitem:
+                - generic: Runs at
+                - strong: 2026-05-23 09:58:37 UTC
+          - generic:
+            - generic:
+              - heading "Debugging" [level=3]
+              - generic: local
+            - list:
+              - listitem:
+                - generic: WP_DEBUG
+                - strong: "On"
+              - listitem:
+                - generic: SCRIPT_DEBUG
+                - strong: "Off"
+              - listitem:
+                - generic: SAVEQUERIES
+                - strong: "On"
+              - listitem:
+                - generic: DISALLOW_FILE_MODS
+                - strong: Not set
+              - listitem:
+                - generic: Debug log
+                - strong: Available (100 KB)
+              - listitem:
+                - generic: Last updated
+                - strong: 2026-05-23 09:52:22
+          - generic:
+            - generic:
+              - heading "Counts" [level=3]
+              - generic: Totals
+            - list:
+              - listitem:
+                - generic: Included files
+                - strong: "2163"
+              - listitem:
+                - generic: Styles
+                - strong: "26"
+              - listitem:
+                - generic: Scripts
+                - strong: "37"
+              - listitem:
+                - generic: Queries
+                - strong: "167"
+              - listitem:
+                - generic: Request entries
+                - strong: "94"
+    - paragraph
