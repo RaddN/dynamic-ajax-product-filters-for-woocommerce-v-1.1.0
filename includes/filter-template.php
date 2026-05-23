@@ -48,7 +48,7 @@ if (!function_exists('dapfforwc_is_product_attribute')) {
  * - Custom brand taxonomies
  *
  * @return bool True if on a brand archive page, false otherwise
- * @since 1.6.0.23
+ * @since 1.6.0.26
  */
 if (!function_exists('dapfforwc_is_product_brand')) {
     function dapfforwc_is_product_brand()
@@ -111,7 +111,7 @@ if (!function_exists('dapfforwc_is_product_brand')) {
  * Returns brand details if on brand archive, null otherwise
  *
  * @return array|null Array with term_id, name, slug, taxonomy or null
- * @since 1.6.0.23
+ * @since 1.6.0.26
  */
 if (!function_exists('dapfforwc_get_current_brand')) {
     function dapfforwc_get_current_brand()
@@ -195,7 +195,7 @@ if (!function_exists('dapfforwc_build_reverse_prefix_map')) {
  * Useful for filtering operations that need to know all brand-related taxonomies
  *
  * @return array Array of brand taxonomy names
- * @since 1.6.0.23
+ * @since 1.6.0.26
  */
 if (!function_exists('dapfforwc_get_brand_taxonomies')) {
     function dapfforwc_get_brand_taxonomies()
@@ -1152,7 +1152,6 @@ function dapfforwc_product_filter_shortcode($atts)
                 $dapfforwc_options['default_filters'][$dapfforwc_slug]["attribute"] = $attrvalue;
             }
             if (empty($filters) && empty($parsed_filters) && explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] && !$has_explicit_filteroptions) {
-                $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
                 $is_all_cata = true;
                 $make_default_selected = true;
             } else {
@@ -1192,9 +1191,7 @@ function dapfforwc_product_filter_shortcode($atts)
 
 
     if (is_shop() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"]) && !$has_explicit_filteroptions) {
-        $all_cata_slugs = array_column($all_cata, 'slug');
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = $all_cata_slugs;
         $is_all_cata = true;
         $make_default_selected = true;
         $dapfforwc_options["product_show_settings"][$dapfforwc_slug]["cat_operator"] = "OR";
@@ -1258,7 +1255,6 @@ function dapfforwc_product_filter_shortcode($atts)
 
     if (!is_shop() && !is_product_category() && !is_product_tag() && empty($dapfforwc_options['default_filters'][$dapfforwc_slug]) && empty($parsed_filters) && (explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === [""] || explode(',', isset($_GET['filters']) ? sanitize_text_field(wp_unslash($_GET['filters'])) : '') === ["1"])  && !$has_explicit_filteroptions) {
         $dapfforwc_options['default_filters'][$dapfforwc_slug] = [];
-        $dapfforwc_options['default_filters'][$dapfforwc_slug]["product-category[]"] = array_column($all_cata, 'slug');
         $is_all_cata = true;
         $make_default_selected = true;
     }
@@ -1354,8 +1350,6 @@ function dapfforwc_product_filter_shortcode($atts)
         }
     }
 
-    update_option('dapfforwc_options', $dapfforwc_options);
-
     $default_filter = !$has_explicit_filteroptions ?
         array_merge(
             $dapfforwc_options["default_filters"][$dapfforwc_slug] ?? [],
@@ -1423,16 +1417,10 @@ function dapfforwc_product_filter_shortcode($atts)
         if (is_string($dapfforwc_slug)) {
             $dapfforwc_options['use_custom_template_in_page'] = array_unique(array_merge($dapfforwc_options['use_custom_template_in_page'], [$dapfforwc_slug]));
         }
-
-        // Update options
-        update_option('dapfforwc_options', $dapfforwc_options);
     } else {
         // Remove the slug from the settings if it exists
         if (isset($dapfforwc_options['use_custom_template_in_page']) && is_array($dapfforwc_options['use_custom_template_in_page'])) {
             $dapfforwc_options['use_custom_template_in_page'] = array_values(array_diff($dapfforwc_options['use_custom_template_in_page'], [$dapfforwc_slug]));
-
-            // Update options after removal
-            update_option('dapfforwc_options', $dapfforwc_options);
         }
     }
     $product_details = $database_safe_mode ? [] : array_values(dapfforwc_get_woocommerce_product_details()["products"] ?? []);
@@ -3948,17 +3936,39 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
     global $wpdb, $dapfforwc_styleoptions, $dapfforwc_options, $dapfforwc_advance_settings;
 
     static $cached_result = null;
+    static $cached_signature = null;
 
     $args = is_array($args) ? $args : [];
     $force = !empty($args['force']) || !empty($args['manual']);
 
-    if ($cached_result !== null && !$force) {
+    $is_filter_enabled = static function ($option_key) use ($dapfforwc_options) {
+        if (function_exists('dapfforwc_is_filter_option_enabled')) {
+            return dapfforwc_is_filter_option_enabled($option_key, $dapfforwc_options);
+        }
+
+        return isset($dapfforwc_options[$option_key]) && $dapfforwc_options[$option_key] === 'on';
+    };
+
+    $enabled_filter_options = [
+        'categories' => $is_filter_enabled('show_categories'),
+        'tags' => $is_filter_enabled('show_tags'),
+        'brands' => $is_filter_enabled('show_brand'),
+        'attributes' => $is_filter_enabled('show_attributes'),
+        'authors' => $is_filter_enabled('show_author'),
+        'stock_status' => $is_filter_enabled('show_status'),
+        'sale_status' => $is_filter_enabled('show_onsale'),
+        'custom_fields' => $is_filter_enabled('show_custom_fields'),
+    ];
+    $cache_signature = md5(wp_json_encode($enabled_filter_options));
+
+    if ($cached_result !== null && !$force && $cached_signature === $cache_signature) {
         return $cached_result;
     }
 
     $cache_key = 'dapfforwc_filter_options_light_cache_v1';
     $cached = get_transient($cache_key);
-    if (!$force && is_array($cached)) {
+    if (!$force && is_array($cached) && ($cached['_dapfforwc_enabled_signature'] ?? '') === $cache_signature) {
+        $cached_signature = $cache_signature;
         return $cached_result = $cached;
     }
 
@@ -3974,6 +3984,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
     ];
 
     $data['_dapfforwc_database_mode'] = true;
+    $data['_dapfforwc_enabled_signature'] = $cache_signature;
     $data['stock_status'] = [
         0 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["instock"] ?? 'In Stock'), 'slug' => 'instock', 'products' => [], 'count' => 0],
         1 => ['name' => ($dapfforwc_styleoptions["stock_status_text"]["outofstock"] ?? 'Out of Stock'), 'slug' => 'outofstock', 'products' => [], 'count' => 0],
@@ -3984,26 +3995,53 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
         1 => ['name' => ($dapfforwc_styleoptions["sale_status_text"]["notonsale"] ?? 'Not on Sale'), 'slug' => 'notonsale', 'products' => [], 'count' => 0],
     ];
 
-    $taxonomy_results = $wpdb->get_results(
-        "
-        SELECT t.term_id, t.name, t.slug, tt.taxonomy, tt.parent,
-               a.attribute_name, a.attribute_label,
-               COUNT(DISTINCT p.ID) AS product_count,
-               MAX(CASE WHEN tm.meta_key = 'order' THEN tm.meta_value END) AS menu_order
-        FROM {$wpdb->prefix}term_relationships AS tr
-        INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
-        INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = tt.term_id
-        INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
-        LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
-        LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
-        WHERE p.post_type = 'product'
-          AND p.post_status = 'publish'
-          AND (tt.taxonomy IN ('product_cat', 'product_tag', 'product_brand') OR a.attribute_name IS NOT NULL)
-        GROUP BY t.term_id, t.name, t.slug, tt.taxonomy, tt.parent, a.attribute_name, a.attribute_label
-        ORDER BY CAST(menu_order AS UNSIGNED), t.name
-        ",
-        ARRAY_A
-    );
+    $taxonomy_results = [];
+    $enabled_taxonomies = [];
+    if ($enabled_filter_options['categories']) {
+        $enabled_taxonomies[] = 'product_cat';
+    }
+    if ($enabled_filter_options['tags']) {
+        $enabled_taxonomies[] = 'product_tag';
+    }
+    if ($enabled_filter_options['brands']) {
+        $enabled_taxonomies[] = 'product_brand';
+    }
+
+    $taxonomy_conditions = [];
+    if (!empty($enabled_taxonomies)) {
+        $taxonomy_placeholders = implode(',', array_fill(0, count($enabled_taxonomies), '%s'));
+        $taxonomy_conditions[] = call_user_func_array(
+            [$wpdb, 'prepare'],
+            array_merge(["tt.taxonomy IN ($taxonomy_placeholders)"], $enabled_taxonomies)
+        );
+    }
+    if ($enabled_filter_options['attributes']) {
+        $taxonomy_conditions[] = 'a.attribute_name IS NOT NULL';
+    }
+
+    if (!empty($taxonomy_conditions)) {
+        $taxonomy_where = '(' . implode(' OR ', $taxonomy_conditions) . ')';
+        $taxonomy_results = $wpdb->get_results(
+            "
+            SELECT t.term_id, t.name, t.slug, tt.taxonomy, tt.parent,
+                   a.attribute_name, a.attribute_label,
+                   COUNT(DISTINCT p.ID) AS product_count,
+                   MAX(CASE WHEN tm.meta_key = 'order' THEN tm.meta_value END) AS menu_order
+            FROM {$wpdb->prefix}term_relationships AS tr
+            INNER JOIN {$wpdb->prefix}term_taxonomy AS tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+            INNER JOIN {$wpdb->prefix}terms AS t ON t.term_id = tt.term_id
+            INNER JOIN {$wpdb->prefix}posts AS p ON tr.object_id = p.ID
+            LEFT JOIN {$wpdb->prefix}woocommerce_attribute_taxonomies AS a ON tt.taxonomy = CONCAT('pa_', a.attribute_name)
+            LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
+            WHERE p.post_type = 'product'
+              AND p.post_status = 'publish'
+              AND {$taxonomy_where}
+            GROUP BY t.term_id, t.name, t.slug, tt.taxonomy, tt.parent, a.attribute_name, a.attribute_label
+            ORDER BY CAST(menu_order AS UNSIGNED), t.name
+            ",
+            ARRAY_A
+        );
+    }
 
     foreach ((array) $taxonomy_results as $row) {
         $term_id = (int) $row['term_id'];
@@ -4016,14 +4054,14 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
             'count' => $count,
         ];
 
-        if ($taxonomy === 'product_cat') {
+        if ($taxonomy === 'product_cat' && $enabled_filter_options['categories']) {
             $base['parent'] = (int) $row['parent'];
             $data['categories'][$term_id] = $base;
-        } elseif ($taxonomy === 'product_tag') {
+        } elseif ($taxonomy === 'product_tag' && $enabled_filter_options['tags']) {
             $data['tags'][$term_id] = $base;
-        } elseif ($taxonomy === 'product_brand') {
+        } elseif ($taxonomy === 'product_brand' && $enabled_filter_options['brands']) {
             $data['brands'][$term_id] = $base;
-        } elseif (!empty($row['attribute_name'])) {
+        } elseif (!empty($row['attribute_name']) && $enabled_filter_options['attributes']) {
             $attr_name = sanitize_key($row['attribute_name']);
             $data['attributes'][$attr_name] = $data['attributes'][$attr_name] ?? [
                 'attribute_label' => $row['attribute_label'],
@@ -4044,114 +4082,119 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
         $data['attributes'][$attr_name]['terms'] = array_values($attribute['terms']);
     }
 
-    $authors_results = $wpdb->get_results(
-        "
-        SELECT p.post_author, u.display_name, u.user_login, COUNT(p.ID) AS product_count
-        FROM {$wpdb->prefix}posts p
-        INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
-        WHERE p.post_type = 'product'
-          AND p.post_status = 'publish'
-          AND p.post_author > 0
-        GROUP BY p.post_author, u.display_name, u.user_login
-        ORDER BY u.display_name
-        ",
-        ARRAY_A
-    );
+    if ($enabled_filter_options['authors']) {
+        $authors_results = $wpdb->get_results(
+            "
+            SELECT p.post_author, u.display_name, u.user_login, COUNT(p.ID) AS product_count
+            FROM {$wpdb->prefix}posts p
+            INNER JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+            WHERE p.post_type = 'product'
+              AND p.post_status = 'publish'
+              AND p.post_author > 0
+            GROUP BY p.post_author, u.display_name, u.user_login
+            ORDER BY u.display_name
+            ",
+            ARRAY_A
+        );
 
-    foreach ((array) $authors_results as $row) {
-        $author_id = (int) $row['post_author'];
-        $data['authors'][$author_id] = [
-            'name' => $row['display_name'],
-            'slug' => $row['user_login'],
-            'products' => [],
-            'count' => (int) $row['product_count'],
-        ];
-    }
-
-    $stock_results = $wpdb->get_results(
-        "
-        SELECT COALESCE(NULLIF(pm.meta_value, ''), 'instock') AS stock_status, COUNT(DISTINCT p.ID) AS product_count
-        FROM {$wpdb->prefix}posts p
-        LEFT JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID AND pm.meta_key = '_stock_status'
-        WHERE p.post_type = 'product'
-          AND p.post_status = 'publish'
-        GROUP BY stock_status
-        ",
-        ARRAY_A
-    );
-
-    foreach ((array) $stock_results as $row) {
-        $status = (string) $row['stock_status'];
-        if ($status === 'instock') {
-            $data['stock_status'][0]['count'] = (int) $row['product_count'];
-        } elseif ($status === 'outofstock') {
-            $data['stock_status'][1]['count'] += (int) $row['product_count'];
+        foreach ((array) $authors_results as $row) {
+            $author_id = (int) $row['post_author'];
+            $data['authors'][$author_id] = [
+                'name' => $row['display_name'],
+                'slug' => $row['user_login'],
+                'products' => [],
+                'count' => (int) $row['product_count'],
+            ];
         }
     }
 
-    $sale_counts = $wpdb->get_row(
-        "
-        SELECT
-            SUM(CASE WHEN (
-                (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
-                    AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
-                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
-                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
-                OR EXISTS (
-                    SELECT 1
-                    FROM {$wpdb->prefix}posts v
-                    INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
-                    INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
-                    WHERE v.post_parent = p.ID
-                      AND v.post_type = 'product_variation'
-                      AND v.post_status = 'publish'
-                      AND v_sale.meta_value IS NOT NULL
-                      AND v_sale.meta_value != ''
-                      AND v_sale.meta_value != '0'
-                      AND v_regular.meta_value IS NOT NULL
-                      AND v_regular.meta_value != ''
-                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
-                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
-                )
-            ) THEN 1 ELSE 0 END) AS onsale_count,
-            SUM(CASE WHEN (
-                (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
-                    AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
-                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
-                    AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
-                OR EXISTS (
-                    SELECT 1
-                    FROM {$wpdb->prefix}posts v
-                    INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
-                    INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
-                    WHERE v.post_parent = p.ID
-                      AND v.post_type = 'product_variation'
-                      AND v.post_status = 'publish'
-                      AND v_sale.meta_value IS NOT NULL
-                      AND v_sale.meta_value != ''
-                      AND v_sale.meta_value != '0'
-                      AND v_regular.meta_value IS NOT NULL
-                      AND v_regular.meta_value != ''
-                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
-                      AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
-                )
-            ) THEN 0 ELSE 1 END) AS notonsale_count
-        FROM {$wpdb->prefix}posts p
-        LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
-        LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
-        WHERE p.post_type = 'product'
-          AND p.post_status = 'publish'
-        ",
-        ARRAY_A
-    );
+    if ($enabled_filter_options['stock_status']) {
+        $stock_results = $wpdb->get_results(
+            "
+            SELECT COALESCE(NULLIF(pm.meta_value, ''), 'instock') AS stock_status, COUNT(DISTINCT p.ID) AS product_count
+            FROM {$wpdb->prefix}posts p
+            LEFT JOIN {$wpdb->prefix}postmeta pm ON pm.post_id = p.ID AND pm.meta_key = '_stock_status'
+            WHERE p.post_type = 'product'
+              AND p.post_status = 'publish'
+            GROUP BY stock_status
+            ",
+            ARRAY_A
+        );
 
-    if (is_array($sale_counts)) {
-        $data['sale_status'][0]['count'] = (int) ($sale_counts['onsale_count'] ?? 0);
-        $data['sale_status'][1]['count'] = (int) ($sale_counts['notonsale_count'] ?? 0);
+        foreach ((array) $stock_results as $row) {
+            $status = (string) $row['stock_status'];
+            if ($status === 'instock') {
+                $data['stock_status'][0]['count'] = (int) $row['product_count'];
+            } elseif ($status === 'outofstock') {
+                $data['stock_status'][1]['count'] += (int) $row['product_count'];
+            }
+        }
     }
 
-    $show_custom_fields = !empty($dapfforwc_options['show_custom_fields']) && $dapfforwc_options['show_custom_fields'] !== 'off';
-    if ($show_custom_fields) {
+    if ($enabled_filter_options['sale_status']) {
+        $sale_counts = $wpdb->get_row(
+            "
+            SELECT
+                SUM(CASE WHEN (
+                    (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
+                        AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
+                        AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
+                        AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
+                    OR EXISTS (
+                        SELECT 1
+                        FROM {$wpdb->prefix}posts v
+                        INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                        INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                        WHERE v.post_parent = p.ID
+                          AND v.post_type = 'product_variation'
+                          AND v.post_status = 'publish'
+                          AND v_sale.meta_value IS NOT NULL
+                          AND v_sale.meta_value != ''
+                          AND v_sale.meta_value != '0'
+                          AND v_regular.meta_value IS NOT NULL
+                          AND v_regular.meta_value != ''
+                          AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                          AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                    )
+                ) THEN 1 ELSE 0 END) AS onsale_count,
+                SUM(CASE WHEN (
+                    (p_sale.meta_value IS NOT NULL AND p_sale.meta_value != '' AND p_sale.meta_value != '0'
+                        AND p_regular.meta_value IS NOT NULL AND p_regular.meta_value != ''
+                        AND CAST(p_sale.meta_value AS DECIMAL(20,6)) > 0
+                        AND CAST(p_sale.meta_value AS DECIMAL(20,6)) < CAST(p_regular.meta_value AS DECIMAL(20,6)))
+                    OR EXISTS (
+                        SELECT 1
+                        FROM {$wpdb->prefix}posts v
+                        INNER JOIN {$wpdb->prefix}postmeta v_sale ON v.ID = v_sale.post_id AND v_sale.meta_key = '_sale_price'
+                        INNER JOIN {$wpdb->prefix}postmeta v_regular ON v.ID = v_regular.post_id AND v_regular.meta_key = '_regular_price'
+                        WHERE v.post_parent = p.ID
+                          AND v.post_type = 'product_variation'
+                          AND v.post_status = 'publish'
+                          AND v_sale.meta_value IS NOT NULL
+                          AND v_sale.meta_value != ''
+                          AND v_sale.meta_value != '0'
+                          AND v_regular.meta_value IS NOT NULL
+                          AND v_regular.meta_value != ''
+                          AND CAST(v_sale.meta_value AS DECIMAL(20,6)) > 0
+                          AND CAST(v_sale.meta_value AS DECIMAL(20,6)) < CAST(v_regular.meta_value AS DECIMAL(20,6))
+                    )
+                ) THEN 0 ELSE 1 END) AS notonsale_count
+            FROM {$wpdb->prefix}posts p
+            LEFT JOIN {$wpdb->prefix}postmeta p_sale ON p.ID = p_sale.post_id AND p_sale.meta_key = '_sale_price'
+            LEFT JOIN {$wpdb->prefix}postmeta p_regular ON p.ID = p_regular.post_id AND p_regular.meta_key = '_regular_price'
+            WHERE p.post_type = 'product'
+              AND p.post_status = 'publish'
+            ",
+            ARRAY_A
+        );
+
+        if (is_array($sale_counts)) {
+            $data['sale_status'][0]['count'] = (int) ($sale_counts['onsale_count'] ?? 0);
+            $data['sale_status'][1]['count'] = (int) ($sale_counts['notonsale_count'] ?? 0);
+        }
+    }
+
+    if ($enabled_filter_options['custom_fields']) {
         $exclude_custom_fields = [];
         if (!empty($dapfforwc_advance_settings['exclude_custom_fields'])) {
             $exclude_custom_fields = array_filter(array_map('sanitize_key', explode(',', (string) $dapfforwc_advance_settings['exclude_custom_fields'])));
@@ -4217,6 +4260,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
     }
 
     set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
+    $cached_signature = $cache_signature;
 
     return $cached_result = $data;
 }

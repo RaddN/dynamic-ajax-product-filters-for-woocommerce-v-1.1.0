@@ -3,7 +3,7 @@
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
  * Description: A WooCommerce plugin to filter products by attributes, categories, and tags using AJAX for seamless user experience.
- * Version:     1.6.0.23
+ * Version:     1.6.0.26
  * Author:      Plugincy
  * Author URI:  https://plugincy.com
  * License:     GPL-2.0-or-later
@@ -22,7 +22,7 @@ if (!defined('DAY_IN_SECONDS')) {
     define('DAY_IN_SECONDS', 86400);
 }
 
-define('DAPFFORWC_VERSION', '1.6.0.23');
+define('DAPFFORWC_VERSION', '1.6.0.26');
 
 define('DAPFFORWC_ENABLE_THIRD_PARTY_HOOKS', true);
 
@@ -186,6 +186,17 @@ if (!function_exists('dapfforwc_use_large_catalog_database_mode')) {
             dapfforwc_is_large_catalog(),
             dapfforwc_get_published_product_count()
         );
+    }
+}
+
+if (!function_exists('dapfforwc_is_filter_option_enabled')) {
+    function dapfforwc_is_filter_option_enabled($option_key, $options = null)
+    {
+        global $dapfforwc_options;
+
+        $options = is_array($options) ? $options : (is_array($dapfforwc_options) ? $dapfforwc_options : []);
+
+        return isset($options[$option_key]) && $options[$option_key] === 'on';
     }
 }
 
@@ -2384,14 +2395,113 @@ function dapfforwc_enqueue_scripts()
     $dapfforwc_advance_settings['mobile_breakpoint'] = $mobile_breakpoint;
 
     wp_enqueue_script('jquery');
-    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.6.0.23', true);
+    wp_enqueue_script($script_handle, plugin_dir_url(__FILE__) . $script_path, ['jquery'], '1.6.0.26', true);
     wp_script_add_data($script_handle, 'async', true); // Load script asynchronously
+
+    $dapfforwc_frontend_options = [
+        'use_url_filter' => $dapfforwc_options['use_url_filter'] ?? $dapfforwc_use_url_filter,
+        'update_filter_options' => $dapfforwc_options['update_filter_options'] ?? '',
+        'show_loader' => $dapfforwc_options['show_loader'] ?? '',
+    ];
+
+    $dapfforwc_frontend_prefix_options = $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options'] ?? [];
+    if (is_array($dapfforwc_frontend_prefix_options)) {
+        if (!dapfforwc_is_filter_option_enabled('show_categories', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['product-category']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_tags', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['tag']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_price_range', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['price']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_rating', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['rating']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_brand', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['brand']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_author', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['author']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_status', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['stock_status']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_onsale', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['sale_status']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_attributes', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['attribute']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_custom_fields', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['custom']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_dimension', $dapfforwc_options)) {
+            unset(
+                $dapfforwc_frontend_prefix_options['width'],
+                $dapfforwc_frontend_prefix_options['min_width'],
+                $dapfforwc_frontend_prefix_options['max_width'],
+                $dapfforwc_frontend_prefix_options['length'],
+                $dapfforwc_frontend_prefix_options['min_length'],
+                $dapfforwc_frontend_prefix_options['max_length'],
+                $dapfforwc_frontend_prefix_options['height'],
+                $dapfforwc_frontend_prefix_options['min_height'],
+                $dapfforwc_frontend_prefix_options['max_height'],
+                $dapfforwc_frontend_prefix_options['weight'],
+                $dapfforwc_frontend_prefix_options['min_weight'],
+                $dapfforwc_frontend_prefix_options['max_weight']
+            );
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_sku', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['sku']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_discount', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['discount']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_date_filter', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['date_filter']);
+        }
+        if (!dapfforwc_is_filter_option_enabled('show_search', $dapfforwc_options)) {
+            unset($dapfforwc_frontend_prefix_options['plugincy_search']);
+        }
+    } else {
+        $dapfforwc_frontend_prefix_options = [];
+    }
+
+    $dapfforwc_frontend_seo_options = [
+        'use_attribute_type_in_permalinks' => $dapfforwc_seo_permalinks_options['use_attribute_type_in_permalinks'] ?? '',
+        'dapfforwc_permalinks_prefix_options' => $dapfforwc_frontend_prefix_options,
+    ];
+
+    $dapfforwc_frontend_styleoptions = [
+        'show_in_active_filters' => $dapfforwc_styleoptions['show_in_active_filters'] ?? [],
+        'apply_behavior' => $dapfforwc_styleoptions['apply_behavior'] ?? [],
+        'show_apply_button' => $dapfforwc_styleoptions['show_apply_button'] ?? [],
+        'show_apply_reset_on' => $dapfforwc_styleoptions['show_apply_reset_on'] ?? [],
+    ];
+
+    $dapfforwc_frontend_advance_settings = [
+        'product_selector' => $dapfforwc_advance_settings['product_selector'] ?? '',
+        'pagination_selector' => $dapfforwc_advance_settings['pagination_selector'] ?? '',
+        'sorting_selector' => $dapfforwc_advance_settings['sorting_selector'] ?? '',
+        'result_count_selector' => $dapfforwc_advance_settings['result_count_selector'] ?? '',
+        'advanced_pagination_enabled' => $dapfforwc_advance_settings['advanced_pagination_enabled'] ?? '',
+        'advanced_pagination_mode' => $dapfforwc_advance_settings['advanced_pagination_mode'] ?? '',
+        'advanced_pagination_prev_selector' => $dapfforwc_advance_settings['advanced_pagination_prev_selector'] ?? '',
+        'advanced_pagination_next_selector' => $dapfforwc_advance_settings['advanced_pagination_next_selector'] ?? '',
+        'advanced_pagination_load_more_selector' => $dapfforwc_advance_settings['advanced_pagination_load_more_selector'] ?? '',
+        'advanced_pagination_infinite_scroll_selector' => $dapfforwc_advance_settings['advanced_pagination_infinite_scroll_selector'] ?? '',
+        'no_products_text' => $dapfforwc_advance_settings['no_products_text'] ?? '',
+        'select2_placeholder' => $dapfforwc_advance_settings['select2_placeholder'] ?? '',
+        'mobile_breakpoint' => $mobile_breakpoint,
+    ];
+
     $dapfforwc_localized_data = array(
-        'dapfforwc_options' => $dapfforwc_options,
-        'dapfforwc_seo_permalinks_options' => $dapfforwc_seo_permalinks_options,
+        'dapfforwc_options' => $dapfforwc_frontend_options,
+        'dapfforwc_seo_permalinks_options' => $dapfforwc_frontend_seo_options,
         'dapfforwc_slug' => $dapfforwc_slug,
-        'dapfforwc_styleoptions' => $dapfforwc_styleoptions,
-        'dapfforwc_advance_settings' => $dapfforwc_advance_settings,
+        'dapfforwc_styleoptions' => $dapfforwc_frontend_styleoptions,
+        'dapfforwc_advance_settings' => $dapfforwc_frontend_advance_settings,
         'dapfforwc_front_page_slug' => $dapfforwc_front_page_slug,
         'mobile_breakpoint' => $mobile_breakpoint,
     );
@@ -2405,9 +2515,9 @@ function dapfforwc_enqueue_scripts()
         'isHomePage' => is_front_page()
     ]);
 
-    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.6.0.23');
-    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.23');
-    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.23', true);
+    wp_enqueue_style('filter-style', plugin_dir_url(__FILE__) . 'assets/css/style.min.css', [], '1.6.0.26');
+    wp_enqueue_style('select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.26');
+    wp_enqueue_script('select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.26', true);
     $css = '';
     // Generate inline css for sidebartop in mobile
     if (isset($dapfforwc_advance_settings["sidebar_on_top"]) && $dapfforwc_advance_settings["sidebar_on_top"] === "on") {
@@ -2460,11 +2570,11 @@ function dapfforwc_admin_scripts($hook)
         'dapfforwc-admin-menu-style',
         plugin_dir_url(__FILE__) . 'assets/css/admin-menu.min.css',
         [],
-        '1.6.0.23',
+        '1.6.0.26',
         'all'
     );
 
-    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.6.0.23', true);
+    wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.6.0.26', true);
     
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
@@ -2478,13 +2588,13 @@ function dapfforwc_admin_scripts($hook)
     wp_enqueue_code_editor(array('type' => 'text/html'));
     wp_enqueue_script('wp-theme-plugin-editor');
     wp_enqueue_style('wp-codemirror');
-    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.6.0.23', true);
+    wp_enqueue_script('dapfforwc-admin-script', plugin_dir_url(__FILE__) . 'assets/js/admin-script.min.js', [], '1.6.0.26', true);
     wp_enqueue_media();
     wp_enqueue_script('dapfforwc-media-uploader', plugin_dir_url(__FILE__) . 'assets/js/media-uploader.min.js', ['jquery'], $dapfforwc_media_uploader_version, true);
 
 
-    wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.23');
-    wp_enqueue_script('pluginy-select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.23', true);
+    wp_enqueue_style('pluginy-select2-css', plugin_dir_url(__FILE__) . 'assets/css/select2.min.css', [], '1.6.0.26');
+    wp_enqueue_script('pluginy-select2-js', plugin_dir_url(__FILE__) . 'assets/js/select2.min.js', ['jquery'], '1.6.0.26', true);
 
 
     $inline_script = 'document.addEventListener("DOMContentLoaded", function () {
@@ -2805,7 +2915,7 @@ function dapfforwc_enqueue_dynamic_ajax_filter_block_assets()
         true
     );
 
-    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.6.0.23');
+    wp_enqueue_style('custom-box-control-styles', plugin_dir_url(__FILE__) . 'assets/css/block-editor.min.css', [], '1.6.0.26');
 }
 add_action('enqueue_block_editor_assets', 'dapfforwc_enqueue_dynamic_ajax_filter_block_assets');
 
@@ -3059,7 +3169,7 @@ function dapfforwc_editor_script()
         'plugincy-custom-editor',
         plugin_dir_url(__FILE__) . 'includes/blocks/editor.js',
         array('wp-blocks', 'wp-element', 'wp-edit-post', 'wp-dom-ready', 'wp-plugins'),
-        '1.6.0.23',
+        '1.6.0.26',
         true
     );
 }
@@ -3107,7 +3217,7 @@ class dapfforwc_cart_analytics_main
         $this->analytics = new dapfforwc_cart_anaylytics(
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
-            "1.6.0.23",
+            "1.6.0.26",
             'One Page Quick Checkout for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
@@ -4013,72 +4123,6 @@ function dapfforwc_clear_woocommerce_caches($context = null, $schedule_rebuild =
 
 
 register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
-
-function dapfforwc_large_catalog_cache_notice()
-{
-    if (!is_admin() || wp_doing_ajax() || !current_user_can('manage_options')) {
-        return;
-    }
-
-    if (!function_exists('dapfforwc_is_large_catalog') || !dapfforwc_is_large_catalog()) {
-        return;
-    }
-
-    $product_count = function_exists('dapfforwc_get_published_product_count') ? dapfforwc_get_published_product_count() : 0;
-    $threshold = function_exists('dapfforwc_get_large_catalog_threshold') ? dapfforwc_get_large_catalog_threshold() : 0;
-
-    if (function_exists('dapfforwc_use_large_catalog_database_mode') && dapfforwc_use_large_catalog_database_mode()) {
-        ?>
-        <div class="notice notice-info">
-            <p>
-                <?php
-                printf(
-                    /* translators: 1: product count, 2: threshold */
-                    esc_html__('Dynamic AJAX Product Filters detected %1$d published products. This catalogue is above the %2$d product threshold, so the plugin is using database-safe automatic mode instead of building full-catalog serialized caches.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                    (int) $product_count,
-                    (int) $threshold
-                );
-                ?>
-            </p>
-        </div>
-        <?php
-        return;
-    }
-
-    $cache = get_transient('dapfforwc_attributes_cache_v2');
-    if (is_array($cache)) {
-        return;
-    }
-
-    $state = function_exists('dapfforwc_get_filter_cache_build_state') ? dapfforwc_get_filter_cache_build_state() : [];
-    $status = isset($state['status']) ? sanitize_key($state['status']) : '';
-    $processed = isset($state['processed']) ? (int) $state['processed'] : 0;
-
-    if (!function_exists('dapfforwc_is_filter_cache_background_build_active') || !dapfforwc_is_filter_cache_background_build_active($state)) {
-        dapfforwc_schedule_filter_cache_rebuild('admin_notice');
-    }
-    ?>
-    <div class="notice notice-info">
-        <p>
-            <?php
-            printf(
-                /* translators: 1: product count, 2: threshold, 3: processed product count */
-                esc_html__('Dynamic AJAX Product Filters detected %1$d published products. The filter cache is being generated automatically in background batches because the catalogue is above the %2$d product synchronous-build threshold. Processed so far: %3$d products.', 'dynamic-ajax-product-filters-for-woocommerce'),
-                (int) $product_count,
-                (int) $threshold,
-                (int) $processed
-            );
-            ?>
-            <?php
-            if ($status === 'failed') {
-                esc_html_e('The previous background run failed and a new run has been queued automatically.', 'dynamic-ajax-product-filters-for-woocommerce');
-            }
-            ?>
-        </p>
-    </div>
-    <?php
-}
-add_action('admin_notices', 'dapfforwc_large_catalog_cache_notice');
 
 
 
