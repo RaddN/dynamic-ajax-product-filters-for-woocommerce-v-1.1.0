@@ -1047,34 +1047,16 @@ if (!defined('ABSPATH')) {
                                                         <input type="text" name="dapfforwc_style_options[widget_title][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title); ?>">
                                                     </label>
                                                 </div>
-                                                <?php
-                                                $widget_title_icon_enabled = $dapfforwc_form_styles["enable_widget_title_icon"][$dapfforwc_attribute_name] ?? '';
-                                                $widget_title_icon_key = isset($dapfforwc_form_styles["widget_title_icon"][$dapfforwc_attribute_name]) && function_exists('dapfforwc_sanitize_icon_key')
-                                                    ? dapfforwc_sanitize_icon_key($dapfforwc_form_styles["widget_title_icon"][$dapfforwc_attribute_name])
-                                                    : '';
-                                                $widget_title_icon_key = $widget_title_icon_key !== '' ? $widget_title_icon_key : 'filter';
-                                                ?>
-                                                <div class="setting-item widget-title-icon-setting" data-attr-exclude="reset_btn">
+                                                <div class="setting-item widget-title-icon-setting pro-only" data-attr-exclude="reset_btn">
                                                     <div class="dapfforwc-widget-title-icon-header">
                                                         <div class="dapfforwc-widget-title-icon-heading">
                                                             <p><strong><?php esc_html_e('Widget Title Icon:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
                                                             <span><?php esc_html_e('Display a small icon before this filter title.', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></span>
                                                         </div>
                                                         <label class="dapfforwc-widget-title-icon-toggle">
-                                                            <input type="checkbox" class="enable-widget-title-icon-checkbox" name="dapfforwc_style_options[enable_widget_title_icon][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes" <?php checked($widget_title_icon_enabled, 'yes'); ?>>
+                                                            <input disabled type="checkbox" class="enable-widget-title-icon-checkbox" name="dapfforwc_style_options[enable_widget_title_icon][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes">
                                                             <span><?php esc_html_e('Enable', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></span>
                                                         </label>
-                                                    </div>
-                                                    <div class="widget-title-icon-rel" data-display="flex" style="display: <?php echo $widget_title_icon_enabled === 'yes' ? 'flex' : 'none'; ?>;">
-                                                        <div class="dapfforwc-widget-title-icon-selected">
-                                                            <span class="dapfforwc-widget-title-icon-preview"><?php echo function_exists('dapfforwc_render_icon_svg') ? dapfforwc_render_icon_svg($widget_title_icon_key, 'dapfforwc-admin-icon-svg') : ''; ?></span>
-                                                            <span class="dapfforwc-widget-title-icon-meta">
-                                                                <strong><?php esc_html_e('Selected icon', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong>
-                                                                <small><?php esc_html_e('Shown before widget title', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></small>
-                                                            </span>
-                                                        </div>
-                                                        <input type="hidden" class="widget-title-icon-value-input" name="dapfforwc_style_options[widget_title_icon][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($widget_title_icon_key); ?>">
-                                                        <button type="button" class="button dapfforwc-icon-picker-trigger" data-icon-scope="widget-title"><?php echo esc_html($dapfforwc_icon_picker_ui['button']); ?></button>
                                                     </div>
                                                 </div>
                                                 <!-- additional text for rating -->

@@ -1081,3 +1081,42 @@ div#wpfooter {
   height: 46px !important;
   width: 29px !important;
 }
+.dapfforwc_admin .dapfforwc-admin-icon-svg {
+  fill: none;
+  height: 20px;
+  stroke: currentColor;
+  width: 20px;
+}
+.dapfforwc_admin .widget-title-icon-rel {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+  max-width: 420px;
+}
+.dapfforwc_admin .widget-title-icon-setting {
+  background: #fff;
+  border: 1px solid #dbe4f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  max-width: 520px;
+  padding: 14px;
+}
+.dapfforwc_admin .dapfforwc-widget-title-icon-header {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+.dapfforwc_admin .dapfforwc-widget-title-icon-heading {
+  min-width: 0;
+}
+.dapfforwc_admin .dapfforwc-widget-title-icon-heading p {
+  color: #111827;
+  padding-bottom: 3px;
+}
+.dapfforwc_admin .dapfforwc-widget-title-icon-heading span {
+  color: #64748b;
+  display: block;
+  font-size: 12px;
+  line-height: 1.45;
+}
