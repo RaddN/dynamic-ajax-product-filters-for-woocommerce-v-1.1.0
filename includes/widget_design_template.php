@@ -510,7 +510,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $category_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
         }
         $formOutPut .= $render_title_bar($category_title_content, $minimizable, $category_search_settings, $category_tooltip_settings, "product-category");
-        if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+        if ($sub_option === 'color_circle' || $sub_option === 'color_value' || $sub_option === 'color_swatch_label') {
             $sub_option = 'plugincy_color';
         } elseif ($sub_option === 'button_check') {
             $sub_option = '';
@@ -554,7 +554,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                     $child_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
                 }
                 $formOutPut .= $render_title_bar($child_title_content, $minimizable, $category_search_settings, $category_tooltip_settings, "product-category");
-                if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+                if ($sub_option === 'color_circle' || $sub_option === 'color_value' || $sub_option === 'color_swatch_label') {
                     $sub_option = 'plugincy_color';
                 } elseif ($sub_option === 'button_check') {
                     $sub_option = '';
@@ -862,7 +862,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $authors_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
         }
         $formOutPut .= $render_title_bar($authors_title_content, $minimizable, $authors_search_settings, $authors_tooltip_settings, 'authors');
-        if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+        if ($sub_option === 'color_circle' || $sub_option === 'color_value' || $sub_option === 'color_swatch_label') {
             $sub_option = 'plugincy_color';
         } elseif ($sub_option === 'button_check') {
             $sub_option = '';
@@ -926,7 +926,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $status_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
         }
         $formOutPut .= $render_title_bar($status_title_content, $minimizable, $status_search_settings, $status_tooltip_settings, 'status');
-        if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+        if ($sub_option === 'color_circle' || $sub_option === 'color_value' || $sub_option === 'color_swatch_label') {
             $sub_option = 'plugincy_color';
         } elseif ($sub_option === 'button_check') {
             $sub_option = '';
@@ -998,7 +998,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $sale_status_title_content .= ' <span class="reset-value">' . ((isset($dapfforwc_styleoptions["btntext"]) && isset($dapfforwc_styleoptions["btntext"]["reset_btn"]) && $dapfforwc_styleoptions["btntext"]["reset_btn"] !== "") ? esc_html($dapfforwc_styleoptions["btntext"]["reset_btn"]) : esc_html__('Reset', 'dynamic-ajax-product-filters-for-woocommerce')) . '</span>';
         }
         $formOutPut .= $render_title_bar($sale_status_title_content, $minimizable, $sale_status_search_settings, $sale_status_tooltip_settings, 'sale_status');
-        if ($sub_option === 'color_circle' || $sub_option === 'color_value') {
+        if ($sub_option === 'color_circle' || $sub_option === 'color_value' || $sub_option === 'color_swatch_label') {
             $sub_option = 'plugincy_color';
         } elseif ($sub_option === 'button_check') {
             $sub_option = '';

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Plugin Name: Dynamic AJAX Product Filters for WooCommerce
  * Plugin URI:  https://plugincy.com/
@@ -2302,7 +2303,6 @@ add_filter('safe_style_css', function ($styles) {
 $dapfforwc_sub_options = [
     'checkbox' => [
         'checkbox' => 'Checkbox',
-        'button_check' => 'Button Checkbox',
         'radio_check' => 'Radio Check',
         'radio' => 'Radio',
         'square' => 'Square',
@@ -2313,6 +2313,7 @@ $dapfforwc_sub_options = [
         'color_no_border' => 'Color Without Border',
         'color_circle' => 'Color Circle',
         'color_value' => 'Color With Value',
+        'color_swatch_label' => 'Color Swatch Label',
     ],
     'image' => [
         'image' => 'Image',
@@ -2322,23 +2323,68 @@ $dapfforwc_sub_options = [
     'dropdown' => [
         'select' => 'Select',
         'pluginy_select2' => 'Select 2',
+        'chip_dropdown' => 'Chip Dropdown',
+        'modern_dropdown' => 'Modern Dropdown',
+        'checkbox_dropdown' => 'Checkbox Dropdown',
         // 'select2_classic' => 'Select 2 Classic',
+    ],
+    'icon' => [
+        'icon_card' => 'Icon Card',
+        'icon_list' => 'Icon List',
+        'icon_chip' => 'Icon Chip',
+        'icon_badge' => 'Icon Badge',
+        'icon_only' => 'Icon Only',
+    ],
+    'chips' => [
+        'chips' => 'Chips',
+        'button_chips' => 'Button Chips',
+        'button_check' => 'Button Checkbox',
+    ],
+    'stepper' => [
+        'stepper' => 'Stepper',
+        'boxed-stepper' => 'Boxed Stepper',
+        'compact-stepper' => 'Compact Stepper',
+        'pill-stepper' => 'Pill Stepper',
     ],
     'price' => [
         'price' => 'Price',
         'slider' => 'Slider',
         'slider2' => 'Slider2',
+        'chart-slider' => 'Chart Slider',
+        'price-range-button' => 'Range Button',
+        'price-range-card' => 'Range Card',
         'input-price-range' => 'input price range',
     ],
     'rating' => [
         'rating' => 'Rating Star',
         'rating-text' => 'Rating Text',
         'dynamic-rating' => 'Dynamic Rating',
+        'rating-slider' => 'Rating Slider',
     ],
     "plugincy_search" => [
         "plugincy_search" => 'Search with Button',
         "icon_search" => 'Search with Icon'
-    ]
+    ],
+    "dimension_input" => [
+        "dimension_input" => 'Dimension Input',
+        'dimension_range' => 'Dimension Range',
+        'dimensions-compact-range-card' => 'Compact Range Card',
+    ],
+    "discount_slider" => [
+        "discount_slider" => 'Discount Slider',
+    ],
+    "simple_input" => [
+        "simple_input" => 'Input',
+        'sku_search_button' => 'Search Button',
+        'sku_icon_search' => 'Icon Search',
+    ],
+    'date_range' => [
+        'date-modern-calendar' => 'Modern Calendar',
+        'date-classic-select' => 'Classic Select',
+        'date-quick-picks' => 'Quick Picks',
+        'date-dual-calendar' => 'Dual Calendar',
+        'date-stacked-list' => 'Stacked List',
+    ],
 ];
 
 // Check if WooCommerce is active
@@ -2575,7 +2621,7 @@ function dapfforwc_admin_scripts($hook)
     );
 
     wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], '1.6.0.26', true);
-    
+
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
     }
@@ -2740,12 +2786,10 @@ function dapfforwc_admin_scripts($hook)
             const fragment = document.createDocumentFragment();
             for (const key in currentOptions) {
                 const label = document.createElement("label");
-                label.className = `${key}` + (key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "image_value" || key === "button_check" ? " pro-only" : "");
+                label.className = `${key}` + (key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key === "button_check" || key === "chips" || key === "button_chips" || key === "pill-stepper" || key === "compact-stepper" || key === "boxed-stepper" || key === "stepper" || key === "icon_only" || key === "icon_badge" || key === "icon_chip" || key === "icon_list" || key === "icon_card" || key === "checkbox_dropdown" || key === "modern_dropdown" || key === "chip_dropdown" || key === "dimension_range" || key === "dimensions-compact-range-card" || key === "sku_search_button" || key === "sku_icon_search" || key === "discount_slider" || key === "date-modern-calendar" || key === "date-quick-picks" || key === "date-dual-calendar" || key === "date-stacked-list" ? " pro-only" : "");
                 label.innerHTML = `
                     <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
-                    <input ${key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "image_value" || key === "button_check" ? "disabled" : ""} type="radio" class="optionselect" name="${key === "dynamic-rating" || key === "input-price-range" || key === "color_circle" || key === "color_value" || key === "image_value" || key === "button_check" ? "_pro" : "dapfforwc_style_options"}[${attributeName}][sub_option]" value="${key}">                    
-                    <img src="' . plugin_dir_url(__FILE__) . 'assets/images/${key}.png" alt="${currentOptions[key]}">
-                `;
+                    <input ${key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key === "button_check" || key === "chips" || key === "button_chips" || key === "pill-stepper" || key === "compact-stepper" || key === "boxed-stepper" || key === "stepper" || key === "icon_only" || key === "icon_badge" || key === "icon_chip" || key === "icon_list" || key === "icon_card" || key === "checkbox_dropdown" || key === "modern_dropdown" || key === "chip_dropdown" || key === "dimension_range" || key === "dimensions-compact-range-card" || key === "sku_search_button" || key === "sku_icon_search" || key === "discount_slider" || key === "date-modern-calendar" || key === "date-quick-picks" || key === "date-dual-calendar" || key === "date-stacked-list" ? "disabled" : ""} type="radio" class="optionselect" name="${key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key ===
                 fragment.appendChild(label);
             }
             subOptionsContainer.appendChild(fragment);
