@@ -88,7 +88,7 @@ class DAPFFORWC_License_Manager
         $response = wp_remote_get(add_query_arg($api_params, $this->api_url), array(
             'timeout' => 30,
             'sslverify' => true,
-            'user-agent' => 'DAPF/' . (defined('DAPFFORWC_VERSION') ? DAPFFORWC_VERSION : '1.6.1')
+            'user-agent' => 'DAPF/' . DAPFFORWC_VERSION
         ));
 
         if (is_wp_error($response)) {
@@ -168,7 +168,7 @@ class DAPFFORWC_License_Manager
         $response = wp_remote_get(add_query_arg($api_params, $this->api_url), array(
             'timeout' => 30,
             'sslverify' => true,
-            'user-agent' => 'DAPF/' . (defined('DAPFFORWC_VERSION') ? DAPFFORWC_VERSION : '1.6.1')
+            'user-agent' => 'DAPF/' . DAPFFORWC_VERSION
         ));
 
         // Step 2: Deactivate Pro plugin if it's active (before removing license data)
@@ -204,7 +204,7 @@ class DAPFFORWC_License_Manager
         $response = wp_remote_get(add_query_arg($api_params, $this->api_url), array(
             'timeout' => 30,
             'sslverify' => true,
-            'user-agent' => 'DAPF/' . (defined('DAPFFORWC_VERSION') ? DAPFFORWC_VERSION : '1.6.1')
+            'user-agent' => 'DAPF/' . DAPFFORWC_VERSION
         ));
 
         if (is_wp_error($response)) {

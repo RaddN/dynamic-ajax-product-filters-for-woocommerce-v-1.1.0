@@ -48,7 +48,6 @@ if (!function_exists('dapfforwc_is_product_attribute')) {
  * - Custom brand taxonomies
  *
  * @return bool True if on a brand archive page, false otherwise
- * @since 1.6.1
  */
 if (!function_exists('dapfforwc_is_product_brand')) {
     function dapfforwc_is_product_brand()
@@ -111,7 +110,6 @@ if (!function_exists('dapfforwc_is_product_brand')) {
  * Returns brand details if on brand archive, null otherwise
  *
  * @return array|null Array with term_id, name, slug, taxonomy or null
- * @since 1.6.1
  */
 if (!function_exists('dapfforwc_get_current_brand')) {
     function dapfforwc_get_current_brand()
@@ -195,7 +193,6 @@ if (!function_exists('dapfforwc_build_reverse_prefix_map')) {
  * Useful for filtering operations that need to know all brand-related taxonomies
  *
  * @return array Array of brand taxonomy names
- * @since 1.6.1
  */
 if (!function_exists('dapfforwc_get_brand_taxonomies')) {
     function dapfforwc_get_brand_taxonomies()
