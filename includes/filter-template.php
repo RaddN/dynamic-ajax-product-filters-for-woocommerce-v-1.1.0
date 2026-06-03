@@ -600,10 +600,91 @@ function dapfforwc_product_filter_shortcode($atts)
     $use_anchor = isset($dapfforwc_seo_permalinks_options["use_anchor"]) ? $dapfforwc_seo_permalinks_options["use_anchor"] : "";
     $use_filters_word = isset($dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"]) ? $dapfforwc_seo_permalinks_options["use_filters_word_in_permalinks"] : "";
 
-    $request = $wp->request;
-    $request_parts = explode('/', $request);
-    $request_parts = is_archive() ? [end($request_parts)] : $request_parts;
-    $dapfforwc_slug = is_archive() ? end($request_parts) : (isset($post) ? dapfforwc_get_full_slug($post->ID) : "");
+    $normalize_request_parts = static function ($path): array {
+        return array_values(array_filter(array_map('sanitize_text_field', explode('/', trim((string) $path, '/'))), static function ($part) {
+            return $part !== '';
+        }));
+    };
+    $path_parts_from_url = static function ($url) use ($normalize_request_parts): array {
+        $path = wp_parse_url((string) $url, PHP_URL_PATH);
+        $home_path = wp_parse_url(home_url('/'), PHP_URL_PATH);
+        $path = trim((string) $path, '/');
+        $home_path = trim((string) $home_path, '/');
+
+        if ($home_path !== '' && ($path === $home_path || strpos($path, $home_path . '/') === 0)) {
+            $path = trim(substr($path, strlen($home_path)), '/');
+        }
+
+        return $normalize_request_parts($path);
+    };
+    $remove_leading_parts = static function (array $parts, array $prefix): array {
+        if (empty($prefix) || count($parts) < count($prefix)) {
+            return $parts;
+        }
+
+        foreach ($prefix as $index => $prefix_part) {
+            if (!isset($parts[$index]) || $parts[$index] !== $prefix_part) {
+                return $parts;
+            }
+        }
+
+        return array_values(array_slice($parts, count($prefix)));
+    };
+    $remove_pagination_parts = static function (array $parts) use ($dapfforwc_seo_permalinks_options): array {
+        $pagination_keys = array_filter(array(
+            'page',
+            'paged',
+            'product-page',
+            isset($dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['pagination'])
+                ? (string) $dapfforwc_seo_permalinks_options['dapfforwc_permalinks_prefix_options']['pagination']
+                : '',
+        ), static function ($part) {
+            return $part !== '';
+        });
+
+        if (count($parts) >= 2 && in_array($parts[0], $pagination_keys, true) && is_numeric($parts[1])) {
+            return array_values(array_slice($parts, 2));
+        }
+
+        return $parts;
+    };
+
+    $request_parts = $normalize_request_parts($wp->request ?? '');
+    $dapfforwc_slug = isset($post) ? dapfforwc_get_full_slug($post->ID) : '';
+    $route_parts = array();
+
+    if (is_shop()) {
+        $shop_page_id = wc_get_page_id('shop');
+        $dapfforwc_slug = $shop_page_id > 0 ? dapfforwc_get_full_slug($shop_page_id) : ($request_parts[0] ?? '');
+        $route_parts = $shop_page_id > 0 ? $path_parts_from_url(get_permalink($shop_page_id)) : array($dapfforwc_slug);
+    } elseif (is_product_category() || is_product_tag() || dapfforwc_is_product_attribute()) {
+        $queried_object = get_queried_object();
+        if ($queried_object && !is_wp_error($queried_object)) {
+            $dapfforwc_slug = isset($queried_object->slug) ? sanitize_title($queried_object->slug) : $dapfforwc_slug;
+            $term_link = get_term_link($queried_object);
+            $route_parts = !is_wp_error($term_link) ? $path_parts_from_url($term_link) : array($dapfforwc_slug);
+        }
+    } elseif (dapfforwc_is_product_brand()) {
+        $current_brand = dapfforwc_get_current_brand();
+        $dapfforwc_slug = isset($current_brand['slug']) ? sanitize_title($current_brand['slug']) : $dapfforwc_slug;
+        $route_parts = array($dapfforwc_slug);
+    } elseif ($dapfforwc_slug !== '') {
+        $route_parts = $normalize_request_parts($dapfforwc_slug);
+    }
+
+    $filters_word = isset($dapfforwc_seo_permalinks_options['filters_word_in_permalinks']) && $dapfforwc_seo_permalinks_options['filters_word_in_permalinks'] !== ''
+        ? sanitize_title($dapfforwc_seo_permalinks_options['filters_word_in_permalinks'])
+        : 'filters';
+    $filters_word_index = array_search($filters_word, $request_parts, true);
+    if ($use_filters_word === 'on' && $filters_word_index !== false) {
+        $request_parts = array_values(array_slice($request_parts, $filters_word_index + 1));
+    } else {
+        $request_parts = $remove_leading_parts($request_parts, $route_parts);
+    }
+    $request_parts = $remove_pagination_parts($request_parts);
+    $request_parts = array_values(array_filter($request_parts, static function ($part) {
+        return $part !== '';
+    }));
     // Get Categories, Tags, attributes using the existing function
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
     $all_cata = isset($all_data['categories']) ? $all_data['categories'] : [];
@@ -1888,6 +1969,56 @@ function dapfforwc_product_filter_shortcode($atts)
     $common_values_custom_meta = dapfforwc_array_intersect_values($products_id_by_custom_meta);
 
 
+    $has_product_filter_selection = false;
+    foreach (array(
+        'product-category[]',
+        'tag[]',
+        'attribute',
+        'custom_meta',
+        'brand[]',
+        'author[]',
+        'stock_status[]',
+        'sale_status[]',
+        'rating[]',
+        'plugincy_search',
+        'plugincy_search[]',
+        'price[]',
+        'min_price',
+        'max_price',
+        'min_length',
+        'max_length',
+        'min_width',
+        'max_width',
+        'min_height',
+        'max_height',
+        'min_weight',
+        'max_weight',
+        'sku',
+        'sku[]',
+        'discount',
+        'discount[]',
+        'date_filter',
+        'date_filter[]',
+        'date_from',
+        'date_to',
+    ) as $filter_key) {
+        if ($has_filter_value($default_filter[$filter_key] ?? null)) {
+            $has_product_filter_selection = true;
+            break;
+        }
+    }
+
+    if (!$has_product_filter_selection) {
+        foreach ($default_filter as $filter_key => $filter_value) {
+            if ((is_int($filter_key) || ctype_digit((string) $filter_key)) && $has_filter_value($filter_value)) {
+                $has_product_filter_selection = true;
+                break;
+            }
+        }
+    }
+
+    $all_product_ids = array_map('intval', array_column($product_details, 'ID'));
+
     // echo json_encode(
     //     [
     //         "products_id_by_cata" => $products_id_by_cata,
@@ -1928,6 +2059,10 @@ function dapfforwc_product_filter_shortcode($atts)
         ]
     );
 
+    $products_ids_for_filter_options = (!empty($products_ids) || $has_product_filter_selection)
+        ? $products_ids
+        : $all_product_ids;
+
     $products_ids_without_price = dapfforwc_getFilteredProductIds(
         [
             $products_id_by_cata,
@@ -1946,8 +2081,6 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter
         ]
     );
-
-    $all_product_ids = array_map('intval', array_column($product_details, 'ID'));
 
     $products_ids_without_dimensions = dapfforwc_getFilteredProductIds(
         [
@@ -2020,7 +2153,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids; // AND keeps self-filtering
+        : $products_ids_for_filter_options; // AND keeps self-filtering
 
     $products_for_tags = ($tag_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2040,7 +2173,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids;
+        : $products_ids_for_filter_options;
 
     $products_for_brands = ($brand_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2060,7 +2193,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids;
+        : $products_ids_for_filter_options;
 
     $products_for_authors = ($author_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2080,7 +2213,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids;
+        : $products_ids_for_filter_options;
 
     $products_for_stock_status = ($status_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2100,7 +2233,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids;
+        : $products_ids_for_filter_options;
 
     $products_for_sale_status = ($sale_status_op === 'OR')
         ? dapfforwc_getFilteredProductIds([
@@ -2120,7 +2253,7 @@ function dapfforwc_product_filter_shortcode($atts)
             $products_id_by_date_filter,
             $all_product_ids
         ])
-        : $products_ids;
+        : $products_ids_for_filter_options;
 
     $products_for_attributes = [];
     foreach ($products_id_by_attributes as $taxonomy => $set) {
@@ -2195,7 +2328,7 @@ function dapfforwc_product_filter_shortcode($atts)
         set_transient('dapfforwc_filtered_ids_' . $filter_hash, $products_ids, 300);
     }
 
-    $updated_filters = dapfforwc_get_updated_filters($products_ids, $all_data, [
+    $updated_filters = dapfforwc_get_updated_filters($products_ids_for_filter_options, $all_data, [
         'categories' => $products_for_categories,
         'tags'       => $products_for_tags,
         'brands'     => $products_for_brands,
@@ -2210,7 +2343,7 @@ function dapfforwc_product_filter_shortcode($atts)
         && $filteroptionsfromurl["min_price"] !== ''
         && $filteroptionsfromurl["max_price"] !== '';
 
-    $price_bounds_product_ids = $products_ids;
+    $price_bounds_product_ids = $products_ids_for_filter_options;
     if ($has_active_price_filter) {
         $price_bounds_product_ids = !empty($products_ids_without_price) ? $products_ids_without_price : $all_product_ids;
     }
