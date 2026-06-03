@@ -1056,11 +1056,31 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         ]
     ];
 
-    $dimension_min_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['min'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['min'] : 'Min';
-    $dimension_max_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['max'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['max'] : 'Max';
+    $dimension_min_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['min'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['min'] : 'Min (%s)';
+    $dimension_max_placeholder = !empty(trim((string) ($dapfforwc_styleoptions['dimensions_placeholder']['max'] ?? ''))) ? $dapfforwc_styleoptions['dimensions_placeholder']['max'] : 'Max (%s)';
     $get_dimension_bound_value = static function (string $dimension, string $edge) use ($dimension_bounds): string {
         $value = $dimension_bounds[$dimension][$edge] ?? '';
         return is_scalar($value) ? trim((string) $value) : '';
+    };
+    $format_dimension_placeholder = static function (string $format, string $bound_value, string $fallback): string {
+        $format = trim($format);
+        if ($format === '') {
+            return $fallback;
+        }
+
+        if ($bound_value === '') {
+            return trim(str_replace(['%s', '{value}'], '', $format)) ?: $fallback;
+        }
+
+        if (strpos($format, '%s') !== false) {
+            return str_replace('%s', $bound_value, $format);
+        }
+
+        if (strpos($format, '{value}') !== false) {
+            return str_replace('{value}', $bound_value, $format);
+        }
+
+        return $format;
     };
 
 
@@ -1118,19 +1138,19 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
                 $max_value = $default_filter["max_{$dimension}"] ?? '';
                 $default_min_value = $get_dimension_bound_value($dimension, 'min');
                 $default_max_value = $get_dimension_bound_value($dimension, 'max');
-                $resolved_min_value = $min_value !== '' ? $min_value : $default_min_value;
-                $resolved_max_value = $max_value !== '' ? $max_value : $default_max_value;
                 $min_attr = $default_min_value !== '' ? $default_min_value : '0';
                 $max_attr = $default_max_value !== '' ? ' max="' . esc_attr($default_max_value) . '"' : '';
+                $min_placeholder = $format_dimension_placeholder($dimension_min_placeholder, $default_min_value, 'Min');
+                $max_placeholder = $format_dimension_placeholder($dimension_max_placeholder, $default_max_value, 'Max');
 
                 $formOutPut .= '<div class="dimension-row">';
                 $formOutPut .= '<div class="dimension-label" style=" margin-bottom: 5px; ">' . esc_html($config['label']) . '</div>';
                 $formOutPut .= '<div class="dimension-inputs" style=" display: flex; gap: 10px; margin-bottom: 10px; ">';
                 $formOutPut .= '<div class="dimension-input-group">';
-                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="min_' . esc_attr($dimension) . '" value="' . esc_attr($resolved_min_value) . '" placeholder="' . esc_attr($dimension_min_placeholder) . '" step="0.1" min="' . esc_attr($min_attr) . '"' . $max_attr . ' data-default="' . esc_attr($default_min_value) . '" />';
+                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="min_' . esc_attr($dimension) . '" value="' . esc_attr($min_value) . '" placeholder="' . esc_attr($min_placeholder) . '" step="0.1" min="' . esc_attr($min_attr) . '"' . $max_attr . ' data-default="' . esc_attr($default_min_value) . '" />';
                 $formOutPut .= '</div>';
                 $formOutPut .= '<div class="dimension-input-group">';
-                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="max_' . esc_attr($dimension) . '" value="' . esc_attr($resolved_max_value) . '" placeholder="' . esc_attr($dimension_max_placeholder) . '" step="0.1" min="' . esc_attr($min_attr) . '"' . $max_attr . ' data-default="' . esc_attr($default_max_value) . '" />';
+                $formOutPut .= '<input ' . ($disable_unselected ? "disabled" : "") . ' type="number" name="max_' . esc_attr($dimension) . '" value="' . esc_attr($max_value) . '" placeholder="' . esc_attr($max_placeholder) . '" step="0.1" min="' . esc_attr($min_attr) . '"' . $max_attr . ' data-default="' . esc_attr($default_max_value) . '" />';
                 $formOutPut .= '</div>';
                 $formOutPut .= '</div>';
                 $formOutPut .= '</div>';

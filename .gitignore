@@ -1,0 +1,7 @@
+# Ignore the .playwright-mcp directory
+# Ignore all files in the .playwright-mcp directory
+# except for the .gitkeep file
+.playwright-mcp/*
+!.playwright-mcp/.gitkeep
+
+.playwright-cli

@@ -1216,6 +1216,9 @@ if (!defined('ABSPATH')) {
                                                 </div>
 
                                                 <div data-attr-only="dimensions">
+                                                    <p class="description" style="margin: 12px 0 0; padding: 10px 12px; background: #f8fafc; border-left: 3px solid #764ba2;">
+                                                        <?php esc_html_e('Dimension number fields stay empty until a shopper enters a value. Use %s or {value} in the min/max placeholder text to show the current catalog bound, for example Min (%s).', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                    </p>
                                                     <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
                                                         <!-- Length (cm): -->
                                                         <div class="col-6">
@@ -1263,8 +1266,8 @@ if (!defined('ABSPATH')) {
                                                             <div class="setting-item">
                                                                 <p><strong><?php esc_html_e('Min Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                                 <label>
-                                                                    <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["min"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["min"]) : 'Min'; ?>
-                                                                    <input type="text" name="dapfforwc_style_options[dimensions_placeholder][min]" placeholder="Min" value="<?php echo esc_attr($dimensions_placeholder); ?>">
+                                                                    <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["min"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["min"]) : 'Min (%s)'; ?>
+                                                                    <input type="text" name="dapfforwc_style_options[dimensions_placeholder][min]" placeholder="Min (%s)" value="<?php echo esc_attr($dimensions_placeholder); ?>">
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -1272,8 +1275,8 @@ if (!defined('ABSPATH')) {
                                                             <div class="setting-item">
                                                                 <p><strong><?php esc_html_e('Max Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
                                                                 <label>
-                                                                    <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["max"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["max"]) : 'Max'; ?>
-                                                                    <input type="text" name="dapfforwc_style_options[dimensions_placeholder][max]" placeholder="Max" value="<?php echo esc_attr($dimensions_placeholder); ?>">
+                                                                    <?php $dimensions_placeholder = isset($dapfforwc_form_styles["dimensions_placeholder"]["max"]) ? esc_attr($dapfforwc_form_styles["dimensions_placeholder"]["max"]) : 'Max (%s)'; ?>
+                                                                    <input type="text" name="dapfforwc_style_options[dimensions_placeholder][max]" placeholder="Max (%s)" value="<?php echo esc_attr($dimensions_placeholder); ?>">
                                                                 </label>
                                                             </div>
                                                         </div>
@@ -1675,8 +1678,8 @@ if (!defined('ABSPATH')) {
                 weight: 'Weight (kg):',
             },
             dimensions_placeholder: {
-                min: 'Min',
-                max: 'Max',
+                min: 'Min (%s)',
+                max: 'Max (%s)',
             },
             input_label: {
                 price: {
