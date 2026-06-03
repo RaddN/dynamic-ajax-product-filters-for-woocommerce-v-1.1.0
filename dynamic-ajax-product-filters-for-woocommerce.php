@@ -2762,11 +2762,17 @@ function dapfforwc_admin_scripts($hook)
 
     
 
+    const proOnlySubOptionKeys = new Set(["dynamic-rating", "rating-slider", "input-price-range", "chart-slider", "price-range-button", "price-range-card", "color_circle", "color_value", "color_swatch_label", "image_value", "button_check", "chips", "button_chips", "pill-stepper", "compact-stepper", "boxed-stepper", "stepper", "icon_only", "icon_badge", "icon_chip", "icon_list", "icon_card", "checkbox_dropdown", "modern_dropdown", "chip_dropdown", "dimension_range", "dimensions-compact-range-card", "sku_search_button", "sku_icon_search", "discount_slider", "date-modern-calendar", "date-quick-picks", "date-dual-calendar", "date-stacked-list"]);
+    const subOptionImageBaseUrl = ' . wp_json_encode(plugin_dir_url(__FILE__) . 'assets/images/') . ';
+
     document.querySelectorAll(`.style-options .primary_options input[type="radio"][name^="dapfforwc_style_options"]`).forEach(function (radio) {
         radio.addEventListener("change", function () {
             const selectedType = this.value;
             const attributeName = this.name.match(/\[(.*?)\]/)[1];
             const subOptionsContainer = document.querySelector(`#options-${attributeName} .dynamic-sub-options`);
+            if (!subOptionsContainer) {
+                return;
+            }
    
             document.querySelectorAll(".primary_options label").forEach(label => {
                 label.classList.remove("active");
@@ -2778,7 +2784,7 @@ function dapfforwc_admin_scripts($hook)
             const selectedLabel = radio.closest("label");
             selectedLabel.classList.add("active");
 
-            const subOptions = ' . (isset($dapfforwc_sub_options) && is_array($dapfforwc_sub_options) ? wp_json_encode($dapfforwc_sub_options) : '[]') . '
+            const subOptions = ' . (isset($dapfforwc_sub_options) && is_array($dapfforwc_sub_options) ? wp_json_encode($dapfforwc_sub_options) : '[]') . ';
 
             const currentOptions = subOptions[selectedType] || {};
             subOptionsContainer.innerHTML = "";
@@ -2786,10 +2792,32 @@ function dapfforwc_admin_scripts($hook)
             const fragment = document.createDocumentFragment();
             for (const key in currentOptions) {
                 const label = document.createElement("label");
-                label.className = `${key}` + (key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key === "button_check" || key === "chips" || key === "button_chips" || key === "pill-stepper" || key === "compact-stepper" || key === "boxed-stepper" || key === "stepper" || key === "icon_only" || key === "icon_badge" || key === "icon_chip" || key === "icon_list" || key === "icon_card" || key === "checkbox_dropdown" || key === "modern_dropdown" || key === "chip_dropdown" || key === "dimension_range" || key === "dimensions-compact-range-card" || key === "sku_search_button" || key === "sku_icon_search" || key === "discount_slider" || key === "date-modern-calendar" || key === "date-quick-picks" || key === "date-dual-calendar" || key === "date-stacked-list" ? " pro-only" : "");
-                label.innerHTML = `
-                    <span class="active" style="display:none;"><i class="fa fa-check"></i></span>
-                    <input ${key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key === "button_check" || key === "chips" || key === "button_chips" || key === "pill-stepper" || key === "compact-stepper" || key === "boxed-stepper" || key === "stepper" || key === "icon_only" || key === "icon_badge" || key === "icon_chip" || key === "icon_list" || key === "icon_card" || key === "checkbox_dropdown" || key === "modern_dropdown" || key === "chip_dropdown" || key === "dimension_range" || key === "dimensions-compact-range-card" || key === "sku_search_button" || key === "sku_icon_search" || key === "discount_slider" || key === "date-modern-calendar" || key === "date-quick-picks" || key === "date-dual-calendar" || key === "date-stacked-list" ? "disabled" : ""} type="radio" class="optionselect" name="${key === "dynamic-rating" || key === "rating-slider" || key === "input-price-range" || key === "chart-slider" || key === "price-range-button" || key === "price-range-card" || key === "color_circle" || key === "color_value" || key === "color_swatch_label" || key === "image_value" || key ===
+                const isProOnly = proOnlySubOptionKeys.has(key);
+                label.className = key + (isProOnly ? " pro-only" : "");
+
+                const activeSpan = document.createElement("span");
+                activeSpan.className = "active";
+                activeSpan.style.display = "none";
+                const checkIcon = document.createElement("i");
+                checkIcon.className = "fa fa-check";
+                activeSpan.appendChild(checkIcon);
+
+                const input = document.createElement("input");
+                input.type = "radio";
+                input.className = "optionselect";
+                input.name = (isProOnly ? "_pro" : "dapfforwc_style_options") + "[" + attributeName + "][sub_option]";
+                input.value = key;
+                if (isProOnly) {
+                    input.disabled = true;
+                }
+
+                const image = document.createElement("img");
+                image.src = subOptionImageBaseUrl + key + ".png";
+                image.alt = currentOptions[key] || key;
+
+                label.appendChild(activeSpan);
+                label.appendChild(input);
+                label.appendChild(image);
                 fragment.appendChild(label);
             }
             subOptionsContainer.appendChild(fragment);

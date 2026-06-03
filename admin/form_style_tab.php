@@ -130,7 +130,21 @@ if (!defined('ABSPATH')) {
         'input_label',
     ];
 
-    $dapfforwc_normalize_terms = function ($terms, $include_brand_image = false) {
+    $dapfforwc_normalize_hex_color = function ($value, $fallback = '#000000') {
+        $value = is_string($value) ? trim($value) : '';
+
+        if (preg_match('/^#[0-9a-fA-F]{6}$/', $value)) {
+            return strtolower($value);
+        }
+
+        if (preg_match('/^[0-9a-fA-F]{6}$/', $value)) {
+            return '#' . strtolower($value);
+        }
+
+        return $fallback;
+    };
+
+    $dapfforwc_normalize_terms = function ($terms, $include_brand_image = false) use ($dapfforwc_normalize_hex_color) {
         $normalized = [];
         if (!is_array($terms)) {
             return $normalized;
@@ -152,12 +166,12 @@ if (!defined('ABSPATH')) {
 
             $slug = sanitize_text_field($slug);
             $name = sanitize_text_field($name);
-            $default_color = $slug !== '' ? dapfforwc_color_name_to_hex($slug) : '#000000';
+            $default_color = $dapfforwc_normalize_hex_color($slug !== '' ? dapfforwc_color_name_to_hex($slug) : '', '#000000');
 
             $item = [
                 'slug' => $slug,
                 'name' => $name,
-                'default_color' => $default_color ?: '#000000',
+                'default_color' => $default_color,
             ];
 
             if ($include_brand_image && $slug !== '') {
@@ -841,8 +855,9 @@ if (!defined('ABSPATH')) {
                                         <div class="color-options">
                                             <?php foreach ($dapfforwc_terms as $term) :
                                                 if (isset($term['slug'])) {
-                                                    $dapfforwc_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term["slug"]]
+                                                    $dapfforwc_raw_color_value = $dapfforwc_form_styles[$dapfforwc_attribute_name]['colors'][$term["slug"]]
                                                         ?? dapfforwc_color_name_to_hex(esc_attr($term["slug"])); // Fetch stored color or default
+                                                    $dapfforwc_color_value = $dapfforwc_normalize_hex_color($dapfforwc_raw_color_value, '#000000');
                                                 } else {
                                                     // Handle the case where $term is not an object or does not have 'slug'
                                                     $dapfforwc_color_value = '#000000'; // Default color or some fallback
@@ -2276,6 +2291,20 @@ if (!defined('ABSPATH')) {
             const removeImageLabel = data.removeImageLabel || 'Remove image';
             const uploadSvgIcon = '<svg class="edit-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" /></svg>';
             const removeSvgIcon = '<svg class="trash-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v8h-2V9zm4 0h2v8h-2V9zM7 9h2v8H7V9zm1 12c-1.1 0-2-.9-2-2V8h12v11c0 1.1-.9 2-2 2H8z" /></svg>';
+            const normalizeHexColor = function(value, fallback) {
+                const fallbackValue = /^#[0-9a-fA-F]{6}$/.test(fallback || '') ? fallback : '#000000';
+                const normalized = (value || '').toString().trim();
+
+                if (/^#[0-9a-fA-F]{6}$/.test(normalized)) {
+                    return normalized.toLowerCase();
+                }
+
+                if (/^[0-9a-fA-F]{6}$/.test(normalized)) {
+                    return '#' + normalized.toLowerCase();
+                }
+
+                return fallbackValue;
+            };
 
             terms.forEach(function(term) {
                 const slug = term.slug;
@@ -2283,7 +2312,8 @@ if (!defined('ABSPATH')) {
                 if (!slug) {
                     return;
                 }
-                const colorValue = colors && Object.prototype.hasOwnProperty.call(colors, slug) ? colors[slug] : (term.default_color || '#000000');
+                const rawColorValue = colors && Object.prototype.hasOwnProperty.call(colors, slug) ? colors[slug] : (term.default_color || '#000000');
+                const colorValue = normalizeHexColor(rawColorValue, '#000000');
                 const storedImageValue = images && Object.prototype.hasOwnProperty.call(images, slug) ? images[slug] : '';
                 const defaultImageValue = term.default_image || '';
 
