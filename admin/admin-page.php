@@ -144,26 +144,44 @@ function dapfforwc_render_plugincy_plugins_page()
         echo '<div class="plugin-card-top">';
         echo '<div class="name column-name">';
         if ($icon) {
-            echo '<img class="plugin-icon" src="' . $icon . '" alt="" />';
+            echo '<img class="plugin-icon" src="' . esc_url($icon) . '" alt="" />';
         }
         if ($details_url) {
+            /* translators: %s: Plugin name. */
             echo '<h3><a class="thickbox open-plugin-details-modal" href="' . esc_url($details_url) . '" aria-label="' . esc_attr(sprintf(__('More details about %s', 'dynamic-ajax-product-filters-for-woocommerce'), $name)) . '">' . esc_html($name) . '</a></h3>';
         } else {
             echo '<h3>' . esc_html($name) . '</h3>';
         }
         if (!empty($author)) {
+            /* translators: %s: Plugin author. */
             echo '<p class="author">' . sprintf(esc_html__('By %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_kses_post($author)) . '</p>';
         }
         echo '</div>';
-        echo '<div class="action-links"><ul class="plugin-action-buttons"><li>' . $action_html . '</li></ul></div>';
+        echo '<div class="action-links"><ul class="plugin-action-buttons"><li>' . wp_kses(
+            $action_html,
+            [
+                'a' => [
+                    'class' => true,
+                    'href' => true,
+                    'data-slug' => true,
+                    'data-name' => true,
+                ],
+                'span' => [
+                    'class' => true,
+                    'aria-disabled' => true,
+                ],
+            ]
+        ) . '</li></ul></div>';
         echo '<div class="desc column-description"><p>' . wp_kses_post($short_description) . '</p></div>';
         echo '</div>';
 
         echo '<div class="plugin-card-bottom">';
         echo '<div class="vers column-rating">';
+        /* translators: %s: Plugin version. */
         echo '<span>' . sprintf(esc_html__('Version %s', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($version)) . '</span>';
         if ($active_installs !== null) {
             $installs = number_format_i18n((int) $active_installs);
+            /* translators: %s: Number of active installs. */
             echo '<span style="margin-left:10px;">' . sprintf(esc_html__('%s+ active installs', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($installs)) . '</span>';
         }
         echo '</div>';
@@ -840,6 +858,7 @@ function dapfforwc_admin_page_content()
                                                 <?php echo esc_html($dapfforwc_cache_status_text); ?>
                                                 <?php
                                                 if (!empty($dapfforwc_cache_status['updated_at'])) {
+                                                    /* translators: %s: Date and time the cache status was last updated. */
                                                     echo ' ' . esc_html(sprintf(__('Last updated: %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) $dapfforwc_cache_status['updated_at'])));
                                                 }
                                                 ?>

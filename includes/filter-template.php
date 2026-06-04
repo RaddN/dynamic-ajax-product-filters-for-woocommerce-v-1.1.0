@@ -550,6 +550,7 @@ function dapfforwc_get_single_filter_shortcode_builder_schema()
             $attribute_options[$attribute_name] = array(
                 'label' => $attribute_label,
                 'description' => sprintf(
+                    /* translators: %s: Product attribute slug. */
                     esc_html__('Attribute slug: %s', 'dynamic-ajax-product-filters-for-woocommerce'),
                     $attribute_name
                 ),
@@ -4017,6 +4018,7 @@ function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
         $attachment_ids
     );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized attachment ID placeholders.
     $results = $wpdb->get_results($query, ARRAY_A);
     if (empty($results)) {
         return [];
@@ -4151,6 +4153,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
 
     if (!empty($taxonomy_conditions)) {
         $taxonomy_where = '(' . implode(' OR ', $taxonomy_conditions) . ')';
+        // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter -- $taxonomy_where is built from prepared taxonomy placeholders and fixed internal conditions.
         $taxonomy_results = $wpdb->get_results(
             "
             SELECT t.term_id, t.name, t.slug, tt.taxonomy, tt.parent,
@@ -4171,6 +4174,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
             ",
             ARRAY_A
         );
+        // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
     }
 
     foreach ((array) $taxonomy_results as $row) {
@@ -4340,6 +4344,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
         $limit = max(0, min(10000, $limit));
 
         if ($limit > 0) {
+            // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter -- $exclude_sql is prepared from sanitized custom field keys above.
             $custom_fields_query = $wpdb->prepare(
                 "
                 SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
@@ -4347,7 +4352,7 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
                 INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
                 WHERE p.post_type = 'product'
                   AND p.post_status = 'publish'
-                  AND pm.meta_key NOT LIKE '\\_%'
+                  AND pm.meta_key NOT LIKE %s
                   AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
                   AND pm.meta_value != ''
                   AND pm.meta_value IS NOT NULL
@@ -4356,9 +4361,12 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
                 ORDER BY pm.meta_key, product_count DESC
                 LIMIT %d
                 ",
+                $wpdb->esc_like('_') . '%',
                 $limit
             );
+            // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
 
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized custom field exclusions and limit.
             $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
             foreach ((array) $custom_fields_results as $row) {
                 $meta_key = (string) $row['meta_key'];
@@ -4678,6 +4686,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
         ORDER BY CAST(tm.meta_value AS UNSIGNED), t.name
     ", 'product_cat', 'product_tag', 'product_brand');
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with fixed taxonomy placeholders.
     $results = $wpdb->get_results($query, ARRAY_A);
 
     if (!empty($results)) {
@@ -4749,6 +4758,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
             LEFT JOIN {$wpdb->prefix}termmeta AS tm ON t.term_id = tm.term_id AND tm.meta_key = 'order'
             WHERE tt.taxonomy = 'product_cat'
         ";
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static taxonomy hierarchy query uses no external input.
         $category_hierarchy_results = $wpdb->get_results($category_hierarchy_query, ARRAY_A);
 
         $category_hierarchy = [];
@@ -4855,6 +4865,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
         ORDER BY u.display_name
     ";
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static product author query uses no external input.
     $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
 
     if (!empty($authors_results)) {
@@ -4958,6 +4969,7 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
         AND p.post_status = 'publish'
     ";
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static stock/sale query uses no external input.
     $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
 
     global $dapfforwc_styleoptions;
@@ -4998,19 +5010,23 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
     }
 
     // Query for custom fields (postmeta)
-    $custom_fields_query = "
+    $custom_fields_query = $wpdb->prepare(
+        "
         SELECT pm.meta_key, pm.meta_value, pm.post_id
         FROM {$wpdb->prefix}postmeta pm
         INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
         WHERE p.post_type = 'product' 
         AND p.post_status = 'publish'
-        AND pm.meta_key NOT LIKE '\\_%'  -- Exclude WordPress internal meta keys
+        AND pm.meta_key NOT LIKE %s  -- Exclude WordPress internal meta keys
         AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')  -- Exclude WooCommerce internal fields
         AND pm.meta_value != ''
         AND pm.meta_value IS NOT NULL
         ORDER BY pm.meta_key, pm.meta_value
-    ";
+    ",
+        $wpdb->esc_like('_') . '%'
+    );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with the internal meta-key LIKE pattern.
     $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
 
     if (!empty($custom_fields_results)) {
@@ -5158,6 +5174,7 @@ function dapfforwc_build_woocommerce_attributes_with_terms_batched()
             $product_ids
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
         $term_results = $wpdb->get_results($term_query, ARRAY_A);
 
         foreach ($term_results as $row) {
@@ -5229,6 +5246,7 @@ function dapfforwc_build_woocommerce_attributes_with_terms_batched()
             $product_ids
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
         $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
 
         foreach ($authors_results as $row) {
@@ -5324,6 +5342,7 @@ function dapfforwc_build_woocommerce_attributes_with_terms_batched()
             $product_ids
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
         $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
 
         foreach ($stock_sale_results as $row) {
@@ -5351,15 +5370,16 @@ function dapfforwc_build_woocommerce_attributes_with_terms_batched()
             SELECT pm.meta_key, pm.meta_value, pm.post_id
             FROM {$wpdb->prefix}postmeta pm
             WHERE pm.post_id IN ($placeholders)
-              AND pm.meta_key NOT LIKE '\\_%'
+              AND pm.meta_key NOT LIKE %s
               AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
               AND pm.meta_value != ''
               AND pm.meta_value IS NOT NULL
             ORDER BY pm.meta_key, pm.meta_value
             ",
-            $product_ids
+            array_merge($product_ids, [$wpdb->esc_like('_') . '%'])
         );
 
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product IDs and internal meta-key LIKE pattern.
         $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
 
         foreach ($custom_fields_results as $row) {
@@ -5633,6 +5653,7 @@ function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
         $product_ids
     );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $term_results = $wpdb->get_results($term_query, ARRAY_A);
 
     foreach ($term_results as $row) {
@@ -5704,6 +5725,7 @@ function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
         $product_ids
     );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $authors_results = $wpdb->get_results($authors_query, ARRAY_A);
 
     foreach ($authors_results as $row) {
@@ -5799,6 +5821,7 @@ function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
         $product_ids
     );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $stock_sale_results = $wpdb->get_results($stock_sale_query, ARRAY_A);
 
     foreach ($stock_sale_results as $row) {
@@ -5826,15 +5849,16 @@ function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
         SELECT pm.meta_key, pm.meta_value, pm.post_id
         FROM {$wpdb->prefix}postmeta pm
         WHERE pm.post_id IN ($placeholders)
-          AND pm.meta_key NOT LIKE '\\_%'
+          AND pm.meta_key NOT LIKE %s
           AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
           AND pm.meta_value != ''
           AND pm.meta_value IS NOT NULL
         ORDER BY pm.meta_key, pm.meta_value
         ",
-        $product_ids
+        array_merge($product_ids, [$wpdb->esc_like('_') . '%'])
     );
 
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product IDs and internal meta-key LIKE pattern.
     $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
 
     foreach ($custom_fields_results as $row) {
@@ -6169,63 +6193,115 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
 {
     global $wpdb;
 
-    $where_extra = '';
-    $order_limit = '';
-
     if ((int) $limit > 0) {
-        $where_extra = $wpdb->prepare(' AND p.ID > %d', (int) $last_id);
-        $order_limit = $wpdb->prepare(' ORDER BY p.ID ASC LIMIT %d', (int) $limit);
+        $query = $wpdb->prepare(
+            "
+            SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
+                   u.display_name AS author_name,
+                   MAX(CASE WHEN pm.meta_key = '_price' THEN pm.meta_value END) AS price,
+                   MAX(CASE WHEN pm.meta_key = '_sale_price' THEN pm.meta_value END) AS sale_price,
+                   MAX(CASE WHEN pm.meta_key = '_regular_price' THEN pm.meta_value END) AS regular_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_price' THEN pm.meta_value END) AS min_variation_price,
+                   MAX(CASE WHEN pm.meta_key = '_max_variation_price' THEN pm.meta_value END) AS max_variation_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
+                   MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
+                   MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
+                   MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
+                   MAX(CASE WHEN pm.meta_key = '_length' THEN pm.meta_value END) AS length,
+                   MAX(CASE WHEN pm.meta_key = '_width' THEN pm.meta_value END) AS width,
+                   MAX(CASE WHEN pm.meta_key = '_height' THEN pm.meta_value END) AS height,
+                   MAX(CASE WHEN pm.meta_key = '_weight' THEN pm.meta_value END) AS weight,
+                   MAX(CASE WHEN pm.meta_key = '_thumbnail_id' THEN pm.meta_value END) AS thumbnail_id,
+                   MAX(CASE WHEN ptt.taxonomy = 'product_type' THEN pt.slug END) AS product_type
+            FROM {$wpdb->prefix}posts p
+            LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+                AND pm.meta_key IN (
+                    '_price',
+                    '_sale_price',
+                    '_regular_price',
+                    '_min_variation_price',
+                    '_max_variation_price',
+                    '_min_variation_regular_price',
+                    '_min_variation_sale_price',
+                    '_wc_average_rating',
+                    '_sku',
+                    '_stock_status',
+                    '_length',
+                    '_width',
+                    '_height',
+                    '_weight',
+                    '_thumbnail_id'
+                )
+            LEFT JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+            LEFT JOIN {$wpdb->prefix}term_relationships ptr ON ptr.object_id = p.ID
+            LEFT JOIN {$wpdb->prefix}term_taxonomy ptt ON ptr.term_taxonomy_id = ptt.term_taxonomy_id AND ptt.taxonomy = 'product_type'
+            LEFT JOIN {$wpdb->prefix}terms pt ON pt.term_id = ptt.term_id
+            WHERE p.post_type = %s
+            AND p.post_status = %s
+            AND p.ID > %d
+            GROUP BY p.ID
+            ORDER BY p.ID ASC LIMIT %d
+            ",
+            'product',
+            'publish',
+            (int) $last_id,
+            (int) $limit
+        );
+    } else {
+        $query = $wpdb->prepare(
+            "
+            SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
+                   u.display_name AS author_name,
+                   MAX(CASE WHEN pm.meta_key = '_price' THEN pm.meta_value END) AS price,
+                   MAX(CASE WHEN pm.meta_key = '_sale_price' THEN pm.meta_value END) AS sale_price,
+                   MAX(CASE WHEN pm.meta_key = '_regular_price' THEN pm.meta_value END) AS regular_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_price' THEN pm.meta_value END) AS min_variation_price,
+                   MAX(CASE WHEN pm.meta_key = '_max_variation_price' THEN pm.meta_value END) AS max_variation_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
+                   MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
+                   MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
+                   MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
+                   MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
+                   MAX(CASE WHEN pm.meta_key = '_length' THEN pm.meta_value END) AS length,
+                   MAX(CASE WHEN pm.meta_key = '_width' THEN pm.meta_value END) AS width,
+                   MAX(CASE WHEN pm.meta_key = '_height' THEN pm.meta_value END) AS height,
+                   MAX(CASE WHEN pm.meta_key = '_weight' THEN pm.meta_value END) AS weight,
+                   MAX(CASE WHEN pm.meta_key = '_thumbnail_id' THEN pm.meta_value END) AS thumbnail_id,
+                   MAX(CASE WHEN ptt.taxonomy = 'product_type' THEN pt.slug END) AS product_type
+            FROM {$wpdb->prefix}posts p
+            LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+                AND pm.meta_key IN (
+                    '_price',
+                    '_sale_price',
+                    '_regular_price',
+                    '_min_variation_price',
+                    '_max_variation_price',
+                    '_min_variation_regular_price',
+                    '_min_variation_sale_price',
+                    '_wc_average_rating',
+                    '_sku',
+                    '_stock_status',
+                    '_length',
+                    '_width',
+                    '_height',
+                    '_weight',
+                    '_thumbnail_id'
+                )
+            LEFT JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
+            LEFT JOIN {$wpdb->prefix}term_relationships ptr ON ptr.object_id = p.ID
+            LEFT JOIN {$wpdb->prefix}term_taxonomy ptt ON ptr.term_taxonomy_id = ptt.term_taxonomy_id AND ptt.taxonomy = 'product_type'
+            LEFT JOIN {$wpdb->prefix}terms pt ON pt.term_id = ptt.term_id
+            WHERE p.post_type = %s
+            AND p.post_status = %s
+            GROUP BY p.ID
+            ",
+            'product',
+            'publish'
+        );
     }
 
-    $query = "
-        SELECT p.ID, p.post_title, p.menu_order, p.post_date AS publish_date, p.post_author,
-               u.display_name AS author_name,
-               MAX(CASE WHEN pm.meta_key = '_price' THEN pm.meta_value END) AS price,
-               MAX(CASE WHEN pm.meta_key = '_sale_price' THEN pm.meta_value END) AS sale_price,
-               MAX(CASE WHEN pm.meta_key = '_regular_price' THEN pm.meta_value END) AS regular_price,
-               MAX(CASE WHEN pm.meta_key = '_min_variation_price' THEN pm.meta_value END) AS min_variation_price,
-               MAX(CASE WHEN pm.meta_key = '_max_variation_price' THEN pm.meta_value END) AS max_variation_price,
-               MAX(CASE WHEN pm.meta_key = '_min_variation_regular_price' THEN pm.meta_value END) AS min_variation_regular_price,
-               MAX(CASE WHEN pm.meta_key = '_min_variation_sale_price' THEN pm.meta_value END) AS min_variation_sale_price,
-               MAX(CASE WHEN pm.meta_key = '_wc_average_rating' THEN pm.meta_value END) AS average_rating,
-               MAX(CASE WHEN pm.meta_key = '_sku' THEN pm.meta_value END) AS sku,
-               MAX(CASE WHEN pm.meta_key = '_stock_status' THEN pm.meta_value END) AS stock_status,
-               MAX(CASE WHEN pm.meta_key = '_length' THEN pm.meta_value END) AS length,
-               MAX(CASE WHEN pm.meta_key = '_width' THEN pm.meta_value END) AS width,
-               MAX(CASE WHEN pm.meta_key = '_height' THEN pm.meta_value END) AS height,
-               MAX(CASE WHEN pm.meta_key = '_weight' THEN pm.meta_value END) AS weight,
-               MAX(CASE WHEN pm.meta_key = '_thumbnail_id' THEN pm.meta_value END) AS thumbnail_id,
-               MAX(CASE WHEN ptt.taxonomy = 'product_type' THEN pt.slug END) AS product_type
-        FROM {$wpdb->prefix}posts p
-        LEFT JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
-            AND pm.meta_key IN (
-                '_price',
-                '_sale_price',
-                '_regular_price',
-                '_min_variation_price',
-                '_max_variation_price',
-                '_min_variation_regular_price',
-                '_min_variation_sale_price',
-                '_wc_average_rating',
-                '_sku',
-                '_stock_status',
-                '_length',
-                '_width',
-                '_height',
-                '_weight',
-                '_thumbnail_id'
-            )
-        LEFT JOIN {$wpdb->prefix}users u ON p.post_author = u.ID
-        LEFT JOIN {$wpdb->prefix}term_relationships ptr ON ptr.object_id = p.ID
-        LEFT JOIN {$wpdb->prefix}term_taxonomy ptt ON ptr.term_taxonomy_id = ptt.term_taxonomy_id AND ptt.taxonomy = 'product_type'
-        LEFT JOIN {$wpdb->prefix}terms pt ON pt.term_id = ptt.term_id
-        WHERE p.post_type = 'product'
-        AND p.post_status = 'publish'
-        {$where_extra}
-        GROUP BY p.ID
-        {$order_limit}
-    ";
-
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above in both pagination branches.
     $results = $wpdb->get_results($query, ARRAY_A);
     $products = [];
 
@@ -6275,6 +6351,7 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
         ",
         $product_ids
     );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $variation_results = $wpdb->get_results($variation_query, ARRAY_A);
     foreach ($variation_results as $variation_row) {
         $variation_lookup[intval($variation_row['product_id'])] = $variation_row;
@@ -6303,6 +6380,7 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
         ",
         $product_ids
     );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $variation_dimension_results = $wpdb->get_results($variation_dimension_query, ARRAY_A);
     foreach ($variation_dimension_results as $dimension_row) {
         $product_id = intval($dimension_row['product_id']);
@@ -6343,6 +6421,7 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
         ",
         $product_ids
     );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product ID placeholders.
     $taxonomy_results = $wpdb->get_results($taxonomy_query, ARRAY_A);
     foreach ($taxonomy_results as $taxonomy_row) {
         $product_id = intval($taxonomy_row['product_id']);
@@ -6371,14 +6450,15 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
         SELECT post_id, meta_key, meta_value
         FROM {$wpdb->prefix}postmeta
         WHERE post_id IN ($placeholders)
-          AND meta_key NOT LIKE '\\_%'
+          AND meta_key NOT LIKE %s
           AND meta_key NOT IN ('_edit_lock', '_edit_last')
           AND meta_value IS NOT NULL
           AND meta_value != ''
         ORDER BY post_id
         ",
-        $product_ids
+        array_merge($product_ids, [$wpdb->esc_like('_') . '%'])
     );
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized product IDs and internal meta-key LIKE pattern.
     $custom_meta_results = $wpdb->get_results($custom_meta_query, ARRAY_A);
     foreach ($custom_meta_results as $meta_row) {
         $product_id = intval($meta_row['post_id']);

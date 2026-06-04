@@ -1065,12 +1065,12 @@ if (!defined('ABSPATH')) {
                                                 <div class="setting-item widget-title-icon-setting pro-only" data-attr-exclude="reset_btn">
                                                     <div class="dapfforwc-widget-title-icon-header">
                                                         <div class="dapfforwc-widget-title-icon-heading">
-                                                            <p><strong><?php esc_html_e('Widget Title Icon:', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></strong></p>
-                                                            <span><?php esc_html_e('Display a small icon before this filter title.', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></span>
+                                                            <p><strong><?php esc_html_e('Widget Title Icon:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
+                                                            <span><?php esc_html_e('Display a small icon before this filter title.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
                                                         </div>
                                                         <label class="dapfforwc-widget-title-icon-toggle">
                                                             <input disabled type="checkbox" class="enable-widget-title-icon-checkbox" name="dapfforwc_style_options[enable_widget_title_icon][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="yes">
-                                                            <span><?php esc_html_e('Enable', 'dynamic-ajax-product-filters-for-woocommerce-pro'); ?></span>
+                                                            <span><?php esc_html_e('Enable', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -1217,7 +1217,14 @@ if (!defined('ABSPATH')) {
 
                                                 <div data-attr-only="dimensions">
                                                     <p class="description" style="margin: 12px 0 0; padding: 10px 12px; background: #f8fafc; border-left: 3px solid #764ba2;">
-                                                        <?php esc_html_e('Dimension number fields stay empty until a shopper enters a value. Use %s or {value} in the min/max placeholder text to show the current catalog bound, for example Min (%s).', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
+                                                        <?php
+                                                        /* translators: 1: placeholder token, 2: example placeholder token. */
+                                                        printf(
+                                                            esc_html__('Dimension number fields stay empty until a shopper enters a value. Use %1$s or {value} in the min/max placeholder text to show the current catalog bound, for example Min (%2$s).', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                                            esc_html('%s'),
+                                                            esc_html('%s')
+                                                        );
+                                                        ?>
                                                     </p>
                                                     <div class="row" style="padding-top: 16px; gap:16px; flex-wrap: wrap;">
                                                         <!-- Length (cm): -->

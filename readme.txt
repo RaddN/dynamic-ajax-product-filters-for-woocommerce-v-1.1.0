@@ -2,8 +2,8 @@
 Plugin Name: Dynamic AJAX Product Filters for WooCommerce
 Contributors: plugincy
 Tags: product filters, ajax product filters, woocommerce ajax product filters, woocommerce filters, advanced product filters, woocommerce product filter, woocommerce filter, product filter, ajax filter, attribute filter
-Requires at least: 4.7
-Tested up to: 6.9
+Requires at least: 5.9
+Tested up to: 7.0
 Stable tag: 1.6.1.5
 Requires PHP: 7.0
 License: GPLv2 or later
@@ -90,7 +90,7 @@ With features like dynamic sorting, Shortcode integration, and pagination, the A
 
 = Recommended Requirements =
 
-* WordPress 5.0 or higher
+* WordPress 5.9 or higher
 * WooCommerce 3.6.0 or higher
 * PHP 7.0 or higher
 
@@ -129,42 +129,6 @@ Yes, you can use the following Shortcode to place filters anywhere on your site.
 * Fix loading effect issue
 * Make more secure
 * Fix vulnerability
-
-= 1.0.4 =
-* Improved efficiency and performance.
-* Automatic price slider updates.
-* Reduced database calls.
-* Removed automatic page detection.
-* Now compatible with custom shortcodes.
-* Updated custom sorting functionality.
-
-= 1.6.1.5 =
-* Block Editor block created
-* Widget block created
-* Error detector added
-
-= 1.0.2 =
-* New form style widget added (Button Check, Color Circle, Color With Value)
-* More Effective on sidebar & archive pages
-* Elementor widget with advanced styling added
-* Wordpress widget added for using in sidebar & widgets
-* Search by text added
-* Initially Collaps/minize added
-* Dynamic Min & Max price for price slider added
-
-= 1.0.1 =
-* Added Style tab
-* Added Advanced Settings tab
-* Added Import & Export functionality
-* Added option to use or not use the word "filters" in the URL
-* Reduced JavaScript and CSS usage
-* Added filter by price and rating options
-
-= 1.6.1.5 =
-* Initial release.
-* Added AJAX filtering by category, tag, and attribute.
-* Enabled seamless integration with query strings and custom permalinks.
-* Autodetected pages where shortcode is used
 
 == Additional Information: ==
 

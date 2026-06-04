@@ -4430,10 +4430,12 @@ add_action('shutdown', function () {
         $buffer = ob_get_clean();
 
         if (ob_get_level() === $start_level) {
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional cleaned WooCommerce/theme HTML fragment response.
             echo gm_pf_cleanup_fragment_output($buffer);
             break;
         }
 
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intermediate output buffer content is preserved until the final fragment cleanup pass.
         echo $buffer;
     }
 

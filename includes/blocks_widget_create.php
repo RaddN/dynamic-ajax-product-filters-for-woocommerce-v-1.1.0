@@ -666,14 +666,14 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $this->add_control(
                 'redirect_shop',
                 [
-                    'label'   => esc_html__('Redirect When Products Missing (Pro)', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
+                    'label'   => esc_html__('Redirect When Products Missing (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'type'    => \Elementor\Controls_Manager::SELECT,
                     'options' => [
-                        'no'  => esc_html__('No (Pro)', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
-                        'yes' => esc_html__('Yes (Pro)', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
+                        'no'  => esc_html__('No (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                        'yes' => esc_html__('Yes (Pro)', 'dynamic-ajax-product-filters-for-woocommerce'),
                     ],
                     'default' => 'no',
-                    'description' => esc_html__('Redirect filter actions to the shop page when this widget is used on a page without products.', 'dynamic-ajax-product-filters-for-woocommerce-pro'),
+                    'description' => esc_html__('Redirect filter actions to the shop page when this widget is used on a page without products.', 'dynamic-ajax-product-filters-for-woocommerce'),
                     'condition' => [
                         'filter_type' => 'all',
                     ],

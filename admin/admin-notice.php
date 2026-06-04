@@ -633,7 +633,7 @@ p.dapfforwc-ny-sub {
                 data: {
                     action: "dapfforwc_dismiss_ny_notice",
                     hours: hours,
-                    nonce: "' . wp_create_nonce('dapfforwc_dismiss_ny_notice') . '"
+                    nonce: "' . esc_js(wp_create_nonce('dapfforwc_dismiss_ny_notice')) . '"
                 }
             });
         });
