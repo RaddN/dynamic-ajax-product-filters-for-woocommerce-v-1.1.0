@@ -4329,6 +4329,7 @@ register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
  * Goal: Emit only the needed HTML markup, nothing else.
  */
 
+// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Fragment mode is read-only output trimming and requires a valid gm-product-filter-nonce before the fragment flag is honored.
 if (!function_exists('dapfforwc_is_fragment_request')) {
     function dapfforwc_is_fragment_request(): bool
     {
@@ -4357,6 +4358,7 @@ if (!function_exists('dapfforwc_is_fragment_request')) {
         return $cached_result = ($is_ajax_header || wp_doing_ajax());
     }
 }
+// phpcs:enable WordPress.Security.NonceVerification.Recommended
 
 /** ------------------------------------------------------------------------
  * HEAD/SCRIPT/CSS suppression (works even if theme hard-codes tags)
@@ -4536,30 +4538,34 @@ if (!function_exists('dapfforwc_cleanup_fragment_output')) {
     }
 }
 
-add_action('shutdown', function () {
-    if (!dapfforwc_is_fragment_request()) return;
+if (!function_exists('dapfforwc_fragment_shutdown_cleanup')) {
+    function dapfforwc_fragment_shutdown_cleanup()
+    {
+        if (!dapfforwc_is_fragment_request()) return;
 
-    $start_level = isset($GLOBALS['dapfforwc_fragment_buffer_level']) ? intval($GLOBALS['dapfforwc_fragment_buffer_level']) : null;
-    if ($start_level === null) {
-        return;
-    }
-
-    while (ob_get_level() > $start_level) {
-        $buffer = ob_get_clean();
-
-        if (ob_get_level() === $start_level) {
-            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional cleaned WooCommerce/theme HTML fragment response.
-            echo dapfforwc_cleanup_fragment_output($buffer);
-            break;
+        $start_level = isset($GLOBALS['dapfforwc_fragment_buffer_level']) ? intval($GLOBALS['dapfforwc_fragment_buffer_level']) : null;
+        if ($start_level === null) {
+            return;
         }
 
-        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intermediate output buffer content is preserved until the final fragment cleanup pass.
-        echo $buffer;
-    }
+        while (ob_get_level() > $start_level) {
+            $buffer = ob_get_clean();
 
-    unset($GLOBALS['dapfforwc_fragment_buffer_level']);
-    unset($GLOBALS['dapfforwc_fragment_buffer_started']);
-}, PHP_INT_MAX);
+            if (ob_get_level() === $start_level) {
+                // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional cleaned WooCommerce/theme HTML fragment response.
+                echo dapfforwc_cleanup_fragment_output($buffer);
+                break;
+            }
+
+            // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intermediate output buffer content is preserved until the final fragment cleanup pass.
+            echo $buffer;
+        }
+
+        unset($GLOBALS['dapfforwc_fragment_buffer_level']);
+        unset($GLOBALS['dapfforwc_fragment_buffer_started']);
+    }
+}
+add_action('shutdown', 'dapfforwc_fragment_shutdown_cleanup', PHP_INT_MAX);
 
 /** ------------------------------------------------------------------------
  * WooCommerce & Query trimming
@@ -4594,7 +4600,15 @@ add_action('send_headers', function () {
 
 
 add_filter('redirect_canonical', function ($redirect_url, $requested_url) {
-    $paged = isset($_GET['paged']) ? absint(wp_unslash($_GET['paged'])) : 0;
+    $requested_query = wp_parse_url($requested_url, PHP_URL_QUERY);
+    $requested_args = array();
+
+    if (is_string($requested_query) && '' !== $requested_query) {
+        parse_str($requested_query, $requested_args);
+    }
+
+    $paged = isset($requested_args['paged']) ? absint($requested_args['paged']) : 0;
+
     if ($paged > 0) {
         // Prevent redirect for paged URLs like /products/?paged=2
         return false;

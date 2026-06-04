@@ -375,6 +375,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         return $method === 'GET';
     }
 
+    // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Public storefront filter query vars are read-only and intentionally support shareable URLs. Non-GET requests without the AJAX nonce are rejected before this parser is used.
     /**
      * Check if the request contains any filter-related query vars.
      */
@@ -2076,6 +2077,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         return $this->filter_params = $params;
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Recommended
 
     /**
      * Normalize permalinks-based query params to the standard filter keys
