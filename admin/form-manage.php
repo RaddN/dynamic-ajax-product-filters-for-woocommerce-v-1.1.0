@@ -59,8 +59,8 @@ function dapfforwc_render_form_manage_popup_assets()
     }
 
     $assets_rendered = true;
+    ob_start();
     ?>
-    <style>
         .dapfforwc-form-manage-setting {
             display: inline-flex;
             align-items: center;
@@ -487,8 +487,11 @@ function dapfforwc_render_form_manage_popup_assets()
                 padding: 20px;
             }
         }
-    </style>
-    <script>
+    <?php
+    dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style');
+
+    ob_start();
+    ?>
         document.addEventListener('DOMContentLoaded', function () {
             const popupClass = '.dapfforwc-form-manage-popup';
             let activePopup = null;
@@ -567,8 +570,8 @@ function dapfforwc_render_form_manage_popup_assets()
                 }
             });
         });
-    </script>
     <?php
+    dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script');
 }
 
 function dapfforwc_render_form_manage_popup($popup_id, $button_label, $title, $description, $render_callback, $footer_callback = null)

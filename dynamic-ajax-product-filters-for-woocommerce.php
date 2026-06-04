@@ -60,15 +60,11 @@ if (!defined('DAPFFORWC_PRODUCT_DETAILS_CACHE_BUILD_DATA_OPTION')) {
 }
 
 // Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
-if (!defined('GM_PF_PLACEHOLDER')) {
-    define('GM_PF_PLACEHOLDER', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
+if (!defined('DAPFFORWC_FRAGMENT_PLACEHOLDER')) {
+    define('DAPFFORWC_FRAGMENT_PLACEHOLDER', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
 }
 
-// Safe placeholder used for fragment-mode lazy images (keeps layout, no network request)
-if (!defined('GM_PF_PLACEHOLDER')) {
-    define('GM_PF_PLACEHOLDER', 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==');
-}
-
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Existing option cache global is used across legacy admin template code.
 // Global Variables
 global $dapfforwc_allowed_tags, $template_options, $dapfforwc_options, $dapfforwc_seo_permalinks_options, $dapfforwc_advance_settings, $dapfforwc_styleoptions, $dapfforwc_use_url_filter, $dapfforwc_auto_detect_pages_filters, $dapfforwc_slug, $dapfforwc_sub_options, $dapfforwc_front_page_slug;
 
@@ -80,6 +76,7 @@ $template_options = get_option('dapfforwc_template_options') ?: [
     'border_color' => '#eeeeee',
     'text_color' => '#000000',
 ];
+// phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
 $dapfforwc_options = get_option('dapfforwc_options') ?: [
     'show_categories' => "on",
@@ -954,6 +951,7 @@ $dapfforwc_allowed_tags = array(
         'title' => array(),
         'class' => array(),
         'target' => array(), // Allow target attribute for links
+        'rel' => array(),
         'style' => array(),
         'id' => array(),
     ),
@@ -2430,6 +2428,117 @@ function dapfforwc_missing_woocommerce_notice()
     echo '<div class="notice notice-error"><p><strong>' . esc_html__('Filter Plugin', 'dynamic-ajax-product-filters-for-woocommerce') . '</strong> ' . esc_html__('requires WooCommerce to be installed and activated.', 'dynamic-ajax-product-filters-for-woocommerce') . '</p></div>';
 }
 
+function dapfforwc_get_asset_version()
+{
+    return defined('DAPFFORWC_VERSION') ? DAPFFORWC_VERSION : false;
+}
+
+function dapfforwc_ensure_style_handle($handle)
+{
+    if (!wp_style_is($handle, 'registered') && !wp_style_is($handle, 'enqueued') && !wp_style_is($handle, 'done')) {
+        wp_register_style($handle, false, [], dapfforwc_get_asset_version());
+    }
+
+    if (!wp_style_is($handle, 'enqueued') && !wp_style_is($handle, 'done')) {
+        wp_enqueue_style($handle);
+    }
+}
+
+function dapfforwc_ensure_script_handle($handle)
+{
+    if (!wp_script_is($handle, 'registered') && !wp_script_is($handle, 'enqueued') && !wp_script_is($handle, 'done')) {
+        wp_register_script($handle, false, ['jquery'], dapfforwc_get_asset_version(), true);
+    }
+
+    if (!wp_script_is($handle, 'enqueued') && !wp_script_is($handle, 'done')) {
+        wp_enqueue_script($handle);
+    }
+}
+
+function dapfforwc_print_late_inline_style($handle)
+{
+    $footer_hook = is_admin() ? 'admin_footer' : 'wp_footer';
+
+    if (did_action($footer_hook)) {
+        wp_print_styles([$handle]);
+        return;
+    }
+
+    add_action(
+        $footer_hook,
+        static function () use ($handle) {
+            wp_print_styles([$handle]);
+        },
+        9999
+    );
+}
+
+function dapfforwc_print_late_inline_script($handle)
+{
+    $footer_hook = is_admin() ? 'admin_footer' : 'wp_footer';
+
+    if (did_action($footer_hook)) {
+        wp_print_scripts([$handle]);
+        return;
+    }
+
+    add_action(
+        $footer_hook,
+        static function () use ($handle) {
+            wp_print_scripts([$handle]);
+        },
+        9999
+    );
+}
+
+function dapfforwc_add_inline_style($css, $handle = '')
+{
+    $css = trim((string) $css);
+    if ($css === '') {
+        return;
+    }
+
+    $handle = $handle !== '' ? $handle : (is_admin() ? 'dapfforwc-admin-menu-style' : 'filter-style');
+    dapfforwc_ensure_style_handle($handle);
+
+    if (wp_style_is($handle, 'done')) {
+        $late_handle = $handle . '-inline-' . md5($css);
+        wp_register_style($late_handle, false, [], dapfforwc_get_asset_version());
+        wp_enqueue_style($late_handle);
+        wp_add_inline_style($late_handle, $css);
+        dapfforwc_print_late_inline_style($late_handle);
+        return;
+    }
+
+    wp_add_inline_style($handle, $css);
+}
+
+function dapfforwc_add_inline_script($script, $handle = '', $position = 'after')
+{
+    $script = trim((string) $script);
+    if ($script === '') {
+        return;
+    }
+
+    if (strpos($script, '"use strict"') === false && strpos($script, "'use strict'") === false) {
+        $script = '"use strict";' . "\n" . $script;
+    }
+
+    $handle = $handle !== '' ? $handle : (is_admin() ? 'dapfforwc-admin-menu-script' : 'urlfilter-ajax');
+    dapfforwc_ensure_script_handle($handle);
+
+    if (wp_script_is($handle, 'done')) {
+        $late_handle = $handle . '-inline-' . md5($script);
+        wp_register_script($late_handle, false, ['jquery'], dapfforwc_get_asset_version(), true);
+        wp_enqueue_script($late_handle);
+        wp_add_inline_script($late_handle, $script, $position);
+        dapfforwc_print_late_inline_script($late_handle);
+        return;
+    }
+
+    wp_add_inline_script($handle, $script, $position);
+}
+
 // Enqueue scripts and styles
 function dapfforwc_enqueue_scripts()
 {
@@ -2621,6 +2730,13 @@ function dapfforwc_admin_scripts($hook)
     );
 
     wp_enqueue_script('dapfforwc-admin-menu-script', plugin_dir_url(__FILE__) . 'assets/js/admin-menu-script.min.js', [], DAPFFORWC_VERSION, true);
+    wp_localize_script('dapfforwc-admin-menu-script', 'dapfforwcAdminAjax', [
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'review_nonce' => wp_create_nonce('dapfforwc_review_nonce'),
+        'deactivation_feedback_nonce' => wp_create_nonce('deactivation_feedback'),
+        'dismiss_ny_notice_nonce' => wp_create_nonce('dapfforwc_dismiss_ny_notice'),
+        'slug_check_nonce' => wp_create_nonce('dapfforwc_slug_check_notice'),
+    ]);
 
     if ($hook !== 'toplevel_page_dapfforwc-admin') {
         return; // Load additional styles only on the plugin's admin page
@@ -3025,8 +3141,8 @@ function dapfforwc_check_elements()
 {
     global $dapfforwc_advance_settings;
     if (current_user_can('administrator')) {
-?>
-        <script type="text/javascript">
+        ob_start();
+        ?>
             document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     var debugMessage = document.getElementById('dapfforwc_debug_message');
@@ -3098,8 +3214,11 @@ function dapfforwc_check_elements()
                     }
                 }, 2000);
             });
-        </script>
-        <style>
+        <?php
+        dapfforwc_add_inline_script(ob_get_clean(), 'urlfilter-ajax');
+
+        ob_start();
+        ?>
             ul#wp-admin-bar-dapfforwc_debug-default {
                 padding: 0 !important;
                 margin: 0 !important;
@@ -3110,8 +3229,8 @@ function dapfforwc_check_elements()
                 padding: 10px 5px !important;
                 height: max-content;
             }
-        </style>
-    <?php
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
     }
 }
 
@@ -3290,7 +3409,7 @@ class dapfforwc_cart_analytics_main
             '01',
             'https://plugincy.com/wp-json/product-analytics/v1',
             DAPFFORWC_VERSION,
-            'One Page Quick Checkout for WooCommerce',
+            'Dynamic AJAX Product Filters for WooCommerce',
             __FILE__ // Pass the main plugin file
         );
 
@@ -3317,12 +3436,12 @@ class dapfforwc_cart_analytics_main
 
     private function maybe_send_analytics()
     {
-        $last_sent = get_option('onepaquc_analytics_last_sent', 0);
+        $last_sent = get_option('dapfforwc_analytics_last_sent', get_option('onepaquc_analytics_last_sent', 0));
         $week_ago = strtotime('-1 week');
 
         if ($last_sent < $week_ago) {
             $this->analytics->send_tracking_data();
-            update_option('onepaquc_analytics_last_sent', time());
+            update_option('dapfforwc_analytics_last_sent', time(), false);
         }
     }
 
@@ -3335,7 +3454,7 @@ class dapfforwc_cart_analytics_main
 
         check_ajax_referer('deactivation_feedback', 'nonce');
 
-        $reason = sanitize_text_field(wp_unslash($_POST['reason'] ?? ''));
+        $reason = isset($_POST['reason']) ? sanitize_text_field(wp_unslash($_POST['reason'])) : '';
         $this->analytics->send_deactivation_data($reason);
 
         wp_die();
@@ -3348,8 +3467,8 @@ function dapfforwc_sidebar_to_top_inline_scripts()
 {
     $mobile_breakpoint = dapfforwc_get_mobile_breakpoint();
     $desktop_breakpoint = $mobile_breakpoint + 1;
+    ob_start();
     ?>
-    <style>
         /* Mobile-only Sidebar to Top CSS */
         @media (max-width: <?php echo esc_attr($mobile_breakpoint); ?>px) {
             .sidebar-moved-to-top {
@@ -3387,9 +3506,11 @@ function dapfforwc_sidebar_to_top_inline_scripts()
                 flex-direction: initial !important;
             }
         }
-    </style>
+    <?php
+    dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
 
-    <script>
+    ob_start();
+    ?>
         jQuery(document).ready(function($) {
 
             var mobileBreakpoint = <?php echo (int) $mobile_breakpoint; ?>;
@@ -3741,8 +3862,8 @@ function dapfforwc_sidebar_to_top_inline_scripts()
                 $(window).on('resize', handleResize);
             }, 2000);
         });
-    </script>
     <?php
+    dapfforwc_add_inline_script(ob_get_clean(), 'urlfilter-ajax');
 }
 
 if (!isset($dapfforwc_advance_settings["sidebar_on_top"]) || (isset($dapfforwc_advance_settings["sidebar_on_top"])  && $dapfforwc_advance_settings["sidebar_on_top"] === 'on')) {
@@ -3861,10 +3982,12 @@ function dapfforwc_ajax_activate_template()
         wp_send_json_error(esc_html__('Invalid template selected.', 'dynamic-ajax-product-filters-for-woocommerce'));
     }
 
+    // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Existing option cache global is used across legacy admin template code.
     global $template_options;
     $template_options['active_template'] = $template_id;
 
     $updated = update_option('dapfforwc_template_options', $template_options);
+    // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
     if ($updated !== false) {
         // Get template name for success message
@@ -3876,8 +3999,11 @@ function dapfforwc_ajax_activate_template()
             'basic_bordered' => esc_html__('Basic Bordered Template', 'dynamic-ajax-product-filters-for-woocommerce'),
         ];
 
-        // translators: %s: Template name.
-        wp_send_json_success(sprintf(esc_html__('%s activated successfully!', 'dynamic-ajax-product-filters-for-woocommerce'), $template_names[$template_id]));
+        wp_send_json_success(sprintf(
+            /* translators: %s: Template name. */
+            esc_html__('%s activated successfully!', 'dynamic-ajax-product-filters-for-woocommerce'),
+            $template_names[$template_id]
+        ));
     } else {
         wp_send_json_error(esc_html__('Failed to save template settings.', 'dynamic-ajax-product-filters-for-woocommerce'));
     }
@@ -4203,8 +4329,8 @@ register_activation_hook(__FILE__, 'dapfforwc_clear_woocommerce_caches');
  * Goal: Emit only the needed HTML markup, nothing else.
  */
 
-if (!function_exists('gm_pf_is_fragment_request')) {
-    function gm_pf_is_fragment_request(): bool
+if (!function_exists('dapfforwc_is_fragment_request')) {
+    function dapfforwc_is_fragment_request(): bool
     {
         static $cached_result = null;
         if ($cached_result !== null) {
@@ -4220,7 +4346,7 @@ if (!function_exists('gm_pf_is_fragment_request')) {
             return $cached_result = false;
         }
 
-        $has_fragment_flag = isset($_GET['gm_pf_fragment']) && (string) $_GET['gm_pf_fragment'] === '1';
+        $has_fragment_flag = isset($_GET['gm_pf_fragment']) && sanitize_text_field(wp_unslash($_GET['gm_pf_fragment'])) === '1';
         if (!$has_fragment_flag) {
             return $cached_result = false;
         }
@@ -4233,18 +4359,10 @@ if (!function_exists('gm_pf_is_fragment_request')) {
 }
 
 /** ------------------------------------------------------------------------
- * Constants & helpers
- * --------------------------------------------------------------------- */
-if (!defined('GM_PF_PLACEHOLDER')) {
-    // 1×1 transparent GIF (43 bytes) — avoids browser quirks with src=""
-    define('GM_PF_PLACEHOLDER', '');
-}
-
-/** ------------------------------------------------------------------------
  * HEAD/SCRIPT/CSS suppression (works even if theme hard-codes tags)
  * --------------------------------------------------------------------- */
 add_action('init', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
 
     // Stop resource hints (dns-prefetch, preconnect, font/style preloads)
     remove_action('wp_head', 'wp_resource_hints', 2);
@@ -4281,7 +4399,7 @@ add_action('init', function () {
  * Also neuter tag writers in case something slips through late.
  */
 add_action('wp_enqueue_scripts', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
 
     global $wp_styles, $wp_scripts;
 
@@ -4313,26 +4431,26 @@ add_action('wp_enqueue_scripts', function () {
  * Only runs in fragment mode; safe for all themes.
  */
 add_action('init', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
 
-    if (!empty($GLOBALS['gm_pf_fragment_buffer_started'])) {
+    if (!empty($GLOBALS['dapfforwc_fragment_buffer_started'])) {
         return;
     }
 
-    $GLOBALS['gm_pf_fragment_buffer_level'] = ob_get_level();
-    $GLOBALS['gm_pf_fragment_buffer_started'] = true;
-    ob_start();
+    $GLOBALS['dapfforwc_fragment_buffer_level'] = ob_get_level();
+    $GLOBALS['dapfforwc_fragment_buffer_started'] = true;
+    ob_start('dapfforwc_cleanup_fragment_output');
 }, 0);
 
 add_action('template_redirect', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
 
     // Remove heavy footer actions (trackers, etc.)
     remove_all_actions('wp_footer');
 }, 0);
 
-if (!function_exists('gm_pf_cleanup_fragment_output')) {
-    function gm_pf_fragment_dom_cleanup($html)
+if (!function_exists('dapfforwc_cleanup_fragment_output')) {
+    function dapfforwc_fragment_dom_cleanup($html)
     {
         if (!class_exists('DOMDocument')) {
             return null;
@@ -4395,9 +4513,9 @@ if (!function_exists('gm_pf_cleanup_fragment_output')) {
         return trim($cleaned);
     }
 
-    function gm_pf_cleanup_fragment_output($html)
+    function dapfforwc_cleanup_fragment_output($html)
     {
-        $cleaned = gm_pf_fragment_dom_cleanup($html);
+        $cleaned = dapfforwc_fragment_dom_cleanup($html);
         if (is_string($cleaned) && $cleaned !== '') {
             return $cleaned;
         }
@@ -4408,8 +4526,8 @@ if (!function_exists('gm_pf_cleanup_fragment_output')) {
         $html = preg_replace('#<head\b[^>]*>.*?</head>#is', '', $html);
         $html = preg_replace('#<header\b[^>]*>.*?</header>#is', '', $html);
         $html = preg_replace('#<footer\b[^>]*>.*?</footer>#is', '', $html);
-        $html = preg_replace('#<script\b[^>]*>.*?</script>#is', '', $html);
-        $html = preg_replace('#<style\b[^>]*>.*?</style>#is', '', $html);
+        $html = preg_replace('#<' . 'script\b[^>]*>.*?</' . 'script>#is', '', $html);
+        $html = preg_replace('#<' . 'style\b[^>]*>.*?</' . 'style>#is', '', $html);
         $html = preg_replace('#<body\b[^>]*>#i', '', $html);
         $html = preg_replace('#</body>#i', '', $html);
         $html = preg_replace('#<html\b[^>]*>#i', '', $html);
@@ -4419,9 +4537,9 @@ if (!function_exists('gm_pf_cleanup_fragment_output')) {
 }
 
 add_action('shutdown', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
 
-    $start_level = isset($GLOBALS['gm_pf_fragment_buffer_level']) ? intval($GLOBALS['gm_pf_fragment_buffer_level']) : null;
+    $start_level = isset($GLOBALS['dapfforwc_fragment_buffer_level']) ? intval($GLOBALS['dapfforwc_fragment_buffer_level']) : null;
     if ($start_level === null) {
         return;
     }
@@ -4431,7 +4549,7 @@ add_action('shutdown', function () {
 
         if (ob_get_level() === $start_level) {
             // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Intentional cleaned WooCommerce/theme HTML fragment response.
-            echo gm_pf_cleanup_fragment_output($buffer);
+            echo dapfforwc_cleanup_fragment_output($buffer);
             break;
         }
 
@@ -4439,23 +4557,23 @@ add_action('shutdown', function () {
         echo $buffer;
     }
 
-    unset($GLOBALS['gm_pf_fragment_buffer_level']);
-    unset($GLOBALS['gm_pf_fragment_buffer_started']);
+    unset($GLOBALS['dapfforwc_fragment_buffer_level']);
+    unset($GLOBALS['dapfforwc_fragment_buffer_started']);
 }, PHP_INT_MAX);
 
 /** ------------------------------------------------------------------------
  * WooCommerce & Query trimming
  * --------------------------------------------------------------------- */
 add_filter('woocommerce_enable_cart_session', function ($enabled) {
-    return gm_pf_is_fragment_request() ? false : $enabled;
+    return dapfforwc_is_fragment_request() ? false : $enabled;
 }, 10, 1);
 
 add_filter('woocommerce_use_cart_session', function ($use) {
-    return gm_pf_is_fragment_request() ? false : $use;
+    return dapfforwc_is_fragment_request() ? false : $use;
 }, 10, 1);
 
 add_filter('woocommerce_cart_hash', function ($hash) {
-    return gm_pf_is_fragment_request() ? '' : $hash;
+    return dapfforwc_is_fragment_request() ? '' : $hash;
 }, 10, 1);
 
 
@@ -4463,12 +4581,12 @@ add_filter('woocommerce_cart_hash', function ($hash) {
  * Headers & cosmetics
  * --------------------------------------------------------------------- */
 add_action('init', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
     add_filter('show_admin_bar', '__return_false', 999);
 });
 
 add_action('send_headers', function () {
-    if (!gm_pf_is_fragment_request()) return;
+    if (!dapfforwc_is_fragment_request()) return;
     header('X-GM-PF-Fragment: 1');   // debug flag
     header('Connection: keep-alive');
     header('Cache-Control: no-store, max-age=0'); // personalized, keep off
@@ -4476,7 +4594,8 @@ add_action('send_headers', function () {
 
 
 add_filter('redirect_canonical', function ($redirect_url, $requested_url) {
-    if (isset($_GET['paged']) && !empty($_GET['paged'])) {
+    $paged = isset($_GET['paged']) ? absint(wp_unslash($_GET['paged'])) : 0;
+    if ($paged > 0) {
         // Prevent redirect for paged URLs like /products/?paged=2
         return false;
     }

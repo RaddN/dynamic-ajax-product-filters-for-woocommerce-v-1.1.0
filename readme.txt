@@ -1,7 +1,7 @@
 === Dynamic AJAX Product Filters for WooCommerce ===
 Plugin Name: Dynamic AJAX Product Filters for WooCommerce
 Contributors: plugincy
-Tags: product filters, ajax product filters, woocommerce ajax product filters, woocommerce filters, advanced product filters, woocommerce product filter, woocommerce filter, product filter, ajax filter, attribute filter
+Tags: product filters, ajax product filters, woocommerce filters, woocommerce filter, ajax filter
 Requires at least: 5.9
 Tested up to: 7.0
 Stable tag: 1.6.1.5
@@ -122,6 +122,12 @@ Yes, Dynamic AJAX Product Filters for WooCommerce plugin is fully compatible wit
 = Does This Plugin Support Shortcode Usage? =  
 Yes, you can use the following Shortcode to place filters anywhere on your site.
 `[plugincy_filters attribute="your-attribute" terms="your-terms1, your-terms2" category="yourcata1, your-cata2" tag="your-tag1, your-tag2"], [plugincy_filters_single name="your_selector"]` shortcode to place filters anywhere on your site.
+
+== Privacy ==
+
+This plugin includes an optional usage-sharing setting named "Contribute to Plugincy". It is disabled by default. If a site administrator enables it, the plugin sends non-sensitive technical details such as site URL, WordPress version, PHP version, MySQL version, active theme, active plugin list, plugin version, and deactivation feedback to Plugincy at `https://plugincy.com/wp-json/product-analytics/v1`. This data is used for troubleshooting, compatibility decisions, and product improvement. Administrators can disable this sharing from the plugin's Advance Settings screen.
+
+If a site administrator enters a Pro license key, the plugin contacts Plugincy at `https://plugincy.com/` to activate or deactivate that license for the current site URL and to download/install the Pro plugin when the administrator chooses that license action.
 
 == Changelog ==
 

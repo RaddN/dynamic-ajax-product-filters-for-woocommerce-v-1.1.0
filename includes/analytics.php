@@ -155,7 +155,6 @@ class dapfforwc_cart_anaylytics
             'other_plugins' => $this->get_other_plugins(),
             'active_theme' => get_option('stylesheet'),
             'using_pro' => "0",
-            'license_key' => $this->get_license_key(),
         );
     }
 
@@ -193,16 +192,6 @@ class dapfforwc_cart_anaylytics
         }
 
         return $plugins;
-    }
-
-    /**
-     * Get license key if available
-     * Override this method based on your plugin's license system
-     */
-    private function get_license_key()
-    {
-        // Example: Get license from options
-        return get_option('dapfforwc_license_key', '');
     }
 
     /**
@@ -281,7 +270,7 @@ class dapfforwc_cart_anaylytics
                 </div>
             </div>
 
-            <style>
+            <?php ob_start(); ?>
                 .feedback-overlay {
                     position: fixed;
                     top: 0;
@@ -492,9 +481,9 @@ class dapfforwc_cart_anaylytics
                         width: 100%;
                     }
                 }
-            </style>
+            <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-menu-style'); ?>
 
-            <script>
+            <?php ob_start(); ?>
                 jQuery(document).ready(function($) {
                     var pluginBasename = '<?php echo esc_js($plugin_basename); ?>';
                     var pluginSlug = '<?php echo esc_js($plugin_slug); ?>';
@@ -532,6 +521,12 @@ class dapfforwc_cart_anaylytics
                     $('#dapfforwc-deactivation-feedback-form').on('submit', function(e) {
                         e.preventDefault();
 
+                        var dapfforwcAdminAjaxUrl = (window.dapfforwcAdminAjax && window.dapfforwcAdminAjax.ajax_url) ? window.dapfforwcAdminAjax.ajax_url : (window.ajaxurl || '');
+                        var dapfforwcDeactivationNonce = (window.dapfforwcAdminAjax && window.dapfforwcAdminAjax.deactivation_feedback_nonce) ? window.dapfforwcAdminAjax.deactivation_feedback_nonce : '';
+                        if (!dapfforwcAdminAjaxUrl) {
+                            window.location.href = deactivateUrl;
+                            return;
+                        }
                         var reason = $('input[name="reason"]:checked').val();
                         var otherReason = $('textarea[name="other_reason"]').val();
 
@@ -543,12 +538,12 @@ class dapfforwc_cart_anaylytics
 
                         // Send deactivation data
                         $.ajax({
-                            url: '<?php echo esc_url(admin_url('admin-ajax.php')); ?>',
+                            url: dapfforwcAdminAjaxUrl,
                             type: 'POST',
                             data: {
                                 action: 'dapfforwc_send_deactivation_feedback',
                                 reason: reason || 'no-reason-provided',
-                                nonce: '<?php echo esc_js(wp_create_nonce('deactivation_feedback')); ?>'
+                                nonce: dapfforwcDeactivationNonce
                             },
                             success: function(response) {
                                 // Wait a moment to ensure the request completed
@@ -569,7 +564,7 @@ class dapfforwc_cart_anaylytics
                     });
 
                     // Handle other reason text area
-                    $('input[name="reason"]').change(function() {
+                    $(document).on('change', 'input[name="reason"]', function() {
                         if ($(this).val() === 'other') {
                             $('.other-reason-container').slideDown(300);
                         } else {
@@ -578,25 +573,25 @@ class dapfforwc_cart_anaylytics
                     });
 
                     // Handle close button
-                    $('.close-button').click(function() {
+                    $(document).on('click', '.close-button', function() {
                         $('#dapfforwc-plugin-deactivation-feedback').hide();
                     });
 
                     // Handle overlay click to close
-                    $('.feedback-overlay').click(function(e) {
+                    $(document).on('click', '.feedback-overlay', function(e) {
                         if (e.target === this) {
                             $('#dapfforwc-plugin-deactivation-feedback').hide();
                         }
                     });
 
                     // Handle escape key
-                    $(document).keyup(function(e) {
+                    $(document).on('keyup', function(e) {
                         if (e.keyCode === 27) { // ESC key
                             $('#dapfforwc-plugin-deactivation-feedback').hide();
                         }
                     });
                 });
-            </script>
+            <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-menu-script'); ?>
 <?php
         }
     }

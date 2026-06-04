@@ -2370,11 +2370,14 @@ function dapfforwc_product_filter_shortcode($atts)
     $initial_price_display_min = $all_data_objects["min_price"];
     $initial_price_display_max = $all_data_objects["max_price"];
 
-    if (isset($_GET['mn_price']) && is_numeric(wp_unslash($_GET['mn_price']))) {
-        $initial_price_display_min = floatval(wp_unslash($_GET['mn_price']));
+    $requested_min_price = isset($_GET['mn_price']) ? sanitize_text_field(wp_unslash($_GET['mn_price'])) : null;
+    $requested_max_price = isset($_GET['mx_price']) ? sanitize_text_field(wp_unslash($_GET['mx_price'])) : null;
+
+    if ($requested_min_price !== null && is_numeric($requested_min_price)) {
+        $initial_price_display_min = floatval($requested_min_price);
     }
-    if (isset($_GET['mx_price']) && is_numeric(wp_unslash($_GET['mx_price']))) {
-        $initial_price_display_max = floatval(wp_unslash($_GET['mx_price']));
+    if ($requested_max_price !== null && is_numeric($requested_max_price)) {
+        $initial_price_display_max = floatval($requested_max_price);
     }
 
     $price_prefix = 'price';
@@ -2409,8 +2412,8 @@ function dapfforwc_product_filter_shortcode($atts)
     ob_start(); // Start output buffering
     if ($atts['layout'] === 'top_view') {
         // Add your custom styles for the top_view layout here
-?>
-        <style>
+        ob_start();
+        ?>
             @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 /* Product Filter Styles */
@@ -2539,8 +2542,9 @@ function dapfforwc_product_filter_shortcode($atts)
                 }
 
             }
-        </style>
-    <?php wp_add_inline_script('urlfilter-ajax', "
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
+        wp_add_inline_script('urlfilter-ajax', "
             document.addEventListener('DOMContentLoaded', function () {
   if (window.innerWidth > " . intval($mobile_breakpoint) . ") {
     const productFilter = document.getElementById('product-filter');
@@ -2576,8 +2580,9 @@ function dapfforwc_product_filter_shortcode($atts)
 });", 100);
     }
 
-    if ($template_options['active_template'] && $template_options['active_template'] === 'shadow') { ?>
-        <style>
+    if ($template_options['active_template'] && $template_options['active_template'] === 'shadow') {
+        ob_start();
+        ?>
             #product-filter .plugincy-filter-group {
                 box-shadow: rgba(99, 99, 99, 0.2) 0 2px 8px 0;
             }
@@ -2594,10 +2599,12 @@ function dapfforwc_product_filter_shortcode($atts)
                 margin-bottom: 15px;
                 border-radius: 8px;
             }
-        </style>
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
 
-    <?php } else { ?>
-        <style>
+    } else {
+        ob_start();
+        ?>
             #product-filter .plugincy-filter-group .plugincy_title {
                 padding: 10px 0 14px;
             }
@@ -2609,10 +2616,11 @@ function dapfforwc_product_filter_shortcode($atts)
             #product-filter .plugincy-filter-group {
                 margin-bottom: 0;
             }
-        </style>
-    <?php
-    } ?>
-    <style>
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
+    }
+    ob_start();
+    ?>
         #product-filter .plugrogress-percentage:after,
         #product-filter .plugrogress-percentage:before,
         #product-filter .plugincy_slider .plugrogress,
@@ -2772,10 +2780,10 @@ function dapfforwc_product_filter_shortcode($atts)
         }
 
         <?php } ?><?php if ($atts['mobile_responsive'] === 'style_2') { ?><?php } ?>
-    </style>
-    <?php if ($atts['mobile_responsive'] === 'style_3') { ?>
-
-        <style>
+    <?php dapfforwc_add_inline_style(ob_get_clean(), 'filter-style'); ?>
+    <?php if ($atts['mobile_responsive'] === 'style_3') {
+        ob_start();
+        ?>
             @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 #mobileonly,
@@ -2819,11 +2827,12 @@ function dapfforwc_product_filter_shortcode($atts)
                     margin: 0 0 10px !important;
                 }
             }
-        </style>
-    <?php } ?>
-    <?php if ($atts['mobile_responsive'] === 'style_4') { ?>
-
-        <style>
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
+    } ?>
+    <?php if ($atts['mobile_responsive'] === 'style_4') {
+        ob_start();
+        ?>
             @media (min-width: <?php echo intval($desktop_breakpoint); ?>px) {
 
                 #mobileonly,
@@ -2868,8 +2877,9 @@ function dapfforwc_product_filter_shortcode($atts)
                     margin: 0 0 10px !important;
                 }
             }
-        </style>
-    <?php }
+        <?php
+        dapfforwc_add_inline_style(ob_get_clean(), 'filter-style');
+    }
 
     if ($atts['mobile_responsive'] === 'style_3' ||  $atts['mobile_responsive'] === 'style_4') { ?>
         <button id="filter-button" style="position: fixed;z-index: 2147483645;bottom: 20px;right: 20px;background-color: <?php echo esc_html(isset($template_options["primary_color"]) ? $template_options["primary_color"] : '#041a57'); ?>;color: white;border: none;border-radius: 50%;aspect-ratio: 1;display: flex;align-items: center;justify-content: center;width: 40px;height: 40px;padding: 0;">
@@ -3235,9 +3245,8 @@ function dapfforwc_product_filter_shortcode($atts)
     <?php
 
     echo wp_kses('<div id="loader" style="display:none;"></div>', $dapfforwc_allowed_tags);
-    ?>
-    <style>
-        <?php echo wp_kses('#loader {
+    dapfforwc_add_inline_style(
+        '#loader {
                 width: 56px;
                 height: 56px;
                 border-radius: 50%;
@@ -3250,8 +3259,10 @@ function dapfforwc_product_filter_shortcode($atts)
                 to {
                     transform: rotate(1turn);
                 }
-            }', $dapfforwc_allowed_tags); ?>
-    </style>
+            }',
+        'filter-style'
+    );
+    ?>
     <div id="roverlay" style="display: none;"></div>
 
 <?php
@@ -4334,39 +4345,56 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
             $exclude_custom_fields = array_filter(array_map('sanitize_key', explode(',', (string) $dapfforwc_advance_settings['exclude_custom_fields'])));
         }
 
-        $exclude_sql = '';
-        if (!empty($exclude_custom_fields)) {
-            $exclude_placeholders = implode(',', array_fill(0, count($exclude_custom_fields), '%s'));
-            $exclude_sql = $wpdb->prepare(" AND pm.meta_key NOT IN ($exclude_placeholders)", $exclude_custom_fields);
-        }
-
         $limit = (int) apply_filters('dapfforwc_large_catalog_custom_field_terms_limit', 1000);
         $limit = max(0, min(10000, $limit));
 
         if ($limit > 0) {
-            // phpcs:disable PluginCheck.Security.DirectDB.UnescapedDBParameter -- $exclude_sql is prepared from sanitized custom field keys above.
-            $custom_fields_query = $wpdb->prepare(
-                "
-                SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
-                FROM {$wpdb->prefix}postmeta pm
-                INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
-                WHERE p.post_type = 'product'
-                  AND p.post_status = 'publish'
-                  AND pm.meta_key NOT LIKE %s
-                  AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
-                  AND pm.meta_value != ''
-                  AND pm.meta_value IS NOT NULL
-                  {$exclude_sql}
-                GROUP BY pm.meta_key, pm.meta_value
-                ORDER BY pm.meta_key, product_count DESC
-                LIMIT %d
-                ",
-                $wpdb->esc_like('_') . '%',
-                $limit
-            );
-            // phpcs:enable PluginCheck.Security.DirectDB.UnescapedDBParameter
+            $custom_fields_query_args = [$wpdb->esc_like('_') . '%'];
+            if (!empty($exclude_custom_fields)) {
+                $exclude_placeholders = implode(',', array_fill(0, count($exclude_custom_fields), '%s'));
+                $custom_fields_query_args = array_merge($custom_fields_query_args, $exclude_custom_fields, [$limit]);
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder list is generated from sanitized custom field keys.
+                $custom_fields_query = call_user_func_array(
+                    [$wpdb, 'prepare'],
+                    array_merge(["
+                    SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
+                    FROM {$wpdb->prefix}postmeta pm
+                    INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+                    WHERE p.post_type = 'product'
+                      AND p.post_status = 'publish'
+                      AND pm.meta_key NOT LIKE %s
+                      AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+                      AND pm.meta_value != ''
+                      AND pm.meta_value IS NOT NULL
+                      AND pm.meta_key NOT IN ($exclude_placeholders)
+                    GROUP BY pm.meta_key, pm.meta_value
+                    ORDER BY pm.meta_key, product_count DESC
+                    LIMIT %d
+                    "], $custom_fields_query_args)
+                );
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+            } else {
+                $custom_fields_query = $wpdb->prepare(
+                    "
+                    SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
+                    FROM {$wpdb->prefix}postmeta pm
+                    INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+                    WHERE p.post_type = 'product'
+                      AND p.post_status = 'publish'
+                      AND pm.meta_key NOT LIKE %s
+                      AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+                      AND pm.meta_value != ''
+                      AND pm.meta_value IS NOT NULL
+                    GROUP BY pm.meta_key, pm.meta_value
+                    ORDER BY pm.meta_key, product_count DESC
+                    LIMIT %d
+                    ",
+                    $wpdb->esc_like('_') . '%',
+                    $limit
+                );
+            }
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized custom field exclusions and limit.
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared above with sanitized custom field exclusions and limit.
             $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
             foreach ((array) $custom_fields_results as $row) {
                 $meta_key = (string) $row['meta_key'];

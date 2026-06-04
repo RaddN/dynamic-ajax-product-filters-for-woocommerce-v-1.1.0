@@ -95,8 +95,8 @@ function dapfforwc_render_advanced_pagination_popup_assets()
     }
 
     $assets_rendered = true;
+    ob_start();
     ?>
-    <script>
         document.addEventListener('DOMContentLoaded', function () {
             document.querySelectorAll('[data-dapfforwc-advanced-pagination-root="true"]').forEach(function (root) {
                 const toggle = root.querySelector('input[name="dapfforwc_advance_options[advanced_pagination_enabled]"]');
@@ -131,8 +131,8 @@ function dapfforwc_render_advanced_pagination_popup_assets()
                 updateState();
             });
         });
-    </script>
     <?php
+    dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script');
 }
 
 function dapfforwc_render_advanced_pagination_settings_popup()
@@ -251,7 +251,7 @@ function dapfforwc_product_exclusion_rules_render()
 {
 ?>
         <div class="dapfforwcpro-product-exclusion-settings dapfforwcpro-product-exclusion-settings-locked pro-only">
-            <style>
+            <?php ob_start(); ?>
                 .dapfforwcpro-product-exclusion-settings {
                     max-width: 920px;
                 }
@@ -304,7 +304,7 @@ function dapfforwc_product_exclusion_rules_render()
                     margin: 8px 0 0;
                     max-width: 760px;
                 }
-            </style>
+            <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
             <button type="button" class="button button-secondary dapfforwcpro-product-exclusion-trigger" disabled aria-disabled="true">
                 <span class="dashicons dashicons-filter" aria-hidden="true"></span>
                 <span><?php esc_html_e('Manage exclusions', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
@@ -343,7 +343,11 @@ function dapfforwc_browser_history_step_navigation_render()
 }
 function dapfforwc_allow_data_share_render()
 {
-    dapfforwc_render_advance_checkbox('allow_data_share', esc_html__('We collect non-sensitive technical details from your website, like the PHP version and features usage, to help us troubleshoot issues faster, make informed development decisions, and build features that truly benefit you.', 'dynamic-ajax-product-filters-for-woocommerce') . " <a href='https://plugincy.com/usage-tracking/' target='_blank'>". esc_html__('Learn more…', 'dynamic-ajax-product-filters-for-woocommerce')."</a>");
+    dapfforwc_render_advance_checkbox(
+        'allow_data_share',
+        esc_html__('We collect non-sensitive technical details from your website, like the PHP version and features usage, to help us troubleshoot issues faster, make informed development decisions, and build features that truly benefit you.', 'dynamic-ajax-product-filters-for-woocommerce') .
+            ' <a href="' . esc_url('https://plugincy.com/usage-tracking/') . '" target="_blank" rel="noopener noreferrer">' . esc_html__('Learn more...', 'dynamic-ajax-product-filters-for-woocommerce') . '</a>'
+    );
 }
 function dapfforwc_side_bar_top_render()
 {

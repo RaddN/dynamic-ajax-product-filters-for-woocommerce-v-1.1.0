@@ -5,6 +5,7 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This admin template uses local template variables; plugin functions, options, and hooks remain prefixed.
 
 global $template_options, $dapfforwc_allowed_tags;
 ?>
@@ -72,7 +73,7 @@ global $template_options, $dapfforwc_allowed_tags;
                 'id' => 'modern',
                 'name' => esc_html__('Modern Template', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'type' => 'pro',
-                'image' => '<svg width="200" height="150" viewBox="-14 -14 302 372" xmlns="http://www.w3.org/2000/svg"><defs><filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity=".12"/></filter><style>.item{font:500 14px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#2b2b2b}.subitem{font:500 13px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#4a4a4a}.count{font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central}.muted{stroke:#e8e8e8;stroke-width:1}.pill{fill:#0f7abf}</style></defs><g filter="url(#softShadow)"><rect x="12" y="12" width="276" height="280" rx="10" fill="#fff"/></g><path d="M10 25v260" stroke="#0f7abf" stroke-width="3" stroke-linecap="round"/><text x="36" y="45" fill="#333" style="font:600 16px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial">Categories</text><path style="stroke:#0f7abf;stroke-width:3;stroke-linecap:round" d="M36 60h226"/><text class="item" x="36" y="95">Surgical Gastro</text><g transform="translate(246 86)"><circle class="pill" r="14"/><text class="count">9</text></g><path class="muted" d="M60 110v40"/><text class="subitem" x="76" y="136">Camera Box</text><g transform="translate(246 129)"><circle class="pill" r="14"/><text class="count">0</text></g><path class="muted" d="M36 160h226"/><text class="item" x="36" y="190">Urology</text><g transform="translate(246 181)"><circle class="pill" r="14"/><text class="count">0</text></g><path class="muted" d="M60 206v64"/><rect x="64" y="214" width="190" height="26" rx="4" style="fill:#f4f9fe"/><text class="subitem" x="76" y="232" fill="#0f7abf">Olympus</text><g transform="translate(246 227)"><circle class="pill" r="14"/><text class="count">0</text></g><text class="subitem" x="76" y="266">Stor 2 Box</text><g transform="translate(246 259)"><circle class="pill" r="14"/><text class="count">0</text></g></svg>',
+                'image' => '<svg width="200" height="150" viewBox="-14 -14 302 372" xmlns="http://www.w3.org/2000/svg"><defs><filter id="softShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#000" flood-opacity=".12"/></filter></defs><g filter="url(#softShadow)"><rect x="12" y="12" width="276" height="280" rx="10" fill="#fff"/></g><path d="M10 25v260" stroke="#0f7abf" stroke-width="3" stroke-linecap="round"/><text x="36" y="45" fill="#333" style="font:600 16px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial">Categories</text><path style="stroke:#0f7abf;stroke-width:3;stroke-linecap:round" d="M36 60h226"/><text style="font:500 14px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#2b2b2b" x="36" y="95">Surgical Gastro</text><g transform="translate(246 86)"><circle fill="#0f7abf" r="14"/><text style="font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central">9</text></g><path style="stroke:#e8e8e8;stroke-width:1" d="M60 110v40"/><text style="font:500 13px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#4a4a4a" x="76" y="136">Camera Box</text><g transform="translate(246 129)"><circle fill="#0f7abf" r="14"/><text style="font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central">0</text></g><path style="stroke:#e8e8e8;stroke-width:1" d="M36 160h226"/><text style="font:500 14px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#2b2b2b" x="36" y="190">Urology</text><g transform="translate(246 181)"><circle fill="#0f7abf" r="14"/><text style="font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central">0</text></g><path style="stroke:#e8e8e8;stroke-width:1" d="M60 206v64"/><rect x="64" y="214" width="190" height="26" rx="4" style="fill:#f4f9fe"/><text style="font:500 13px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#0f7abf" x="76" y="232">Olympus</text><g transform="translate(246 227)"><circle fill="#0f7abf" r="14"/><text style="font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central">0</text></g><text style="font:500 13px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#4a4a4a" x="76" y="266">Stor 2 Box</text><g transform="translate(246 259)"><circle fill="#0f7abf" r="14"/><text style="font:700 12px system-ui,-apple-system,Segoe UI,Roboto,&quot;Helvetica Neue&quot;,Arial;fill:#fff;text-anchor:middle;dominant-baseline:central">0</text></g></svg>',
                 'description' => esc_html__('A clean and contemporary card design with a balanced mix of shadow and borders. Perfect for modern eCommerce layouts.', 'dynamic-ajax-product-filters-for-woocommerce'),
                 'features' => ['Subtle card shadow for depth', 'Soft borders for clarity', 'Compact spacing for neat alignment']
             ],
@@ -253,7 +254,7 @@ global $template_options, $dapfforwc_allowed_tags;
             </table>
             <?php submit_button(); ?>
         </form>
-        <script>
+        <?php ob_start(); ?>
             jQuery(document).ready(function($) {
                 // Initialize color pickers with alpha support
                 $('.dapfforwc-color-picker').each(function() {
@@ -274,7 +275,7 @@ global $template_options, $dapfforwc_allowed_tags;
                     });
                 });
             });
-        </script>
+        <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
     </div>
 
 </div>
@@ -308,7 +309,7 @@ global $template_options, $dapfforwc_allowed_tags;
     </div>
 </div>
 
-<style>
+<?php ob_start(); ?>
     .dapfforwc-template-container {
         padding: 20px 0;
         position: relative;
@@ -796,9 +797,9 @@ global $template_options, $dapfforwc_allowed_tags;
             margin: 10px;
         }
     }
-</style>
+<?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
 
-<script>
+<?php ob_start(); ?>
 /* global jQuery, ajaxurl, wp */
 (function ($) {
   'use strict';
@@ -815,17 +816,17 @@ global $template_options, $dapfforwc_allowed_tags;
    */
   const CONFIG = (function () {
     const i18nFallback = {
-      activate:        <?php echo json_encode( __( 'Activate', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      activated:       <?php echo json_encode( __( 'Activated', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      active:          <?php echo json_encode( __( 'Active', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      inactive:        <?php echo json_encode( __( 'Inactive', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      proOnly:         <?php echo json_encode( __( 'Pro Features Only', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      activateThis:    <?php echo json_encode( __( 'Activate This Template', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      keyFeatures:     <?php echo json_encode( __( 'Key Features:', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      errorActivate:   <?php echo json_encode( __( 'Error activating template. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      networkError:    <?php echo json_encode( __( 'Network error. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      category:        <?php echo json_encode( __( 'Category', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
-      categories:      <?php echo json_encode( __( 'Categories', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      activate:        <?php echo wp_json_encode( __( 'Activate', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      activated:       <?php echo wp_json_encode( __( 'Activated', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      active:          <?php echo wp_json_encode( __( 'Active', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      inactive:        <?php echo wp_json_encode( __( 'Inactive', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      proOnly:         <?php echo wp_json_encode( __( 'Pro Features Only', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      activateThis:    <?php echo wp_json_encode( __( 'Activate This Template', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      keyFeatures:     <?php echo wp_json_encode( __( 'Key Features:', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      errorActivate:   <?php echo wp_json_encode( __( 'Error activating template. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      networkError:    <?php echo wp_json_encode( __( 'Network error. Please try again.', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      category:        <?php echo wp_json_encode( __( 'Category', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
+      categories:      <?php echo wp_json_encode( __( 'Categories', 'dynamic-ajax-product-filters-for-woocommerce' ) ); ?>,
       dismissNotice:   'Dismiss this notice.'
     };
 
@@ -833,9 +834,9 @@ global $template_options, $dapfforwc_allowed_tags;
     const cfg = window.dapfforwcConfig || {};
 
     return {
-      templates:      cfg.templates || <?php echo json_encode( $templates ); ?>,
-      activeTemplate: cfg.activeTemplate || <?php echo json_encode( (string) ($template_options['active_template'] ?? '') ); ?>,
-      nonce:          cfg.nonce || <?php echo json_encode( wp_create_nonce('dapfforwc_template_nonce') ); ?>,
+      templates:      cfg.templates || <?php echo wp_json_encode( $templates ); ?>,
+      activeTemplate: cfg.activeTemplate || <?php echo wp_json_encode( (string) ($template_options['active_template'] ?? '') ); ?>,
+      nonce:          cfg.nonce || <?php echo wp_json_encode( wp_create_nonce('dapfforwc_template_nonce') ); ?>,
       i18n:           Object.assign(i18nFallback, cfg.i18n || {})
     };
   })();
@@ -1211,7 +1212,7 @@ global $template_options, $dapfforwc_allowed_tags;
   }
 
 })(jQuery);
-</script>
+<?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
 
 
 <?php
@@ -1219,7 +1220,7 @@ global $template_options, $dapfforwc_allowed_tags;
 
 
 // Helper function to convert hex to RGB
-function hex2rgb($hex)
+function dapfforwc_hex2rgb($hex)
 {
     $hex = str_replace("#", "", $hex);
 

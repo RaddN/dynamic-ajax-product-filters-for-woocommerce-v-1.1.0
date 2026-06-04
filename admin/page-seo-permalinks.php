@@ -105,8 +105,8 @@ function dapfforwc_permalinks_prefix_render()
             return $carry;
         }, []) : [],
     ];
-?>
-    <style>
+    ob_start();
+    ?>
         .attribute_prefix_list .prefix_list_container {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -144,8 +144,11 @@ function dapfforwc_permalinks_prefix_render()
             color: #666;
             margin-top: 10px;
         }
-    </style>
-    <script>
+    <?php
+    dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style');
+
+    ob_start();
+    ?>
         document.addEventListener('DOMContentLoaded', function() {
             const useAttributeTypeCheckbox = document.querySelector('input[name="dapfforwc_seo_permalinks_options[use_attribute_type_in_permalinks]"]');
             const attributePrefixList = document.querySelector('.attribute_prefix_list');
@@ -168,7 +171,9 @@ function dapfforwc_permalinks_prefix_render()
                 toggleAttributePrefixList(); // Toggle on change
             });
         });
-    </script>
+    <?php
+    dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script');
+    ?>
     <div class="attribute_prefix_list" style="margin-bottom: 10px;">
         <div class="prefix_list_container" style="height: 440px; overflow:hidden; transition: height 0.3s ease;">
             <div class="dapfforwc-form-group">
@@ -352,16 +357,22 @@ function dapfforwc_permalinks_prefix_render()
                     <div class="dapfforwc-form-group">
                         <label for="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>">
                             <?php
-                            // translators: %s is replaced with the attribute label.
-                            printf(esc_html__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
+                            printf(
+                                /* translators: %s: Product attribute label. */
+                                esc_html__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                esc_html($attribute->attribute_label)
+                            );
                             ?>
                         </label>
                         <input type="text" id="dapfforwc_attribute_prefix_<?php echo esc_attr($attribute->attribute_name); ?>"
                             name="dapfforwc_seo_permalinks_options[dapfforwc_permalinks_prefix_options][attribute][<?php echo esc_attr($attribute->attribute_name); ?>]"
                             value="<?php echo isset($options['attribute'][$attribute->attribute_name]) ? esc_attr($options['attribute'][$attribute->attribute_name]) : esc_attr($attribute->attribute_name); ?>"
                             <?php
-                            // translators: %s is replaced with the attribute label.
-                            $placeholder_text = sprintf(esc_attr__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($attribute->attribute_label));
+                            $placeholder_text = sprintf(
+                                /* translators: %s: Product attribute label. */
+                                esc_attr__('Attribute (%s)', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                esc_html($attribute->attribute_label)
+                            );
                             ?>
                             placeholder="<?php echo esc_html($placeholder_text); ?>" />
                     </div>
@@ -373,7 +384,7 @@ function dapfforwc_permalinks_prefix_render()
                 <?php esc_html_e('See More', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
             </button>
         </div>
-        <script>
+        <?php ob_start(); ?>
             document.addEventListener('DOMContentLoaded', function() {
                 var seeMoreBtn = document.getElementById('dapfforwc_see_more_btn');
                 var prefixListContainer = document.querySelector('.attribute_prefix_list > div');
@@ -384,7 +395,7 @@ function dapfforwc_permalinks_prefix_render()
                     });
                 }
             });
-        </script>
+        <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
     </div>
     <div class="dapfforwc-info-message" style="display: none;">
         Enable <b>"Use Attribute Type in Permalinks"</b> to manage the prefix. Currently your URL format is: <code>?filters=compact-design,large,tag1</code>

@@ -41,8 +41,10 @@ function dapfforwc_add_review_popup()
 
                 <div id="overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0, 0, 0, 0.5); z-index:999;"></div>
 
-                <script>
-                    const reviewNonce = '<?php echo esc_js(wp_create_nonce('dapfforwc_review_nonce')); ?>';
+                <?php ob_start(); ?>
+                    function dapfforwcGetAdminAjaxSetting(key) {
+                        return window.dapfforwcAdminAjax && window.dapfforwcAdminAjax[key] ? window.dapfforwcAdminAjax[key] : '';
+                    }
                     document.addEventListener('DOMContentLoaded', function() {
                         setTimeout(function() {
                             document.getElementById('overlay').style.display = 'block';
@@ -54,9 +56,13 @@ function dapfforwc_add_review_popup()
                             document.getElementById('review-popup').style.display = 'none';
                             // Send AJAX request to set remind me later
                             const xhr = new XMLHttpRequest();
-                            xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
+                            const reviewAjaxUrl = dapfforwcGetAdminAjaxSetting('ajax_url') || window.ajaxurl || '';
+                            if (!reviewAjaxUrl) {
+                                return;
+                            }
+                            xhr.open('POST', reviewAjaxUrl, true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            xhr.send('action=dapfforwc_remind_me_later&nonce=' + reviewNonce);
+                            xhr.send('action=dapfforwc_remind_me_later&nonce=' + encodeURIComponent(dapfforwcGetAdminAjaxSetting('review_nonce')));
                         });
 
                         document.getElementById('already-done').addEventListener('click', function() {
@@ -64,12 +70,16 @@ function dapfforwc_add_review_popup()
                             document.getElementById('review-popup').style.display = 'none';
                             // Send AJAX request to set already done
                             const xhr = new XMLHttpRequest();
-                            xhr.open('POST', '<?php echo esc_url(admin_url('admin-ajax.php')); ?>', true);
+                            const reviewAjaxUrl = dapfforwcGetAdminAjaxSetting('ajax_url') || window.ajaxurl || '';
+                            if (!reviewAjaxUrl) {
+                                return;
+                            }
+                            xhr.open('POST', reviewAjaxUrl, true);
                             xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            xhr.send('action=dapfforwc_review_already_done&nonce=' + reviewNonce);
+                            xhr.send('action=dapfforwc_review_already_done&nonce=' + encodeURIComponent(dapfforwcGetAdminAjaxSetting('review_nonce')));
                         });
                     });
-                </script>
+                <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-menu-script'); ?>
     <?php
             }
         }
@@ -125,7 +135,7 @@ function dapfforwc_show_admin_notice()
             <button id="already-done-notice" class="button-secondary">Already Done</button>
         </p>
     </div>
-    <script>
+    <?php ob_start(); ?>
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('close-notice').addEventListener('click', function() {
                 document.getElementById('admin-review-notice').style.display = 'none';
@@ -136,6 +146,6 @@ function dapfforwc_show_admin_notice()
                 // Optional: Similar to the popup, you could update an option here.
             });
         });
-    </script>
+    <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-menu-script'); ?>
 <?php
 }

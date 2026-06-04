@@ -74,17 +74,18 @@ function dapfforwc_check_woocommerce_duplicate_slugs() {
                     <p><?php esc_html_e('Please ensure each slug is unique to avoid filtering issues.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                     <button type="button" id="woocommerce-slug-check-remind-later" class="button"><?php esc_html_e('Remind Me Later', 'dynamic-ajax-product-filters-for-woocommerce'); ?></button>
                 </div>
-                <script type="text/javascript">
+                <?php ob_start(); ?>
                     jQuery(document).ready(function($) {
                         $('#woocommerce-slug-check-remind-later').on('click', function() {
-                            $.post(ajaxurl, {
+                            $.post(dapfforwcAdminAjax.ajax_url, {
                                 action: 'dapfforwc_dismiss_slug_check_notice',
+                                nonce: dapfforwcAdminAjax.slug_check_nonce,
                             }, function() {
                                 $('#woocommerce-slug-check-notice').fadeOut();
                             });
                         });
                     });
-                </script>
+                <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-menu-script'); ?>
                 <?php
             });
         }
@@ -94,6 +95,12 @@ add_action('admin_init', 'dapfforwc_check_woocommerce_duplicate_slugs');
 
 // Handle AJAX dismiss action
 function dapfforwc_dismiss_slug_check_notice() {
+    check_ajax_referer('dapfforwc_slug_check_notice', 'nonce');
+
+    if (!current_user_can('manage_options')) {
+        wp_send_json_error(esc_html__('You do not have permission to dismiss this notice.', 'dynamic-ajax-product-filters-for-woocommerce'), 403);
+    }
+
     update_option('woocommerce_slug_check_dismissed_time', time());
     wp_send_json_success();
 }
@@ -123,15 +130,26 @@ function dapfforwc_dismiss_ny_notice_handler()
     check_ajax_referer('dapfforwc_dismiss_ny_notice', 'nonce');
     
     if (!current_user_can('manage_options')) {
-        wp_send_json_error('Insufficient permissions');
+        wp_send_json_error(esc_html__('Insufficient permissions.', 'dynamic-ajax-product-filters-for-woocommerce'), 403);
     }
     
-    $hours = isset($_POST['hours']) ? intval($_POST['hours']) : 3;
+    $hours = isset($_POST['hours']) ? absint(wp_unslash($_POST['hours'])) : 3;
+    if (!in_array($hours, [3, 12, 24], true)) {
+        $hours = 3;
+    }
+
     $dismiss_until = time() + ($hours * 3600);
     
     update_user_meta(get_current_user_id(), 'dapfforwc_ny_notice_dismissed_until', $dismiss_until);
     
-    wp_send_json_success('Notice dismissed for ' . $hours . ' hours');
+    wp_send_json_success([
+        'message' => sprintf(
+            /* translators: %d: number of hours the notice stays dismissed. */
+            esc_html__('Notice dismissed for %d hours.', 'dynamic-ajax-product-filters-for-woocommerce'),
+            $hours
+        ),
+        'hours' => $hours,
+    ]);
 }
 
 add_action('admin_notices', 'dapfforwc_show_new_year_notice');
@@ -152,7 +170,8 @@ function dapfforwc_show_new_year_notice()
         return;
     }
 
-    echo '<style>
+    ob_start();
+    ?>
 .dapfforwc-ny-wrap {
     padding:24px;
     border-radius:16px;
@@ -556,7 +575,8 @@ p.dapfforwc-ny-sub {
     align-items: center;
     gap: 6px;
 }
-</style>';
+<?php
+    dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-menu-style');
 
     echo '<div class="notice notice-info is-dismissible" style="padding:0;border:none;background:transparent;box-shadow:none;">';
     echo '  <div class="notice-dismiss-wrapper">';
@@ -604,7 +624,8 @@ p.dapfforwc-ny-sub {
     echo '</div>';
     
     // Add JavaScript for dismiss functionality
-    echo '<script>
+    ob_start();
+    ?>
     jQuery(document).ready(function($) {
         var dismissMenu = $(".dapfforwc-ny-dismiss-menu");
         var dismissTrigger = $(".dapfforwc-ny-dismiss-trigger");
@@ -628,12 +649,12 @@ p.dapfforwc-ny-sub {
             
             // Send AJAX request to save dismiss time
             $.ajax({
-                url: ajaxurl,
+                url: dapfforwcAdminAjax.ajax_url,
                 type: "POST",
                 data: {
                     action: "dapfforwc_dismiss_ny_notice",
                     hours: hours,
-                    nonce: "' . esc_js(wp_create_nonce('dapfforwc_dismiss_ny_notice')) . '"
+                    nonce: dapfforwcAdminAjax.dismiss_ny_notice_nonce
                 }
             });
         });
@@ -645,5 +666,6 @@ p.dapfforwc-ny-sub {
             }
         });
     });
-    </script>';
+    <?php
+    dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-menu-script');
 }

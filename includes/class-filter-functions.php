@@ -369,7 +369,9 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
      */
     private function request_is_read_only(): bool
     {
-        $method = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $method = isset($_SERVER['REQUEST_METHOD'])
+            ? strtoupper(sanitize_text_field(wp_unslash($_SERVER['REQUEST_METHOD'])))
+            : 'GET';
         return $method === 'GET';
     }
 
@@ -1758,7 +1760,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         }
 
         if (isset($_GET['orderby']) && $_GET['orderby'] !== '') {
-            $normalized_orderby = $this->normalize_orderby_value($_GET['orderby']);
+            $normalized_orderby = $this->normalize_orderby_value(sanitize_text_field(wp_unslash($_GET['orderby'])));
             if ($normalized_orderby !== '') {
                 $params['orderby'] = $normalized_orderby;
             }
@@ -1957,19 +1959,21 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $sale_values = array_merge($sale_values, (array)$permalink_params['rpn_sale']);
         }
         if (isset($_GET['rpn_sale']) && $_GET['rpn_sale'] !== '') {
+            $raw_sale_values = map_deep(wp_unslash($_GET['rpn_sale']), 'sanitize_text_field');
             $sale_values = array_merge(
                 $sale_values,
-                is_array($_GET['rpn_sale'])
-                    ? wp_unslash($_GET['rpn_sale'])
-                    : explode(',', sanitize_text_field(wp_unslash($_GET['rpn_sale'])))
+                is_array($raw_sale_values)
+                    ? $raw_sale_values
+                    : explode(',', $raw_sale_values)
             );
         }
         if (isset($_GET['rpn_sale[]']) && $_GET['rpn_sale[]'] !== '') {
+            $raw_sale_values = map_deep(wp_unslash($_GET['rpn_sale[]']), 'sanitize_text_field');
             $sale_values = array_merge(
                 $sale_values,
-                is_array($_GET['rpn_sale[]'])
-                    ? wp_unslash($_GET['rpn_sale[]'])
-                    : explode(',', sanitize_text_field(wp_unslash($_GET['rpn_sale[]'])))
+                is_array($raw_sale_values)
+                    ? $raw_sale_values
+                    : explode(',', $raw_sale_values)
             );
         }
         $sale_values = $this->normalize_sale_values($sale_values);
@@ -2466,10 +2470,10 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
     private function sanitize_request_value($value)
     {
         if (is_array($value)) {
-            return array_map(array($this, 'sanitize_request_value'), wp_unslash($value));
+            return array_map(array($this, 'sanitize_request_value'), $value);
         }
 
-        return sanitize_text_field(wp_unslash($value));
+        return sanitize_text_field($value);
     }
 
     /**
@@ -2526,21 +2530,23 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
 
         foreach ($filter_params as $param) {
             if (isset($_REQUEST[$param])) {
-                $_GET[$param] = $this->sanitize_request_value($_REQUEST[$param]);
+                $_GET[$param] = map_deep(wp_unslash($_REQUEST[$param]), 'sanitize_text_field');
             }
         }
 
         // Handle custom meta parameters
-        foreach ($_REQUEST as $key => $value) {
-            if (strpos($key, 'rplugcusf_') === 0) {
-                $_GET[$key] = $this->sanitize_request_value($value);
+        foreach (array_keys($_REQUEST) as $key) {
+            $request_key = sanitize_key($key);
+            if (strpos($request_key, 'rplugcusf_') === 0 && isset($_REQUEST[$key])) {
+                $_GET[$request_key] = map_deep(wp_unslash($_REQUEST[$key]), 'sanitize_text_field');
             }
         }
 
         // Handle attribute parameters
-        foreach ($_REQUEST as $key => $value) {
-            if (strpos($key, 'rplugpa_') === 0) {
-                $_GET[$key] = $this->sanitize_request_value($value);
+        foreach (array_keys($_REQUEST) as $key) {
+            $request_key = sanitize_key($key);
+            if (strpos($request_key, 'rplugpa_') === 0 && isset($_REQUEST[$key])) {
+                $_GET[$request_key] = map_deep(wp_unslash($_REQUEST[$key]), 'sanitize_text_field');
             }
         }
 
@@ -2548,18 +2554,18 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
         $prefixes = $this->get_prefixes_config();
         $pagination_prefix = trim((string) $this->resolve_prefix_key($prefixes, 'pagination', 'paged'));
         if ($pagination_prefix !== '' && isset($_REQUEST[$pagination_prefix])) {
-            $_GET[$pagination_prefix] = $this->sanitize_request_value($_REQUEST[$pagination_prefix]);
+            $_GET[$pagination_prefix] = map_deep(wp_unslash($_REQUEST[$pagination_prefix]), 'sanitize_text_field');
         }
         $orderby_prefix = trim((string) $this->resolve_prefix_key($prefixes, 'orderby', 'orderby'));
         if ($orderby_prefix !== '' && isset($_REQUEST[$orderby_prefix])) {
-            $_GET[$orderby_prefix] = $this->sanitize_request_value($_REQUEST[$orderby_prefix]);
+            $_GET[$orderby_prefix] = map_deep(wp_unslash($_REQUEST[$orderby_prefix]), 'sanitize_text_field');
         }
 
         if (isset($prefixes['attribute']) && is_array($prefixes['attribute'])) {
             foreach ($prefixes['attribute'] as $attribute_name => $attribute_prefix) {
                 $attribute_prefix = trim((string) $attribute_prefix);
                 if ($attribute_prefix !== '' && isset($_REQUEST[$attribute_prefix])) {
-                    $_GET[$attribute_prefix] = $this->sanitize_request_value($_REQUEST[$attribute_prefix]);
+                    $_GET[$attribute_prefix] = map_deep(wp_unslash($_REQUEST[$attribute_prefix]), 'sanitize_text_field');
                 }
             }
         }
@@ -2568,7 +2574,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             foreach ($prefixes['custom'] as $custom_name => $custom_prefix) {
                 $custom_prefix = trim((string) $custom_prefix);
                 if ($custom_prefix !== '' && isset($_REQUEST[$custom_prefix])) {
-                    $_GET[$custom_prefix] = $this->sanitize_request_value($_REQUEST[$custom_prefix]);
+                    $_GET[$custom_prefix] = map_deep(wp_unslash($_REQUEST[$custom_prefix]), 'sanitize_text_field');
                 }
             }
         }

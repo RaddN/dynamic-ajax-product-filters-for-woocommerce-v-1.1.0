@@ -289,7 +289,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             // $output .= json_encode($filter_options_manage);
             $index = 0;
             if ($filter_options_manage) {
-                $output .= '<style id="filter-widget-ordering">form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}';
+                $filter_ordering_css = 'form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}';
                 foreach ($filter_options_manage as $options) {
                     if ($options["id"] == "product-category" && !isset($dapfforwc_options["show_categories"])) {
                         continue;
@@ -320,7 +320,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                     }
 
                     $is_visible = $options["visible"] ? "flex" : "none";
-                    $output .= '.' . $options["id"] . '{
+                    $filter_ordering_css .= '.' . sanitize_html_class($options["id"]) . '{
                     order: ' . $index . '!important;
                     display:' . $is_visible . '!important;
                     flex-direction: column;                
@@ -328,7 +328,7 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                     ';
                     $index++;
                 }
-                $output .= '</style>';
+                dapfforwc_add_inline_style($filter_ordering_css, 'filter-style');
             }
             $product_selector = isset($attributes['productSelector']) ? esc_attr($attributes['productSelector']) : '';
             $pagination_selector = isset($attributes['paginationSelector']) ? esc_attr($attributes['paginationSelector']) : '';
@@ -336,121 +336,121 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             $db_tags = isset($attributes['tag']) ? sanitize_key($attributes['tag']) : '';
             $db_attribute = isset($attributes['attribute']) ? sanitize_key($attributes['attribute']) : '';
             $db_attribute_terms = isset($attributes['attributeTerms']) ? sanitize_key($attributes['attributeTerms']) : '';
-            $output .= '<style>';
+            $block_css = '';
             if ($form_style_css) {
-                $output .= 'form#product-filter {' . $form_style_css . '}';
+                $block_css .= 'form#product-filter {' . $form_style_css . '}';
             }
             if ($container_style_css) {
-                $output .= '.plugincy-filter-group {' . $container_style_css . '}';
+                $block_css .= '.plugincy-filter-group {' . $container_style_css . '}';
             }
             if ($widget_title_style_css) {
-                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_title_style_css . '}';
+                $block_css .= '.plugincy-filter-group .plugincy_title {' . $widget_title_style_css . '}';
             }
             if ($widget_items_style_css) {
-                $output .= '.plugincy-filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;}';
+                $block_css .= '.plugincy-filter-group .items {' . $widget_items_style_css . '    display: flex; flex-direction: column;}';
             }
             if ($button_style_css) {
-                $output .= 'form#product-filter button {' . $button_style_css . '}';
+                $block_css .= 'form#product-filter button {' . $button_style_css . '}';
             }
             if ($rating_style_css) {
-                $output .= 'form#product-filter svg {' . $rating_style_css . '} .dynamic-rating label{' . $rating_style_css . '}';
+                $block_css .= 'form#product-filter svg {' . $rating_style_css . '} .dynamic-rating label{' . $rating_style_css . '}';
             }
             if ($reset_button_style_css) {
-                $output .= 'form#product-filter span.reset-value {' . $reset_button_style_css . '}';
+                $block_css .= 'form#product-filter span.reset-value {' . $reset_button_style_css . '}';
             }
             if ($input_style_css) {
-                $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_style_css . '}';
+                $block_css .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_style_css . '}';
             }
             if ($slider_style_css) {
-                $output .= 'form#product-filter .slider {' . $slider_style_css . '}';
+                $block_css .= 'form#product-filter .slider {' . $slider_style_css . '}';
             }
             if ($slider_progress_style_css) {
-                $output .= 'form#product-filter .plugincy_slider .plugrogress {' . $slider_progress_style_css . '}';
+                $block_css .= 'form#product-filter .plugincy_slider .plugrogress {' . $slider_progress_style_css . '}';
             }
             if ($slider_thumb_style_css) {
-                $output .= 'form#product-filter input[type="range"]::-webkit-slider-thumb {' . $slider_thumb_style_css . '} input[type="range"]::-moz-range-thumb {' . $slider_thumb_style_css . '}';
+                $block_css .= 'form#product-filter input[type="range"]::-webkit-slider-thumb {' . $slider_thumb_style_css . '} input[type="range"]::-moz-range-thumb {' . $slider_thumb_style_css . '}';
             }
             if ($slider_tooltip_style_css) {
-                $output .= 'form#product-filter .plugrogress-percentage:before,form#product-filter  .plugrogress-percentage:after {' . $slider_tooltip_style_css . '}';
+                $block_css .= 'form#product-filter .plugrogress-percentage:before,form#product-filter  .plugrogress-percentage:after {' . $slider_tooltip_style_css . '}';
             }
-            $output .= '
+            $block_css .= '
             
  @media screen and (max-width: ' . $mobile_breakpoint_css . 'px) {';
             if ($form_sm_style_css) {
-                $output .= 'form#product-filter {' . $form_sm_style_css . '}';
+                $block_css .= 'form#product-filter {' . $form_sm_style_css . '}';
             }
             if ($container_sm_style_css) {
-                $output .= '.plugincy-filter-group {' . $container_sm_style_css . '}';
+                $block_css .= '.plugincy-filter-group {' . $container_sm_style_css . '}';
             }
             if ($widget_sm_title_style_css) {
-                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_sm_title_style_css . '}';
+                $block_css .= '.plugincy-filter-group .plugincy_title {' . $widget_sm_title_style_css . '}';
             }
             if ($widget_items_sm_style_css) {
-                $output .= '.plugincy-filter-group .items {' . $widget_items_sm_style_css . '}';
+                $block_css .= '.plugincy-filter-group .items {' . $widget_items_sm_style_css . '}';
             }
             if ($button_sm_style_css) {
-                $output .= 'form#product-filter button {' . $button_sm_style_css . '}';
+                $block_css .= 'form#product-filter button {' . $button_sm_style_css . '}';
             }
             if ($rating_sm_style_css) {
-                $output .= 'form#product-filter i {' . $rating_sm_style_css . '}';
+                $block_css .= 'form#product-filter i {' . $rating_sm_style_css . '}';
             }
             if ($reset_button_sm_style_css) {
-                $output .= 'form#product-filter span.reset-value {' . $reset_button_sm_style_css . '}';
+                $block_css .= 'form#product-filter span.reset-value {' . $reset_button_sm_style_css . '}';
             }
             if ($input_sm_style_css) {
-                $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_sm_style_css . '}';
+                $block_css .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_sm_style_css . '}';
             }
             if ($filter_word_mobile_css) {
-                $output .= 'form#product-filter:before {' . $filter_word_mobile_css . '}';
+                $block_css .= 'form#product-filter:before {' . $filter_word_mobile_css . '}';
             }
-            $output .= '}';
-            $output .= '
+            $block_css .= '}';
+            $block_css .= '
             
 @media screen and (min-width: 576px) and (max-width: ' . $mobile_breakpoint_css . 'px) {';
             if ($form_md_style_css) {
-                $output .= 'form#product-filter {' . $form_md_style_css . '}';
+                $block_css .= 'form#product-filter {' . $form_md_style_css . '}';
             }
             if ($container_md_style_css) {
-                $output .= '.plugincy-filter-group {' . $container_md_style_css . '}';
+                $block_css .= '.plugincy-filter-group {' . $container_md_style_css . '}';
             }
             if ($widget_md_title_style_css) {
-                $output .= '.plugincy-filter-group .plugincy_title {' . $widget_md_title_style_css . '}';
+                $block_css .= '.plugincy-filter-group .plugincy_title {' . $widget_md_title_style_css . '}';
             }
             if ($widget_items_md_style_css) {
-                $output .= '.plugincy-filter-group .items {' . $widget_items_md_style_css . '}';
+                $block_css .= '.plugincy-filter-group .items {' . $widget_items_md_style_css . '}';
             }
             if ($button_md_style_css) {
-                $output .= 'form#product-filter button {' . $button_md_style_css . '}';
+                $block_css .= 'form#product-filter button {' . $button_md_style_css . '}';
             }
             if ($rating_md_style_css) {
-                $output .= 'form#product-filter i {' . $rating_md_style_css . '}';
+                $block_css .= 'form#product-filter i {' . $rating_md_style_css . '}';
             }
             if ($reset_button_md_style_css) {
-                $output .= 'form#product-filter span.reset-value {' . $reset_button_md_style_css . '}';
+                $block_css .= 'form#product-filter span.reset-value {' . $reset_button_md_style_css . '}';
             }
             if ($input_md_style_css) {
-                $output .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_md_style_css . '}';
+                $block_css .= 'form#product-filter input[type="search"], form#product-filter input[type="number"] {' . $input_md_style_css . '}';
             }
-            $output .= '}
+            $block_css .= '}
             
 ';
-            $output .= $custom_css;
+            $block_css .= $custom_css;
             if ($button_hover_css) {
-                $output .= 'form#product-filter button:hover {' . $button_hover_css . '}';
+                $block_css .= 'form#product-filter button:hover {' . $button_hover_css . '}';
             }
             if ($reset_button_hover_css) {
-                $output .= 'form#product-filter span.reset-value:hover {' . $reset_button_hover_css . '}';
+                $block_css .= 'form#product-filter span.reset-value:hover {' . $reset_button_hover_css . '}';
             }
             if ($rating_hover_css) {
-                $output .= 'form#product-filter .plugincy-stars:hover svg,.dynamic-rating input:checked ~ label svg, .dynamic-rating:not(:checked) label:hover svg, .dynamic-rating:not(:checked) label:hover ~ label svg {' . $rating_hover_css . '}';
+                $block_css .= 'form#product-filter .plugincy-stars:hover svg,.dynamic-rating input:checked ~ label svg, .dynamic-rating:not(:checked) label:hover svg, .dynamic-rating:not(:checked) label:hover ~ label svg {' . $rating_hover_css . '}';
             }
             if ($rating_active_css) {
-                $output .= 'form#product-filter input:checked + .plugincy-stars svg,   .dynamic-rating  input:checked + label:hover svg,
+                $block_css .= 'form#product-filter input:checked + .plugincy-stars svg,   .dynamic-rating  input:checked + label:hover svg,
   .dynamic-rating  input:checked ~ label:hover svg,
   .dynamic-rating  label:hover ~ input:checked ~ label svg,
   .dynamic-rating  input:checked ~ label:hover ~ label svg {' . $rating_active_css . '}';
             }
-            $output .= '</style>';
+            dapfforwc_add_inline_style($block_css, 'filter-style');
             // Build the wrapper <div>; only add class attribute if non-empty
             $wrapper_open = '<div';
             if ($class_name !== '') {
@@ -478,12 +478,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
             break;
         case 'single':
             $filter_name = esc_attr($attributes['filterName']);
-            $output .= '<style>';
-            $output .= '.rfilterbuttons li{' . $single_filter_inactive_css . '}';
-            $output .= '.rfilterbuttons ul {' . $single_filter_container_css . '}';
-            $output .= '.rfilterbuttons ul li.checked {' . $single_filter_active_css . '}';
-            $output .= '.rfilterbuttons ul li:hover {' . $single_filter_hover_css . '}';
-            $output .= '</style>';
+            dapfforwc_add_inline_style(
+                '.rfilterbuttons li{' . $single_filter_inactive_css . '}' .
+                '.rfilterbuttons ul {' . $single_filter_container_css . '}' .
+                '.rfilterbuttons ul li.checked {' . $single_filter_active_css . '}' .
+                '.rfilterbuttons ul li:hover {' . $single_filter_hover_css . '}',
+                'filter-style'
+            );
             $shortcode = sprintf('[plugincy_filters_single name="%s"]', $filter_name);
 
             // 4) Output: escape only real HTML attributes
@@ -492,12 +493,13 @@ function dapfforwc_render_dynamic_ajax_filter_block($attributes)
                 . '</div>';
             break;
         case 'selected':
-            $output .= '<style>';
-            $output .= '.rfilterselected  li{' . $single_filter_inactive_css . '}';
-            $output .= '.rfilterselected  ul {' . $single_filter_container_css . '}';
-            $output .= '.rfilterselected  ul li.checked {' . $single_filter_active_css . '}';
-            $output .= '.rfilterselected  ul li:hover {' . $single_filter_hover_css . '}';
-            $output .= '</style>';
+            dapfforwc_add_inline_style(
+                '.rfilterselected  li{' . $single_filter_inactive_css . '}' .
+                '.rfilterselected  ul {' . $single_filter_container_css . '}' .
+                '.rfilterselected  ul li.checked {' . $single_filter_active_css . '}' .
+                '.rfilterselected  ul li:hover {' . $single_filter_hover_css . '}',
+                'filter-style'
+            );
             $output .= '<div class="' . esc_attr($class_name) . '">' . do_shortcode('[plugincy_filters_selected]') . '</div>';
             break;
     }
@@ -2250,14 +2252,14 @@ function dapfforwc_register_dynamic_ajax_filter_widget_elementor()
             $output = '';
 
             if (!empty($settings['form_elements'])) {
-                $output .= '<style>form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}'; // Start the style tag
+                $element_ordering_css = 'form#product-filter { display: flex ; flex-direction: column; }form#product-filter .plugincy-filter-group {order: 999;}';
                 foreach ($settings['form_elements'] as $index => $element) {
-                    $element_type = $element['element_type'];
+                    $element_type = sanitize_html_class($element['element_type']);
                     $is_visible = $element['element_visible'] === 'yes' ? "block" : "none";
                     $order = $index + 1;
-                    $output .= '.' . $element_type . '{ display: ' . $is_visible . ' !important; order: ' . $order . ' !important; }';
+                    $element_ordering_css .= '.' . $element_type . '{ display: ' . $is_visible . ' !important; order: ' . $order . ' !important; }';
                 }
-                $output .= '</style>'; // Close the style tag
+                dapfforwc_add_inline_style($element_ordering_css, 'filter-style');
             }
 
             switch ($settings['filter_type']) {

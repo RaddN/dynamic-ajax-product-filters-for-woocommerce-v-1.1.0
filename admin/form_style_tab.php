@@ -2,6 +2,8 @@
 if (!defined('ABSPATH')) {
     exit;
 }
+
+// phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- This admin template uses local template variables; plugin functions, options, and hooks remain prefixed.
 ?>
 
 <form method="post" action="options.php" id="dapfforwc-style-options-form">
@@ -80,7 +82,8 @@ if (!defined('ABSPATH')) {
         return $option->attribute_name;
     }, $dapfforwc_all_options);
     $dapfforwc_selected_attribute = $dapfforwc_first_attribute;
-    if (isset($_GET['style_attr'])) {
+    $dapfforwc_has_style_attr_nonce = isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce');
+    if ($dapfforwc_has_style_attr_nonce && isset($_GET['style_attr'])) {
         $requested_attribute = sanitize_text_field(wp_unslash($_GET['style_attr']));
         if (in_array($requested_attribute, $dapfforwc_option_names, true)) {
             $dapfforwc_selected_attribute = $requested_attribute;
@@ -242,7 +245,7 @@ if (!defined('ABSPATH')) {
         </div>
 
 
-        <script>
+        <?php ob_start(); ?>
             document.addEventListener('DOMContentLoaded', function() {
                 const mainTaxonomyDropdown = document.getElementById('main-texonomy-dropdown');
                 const childAttrDropdown = document.getElementById('child-attr-dropdown');
@@ -481,7 +484,7 @@ if (!defined('ABSPATH')) {
                     });
                 }
             });
-        </script>
+        <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
 
         <!-- Style Options Container -->
         <div id="style-options-container" data-dynamic="true" data-selected-attribute="<?php echo esc_attr($dapfforwc_selected_attribute); ?>">
@@ -1218,8 +1221,8 @@ if (!defined('ABSPATH')) {
                                                 <div data-attr-only="dimensions">
                                                     <p class="description" style="margin: 12px 0 0; padding: 10px 12px; background: #f8fafc; border-left: 3px solid #764ba2;">
                                                         <?php
-                                                        /* translators: 1: placeholder token, 2: example placeholder token. */
                                                         printf(
+                                                            /* translators: 1: placeholder token, 2: example placeholder token. */
                                                             esc_html__('Dimension number fields stay empty until a shopper enters a value. Use %1$s or {value} in the min/max placeholder text to show the current catalog bound, for example Min (%2$s).', 'dynamic-ajax-product-filters-for-woocommerce'),
                                                             esc_html('%s'),
                                                             esc_html('%s')
@@ -1621,7 +1624,7 @@ if (!defined('ABSPATH')) {
 </form>
 </div>
 </div>
-<script>
+<?php ob_start(); ?>
     window.dapfforwcStyleData = <?php echo wp_json_encode([
                                     'selectedAttribute' => $dapfforwc_selected_attribute,
                                     'attributeNames' => array_values($dapfforwc_option_names),
@@ -1638,8 +1641,8 @@ if (!defined('ABSPATH')) {
                                     'removeImageLabel' => esc_html__('Remove image', 'dynamic-ajax-product-filters-for-woocommerce'),
                                     'isPremium' => false,
                                 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT); ?>;
-</script>
-<script>
+<?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
+<?php ob_start(); ?>
     (function() {
         const data = window.dapfforwcStyleData;
         if (!data) {
@@ -2773,8 +2776,8 @@ if (!defined('ABSPATH')) {
             applyStateForAttribute(currentAttribute);
         }
     })();
-</script>
-<script>
+<?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
+<?php ob_start(); ?>
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('dapfforwc-style-options-form') || document.querySelector('form[action="options.php"]');
         if (!form) {
@@ -3067,4 +3070,4 @@ if (!defined('ABSPATH')) {
         });
 
     });
-</script>
+<?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>

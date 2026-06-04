@@ -147,14 +147,20 @@ function dapfforwc_render_plugincy_plugins_page()
             echo '<img class="plugin-icon" src="' . esc_url($icon) . '" alt="" />';
         }
         if ($details_url) {
-            /* translators: %s: Plugin name. */
-            echo '<h3><a class="thickbox open-plugin-details-modal" href="' . esc_url($details_url) . '" aria-label="' . esc_attr(sprintf(__('More details about %s', 'dynamic-ajax-product-filters-for-woocommerce'), $name)) . '">' . esc_html($name) . '</a></h3>';
+            echo '<h3><a class="thickbox open-plugin-details-modal" href="' . esc_url($details_url) . '" aria-label="' . esc_attr(sprintf(
+                /* translators: %s: Plugin name. */
+                __('More details about %s', 'dynamic-ajax-product-filters-for-woocommerce'),
+                $name
+            )) . '">' . esc_html($name) . '</a></h3>';
         } else {
             echo '<h3>' . esc_html($name) . '</h3>';
         }
         if (!empty($author)) {
-            /* translators: %s: Plugin author. */
-            echo '<p class="author">' . sprintf(esc_html__('By %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_kses_post($author)) . '</p>';
+            echo '<p class="author">' . sprintf(
+                /* translators: %s: Plugin author. */
+                esc_html__('By %s', 'dynamic-ajax-product-filters-for-woocommerce'),
+                wp_kses_post($author)
+            ) . '</p>';
         }
         echo '</div>';
         echo '<div class="action-links"><ul class="plugin-action-buttons"><li>' . wp_kses(
@@ -177,12 +183,18 @@ function dapfforwc_render_plugincy_plugins_page()
 
         echo '<div class="plugin-card-bottom">';
         echo '<div class="vers column-rating">';
-        /* translators: %s: Plugin version. */
-        echo '<span>' . sprintf(esc_html__('Version %s', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($version)) . '</span>';
+        echo '<span>' . sprintf(
+            /* translators: %s: Plugin version. */
+            esc_html__('Version %s', 'dynamic-ajax-product-filters-for-woocommerce'),
+            esc_html($version)
+        ) . '</span>';
         if ($active_installs !== null) {
             $installs = number_format_i18n((int) $active_installs);
-            /* translators: %s: Number of active installs. */
-            echo '<span style="margin-left:10px;">' . sprintf(esc_html__('%s+ active installs', 'dynamic-ajax-product-filters-for-woocommerce'), esc_html($installs)) . '</span>';
+            echo '<span style="margin-left:10px;">' . sprintf(
+                /* translators: %s: Number of active installs. */
+                esc_html__('%s+ active installs', 'dynamic-ajax-product-filters-for-woocommerce'),
+                esc_html($installs)
+            ) . '</span>';
         }
         echo '</div>';
         echo '<div class="column-compatibility"><span class="compatibility-compatible">' . esc_html__('Compatible with your version of WordPress', 'dynamic-ajax-product-filters-for-woocommerce') . '</span></div>';
@@ -346,7 +358,7 @@ function dapfforwc_get_loading_effects()
         ]
     ];
 
-    return json_encode($loading_effects);
+    return wp_json_encode($loading_effects);
 }
 
 function dapfforwc_admin_page_content()
@@ -437,7 +449,7 @@ function dapfforwc_admin_page_content()
             </div>
         </div>
 
-        <style>
+        <?php ob_start(); ?>
             .plugincy-filter-welcome-container {
                 margin: 20px auto;
                 background: #fff;
@@ -732,7 +744,7 @@ function dapfforwc_admin_page_content()
                     margin-top: 15px;
                 }
             }
-        </style>
+        <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
         <h1 style="margin-bottom: 20px;">
             <div class="plugincy-dapfforwc-card-header">
                 <div class="plugincy-dapfforwc-card-header-icon">
@@ -745,22 +757,26 @@ function dapfforwc_admin_page_content()
             </div>
         </h1>
         <?php settings_errors(); // Displays success or error notices
-        $nonce = esc_js(wp_create_nonce('dapfforwc_tab_nonce'));
+        $nonce = wp_create_nonce('dapfforwc_tab_nonce');
+        $allowed_tabs = ['form_manage', 'form_style', 'form_template', 'seo_permalinks', 'advance_settings', 'license_settings'];
         $active_tab = 'form_manage'; // Default tab
         if (isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
-            $active_tab = isset($_GET['tab']) ? sanitize_text_field(wp_unslash($_GET['tab'])) : 'form_manage';
+            $requested_tab = isset($_GET['tab']) ? sanitize_key(wp_unslash($_GET['tab'])) : 'form_manage';
+            if (in_array($requested_tab, $allowed_tabs, true)) {
+                $active_tab = $requested_tab;
+            }
         }
 
         ?>
         <div class="dapfforwc_admin_page row" style="justify-content: space-between; flex-wrap: wrap; gap: 10px;">
             <div class="col-md-7">
                 <h2 class="nav-tab-wrapper">
-                    <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_manage' ? 'nav-tab-active' : (!isset($_GET['tab']) ? 'nav-tab-active' : ''); ?>"><span class="dashicons dashicons-forms"></span><span class="nav-title"><?php echo esc_html__('Form Manage', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
-                    <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_style' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-customizer"></span><span class="nav-title"><?php echo esc_html__('Form Style', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
-                    <a href="?page=dapfforwc-admin&tab=form_template&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'form_template' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-welcome-widgets-menus"></span><span class="nav-title"><?php echo esc_html__('Form Template', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
-                    <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'seo_permalinks' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-links"></span><span class="nav-title"><?php echo esc_html__('SEO & Permalinks Setup', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
-                    <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'advance_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-generic"></span><span class="nav-title"><?php echo esc_html__('Advance Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
-                    <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo isset($_GET['tab']) && $active_tab == 'license_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-network"></span><span class="nav-title"><?php echo esc_html__('Plugin License', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=form_manage&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'form_manage' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-forms"></span><span class="nav-title"><?php echo esc_html__('Form Manage', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=form_style&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'form_style' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-customizer"></span><span class="nav-title"><?php echo esc_html__('Form Style', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=form_template&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'form_template' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-welcome-widgets-menus"></span><span class="nav-title"><?php echo esc_html__('Form Template', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=seo_permalinks&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'seo_permalinks' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-links"></span><span class="nav-title"><?php echo esc_html__('SEO & Permalinks Setup', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=advance_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'advance_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-generic"></span><span class="nav-title"><?php echo esc_html__('Advance Settings', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
+                    <a href="?page=dapfforwc-admin&tab=license_settings&_wpnonce=<?php echo esc_attr($nonce); ?>" class="nav-tab <?php echo $active_tab === 'license_settings' ? 'nav-tab-active' : ''; ?>"><span class="dashicons dashicons-admin-network"></span><span class="nav-title"><?php echo esc_html__('Plugin License', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span></a>
                 </h2>
                 <div class="tab-content">
                     <?php
@@ -802,9 +818,7 @@ function dapfforwc_admin_page_content()
                                             <div class="loading-option" data-value="<?php echo esc_attr($effect['value']); ?>"
                                                 data-html="<?php echo esc_html($effect['html']); ?>"
                                                 data-css="<?php echo esc_html($effect['css']); ?>">
-                                                <style>
-                                                    <?php echo esc_attr($effect['css']); ?>
-                                                </style>
+                                                <?php dapfforwc_add_inline_style((string) $effect['css'], 'dapfforwc-admin-style'); ?>
                                                 <div class="<?php echo esc_attr($effect['value']); ?>"></div>
                                                 <span class="effect-name"><?php echo esc_html($effect['name']); ?></span>
                                                 <div class="checkmark" style="display:none;">✓</div>
@@ -858,8 +872,11 @@ function dapfforwc_admin_page_content()
                                                 <?php echo esc_html($dapfforwc_cache_status_text); ?>
                                                 <?php
                                                 if (!empty($dapfforwc_cache_status['updated_at'])) {
-                                                    /* translators: %s: Date and time the cache status was last updated. */
-                                                    echo ' ' . esc_html(sprintf(__('Last updated: %s', 'dynamic-ajax-product-filters-for-woocommerce'), wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) $dapfforwc_cache_status['updated_at'])));
+                                                    echo ' ' . esc_html(sprintf(
+                                                        /* translators: %s: Date and time the cache status was last updated. */
+                                                        __('Last updated: %s', 'dynamic-ajax-product-filters-for-woocommerce'),
+                                                        wp_date(get_option('date_format') . ' ' . get_option('time_format'), (int) $dapfforwc_cache_status['updated_at'])
+                                                    ));
                                                 }
                                                 ?>
                                             </p>
@@ -959,7 +976,7 @@ function dapfforwc_admin_page_content()
                         $license_manager->render_license_form();
                     }
                     ?>
-                    <style>
+                    <?php ob_start(); ?>
                         .header {
                             margin-bottom: 28px;
                         }
@@ -980,7 +997,7 @@ function dapfforwc_admin_page_content()
                             flex-direction: column;
                             gap: 16px;
                         }
-                    </style>
+                    <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
                 </div>
 
             </div>
@@ -1768,7 +1785,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                                                             }
                                                             echo '</div>';
                                                         } else {
-                                                            echo '<pre><code>' . esc_html(json_encode($example['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</code></pre>';
+                                                            echo '<pre><code>' . esc_html(wp_json_encode($example['body'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)) . '</code></pre>';
                                                         }
                                                         ?>
                                                     </div>
@@ -1776,7 +1793,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                                                 <?php if (isset($example['response']) && !empty($example['response'])) { ?>
                                                     <div class="dapfforwc-example-response">
                                                         <span class="dapfforwc-example-label"><?php echo esc_html__('Response:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></span>
-                                                        <pre><code><?php echo esc_html(json_encode($example['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></code></pre>
+                                                        <pre><code><?php echo esc_html(wp_json_encode($example['response'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES)); ?></code></pre>
                                                     </div>
                                                 <?php } ?>
                                             </div>
@@ -1791,7 +1808,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
         </div>
 
         <!-- Enhanced Styles -->
-        <style>
+        <?php ob_start(); ?>
             /* Tutorial Section */
             .dapfforwc-tutorial-section {
                 background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
@@ -2834,9 +2851,9 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     max-width: calc(100vw - 56px);
                 }
             }
-        </style>
+        <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
 
-        <script>
+        <?php ob_start(); ?>
             function toggleExample(header) {
                 const item = header.closest('.dapfforwc-example-item');
                 const content = item.querySelector('.dapfforwc-example-content');
@@ -3612,7 +3629,7 @@ Elementor, Gutenberg Shortcode. Single button style filters are perfect for mini
                     initShortcodeBuilder(root);
                 });
             })();
-        </script>
+        <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
     </div>
     <?php
 }
@@ -3622,12 +3639,34 @@ require_once(plugin_dir_path(__FILE__) . 'settings-init.php');
 require_once(plugin_dir_path(__FILE__) . 'form-manage.php');
 // color converter include
 require_once(plugin_dir_path(__FILE__) . 'color_name_to_hex.php');
+
+function dapfforwc_is_verified_settings_post($option_page)
+{
+    if (!is_admin() || !current_user_can('manage_options')) {
+        return false;
+    }
+
+    if (!isset($_POST['option_page'], $_POST['_wpnonce'])) {
+        return false;
+    }
+
+    $posted_option_page = sanitize_key(wp_unslash($_POST['option_page']));
+    if ($posted_option_page !== $option_page) {
+        return false;
+    }
+
+    $nonce = sanitize_text_field(wp_unslash($_POST['_wpnonce']));
+    return wp_verify_nonce($nonce, $option_page . '-options');
+}
+
 // before save image & color
 function dapfforwc_save_style_options($input, $old_value = null, $option = '')
 {
-    $has_posted_options = isset($_POST['dapfforwc_style_options']);
+    // phpcs:disable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Settings API nonce/capability are verified by dapfforwc_is_verified_settings_post(); JSON is decoded and sanitized before use.
+    $has_verified_style_options_request = dapfforwc_is_verified_settings_post('dapfforwc_style_options_group');
+    $has_posted_options = $has_verified_style_options_request && isset($_POST['dapfforwc_style_options']);
 
-    if (isset($_POST['dapfforwc_style_options_json'])) {
+    if ($has_verified_style_options_request && isset($_POST['dapfforwc_style_options_json'])) {
         $raw_json = wp_unslash($_POST['dapfforwc_style_options_json']);
         if (is_string($raw_json) && $raw_json !== '') {
             $decoded = json_decode($raw_json, true);
@@ -3677,9 +3716,10 @@ function dapfforwc_save_style_options($input, $old_value = null, $option = '')
     ];
 
     $posted_style_options = [];
-    if (isset($_POST['dapfforwc_style_options']) && is_array($_POST['dapfforwc_style_options'])) {
+    if ($has_verified_style_options_request && isset($_POST['dapfforwc_style_options']) && is_array($_POST['dapfforwc_style_options'])) {
         $posted_style_options = dapfforwc_sanitize_style_options(wp_unslash($_POST['dapfforwc_style_options']));
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
     $merge_style_values = static function ($existing, $incoming) use (&$merge_style_values) {
         if (!is_array($incoming)) {
@@ -3793,15 +3833,12 @@ function dapfforwc_maybe_clear_caches_on_settings_save($option, $old_value, $val
         return;
     }
 
-    if (!isset($_POST['action']) || sanitize_text_field(wp_unslash($_POST['action'])) !== 'update') {
-        return;
-    }
-
+    // phpcs:disable WordPress.Security.NonceVerification.Missing -- The option page is read only to select the Settings API nonce action, then verified by dapfforwc_is_verified_settings_post().
     if (!isset($_POST['option_page'])) {
         return;
     }
 
-    $option_page = sanitize_text_field(wp_unslash($_POST['option_page']));
+    $option_page = sanitize_key(wp_unslash($_POST['option_page']));
     $allowed_pages = [
         'dapfforwc_options_group',
         'dapfforwc_style_options_group',
@@ -3811,6 +3848,14 @@ function dapfforwc_maybe_clear_caches_on_settings_save($option, $old_value, $val
     ];
 
     if (!in_array($option_page, $allowed_pages, true)) {
+        return;
+    }
+
+    if (!dapfforwc_is_verified_settings_post($option_page)) {
+        return;
+    }
+
+    if (!isset($_POST['action']) || sanitize_key(wp_unslash($_POST['action'])) !== 'update') {
         return;
     }
 
@@ -3828,14 +3873,15 @@ function dapfforwc_maybe_clear_caches_on_settings_save($option, $old_value, $val
 
     $referer_page = '';
     if (isset($_POST['_wp_http_referer'])) {
-        $referer_query = wp_parse_url(wp_unslash($_POST['_wp_http_referer']), PHP_URL_QUERY);
+        $referer_query = wp_parse_url(esc_url_raw(wp_unslash($_POST['_wp_http_referer'])), PHP_URL_QUERY);
         if (is_string($referer_query) && $referer_query !== '') {
             parse_str($referer_query, $referer_args);
             if (isset($referer_args['page'])) {
-                $referer_page = sanitize_text_field($referer_args['page']);
+                $referer_page = sanitize_key($referer_args['page']);
             }
         }
     }
+    // phpcs:enable WordPress.Security.NonceVerification.Missing
 
     if ($referer_page !== '' && $referer_page !== 'dapfforwc-admin') {
         return;
@@ -3852,6 +3898,7 @@ function dapfforwc_maybe_clear_caches_on_settings_save($option, $old_value, $val
     }
 
     if (function_exists('is_plugin_active') && is_plugin_active('litespeed-cache/litespeed-cache.php')) {
+        // phpcs:ignore WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedHooknameFound -- LiteSpeed Cache exposes this public hook name.
         do_action('litespeed_purge_all');
     }
 
@@ -3883,7 +3930,8 @@ add_action('updated_option', 'dapfforwc_maybe_clear_caches_on_settings_save', 10
 function dapfforwc_handle_clear_cache()
 {
     // Check if the action is correct and nonce is valid
-    if (isset($_POST['action']) && $_POST['action'] === 'dapfforwc_clear_cache') {
+    $action = isset($_POST['action']) ? sanitize_key(wp_unslash($_POST['action'])) : '';
+    if ($action === 'dapfforwc_clear_cache') {
 
         // Verify nonce for security
         if (
@@ -3917,7 +3965,7 @@ function dapfforwc_handle_clear_cache()
             '_wpnonce' => esc_js(wp_create_nonce('dapfforwc_tab_nonce'))
         ), admin_url('admin.php'));
 
-        wp_redirect($redirect_url);
+        wp_safe_redirect($redirect_url);
         exit;
     }
 }
@@ -3929,7 +3977,8 @@ add_action('admin_post_dapfforwc_clear_cache', 'dapfforwc_handle_clear_cache');
  */
 function dapfforwc_handle_build_filter_cache()
 {
-    if (!isset($_POST['action']) || $_POST['action'] !== 'dapfforwc_build_filter_cache') {
+    $action = isset($_POST['action']) ? sanitize_key(wp_unslash($_POST['action'])) : '';
+    if ($action !== 'dapfforwc_build_filter_cache') {
         return;
     }
 
@@ -3960,7 +4009,7 @@ function dapfforwc_handle_build_filter_cache()
         '_wpnonce' => esc_js(wp_create_nonce('dapfforwc_tab_nonce')),
     ), admin_url('admin.php'));
 
-    wp_redirect($redirect_url);
+    wp_safe_redirect($redirect_url);
     exit;
 }
 add_action('admin_post_dapfforwc_build_filter_cache', 'dapfforwc_handle_build_filter_cache');
@@ -3971,10 +4020,18 @@ add_action('admin_post_dapfforwc_build_filter_cache', 'dapfforwc_handle_build_fi
  */
 function dapfforwc_cache_clear_notice()
 {
-
+    $notice_args = [];
     if (isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
+        foreach (['cache-cleared', 'cache-refresh-queued', 'database-mode-active', 'cache-build-failed'] as $notice_key) {
+            if (isset($_GET[$notice_key])) {
+                $notice_args[$notice_key] = sanitize_key(wp_unslash($_GET[$notice_key]));
+            }
+        }
+    }
 
-        if (isset($_GET['cache-cleared']) && $_GET['cache-cleared'] == 'true') {
+    if (!empty($notice_args)) {
+
+        if (($notice_args['cache-cleared'] ?? '') === 'true') {
     ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('Cache cleared successfully! WooCommerce and object caches have been flushed.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
@@ -3982,7 +4039,7 @@ function dapfforwc_cache_clear_notice()
         <?php
         }
 
-        if (isset($_GET['cache-refresh-queued']) && $_GET['cache-refresh-queued'] == 'true') {
+        if (($notice_args['cache-refresh-queued'] ?? '') === 'true') {
         ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('Filter cache refresh queued. The cache will rebuild automatically in background batches.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
@@ -3990,7 +4047,7 @@ function dapfforwc_cache_clear_notice()
         <?php
         }
 
-        if (isset($_GET['database-mode-active']) && $_GET['database-mode-active'] == 'true') {
+        if (($notice_args['database-mode-active'] ?? '') === 'true') {
         ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('Large-catalog database-safe mode is active. Filter metadata was refreshed without building full-catalog serialized caches.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
@@ -3998,7 +4055,7 @@ function dapfforwc_cache_clear_notice()
         <?php
         }
 
-        if (isset($_GET['cache-build-failed']) && $_GET['cache-build-failed'] == 'true') {
+        if (($notice_args['cache-build-failed'] ?? '') === 'true') {
         ?>
             <div class="notice notice-error is-dismissible">
                 <p><?php esc_html_e('Filter cache refresh could not be queued. Please check the debug log.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
@@ -4017,7 +4074,8 @@ add_action('admin_notices', 'dapfforwc_cache_clear_notice');
 function dapfforwc_reset_settings()
 {
     // Check if reset form was submitted
-    if (isset($_POST['reset_settings']) && $_POST['reset_settings'] == '1') {
+    $reset_settings = isset($_POST['reset_settings']) ? sanitize_key(wp_unslash($_POST['reset_settings'])) : '';
+    if ($reset_settings === '1') {
 
         // Verify nonce for security
         if (
@@ -4055,11 +4113,12 @@ function dapfforwc_reset_settings()
 
         // Redirect to prevent form resubmission
         $redirect_url = add_query_arg(array(
-            'page' => isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : 'dapfforwc-settings',
-            'settings-reset' => 'true'
+            'page' => 'dapfforwc-admin',
+            'settings-reset' => 'true',
+            '_wpnonce' => wp_create_nonce('dapfforwc_tab_nonce'),
         ), admin_url('admin.php'));
 
-        wp_redirect($redirect_url);
+        wp_safe_redirect($redirect_url);
         exit;
     }
 }
@@ -4092,8 +4151,10 @@ function dapfforwc_reset_settings_form()
  */
 function dapfforwc_admin_notices()
 {
+    $settings_reset = '';
     if (isset($_GET['_wpnonce']) && wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dapfforwc_tab_nonce')) {
-        if (isset($_GET['settings-reset']) && $_GET['settings-reset'] == 'true') {
+        $settings_reset = isset($_GET['settings-reset']) ? sanitize_key(wp_unslash($_GET['settings-reset'])) : '';
+        if ($settings_reset === 'true') {
     ?>
             <div class="notice notice-success is-dismissible">
                 <p><?php esc_html_e('All plugin settings have been reset to defaults.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
@@ -4109,8 +4170,8 @@ add_action('admin_notices', 'dapfforwc_admin_notices');
  */
 function dapfforwc_admin_styles()
 {
+    ob_start();
     ?>
-    <style>
         .button-danger {
             color: #fff !important;
             background: #dc3545 !important;
@@ -4132,10 +4193,10 @@ function dapfforwc_admin_styles()
             flex-direction: column;
             gap: 5px;
         }
-    </style>
-<?php
+    <?php
+    dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-menu-style');
 }
-add_action('admin_head', 'dapfforwc_admin_styles');
+add_action('admin_enqueue_scripts', 'dapfforwc_admin_styles', 20);
 
 
 // Add this to admin-page.php before the closing PHP tag
@@ -4159,6 +4220,7 @@ function dapfforwc_activate_template()
     }
 
     // Get existing template options
+    // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Existing plugin option cache global is used across the admin template flow.
     global $template_options;
 
     // Update the active template
@@ -4166,6 +4228,7 @@ function dapfforwc_activate_template()
 
     // Update the option
     update_option('dapfforwc_template_options', $template_options);
+    // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
 
     // Send success response
     wp_send_json_success(esc_html__('Template activated successfully.', 'dynamic-ajax-product-filters-for-woocommerce'));
@@ -4220,7 +4283,7 @@ function dapfforwc_render_admin_faq()
         </div>
     </div>
 
-    <style>
+    <?php ob_start(); ?>
         .dapfforwc-faq {
             display: flex;
             flex-direction: column;
@@ -4268,9 +4331,9 @@ function dapfforwc_render_admin_faq()
         .dapfforwc-faq-a p {
             margin: 0
         }
-    </style>
+    <?php dapfforwc_add_inline_style(ob_get_clean(), 'dapfforwc-admin-style'); ?>
 
-    <script>
+    <?php ob_start(); ?>
         (function() {
             document.addEventListener('click', function(e) {
                 const btn = e.target.closest('.dapfforwc-faq-q');
@@ -4283,6 +4346,6 @@ function dapfforwc_render_admin_faq()
                 panel.hidden = expanded;
             });
         })();
-    </script>
+    <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
 <?php
 }

@@ -273,7 +273,8 @@ class dapfforwc_Custom_Class_Injector
     {
         if (is_woocommerce()) {
             $result_count_selector = $this->get_advanced_selector_setting('result_count_selector', '.woocommerce-result-count');
-            echo '<script>
+            $pagination_class = $this->custom_classes['pagination'];
+            dapfforwc_add_inline_script('
                 jQuery(document).ready(function($) {
                     // Target multiple possible pagination selectors
                     var paginationSelectors = [
@@ -290,13 +291,13 @@ class dapfforwc_Custom_Class_Injector
                     ];
                     
                     $.each(paginationSelectors, function(index, selector) {
-                        $(selector).addClass("' . esc_attr($this->custom_classes['pagination']) . '");
+                        $(selector).addClass("' . esc_js($pagination_class) . '");
                     });
                     
                     // Also target parent containers that might contain pagination
-                    $(".woocommerce .navigation:not(header .navigation)").parent().addClass("' . esc_attr($this->custom_classes['pagination']) . '-container");
+                    $(".woocommerce .navigation:not(header .navigation)").parent().addClass("' . esc_js($pagination_class) . '-container");
                 });
-            </script>';
+            ', 'urlfilter-ajax');
         }
     }
 
@@ -304,14 +305,15 @@ class dapfforwc_Custom_Class_Injector
     {
         add_action('wp_footer', function () {
             if (is_woocommerce()) {
-                echo '<script>
+                $pagination_class = $this->custom_classes['pagination'];
+                dapfforwc_add_inline_script('
                     jQuery(document).ready(function($) {
                         // Wait for AJAX updates and late-loading pagination
                         setTimeout(function() {
-                            $(".woocommerce-pagination:not(header .woocommerce-pagination), .woocommerce nav.navigation:not(header nav), .pagination:not(header .pagination)").addClass("' . esc_attr($this->custom_classes['pagination']) . '");
+                            $(".woocommerce-pagination:not(header .woocommerce-pagination), .woocommerce nav.navigation:not(header nav), .pagination:not(header .pagination)").addClass("' . esc_js($pagination_class) . '");
                         }, 100);
                     });
-                </script>';
+                ', 'urlfilter-ajax');
             }
         });
     }
@@ -452,11 +454,11 @@ class dapfforwc_Custom_Class_Injector
     {
         if (is_woocommerce()) {
             $result_count_selector = $this->get_advanced_selector_setting('result_count_selector', '.woocommerce-result-count');
-            echo '<script>
+            dapfforwc_add_inline_script('
                 jQuery(document).ready(function($) {
                     $("' . esc_js($result_count_selector) . '").addClass("' . esc_attr($this->custom_classes['result_count']) . '");
                 });
-            </script>';
+            ', 'urlfilter-ajax');
         }
     }
 

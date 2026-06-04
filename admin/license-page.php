@@ -51,7 +51,7 @@ class DAPFFORWC_License_Manager
         ob_end_clean();
 
         // Redirect to prevent form resubmission
-        wp_redirect(add_query_arg(array('updated' => 1), wp_get_referer()));
+        wp_safe_redirect(add_query_arg(array('updated' => 1), wp_get_referer()));
         exit;
     }
 
@@ -362,7 +362,7 @@ class DAPFFORWC_License_Manager
                         </tbody>
                     </table>
                     <input type="hidden" name="dapfforwcpro_license_action" value="deactivate" />
-                    <input type="submit" class="button button-secondary" value="Deactivate License" onclick="return confirm('Are you sure you want to deactivate your license? This will deactivate the Pro plugin.');" />
+                    <input type="submit" class="button button-secondary" value="<?php echo esc_attr__('Deactivate License', 'dynamic-ajax-product-filters-for-woocommerce'); ?>" onclick="return confirm('<?php echo esc_js(__('Are you sure you want to deactivate your license? This will deactivate the Pro plugin.', 'dynamic-ajax-product-filters-for-woocommerce')); ?>');" />
                 </form>
             <?php elseif ($license_status === 'valid' && !$is_pro_active): ?>
                 <div class="notice notice-warning">
@@ -412,7 +412,7 @@ class DAPFFORWC_License_Manager
                     <div style="position: relative;">
                         <input type="password" style="width: 100%;border: 1px solid #eee;padding: 6px;" id="dapfforwcpro_license_key" name="dapfforwcpro_license_key" value="<?php echo esc_attr($license_key); ?>" class="regular-text" placeholder="Enter your license key" />
                         <span id="dapfforwcpro_license_eye" style="vertical-align: middle;margin-left: 8px;position: absolute;right: 0;top: 0;background: #eee;height: 100%;display: flex;align-items: center;justify-content: center;padding: 0 20px;border-radius: 0 2px 2px 0;cursor:pointer;" class="dashicons dashicons-visibility" title="<?php echo esc_attr__('Show license key', 'dynamic-ajax-product-filters-for-woocommerce'); ?>"></span>
-                        <script>
+                        <?php ob_start(); ?>
                             (function() {
                                 var input = document.getElementById('dapfforwcpro_license_key');
                                 var eye = document.getElementById('dapfforwcpro_license_eye');
@@ -425,7 +425,7 @@ class DAPFFORWC_License_Manager
                                     eye.title = visible ? '<?php echo esc_js(__('Hide license key', 'dynamic-ajax-product-filters-for-woocommerce')); ?>' : '<?php echo esc_js(__('Show license key', 'dynamic-ajax-product-filters-for-woocommerce')); ?>';
                                 });
                             })();
-                        </script>
+                        <?php dapfforwc_add_inline_script(ob_get_clean(), 'dapfforwc-admin-script'); ?>
                     </div>
                     <p class="description"><?php echo esc_html__('Enter your license key to download and activate the Pro version.', 'dynamic-ajax-product-filters-for-woocommerce'); ?></p>
                     <input type="hidden" name="dapfforwcpro_license_action" value="activate" />
@@ -433,20 +433,20 @@ class DAPFFORWC_License_Manager
                         <svg width="18" height="18" viewBox="0 0 0.54 0.54" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path d="M.27.045a.02.02 0 0 1 .022.022v.238L.344.254a.022.022 0 0 1 .032.032l-.09.09a.022.022 0 0 1-.032 0l-.09-.09A.022.022 0 1 1 .196.254l.051.052V.068A.022.022 0 0 1 .27.045M.113.383a.02.02 0 0 1 .022.022V.45h.27V.405a.022.022 0 1 1 .045 0V.45a.045.045 0 0 1-.045.045h-.27A.045.045 0 0 1 .09.45V.405A.022.022 0 0 1 .113.383" fill="#fff" />
                         </svg>
-                        Activate License & Install Pro
+                        <?php echo esc_html__('Activate License & Install Pro', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                     </button>
                 </form>
             <?php endif; ?>
 
             <p class="support-links">
                 <span style="margin-right: 16px;">
-                    <a href="https://plugincy.com/support" target="_blank" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <a href="https://plugincy.com/support" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px;">
                         <span class="dashicons dashicons-sos" style="font-size: 16px; vertical-align: middle; margin-bottom: -6px;"></span>
                         <?php echo esc_html__('Contact Support', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                     </a>
                 </span>
                 <span>
-                    <a href="https://plugincy.com/my-account" target="_blank" style="display: inline-flex; align-items: center; gap: 6px;">
+                    <a href="https://plugincy.com/my-account" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 6px;">
                         <span class="dashicons dashicons-admin-network" style="font-size: 16px; vertical-align: middle; margin-bottom: -6px;"></span>
                         <?php echo esc_html__('Manage Your Licenses', 'dynamic-ajax-product-filters-for-woocommerce'); ?>
                     </a>
