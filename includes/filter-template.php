@@ -4015,6 +4015,7 @@ function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
     }
 
     $placeholders = implode(',', array_fill(0, count($attachment_ids), '%d'));
+    // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholder list is generated from sanitized attachment IDs.
     $query = $wpdb->prepare(
         "
         SELECT p.ID AS attachment_id,
@@ -4028,8 +4029,9 @@ function dapfforwc_get_attachment_thumbnail_urls($attachment_ids)
         ",
         $attachment_ids
     );
+    // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
-    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query is prepared above with sanitized attachment ID placeholders.
+    // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Query is prepared above with sanitized attachment ID placeholders; attachment metadata is batch-loaded for product cache hydration.
     $results = $wpdb->get_results($query, ARRAY_A);
     if (empty($results)) {
         return [];
@@ -4077,6 +4079,7 @@ function dapfforwc_filter_data_uses_database_mode($data)
 function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
 {
     global $wpdb, $dapfforwc_styleoptions, $dapfforwc_options, $dapfforwc_advance_settings;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Database-mode filter data is intentionally built with aggregate SQL and cached in a transient for large catalogs.
 
     static $cached_result = null;
     static $cached_signature = null;
@@ -4350,52 +4353,57 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
 
         if ($limit > 0) {
             $custom_fields_query_args = [$wpdb->esc_like('_') . '%'];
+            $custom_fields_results = [];
             if (!empty($exclude_custom_fields)) {
                 $exclude_placeholders = implode(',', array_fill(0, count($exclude_custom_fields), '%s'));
                 $custom_fields_query_args = array_merge($custom_fields_query_args, $exclude_custom_fields, [$limit]);
-                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Placeholder list is generated from sanitized custom field keys.
-                $custom_fields_query = call_user_func_array(
-                    [$wpdb, 'prepare'],
-                    array_merge(["
-                    SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
-                    FROM {$wpdb->prefix}postmeta pm
-                    INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
-                    WHERE p.post_type = 'product'
-                      AND p.post_status = 'publish'
-                      AND pm.meta_key NOT LIKE %s
-                      AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
-                      AND pm.meta_value != ''
-                      AND pm.meta_value IS NOT NULL
-                      AND pm.meta_key NOT IN ($exclude_placeholders)
-                    GROUP BY pm.meta_key, pm.meta_value
-                    ORDER BY pm.meta_key, product_count DESC
-                    LIMIT %d
-                    "], $custom_fields_query_args)
+                // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Placeholder list is generated from sanitized custom field keys and replacements are unpacked from the matching sanitized list.
+                $custom_fields_results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
+                        FROM {$wpdb->prefix}postmeta pm
+                        INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+                        WHERE p.post_type = 'product'
+                          AND p.post_status = 'publish'
+                          AND pm.meta_key NOT LIKE %s
+                          AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+                          AND pm.meta_value != ''
+                          AND pm.meta_value IS NOT NULL
+                          AND pm.meta_key NOT IN ($exclude_placeholders)
+                        GROUP BY pm.meta_key, pm.meta_value
+                        ORDER BY pm.meta_key, product_count DESC
+                        LIMIT %d
+                        ",
+                        ...$custom_fields_query_args
+                    ),
+                    ARRAY_A
                 );
-                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+                // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
             } else {
-                $custom_fields_query = $wpdb->prepare(
-                    "
-                    SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
-                    FROM {$wpdb->prefix}postmeta pm
-                    INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
-                    WHERE p.post_type = 'product'
-                      AND p.post_status = 'publish'
-                      AND pm.meta_key NOT LIKE %s
-                      AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
-                      AND pm.meta_value != ''
-                      AND pm.meta_value IS NOT NULL
-                    GROUP BY pm.meta_key, pm.meta_value
-                    ORDER BY pm.meta_key, product_count DESC
-                    LIMIT %d
-                    ",
-                    $wpdb->esc_like('_') . '%',
-                    $limit
+                $custom_fields_results = $wpdb->get_results(
+                    $wpdb->prepare(
+                        "
+                        SELECT pm.meta_key, pm.meta_value, COUNT(DISTINCT pm.post_id) AS product_count
+                        FROM {$wpdb->prefix}postmeta pm
+                        INNER JOIN {$wpdb->prefix}posts p ON pm.post_id = p.ID
+                        WHERE p.post_type = 'product'
+                          AND p.post_status = 'publish'
+                          AND pm.meta_key NOT LIKE %s
+                          AND pm.meta_key NOT IN ('_visibility', '_stock_status', '_manage_stock', '_backorders', '_sold_individually')
+                          AND pm.meta_value != ''
+                          AND pm.meta_value IS NOT NULL
+                        GROUP BY pm.meta_key, pm.meta_value
+                        ORDER BY pm.meta_key, product_count DESC
+                        LIMIT %d
+                        ",
+                        $wpdb->esc_like('_') . '%',
+                        $limit
+                    ),
+                    ARRAY_A
                 );
             }
 
-            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, PluginCheck.Security.DirectDB.UnescapedDBParameter -- Query is prepared above with sanitized custom field exclusions and limit.
-            $custom_fields_results = $wpdb->get_results($custom_fields_query, ARRAY_A);
             foreach ((array) $custom_fields_results as $row) {
                 $meta_key = (string) $row['meta_key'];
                 $meta_value = (string) $row['meta_value'];
@@ -4428,12 +4436,14 @@ function dapfforwc_get_woocommerce_filter_data_for_database_mode($args = [])
     set_transient($cache_key, $data, 12 * HOUR_IN_SECONDS);
     $cached_signature = $cache_signature;
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare, PluginCheck.Security.DirectDB.UnescapedDBParameter
     return $cached_result = $data;
 }
 
 function dapfforwc_get_database_mode_min_max_price()
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate price bounds are read from WooCommerce product meta for database-safe mode.
 
     $bounds = $wpdb->get_row(
         "
@@ -4453,12 +4463,14 @@ function dapfforwc_get_database_mode_min_max_price()
     $min = isset($bounds['min_price']) && is_numeric($bounds['min_price']) ? floor((float) $bounds['min_price']) : null;
     $max = isset($bounds['max_price']) && is_numeric($bounds['max_price']) ? ceil((float) $bounds['max_price']) : null;
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     return ['min' => $min, 'max' => $max];
 }
 
 function dapfforwc_get_database_mode_dimension_bounds()
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Aggregate dimension bounds are read from allowlisted WooCommerce product meta keys.
 
     $bounds = [];
     foreach (['length', 'width', 'height', 'weight'] as $dimension) {
@@ -4486,6 +4498,7 @@ function dapfforwc_get_database_mode_dimension_bounds()
         ];
     }
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     return $bounds;
 }
 
@@ -4570,6 +4583,7 @@ function dapfforwc_get_lightweight_updated_filters($all_data)
 function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Filter option cache hydration intentionally uses aggregate SQL and stores the result in a transient.
     static $cached_result = null;
     $args = is_array($args) ? $args : [];
     $manual_build = !empty($args['force']) || !empty($args['manual']);
@@ -5104,12 +5118,14 @@ function dapfforwc_get_woocommerce_attributes_with_terms($args = [])
         dapfforwc_finish_filter_cache_build('complete', 'Automatic filter cache build completed successfully.');
     }
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
     return $cached_result = dapfforwc_apply_attributes_with_terms_filters($data);
 }
 
 function dapfforwc_build_woocommerce_attributes_with_terms_batched()
 {
     global $wpdb, $dapfforwc_styleoptions;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Batched filter cache hydration uses sanitized ID batches and aggregate SQL to avoid loading entire catalogs into memory.
 
     $batch_size = (int) apply_filters('dapfforwc_filter_cache_batch_size', 500);
     $batch_size = max(100, min(2000, $batch_size));
@@ -5535,6 +5551,7 @@ function dapfforwc_build_woocommerce_attributes_with_terms_batched()
         $data['custom_fields'][$field_key]['terms'] = array_values($data['custom_fields'][$field_key]['terms']);
     }
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
     return $data;
 }
 
@@ -5603,6 +5620,7 @@ function dapfforwc_get_filter_cache_skeleton_data()
 function dapfforwc_get_filter_cache_category_hierarchy()
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Category hierarchy is a static taxonomy lookup used while finalizing cached filter data.
 
     $category_hierarchy = [];
     $category_hierarchy_results = $wpdb->get_results(
@@ -5629,12 +5647,14 @@ function dapfforwc_get_filter_cache_category_hierarchy()
         }
     }
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     return $category_hierarchy;
 }
 
 function dapfforwc_get_filter_cache_next_product_ids($last_id, $batch_size)
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Product IDs are fetched in bounded batches for the background cache builder.
 
     $product_ids = $wpdb->get_col(
         $wpdb->prepare(
@@ -5652,12 +5672,14 @@ function dapfforwc_get_filter_cache_next_product_ids($last_id, $batch_size)
         )
     );
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
     return array_values(array_filter(array_map('absint', $product_ids)));
 }
 
 function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Product batch merge uses sanitized ID placeholder lists for cache hydration queries.
 
     $product_ids = array_values(array_filter(array_map('absint', (array) $product_ids)));
     if (empty($product_ids)) {
@@ -5913,6 +5935,7 @@ function dapfforwc_merge_filter_cache_product_batch(&$data, $product_ids)
 
         $data['custom_fields'][$meta_key]['terms'][$value_slug]['products'][$product_id] = $product_id;
     }
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 }
 
 function dapfforwc_finalize_filter_cache_data($data)
@@ -6220,6 +6243,7 @@ add_action(DAPFFORWC_FILTER_CACHE_BATCH_HOOK, 'dapfforwc_process_filter_cache_ba
 function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit = 0)
 {
     global $wpdb;
+    // phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Product detail cache hydration uses prepared pagination and sanitized ID batches for WooCommerce metadata aggregation.
 
     if ((int) $limit > 0) {
         $query = $wpdb->prepare(
@@ -6599,6 +6623,7 @@ function dapfforwc_build_woocommerce_product_details_data($last_id = 0, $limit =
         ];
     }
 
+    // phpcs:enable WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
     return ['products' => $products];
 }
 

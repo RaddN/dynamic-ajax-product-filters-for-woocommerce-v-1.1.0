@@ -130,16 +130,14 @@ if (!function_exists('dapfforwc_get_filter_cache_empty_data')) {
 if (!function_exists('dapfforwc_get_published_product_count')) {
     function dapfforwc_get_published_product_count()
     {
-        global $wpdb;
         static $count = null;
 
         if ($count !== null) {
             return $count;
         }
 
-        $count = (int) $wpdb->get_var(
-            "SELECT COUNT(ID) FROM {$wpdb->posts} WHERE post_type = 'product' AND post_status = 'publish'"
-        );
+        $product_counts = wp_count_posts('product');
+        $count = isset($product_counts->publish) ? (int) $product_counts->publish : 0;
 
         return $count;
     }
@@ -426,35 +424,17 @@ if (!function_exists('dapfforwc_get_cache_batch_args')) {
 if (!function_exists('dapfforwc_is_plugin_active_for_background_jobs')) {
     function dapfforwc_is_plugin_active_for_background_jobs()
     {
-        global $wpdb;
-
         $plugin_file = defined('DAPFFORWC_PLUGIN_BASE_NAME') ? DAPFFORWC_PLUGIN_BASE_NAME : plugin_basename(__FILE__);
 
-        if (is_multisite() && isset($wpdb->sitemeta)) {
-            $site_id = function_exists('get_current_network_id') ? (int) get_current_network_id() : 1;
-            $network_plugins = $wpdb->get_var(
-                $wpdb->prepare(
-                    "SELECT meta_value FROM {$wpdb->sitemeta} WHERE site_id = %d AND meta_key = %s LIMIT 1",
-                    $site_id,
-                    'active_sitewide_plugins'
-                )
-            );
-            $network_plugins = maybe_unserialize($network_plugins);
-
-            if (is_array($network_plugins) && isset($network_plugins[$plugin_file])) {
-                return true;
-            }
+        if (!function_exists('is_plugin_active') || !function_exists('is_plugin_active_for_network')) {
+            require_once ABSPATH . 'wp-admin/includes/plugin.php';
         }
 
-        $active_plugins = $wpdb->get_var(
-            $wpdb->prepare(
-                "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s LIMIT 1",
-                'active_plugins'
-            )
-        );
-        $active_plugins = maybe_unserialize($active_plugins);
+        if (function_exists('is_plugin_active_for_network') && is_plugin_active_for_network($plugin_file)) {
+            return true;
+        }
 
-        return is_array($active_plugins) && in_array($plugin_file, $active_plugins, true);
+        return function_exists('is_plugin_active') && is_plugin_active($plugin_file);
     }
 }
 

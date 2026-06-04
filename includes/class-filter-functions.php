@@ -928,6 +928,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             } elseif ($sale_filter['notonsale'] && !$sale_filter['onsale']) {
                 // Exclude WooCommerce's sale lookup IDs for the inverse filter.
                 if (!empty($sale_product_ids)) {
+                    // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_post__not_in -- Required for the explicit "not on sale" filter state.
                     $args['post__not_in'] = $this->merge_post_not_in_lists($args['post__not_in'] ?? array(), $sale_product_ids);
                 }
             }
@@ -1006,6 +1007,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (count($tax_query) > 1) {
                 $tax_query['relation'] = $params['tax_relation'] ?? 'AND';
             }
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- User-selected taxonomy filters require WP_Query tax constraints.
             $args['tax_query'] = $tax_query;
         }
 
@@ -1013,6 +1015,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             if (count($meta_query) > 1) {
                 $meta_query['relation'] = $params['meta_relation'] ?? 'AND';
             }
+            // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- User-selected meta filters require WP_Query meta constraints.
             $args['meta_query'] = $meta_query;
         }
 
@@ -1086,6 +1089,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $parent_value = "CAST({$parent_alias}.meta_value AS DECIMAL(20,6))";
             $variation_value = "CAST(COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) AS DECIMAL(20,6))";
 
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- SQL aliases and CAST expressions are built from allowlisted dimension keys; range values remain prepared.
             if (isset($range['min']) && $range['min'] !== null) {
                 $parent_conditions[] = $wpdb->prepare("{$parent_alias}.meta_value != '' AND {$parent_value} >= %f", (float) $range['min']);
                 $variation_conditions[] = $wpdb->prepare("COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) != '' AND {$variation_value} >= %f", (float) $range['min']);
@@ -1095,6 +1099,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 $parent_conditions[] = $wpdb->prepare("{$parent_alias}.meta_value != '' AND {$parent_value} <= %f", (float) $range['max']);
                 $variation_conditions[] = $wpdb->prepare("COALESCE(NULLIF({$variation_alias}.meta_value, ''), NULLIF({$fallback_alias}.meta_value, '')) != '' AND {$variation_value} <= %f", (float) $range['max']);
             }
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
         }
 
         if (empty($parent_conditions) && empty($variation_conditions)) {
@@ -1414,6 +1419,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
             $threshold = floatval($params['discount']);
             $postmeta = $wpdb->postmeta;
 
+            // phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names and the posts-table alias are internal WordPress SQL identifiers; discount thresholds are prepared.
             $discount_clause = $wpdb->prepare(
                 '(' .
                     'EXISTS (' .
@@ -1439,6 +1445,7 @@ class DAPFFORWC_WC_Query_Filter_Enhanced
                 $threshold,
                 $threshold
             );
+            // phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
             if (!empty($discount_clause)) {
                 $where_clauses[] = $discount_clause;
