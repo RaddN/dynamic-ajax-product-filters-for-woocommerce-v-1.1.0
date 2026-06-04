@@ -3241,38 +3241,55 @@ function dapfforwc_register_api_routes()
     register_rest_route('dynamic-ajax-product-filters-for-woocommerce/v1', '/attributes/', array(
         'methods' => 'GET',
         'callback' => 'dapfforwc_get_product_attributes',
-        'permission_callback' => '__return_true', // Adjust permissions as needed
+        // Public access is intentional for block/editor option discovery. The callback only exposes non-sensitive
+        // attribute labels/slugs publicly and keeps custom field keys behind an admin/WooCommerce capability check.
+        'permission_callback' => '__return_true',
     ));
 }
 add_action('rest_api_init', 'dapfforwc_register_api_routes');
 
 function dapfforwc_get_product_attributes()
 {
-    global $dapfforwc_advance_settings;
+    global $dapfforwc_advance_settings, $dapfforwc_options;
+
     // Fetch WooCommerce attribute taxonomies
     $all_data = dapfforwc_get_woocommerce_attributes_with_terms();
     $all_attributes = isset($all_data['attributes']) ? $all_data['attributes'] : [];
-    $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes']) ? explode(',', $dapfforwc_advance_settings['exclude_attributes']) : [];
-    $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields']) ? explode(',', $dapfforwc_advance_settings['exclude_custom_fields']) : [];
+    $exclude_attributes = isset($dapfforwc_advance_settings['exclude_attributes'])
+        ? array_filter(array_map('sanitize_key', explode(',', (string) $dapfforwc_advance_settings['exclude_attributes'])))
+        : [];
+    $exclude_custom_fields = isset($dapfforwc_advance_settings['exclude_custom_fields'])
+        ? array_filter(array_map('sanitize_key', explode(',', (string) $dapfforwc_advance_settings['exclude_custom_fields'])))
+        : [];
     $custom_fields = isset($all_data['custom_fields']) ? $all_data['custom_fields'] : [];
     $result = [];
 
     foreach ($all_attributes as $attribute) {
-        if (in_array($attribute['attribute_name'], $exclude_attributes)) {
+        $attribute_name = isset($attribute['attribute_name']) ? sanitize_key($attribute['attribute_name']) : '';
+        if ($attribute_name === '' || in_array($attribute_name, $exclude_attributes, true)) {
             continue;
         }
         $result[] = [
-            'name' => $attribute['attribute_label'],
-            'slug' => $attribute['attribute_name'],
+            'name' => isset($attribute['attribute_label']) ? sanitize_text_field($attribute['attribute_label']) : $attribute_name,
+            'slug' => $attribute_name,
         ];
     }
+
+    $can_view_custom_fields = dapfforwc_is_filter_option_enabled('show_custom_fields', $dapfforwc_options)
+        && (current_user_can('manage_woocommerce') || current_user_can('manage_options'));
+
+    if (!$can_view_custom_fields) {
+        return rest_ensure_response($result);
+    }
+
     foreach ($custom_fields as $attribute) {
-        if (in_array($attribute['name'], $exclude_custom_fields)) {
+        $field_name = isset($attribute['name']) ? sanitize_key($attribute['name']) : '';
+        if ($field_name === '' || strpos($field_name, '_') === 0 || in_array($field_name, $exclude_custom_fields, true)) {
             continue;
         }
         $result[] = [
-            'name' => $attribute['label'],
-            'slug' => $attribute['name'],
+            'name' => isset($attribute['label']) ? sanitize_text_field($attribute['label']) : ucwords(str_replace(['_', '-'], ' ', $field_name)),
+            'slug' => $field_name,
         ];
     }
 

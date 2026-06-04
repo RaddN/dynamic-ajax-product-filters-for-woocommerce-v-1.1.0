@@ -4198,43 +4198,6 @@ function dapfforwc_admin_styles()
 }
 add_action('admin_enqueue_scripts', 'dapfforwc_admin_styles', 20);
 
-
-// Add this to admin-page.php before the closing PHP tag
-function dapfforwc_activate_template()
-{
-    // Check nonce for security
-    if (!isset($_POST['nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['nonce'])), 'dapfforwc_template_nonce')) {
-        wp_send_json_error('Security check failed.');
-    }
-
-    // Check user capabilities
-    if (!current_user_can('manage_options')) {
-        wp_send_json_error('You do not have sufficient permissions to perform this action.');
-    }
-
-    // Get the template ID
-    $template_id = isset($_POST['template_id']) ? sanitize_text_field(wp_unslash($_POST['template_id'])) : '';
-
-    if (empty($template_id)) {
-        wp_send_json_error('No template ID provided.');
-    }
-
-    // Get existing template options
-    // phpcs:disable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound -- Existing plugin option cache global is used across the admin template flow.
-    global $template_options;
-
-    // Update the active template
-    $template_options['active_template'] = $template_id;
-
-    // Update the option
-    update_option('dapfforwc_template_options', $template_options);
-    // phpcs:enable WordPress.NamingConventions.PrefixAllGlobals.NonPrefixedVariableFound
-
-    // Send success response
-    wp_send_json_success(esc_html__('Template activated successfully.', 'dynamic-ajax-product-filters-for-woocommerce'));
-}
-add_action('wp_ajax_dapfforwc_activate_template', 'dapfforwc_activate_template');
-
 // --- Admin FAQ renderer ---
 function dapfforwc_render_admin_faq()
 {
