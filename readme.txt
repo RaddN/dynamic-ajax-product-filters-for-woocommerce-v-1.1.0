@@ -4,7 +4,7 @@ Contributors: plugincy
 Tags: product filters, ajax product filters, woocommerce filters, woocommerce filter, ajax filter
 Requires at least: 5.9
 Tested up to: 7.0
-Stable tag: 1.6.1.5
+Stable tag: 1.6.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -131,7 +131,7 @@ If a site administrator enters a Pro license key, the plugin contacts Plugincy a
 
 == Changelog ==
 
-= 1.6.1.5 =
+= 1.6.2 =
 * Fix loading effect issue
 * Make more secure
 * Fix vulnerability

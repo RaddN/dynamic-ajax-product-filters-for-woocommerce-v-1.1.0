@@ -387,7 +387,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $category_order = $dapfforwc_styleoptions["product-category"]["order_direction"] ?? "asc";
 
     // Sort categories if needed
-    if ($category_order_by !== "default" || $category_order_by !== "menu_order") {
+    if ($category_order_by !== "default") {
         $updated_filters["categories"] = dapfforwc_sort_terms($updated_filters["categories"], $category_order_by, $category_order);
     }
 
@@ -645,7 +645,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
             $attr_order = $dapfforwc_styleoptions[$attribute_name]["order_direction"] ?? "asc";
 
             // Sort terms
-            if ($attr_order_by !== "default" || $attr_order_by !== "menu_order") {
+            if ($attr_order_by !== "default") {
                 $terms = dapfforwc_sort_terms($terms, $attr_order_by, $attr_order);
             }
 
@@ -744,7 +744,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
         $tags_order = $dapfforwc_styleoptions["tag"]["order_direction"] ?? "asc";
 
         // Sort tags if order_by is not default
-        if ($tags_order_by !== "default" || $tags_order_by !== "menu_order") {
+        if ($tags_order_by !== "default") {
             $tags = dapfforwc_sort_terms($tags, $tags_order_by, $tags_order);
         }
 
@@ -785,7 +785,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
     $brands_order_by = $dapfforwc_styleoptions["brands"]["order_by"] ?? "default";
     $brands_order = $dapfforwc_styleoptions["brands"]["order_direction"] ?? "asc";
     // Sort brands if order_by is not default
-    if ($brands_order_by !== "default" || $brands_order_by !== "menu_order") {
+    if ($brands_order_by !== "default") {
         $brands = dapfforwc_sort_terms($brands, $brands_order_by, $brands_order);
     }
     $brands_search_settings = $get_terms_search_settings('brands');
@@ -1320,7 +1320,7 @@ function dapfforwc_filter_form($updated_filters, $default_filter, $use_anchor, $
  * Reusable function to sort terms by various criteria
  * 
  * @param array $terms Array of term objects or arrays to sort
- * @param string $order_by Sort criteria: 'alpha', 'numeric', 'month_year', 'count', 'slug', 'default'
+ * @param string $order_by Sort criteria: 'alpha', 'numeric', 'month_year', 'menu_order', 'count', 'slug', 'default'
  * @param string $order Sort direction: 'asc' or 'desc'
  * @return array Sorted terms array
  */
@@ -1331,7 +1331,27 @@ function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
         return $terms;
     }
 
-    usort($terms, function ($a, $b) use ($order_by, $order) {
+    $menu_orders = [];
+    if ($order_by === 'menu_order') {
+        $term_ids = [];
+        foreach ($terms as $term) {
+            $term_id = is_object($term) ? ($term->term_id ?? 0) : ($term['term_id'] ?? 0);
+            if ($term_id) {
+                $term_ids[] = (int) $term_id;
+            }
+        }
+
+        if (!empty($term_ids)) {
+            $term_ids = array_values(array_unique($term_ids));
+            update_meta_cache('term', $term_ids);
+            foreach ($term_ids as $term_id) {
+                $menu_order = get_term_meta($term_id, 'order', true);
+                $menu_orders[$term_id] = is_numeric($menu_order) ? (int) $menu_order : 0;
+            }
+        }
+    }
+
+    usort($terms, function ($a, $b) use ($order_by, $order, $menu_orders) {
         // Handle both object and array formats
         $nameA = is_object($a) ? ($a->name ?? '') : ($a['name'] ?? '');
         $nameB = is_object($b) ? ($b->name ?? '') : ($b['name'] ?? '');
@@ -1339,9 +1359,6 @@ function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
         $slugB = is_object($b) ? ($b->slug ?? '') : ($b['slug'] ?? '');
         $countA = is_object($a) ? ($a->count ?? 0) : ($a['count'] ?? 0);
         $countB = is_object($b) ? ($b->count ?? 0) : ($b['count'] ?? 0);
-
-
-
         $valueA = null;
         $valueB = null;
 
@@ -1375,6 +1392,13 @@ function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
                 $valueB = (int)$countB;
                 break;
 
+            case 'menu_order':
+                $termIdA = is_object($a) ? ($a->term_id ?? 0) : ($a['term_id'] ?? 0);
+                $termIdB = is_object($b) ? ($b->term_id ?? 0) : ($b['term_id'] ?? 0);
+                $valueA = $menu_orders[(int) $termIdA] ?? 0;
+                $valueB = $menu_orders[(int) $termIdB] ?? 0;
+                break;
+
             case 'slug':
                 // Sort by slug
                 $valueA = strtolower($slugA);
@@ -1387,6 +1411,9 @@ function dapfforwc_sort_terms($terms, $order_by = 'default', $order = 'asc')
 
         // Handle equal values
         if ($valueA == $valueB) {
+            if ($order_by === 'menu_order') {
+                return strcasecmp((string) $nameA, (string) $nameB);
+            }
             return 0;
         }
 

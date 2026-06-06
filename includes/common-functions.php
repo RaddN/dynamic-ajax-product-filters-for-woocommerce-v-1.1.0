@@ -4,24 +4,28 @@ if (!defined('ABSPATH')) {
 }
 
 function dapfforwc_get_min_max_price($products, $products_id = []) {
-    $loop = $products_id;
+    $target_product_ids = array_fill_keys(array_map('intval', (array) $products_id), true);
     $min_price = null;
     $max_price = null;
 
-    foreach ($loop as $product_id) {
-        foreach ($products as $product) {
-            if ($product['ID'] == $product_id) {
-                $price = (float) $product['price'];
+    foreach ((array) $products as $product) {
+        if (!is_array($product) || empty($product['ID']) || !isset($target_product_ids[(int) $product['ID']])) {
+            continue;
+        }
 
-                if (is_null($min_price) || $price < $min_price) {
-                    $min_price = $price;
-                }
+        $price = $product['price'] ?? '';
+        if ($price === '' || !is_numeric($price)) {
+            continue;
+        }
 
-                if (is_null($max_price) || $price > $max_price) {
-                    $max_price = $price;
-                }
-                break;
-            }
+        $price = (float) $price;
+
+        if (is_null($min_price) || $price < $min_price) {
+            $min_price = $price;
+        }
+
+        if (is_null($max_price) || $price > $max_price) {
+            $max_price = $price;
         }
     }
 

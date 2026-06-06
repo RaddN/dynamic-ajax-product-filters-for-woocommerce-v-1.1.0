@@ -2350,6 +2350,13 @@ function dapfforwc_product_filter_shortcode($atts)
         ? dapfforwc_get_database_mode_min_max_price()
         : dapfforwc_get_min_max_price($product_details, $price_bounds_product_ids);
 
+    if (
+        !$database_safe_mode
+        && ($min_max_prices['min'] === null || $min_max_prices['max'] === null)
+    ) {
+        $min_max_prices = dapfforwc_get_min_max_price($product_details, $all_product_ids);
+    }
+
     if ($has_active_price_filter && isset($filteroptionsfromurl["default_min"]) && isset($filteroptionsfromurl["default_max"]) && $filteroptionsfromurl["default_min"] <= $min_max_prices["min"] && $filteroptionsfromurl["default_max"] >= $min_max_prices["max"]) {
         $min_max_prices = [
             "min" => $filteroptionsfromurl["default_min"],

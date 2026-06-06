@@ -1126,19 +1126,6 @@ if (!defined('ABSPATH')) {
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <div data-attr-only="search">
-                                                    <div class="row" style="padding-top: 16px;">
-                                                        <div class="col-6">
-                                                            <div class="setting-item">
-                                                                <p><strong><?php esc_html_e('Placeholder:', 'dynamic-ajax-product-filters-for-woocommerce'); ?></strong></p>
-                                                                <label>
-                                                                    <?php $placeholder = isset($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) ? esc_attr($dapfforwc_form_styles["placeholder"][$dapfforwc_attribute_name]) : ''; ?>
-                                                                    <input type="text" name="dapfforwc_style_options[placeholder][<?php echo esc_attr($dapfforwc_attribute_name); ?>]" value="<?php echo esc_attr($placeholder); ?>">
-                                                                </label>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
                                                 <div data-attr-only="search reset_btn">
                                                     <div class="row btn_text" style="padding-top: 16px;">
                                                         <div class="col-6">
